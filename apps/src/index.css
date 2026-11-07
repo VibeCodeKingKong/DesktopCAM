@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Designtokens. Neutrala grå ytor (Apple), en blå accent för interaktion,
+   bärnsten för laser och björk för material – samma färger i UI och 3D-vy. */
+:root {
+  --c-app: 242 242 245;
+  --c-surface: 251 251 253;
+  --c-raised: 255 255 255;
+  --c-line: 220 221 227;
+  --c-ink: 29 29 31;
+  --c-muted: 108 108 116;
+  --c-accent: 0 113 227;
+  --c-laser: 232 120 20;
+  --c-wood: 214 178 128;
+  --c-ok: 40 167 69;
+  --c-warn: 214 120 0;
+  color-scheme: light;
+}
+
+.dark {
+  --c-app: 24 24 27;
+  --c-surface: 32 32 36;
+  --c-raised: 44 44 49;
+  --c-line: 60 60 67;
+  --c-ink: 240 240 244;
+  --c-muted: 150 150 160;
+  --c-accent: 10 132 255;
+  --c-laser: 255 159 10;
+  --c-wood: 196 160 112;
+  --c-ok: 48 209 88;
+  --c-warn: 255 159 10;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-app font-sans text-sm text-ink antialiased;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .field {
+    @apply h-7 w-full rounded-md border border-line bg-raised px-2 text-xs text-ink tabular-nums outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/25 disabled:opacity-50;
+  }
+  .btn {
+    @apply inline-flex h-7 select-none items-center justify-center gap-1.5 rounded-md border border-line bg-raised px-3 text-xs font-medium text-ink transition-colors hover:bg-app focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:translate-y-px disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-primary {
+    @apply border-transparent bg-accent text-white hover:bg-accent/90;
+  }
+  .panel-heading {
+    @apply flex h-9 shrink-0 items-center justify-between border-b border-line px-3 text-sm font-semibold;
+  }
+  .kbd {
+    @apply rounded border border-line bg-app px-1.5 py-px text-2xs font-medium text-muted;
+  }
+}
+
+/* Animerad verktygsbana i SmartTooltip-illustrationerna */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.anim-dash {
+  stroke-dasharray: 5 5;
+  animation: dash 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-dash {
+    animation: none;
+  }
+}
+
+/* Dölj spinnknappar på nummerfält – vi har egna enheter bredvid */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
