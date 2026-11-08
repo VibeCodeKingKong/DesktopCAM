@@ -112,6 +112,11 @@ Hållaren består av lösa linjer och bågar som sammanfogas till en sluten kont
 | Output folder   | `apps/web/dist`                         |
 | Node version    | `NODE_VERSION=20`                       |
 
+Har projektet skapats som en **Worker** i stället för Pages (byggloggen kör då
+`npx wrangler deploy`) används `wrangler.jsonc` i roten. Se till att `name` där är
+samma som Workerns namn i Cloudflare, och att `pnpm-lock.yaml` är incheckad så att
+Cloudflare installerar med pnpm.
+
 Cloudflares byggmiljö har inte Rust förinstallerat. Enklast är att bygga Wasm
 lokalt och checka in `apps/web/public/wasm/` (ta bort raden i `.gitignore`), eller
 bygga i GitHub Actions och publicera med `wrangler pages deploy`.

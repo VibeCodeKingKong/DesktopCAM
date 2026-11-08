@@ -1,0 +1,66 @@
+[
+  {
+    "id": "em-3175-2f",
+    "name": "Pinnfräs 3,175 mm, 2 skär",
+    "kind": "endmill",
+    "diameter": 3.175,
+    "flutes": 2,
+    "fluteLength": 17,
+    "units": "mm",
+    "defaults": { "feedRate": 900, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1.5, "stepOver": 0.4 }
+  },
+  {
+    "id": "em-6-2f",
+    "name": "Pinnfräs 6 mm, 2 skär",
+    "kind": "endmill",
+    "diameter": 6,
+    "flutes": 2,
+    "fluteLength": 22,
+    "units": "mm",
+    "defaults": { "feedRate": 1200, "plungeRate": 300, "spindleRpm": 16000, "stepDown": 3, "stepOver": 0.45 }
+  },
+  {
+    "id": "bn-3175",
+    "name": "Kulfräs 3,175 mm",
+    "kind": "ballnose",
+    "diameter": 3.175,
+    "flutes": 2,
+    "units": "mm",
+    "defaults": { "feedRate": 800, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1, "stepOver": 0.15 }
+  },
+  {
+    "id": "vbit-60",
+    "name": "V-fräs 60°, 12,7 mm",
+    "kind": "vbit",
+    "diameter": 12.7,
+    "angle": 60,
+    "units": "mm",
+    "defaults": { "feedRate": 700, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 }
+  },
+  {
+    "id": "vbit-90",
+    "name": "V-fräs 90°, 12,7 mm",
+    "kind": "vbit",
+    "diameter": 12.7,
+    "angle": 90,
+    "units": "mm",
+    "defaults": { "feedRate": 800, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 }
+  },
+  {
+    "id": "drill-3",
+    "name": "Borr 3 mm",
+    "kind": "drill",
+    "diameter": 3,
+    "units": "mm",
+    "defaults": { "feedRate": 300, "plungeRate": 150, "spindleRpm": 12000, "stepDown": 2, "stepOver": 1 }
+  },
+  {
+    "id": "laser-diode",
+    "name": "Diodlaser (fokuserad punkt)",
+    "kind": "laser",
+    "diameter": 0.1,
+    "units": "mm",
+    "defaults": { "feedRate": 600, "plungeRate": 0, "stepDown": 0, "stepOver": 1, "laserPowerPct": 100, "passes": 2 },
+    "notes": "Kerf ≈ 0,1–0,2 mm beroende på fokus och material."
+  }
+]

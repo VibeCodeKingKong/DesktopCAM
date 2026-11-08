@@ -1,0 +1,52 @@
+[
+  {
+    "id": "pine",
+    "name": "Furu",
+    "category": "wood",
+    "color": "#d9b27c",
+    "defaultThickness": 18,
+    "router": { "feedRate": 1200, "plungeRate": 300, "spindleRpm": 18000, "stepDownFactor": 0.5 },
+    "laser": { "cutSpeed": 240, "cutPowerPct": 100, "cutPasses": 3, "engraveSpeed": 3000, "engravePowerPct": 35 },
+    "tips": ["Kåda kan sätta igen fräsen – blås rent mellan passen.", "Årsringarna bränns olika mörkt vid lasergravyr."]
+  },
+  {
+    "id": "birch-ply",
+    "name": "Björkplywood",
+    "category": "wood",
+    "color": "#e6caa0",
+    "defaultThickness": 6,
+    "router": { "feedRate": 1000, "plungeRate": 250, "spindleRpm": 18000, "stepDownFactor": 0.5 },
+    "laser": { "cutSpeed": 300, "cutPowerPct": 100, "cutPasses": 2, "engraveSpeed": 4000, "engravePowerPct": 30 },
+    "tips": ["Använd nedskärande fräs för rena ytskikt.", "Limskikten kräver ofta ett extra laserpass."]
+  },
+  {
+    "id": "mdf",
+    "name": "MDF",
+    "category": "composite",
+    "color": "#b98f5f",
+    "defaultThickness": 12,
+    "router": { "feedRate": 1400, "plungeRate": 350, "spindleRpm": 18000, "stepDownFactor": 0.6 },
+    "laser": { "cutSpeed": 200, "cutPowerPct": 100, "cutPasses": 3, "engraveSpeed": 3500, "engravePowerPct": 30 },
+    "tips": ["Mycket fint damm – använd dammsugare och andningsskydd.", "Kanterna blir mörka efter laserskärning."]
+  },
+  {
+    "id": "acrylic",
+    "name": "Akryl (gjuten)",
+    "category": "plastic",
+    "color": "#9fd3e6",
+    "defaultThickness": 3,
+    "router": { "feedRate": 900, "plungeRate": 200, "spindleRpm": 16000, "stepDownFactor": 0.3 },
+    "laser": { "cutSpeed": 150, "cutPowerPct": 100, "cutPasses": 4, "engraveSpeed": 3000, "engravePowerPct": 40 },
+    "tips": ["En blå diodlaser skär inte genom klar eller blå akryl – välj mörk eller ogenomskinlig.", "Enskärsfräs ger renast snitt utan att plasten smälter."]
+  },
+  {
+    "id": "leather",
+    "name": "Läder (vegetabiliskt garvat)",
+    "category": "leather",
+    "color": "#9b6a43",
+    "defaultThickness": 2,
+    "router": null,
+    "laser": { "cutSpeed": 600, "cutPowerPct": 80, "cutPasses": 2, "engraveSpeed": 4000, "engravePowerPct": 20 },
+    "tips": ["Använd bara kromfritt (vegetabiliskt garvat) läder i laser.", "Fukta ytan lätt för jämnare gravyr."]
+  }
+]
