@@ -12,7 +12,7 @@ importers:
     dependencies:
       '@desktopcam/core':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../packages
       lucide-react:
         specifier: 0.441.0
         version: 0.441.0(react@18.3.1)
