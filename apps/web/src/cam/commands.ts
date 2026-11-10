@@ -3,6 +3,8 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import {
+  defaultStrategy,
+  defaultTabs,
   detectFormat,
   getReliefDefinition,
 
@@ -16,6 +18,7 @@ import {
   translate,
   uid,
   type Mat2D,
+  type MachineProfile,
   type OperationType,
   type ToolpathConfig,
   type VectorShape,
@@ -25,6 +28,8 @@ import { allShapes, getMachine, getMaterialPreset, useAppStore } from '../store/
 import { downloadText, pickFile, slug } from '../utils/download';
 import { computeToolpath } from './toolpathService';
 import { activeEditor } from '../editing/EditController';
+import machinesJson from '../data/machines.json';
+import { materialName } from '../i18n';
 
 export const isLaserOperation = (op: OperationType) => op === 'laserCut' || op === 'laserRaster';
 export const isImplemented = (_op: OperationType) => true;
@@ -237,7 +242,9 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         toolId: tool.id,
         side: sel.every((x) => x.paths.every((p) => !p.closed)) ? 'on' : 'outside',
         cutDepth: s.material.thickness,
-        tabs: { enabled: false, count: 4, width: 6, height: 2 },
+        // Genomskärning: flikar på från början så att detaljen inte lossnar.
+        tabs: defaultTabs(true, s.material.thickness),
+        strategy: defaultStrategy('balanced'),
         params: routerParams(tool),
       };
       break;
@@ -294,8 +301,10 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         toolId: tool.id,
         side: sel.every((x) => x.paths.every((p) => !p.closed)) ? 'on' : 'outside',
         kerf: 0.15,
-        passes: preset.laser.cutPasses,
-        params: { ...tool.defaults, feedRate: preset.laser.cutSpeed, laserPowerPct: preset.laser.cutPowerPct },
+        // Material som inte kan skäras (metall, sten) får graveringsvärden i stället.
+        ...(preset.laser.canCut === false
+          ? { passes: 1, params: { ...tool.defaults, feedRate: preset.laser.engraveSpeed, laserPowerPct: preset.laser.engravePowerPct } }
+          : { passes: preset.laser.cutPasses, params: { ...tool.defaults, feedRate: preset.laser.cutSpeed, laserPowerPct: preset.laser.cutPowerPct } }),
       };
       break;
     }
@@ -323,6 +332,9 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   s.addToolpath(tp);
   s.setMobilePanel(window.matchMedia('(min-width: 1024px)').matches ? null : 'props');
   void computeToolpath(id);
+  const matName = materialName(t, preset.id, preset.name);
+  if (operation === 'laserCut' && preset.laser.canCut === false && tp.operation === 'laserCut' && tp.side !== 'on') status(t.status.cannotCut(matName));
+  else if (machine.kind === 'router' && !preset.router) status(t.status.notForRouter(matName));
   return id;
 }
 
@@ -445,17 +457,17 @@ export function addRelief(reliefId: string, size: { width: number; height: numbe
 /* ───────── Projektfiler ───────── */
 
 const AUTOSAVE_KEY = 'desktopcam.autosave.v1';
+const BUILT_IN = new Map((machinesJson as MachineProfile[]).map((m) => [m.id, m]));
 
 function projectJson() {
   const s = useAppStore.getState();
-  const builtIn = new Set(['mpcnc-primo', 'genmitsu-3018', 'creality-falcon2-22w']);
   return {
     app: 'desktopCAM',
     version: 1,
     savedAt: new Date().toISOString(),
     projectName: s.projectName,
     machineId: s.machineId,
-    customMachines: s.machines.filter((m) => !builtIn.has(m.id)),
+    customMachines: s.machines.filter((m) => m.custom || JSON.stringify(m) !== JSON.stringify(BUILT_IN.get(m.id))),
     material: s.material,
     tools: s.tools,
     layers: s.layers,

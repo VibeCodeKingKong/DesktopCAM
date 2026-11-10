@@ -5,9 +5,23 @@
     "category": "wood",
     "color": "#d9b27c",
     "defaultThickness": 18,
-    "router": { "feedRate": 1200, "plungeRate": 300, "spindleRpm": 18000, "stepDownFactor": 0.5 },
-    "laser": { "cutSpeed": 240, "cutPowerPct": 100, "cutPasses": 3, "engraveSpeed": 3000, "engravePowerPct": 35 },
-    "tips": ["Kåda kan sätta igen fräsen – blås rent mellan passen.", "Årsringarna bränns olika mörkt vid lasergravyr."]
+    "router": {
+      "feedRate": 1200,
+      "plungeRate": 300,
+      "spindleRpm": 18000,
+      "stepDownFactor": 0.5
+    },
+    "laser": {
+      "cutSpeed": 240,
+      "cutPowerPct": 100,
+      "cutPasses": 3,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 35
+    },
+    "tips": [
+      "Kåda kan sätta igen fräsen – blås rent mellan passen.",
+      "Årsringarna bränns olika mörkt vid lasergravyr."
+    ]
   },
   {
     "id": "birch-ply",
@@ -15,9 +29,23 @@
     "category": "wood",
     "color": "#e6caa0",
     "defaultThickness": 6,
-    "router": { "feedRate": 1000, "plungeRate": 250, "spindleRpm": 18000, "stepDownFactor": 0.5 },
-    "laser": { "cutSpeed": 300, "cutPowerPct": 100, "cutPasses": 2, "engraveSpeed": 4000, "engravePowerPct": 30 },
-    "tips": ["Använd nedskärande fräs för rena ytskikt.", "Limskikten kräver ofta ett extra laserpass."]
+    "router": {
+      "feedRate": 1000,
+      "plungeRate": 250,
+      "spindleRpm": 18000,
+      "stepDownFactor": 0.5
+    },
+    "laser": {
+      "cutSpeed": 300,
+      "cutPowerPct": 100,
+      "cutPasses": 2,
+      "engraveSpeed": 4000,
+      "engravePowerPct": 30
+    },
+    "tips": [
+      "Använd nedskärande fräs för rena ytskikt.",
+      "Limskikten kräver ofta ett extra laserpass."
+    ]
   },
   {
     "id": "mdf",
@@ -25,9 +53,23 @@
     "category": "composite",
     "color": "#b98f5f",
     "defaultThickness": 12,
-    "router": { "feedRate": 1400, "plungeRate": 350, "spindleRpm": 18000, "stepDownFactor": 0.6 },
-    "laser": { "cutSpeed": 200, "cutPowerPct": 100, "cutPasses": 3, "engraveSpeed": 3500, "engravePowerPct": 30 },
-    "tips": ["Mycket fint damm – använd dammsugare och andningsskydd.", "Kanterna blir mörka efter laserskärning."]
+    "router": {
+      "feedRate": 1400,
+      "plungeRate": 350,
+      "spindleRpm": 18000,
+      "stepDownFactor": 0.6
+    },
+    "laser": {
+      "cutSpeed": 200,
+      "cutPowerPct": 100,
+      "cutPasses": 3,
+      "engraveSpeed": 3500,
+      "engravePowerPct": 30
+    },
+    "tips": [
+      "Mycket fint damm – använd dammsugare och andningsskydd.",
+      "Kanterna blir mörka efter laserskärning."
+    ]
   },
   {
     "id": "acrylic",
@@ -35,9 +77,23 @@
     "category": "plastic",
     "color": "#9fd3e6",
     "defaultThickness": 3,
-    "router": { "feedRate": 900, "plungeRate": 200, "spindleRpm": 16000, "stepDownFactor": 0.3 },
-    "laser": { "cutSpeed": 150, "cutPowerPct": 100, "cutPasses": 4, "engraveSpeed": 3000, "engravePowerPct": 40 },
-    "tips": ["En blå diodlaser skär inte genom klar eller blå akryl – välj mörk eller ogenomskinlig.", "Enskärsfräs ger renast snitt utan att plasten smälter."]
+    "router": {
+      "feedRate": 900,
+      "plungeRate": 200,
+      "spindleRpm": 16000,
+      "stepDownFactor": 0.3
+    },
+    "laser": {
+      "cutSpeed": 150,
+      "cutPowerPct": 100,
+      "cutPasses": 4,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 40
+    },
+    "tips": [
+      "En blå diodlaser skär inte genom klar eller blå akryl – välj mörk eller ogenomskinlig.",
+      "Enskärsfräs ger renast snitt utan att plasten smälter."
+    ]
   },
   {
     "id": "leather",
@@ -46,7 +102,109 @@
     "color": "#9b6a43",
     "defaultThickness": 2,
     "router": null,
-    "laser": { "cutSpeed": 600, "cutPowerPct": 80, "cutPasses": 2, "engraveSpeed": 4000, "engravePowerPct": 20 },
-    "tips": ["Använd bara kromfritt (vegetabiliskt garvat) läder i laser.", "Fukta ytan lätt för jämnare gravyr."]
+    "laser": {
+      "cutSpeed": 600,
+      "cutPowerPct": 80,
+      "cutPasses": 2,
+      "engraveSpeed": 4000,
+      "engravePowerPct": 20
+    },
+    "tips": [
+      "Använd bara kromfritt (vegetabiliskt garvat) läder i laser.",
+      "Fukta ytan lätt för jämnare gravyr."
+    ]
+  },
+  {
+    "id": "oak",
+    "name": "Ek",
+    "category": "wood",
+    "color": "#c8a06a",
+    "defaultThickness": 20,
+    "router": {
+      "feedRate": 1000,
+      "plungeRate": 250,
+      "spindleRpm": 18000,
+      "stepDownFactor": 0.4
+    },
+    "laser": {
+      "cutSpeed": 200,
+      "cutPowerPct": 100,
+      "cutPasses": 4,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 40
+    },
+    "tips": []
+  },
+  {
+    "id": "aluminium",
+    "name": "Aluminium",
+    "category": "metal",
+    "color": "#c3c7cc",
+    "defaultThickness": 3,
+    "router": {
+      "feedRate": 500,
+      "plungeRate": 100,
+      "spindleRpm": 20000,
+      "stepDownFactor": 0.1
+    },
+    "laser": {
+      "canCut": false,
+      "cutSpeed": 0,
+      "cutPowerPct": 0,
+      "cutPasses": 0,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 60
+    },
+    "tips": []
+  },
+  {
+    "id": "stainless",
+    "name": "Rostfritt stål",
+    "category": "metal",
+    "color": "#9ea3a8",
+    "defaultThickness": 1,
+    "router": null,
+    "laser": {
+      "canCut": false,
+      "cutSpeed": 0,
+      "cutPowerPct": 0,
+      "cutPasses": 0,
+      "engraveSpeed": 1000,
+      "engravePowerPct": 100
+    },
+    "tips": []
+  },
+  {
+    "id": "slate",
+    "name": "Skiffer",
+    "category": "stone",
+    "color": "#4a4f55",
+    "defaultThickness": 6,
+    "router": null,
+    "laser": {
+      "canCut": false,
+      "cutSpeed": 0,
+      "cutPowerPct": 0,
+      "cutPasses": 0,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 50
+    },
+    "tips": []
+  },
+  {
+    "id": "cardboard",
+    "name": "Kartong",
+    "category": "paper",
+    "color": "#c9a77c",
+    "defaultThickness": 3,
+    "router": null,
+    "laser": {
+      "cutSpeed": 1200,
+      "cutPowerPct": 60,
+      "cutPasses": 1,
+      "engraveSpeed": 6000,
+      "engravePowerPct": 15
+    },
+    "tips": []
   }
 ]

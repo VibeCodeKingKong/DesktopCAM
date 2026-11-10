@@ -44,6 +44,7 @@ desktopcam/
 │     ├─ reliefToolpath.ts   Drop cutter-bana för reliefer (facit för Rust)
 │     ├─ sdf.ts              Avståndsfält: robust offset för profil och ficka
 │     ├─ camOps.ts           Ficka och borrning
+│     ├─ profileStrategy.ts  Profil med grov/fin, riktning, ramp, flikar, lökskal
 │     ├─ vcarve.ts           V-gravyr och V-inlägg
 │     ├─ strokeFont.ts       Enkellinjigt gravyrtypsnitt
 │     └─ gcode.ts            G-kodsparser → förhandsvisning och statistik
@@ -98,6 +99,9 @@ det som exporteras.
 **CAM**
 - Profil (utsida, insida, på linjen) med robust offset via avståndsfält – klarar
   konkava former, hål och överlapp
+- Profilstrategier med förinställningarna Snabb, Balanserad och Fin yta:
+  grovpass med hud + finpass, med- eller motfräsning per pass, ramp eller rak
+  nedgång, flikar (antal, bredd, höjd, placering) och lökskal
 - Ficka med konturparallella ringar som går runt öar
 - Borrning med hackborrning i mitten av slutna former
 - V-gravyr med plan botten i breda partier, byggd på avståndsfältet (ingen
@@ -112,10 +116,15 @@ det som exporteras.
 - Spara och öppna projekt (`.dcam`), automatisk sparning i webbläsaren
 - Svenska och engelska (språkväljaren i titelraden)
 - Redigerbart verktygsbibliotek
+- 15 förinställda maskiner (MPCNC, LowRider 3, Genmitsu 3018/4040, Shapeoko 4 XXL,
+  LongMill MK2, Onefinity, CR-Laser Falcon 10 W, Falcon2 22/40 W, xTool D1 Pro, Sculpfun S30 Pro Max,
+  Ortur LM3 och generiska GRBL-profiler) och egna profiler som sparas med projektet
+- 10 material, bland annat ek, aluminium, rostfritt stål, skiffer och kartong, med
+  varningar när en diodlaser inte kan skära eller ett material inte passar en fräs
 - Mobilanpassat: projektträd och egenskaper öppnas som paneler på telefon,
   ritfält med Klar/Stäng/Ångra punkt, nyp för att zooma
 
-**Inte klart ännu:** flikar i profilbanor och ett separat urfräsningsverktyg för
+**Inte klart ännu:** ett separat urfräsningsverktyg för
 stora plana ytor i V-gravyr och inlägg (i dag fräser V-fräsen även dem).
 
 ### Så fungerar V-inlägg
@@ -157,7 +166,7 @@ bygga i GitHub Actions och publicera med `wrangler pages deploy`.
 
 ## Nästa steg
 
-1. Flikar i profilbanor och urfräsningsverktyg för V-gravyr och inlägg
+1. Ficka: urfräsning + finverktyg, kantpass och raster; urfräsningsverktyg för V-gravyr och inlägg
 2. Flytta avståndsfältet till Rust för snabbare fickor i Wasm
 3. Egna reliefer: importera höjdkartor (gråskalebild) och STL
 4. Konturtypsnitt (OpenType) för text som ska skäras ut

@@ -47,6 +47,8 @@ export interface MachineProfile {
   spindle?: { minRpm: number; maxRpm: number; controllable: boolean };
   laser?: { opticalPowerW: number; sMax: number };
   postprocessor: PostprocessorConfig;
+  /** Användarens egen profil (sparas med projektet). */
+  custom?: boolean;
 }
 
 /* ───────────────────────── Verktyg ───────────────────────── */
@@ -83,7 +85,7 @@ export interface ToolDefinition {
 
 /* ───────────────────────── Material ───────────────────────── */
 
-export type MaterialCategory = 'wood' | 'plastic' | 'leather' | 'composite';
+export type MaterialCategory = 'wood' | 'plastic' | 'leather' | 'composite' | 'metal' | 'stone' | 'paper';
 
 export interface MaterialPreset {
   id: string;
@@ -94,6 +96,8 @@ export interface MaterialPreset {
   defaultThickness: number;
   router: { feedRate: number; plungeRate: number; spindleRpm: number; stepDownFactor: number } | null;
   laser: {
+    /** false = en diodlaser kan bara gravera/märka materialet, inte skära igenom. */
+    canCut?: boolean;
     cutSpeed: number;
     cutPowerPct: number;
     cutPasses: number;
@@ -194,11 +198,45 @@ interface ToolpathBase {
   params: CuttingParams;
 }
 
+export type CutDirection = 'conventional' | 'climb';
+export type StrategyPreset = 'fast' | 'balanced' | 'fine' | 'custom';
+
+export interface TabSettings {
+  enabled: boolean;
+  count: number;
+  /** Flikens bredd mätt på detaljen (mm). */
+  width: number;
+  /** Flikens höjd från botten (mm). */
+  height: number;
+  /** Var den första fliken sitter, som andel av konturens längd (0–1). */
+  offset: number;
+}
+
+/** Hur en profil fräses: grov/fin, riktning, nedgång och fasthållning. */
+export interface ProfileStrategy {
+  preset: StrategyPreset;
+  /** Riktning för grovpassen (med medurs spindel, M3). */
+  direction: CutDirection;
+  finishPass: boolean;
+  /** Hud som grovpassen lämnar mot kanten (mm). */
+  allowance: number;
+  finishDirection: CutDirection;
+  /** Matning i finpasset som andel av vanlig matning. */
+  finishFeedFactor: number;
+  entry: 'plunge' | 'ramp';
+  /** Rampvinkel i grader. */
+  rampAngle: number;
+  /** Tunt lager som lämnas kvar i botten (mm), 0 = av. */
+  onionSkin: number;
+}
+
 export interface ProfileToolpath extends ToolpathBase {
   operation: 'profile';
   side: CutSide;
   cutDepth: number;
-  tabs: { enabled: boolean; count: number; width: number; height: number };
+  tabs: TabSettings;
+  /** Saknas i äldre projekt – då används förinställningen "balanced". */
+  strategy?: ProfileStrategy;
 }
 
 export interface PocketToolpath extends ToolpathBase {

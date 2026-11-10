@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { CheckCircle2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { uid, type FirmwareFlavor, type MachineProfile, type ToolDefinition, type ToolKind } from '@desktopcam/core';
 import { useAppStore } from '../../store/useAppStore';
 import { toolName, useT } from '../../i18n';
@@ -18,16 +18,54 @@ export function MachineSetupDialog() {
   const machines = useAppStore((s) => s.machines);
   const machineId = useAppStore((s) => s.machineId);
   const saveMachine = useAppStore((s) => s.saveMachine);
+  const removeMachine = useAppStore((s) => s.removeMachine);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const [justCreated, setJustCreated] = useState(false);
 
   const [step, setStep] = useState<Step>('preset');
   const [draft, setDraft] = useState<MachineProfile>(() => machines.find((m) => m.id === machineId) ?? machines[0]);
 
+  // Läs in vald maskin när dialogen öppnas (inte vid varje ändring, så att steget behålls).
   useEffect(() => {
     if (open) {
-      setDraft(structuredClone(machines.find((m) => m.id === machineId) ?? machines[0]));
+      const s = useAppStore.getState();
+      setDraft(structuredClone(s.machines.find((m) => m.id === s.machineId) ?? s.machines[0]));
       setStep('preset');
+      setJustCreated(false);
     }
-  }, [open, machineId, machines]);
+  }, [open]);
+
+  /** Ny profil: kopia av vald maskin som sparas direkt, väljs och kan döpas om. */
+  const createProfile = () => {
+    const copy: MachineProfile = { ...structuredClone(draft), id: uid('machine'), name: t.machine.custom(draft.name), custom: true };
+    saveMachine(copy);
+    setDraft(copy);
+    setStep('preset');
+    setJustCreated(true);
+    useAppStore.getState().setStatus(t.status.profileCreated(copy.name));
+    setTimeout(() => {
+      nameRef.current?.focus();
+      nameRef.current?.select();
+    }, 50);
+  };
+  const deleteProfile = () => {
+    const name = draft.name;
+    removeMachine(draft.id);
+    const s = useAppStore.getState();
+    setDraft(structuredClone(s.machines.find((m) => m.id === s.machineId) ?? s.machines[0]));
+    setJustCreated(false);
+    s.setStatus(t.status.profileDeleted(name));
+  };
+  const pick = (id: string) => {
+    const m = machines.find((x) => x.id === id);
+    if (m) setDraft(structuredClone(m));
+    setJustCreated(false);
+  };
+  const groups: { label: string; items: MachineProfile[] }[] = [
+    { label: t.machine.machineGroups.router, items: machines.filter((m) => !m.custom && m.kind === 'router') },
+    { label: t.machine.machineGroups.laser, items: machines.filter((m) => !m.custom && m.kind === 'laser') },
+    { label: t.machine.machineGroups.custom, items: machines.filter((m) => m.custom) },
+  ].filter((g) => g.items.length);
 
   const set = (p: Partial<MachineProfile>) => setDraft((d) => ({ ...d, ...p }));
   const setPost = (p: Partial<MachineProfile['postprocessor']>) => setDraft((d) => ({ ...d, postprocessor: { ...d.postprocessor, ...p } }));
@@ -44,7 +82,7 @@ export function MachineSetupDialog() {
       onClose={close}
       title={t.machine.title}
       actions={
-        <button className="btn border-accent/40 text-accent sm:ml-2" onClick={() => setDraft({ ...structuredClone(draft), id: uid('machine'), name: t.machine.custom(draft.name) })}>
+        <button className="btn border-accent/40 text-accent sm:ml-2" onClick={createProfile}>
           <Plus size={13} /> {t.machine.newProfile}
         </button>
       }
@@ -92,38 +130,51 @@ export function MachineSetupDialog() {
 
       {step === 'preset' && (
         <div className="space-y-5 p-4 sm:p-5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {machines.map((m) => {
-              const active = m.id === draft.id;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setDraft(structuredClone(m))}
-                  aria-pressed={active}
-                  className={`flex gap-3 rounded-lg border p-3 text-left transition-colors ${active ? 'border-accent bg-accent/5 ring-1 ring-accent' : 'border-line bg-raised hover:border-muted/50'}`}
-                >
-                  <div className="h-20 w-28 shrink-0 rounded-md bg-app p-1">
-                    <IlluMachine kind={m.kind} />
-                  </div>
-                  <div className="min-w-0 flex-1 space-y-0.5 text-xs">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-semibold leading-snug">{m.name}</p>
-                      {active && <CheckCircle2 size={16} className="shrink-0 text-accent" />}
-                    </div>
-                    <p className="text-muted">{m.kind === 'laser' ? t.machine.kindLaser : t.machine.kindRouter}</p>
-                    <p>{t.machine.workArea(m.workArea.x, m.workArea.y)}</p>
-                    <p className="text-muted">{t.machine.controller(m.postprocessor.flavor === 'grbl' ? 'GRBL' : 'Marlin')}</p>
-                  </div>
-                </button>
-              );
-            })}
+          <label className="block">
+            <span className="mb-1 block text-xs text-muted">{t.machine.select}</span>
+            <select className="field h-9 cursor-pointer text-sm" value={draft.id} onChange={(e) => pick(e.target.value)}>
+              {groups.map((g) => (
+                <optgroup key={g.label} label={g.label}>
+                  {g.items.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} · {m.workArea.x} × {m.workArea.y} mm
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
+
+          <div className={`flex gap-3 rounded-lg border p-3 ${justCreated ? 'border-accent bg-accent/5 ring-1 ring-accent' : 'border-line bg-raised'}`}>
+            <div className="h-20 w-28 shrink-0 rounded-md bg-app p-1">
+              <IlluMachine kind={draft.kind} />
+            </div>
+            <div className="min-w-0 flex-1 space-y-0.5 text-xs">
+              <p className="text-sm font-semibold leading-snug">{draft.name}</p>
+              <p className="text-muted">{draft.kind === 'laser' ? t.machine.kindLaser : t.machine.kindRouter}</p>
+              <p>{t.machine.workArea(draft.workArea.x, draft.workArea.y)}</p>
+              <p className="text-muted">{t.machine.controller(draft.postprocessor.flavor === 'grbl' ? 'GRBL' : 'Marlin')}</p>
+              {t.machine.info[draft.id] && <p className="pt-1 leading-relaxed text-muted">{t.machine.info[draft.id]}</p>}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <p className="min-w-0 flex-1 text-muted">{justCreated ? t.machine.newProfileHint : draft.custom ? t.machine.customNote : t.machine.builtInNote}</p>
+            {draft.custom ? (
+              <button className="btn text-warn" onClick={deleteProfile}>
+                <Trash2 size={13} /> {t.machine.deleteProfile}
+              </button>
+            ) : (
+              <button className="btn" onClick={createProfile}>
+                <Plus size={13} /> {t.machine.newProfile}
+              </button>
+            )}
           </div>
 
           <section className="rounded-lg border border-line bg-app/60 p-4">
             <h3 className="mb-3 text-sm font-semibold">{t.machine.configTitle}</h3>
             <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
               <FieldRow label={t.common.name}>
-                <input className="field" value={draft.name} onChange={(e) => set({ name: e.target.value })} />
+                <input ref={nameRef} className="field" value={draft.name} onChange={(e) => set({ name: e.target.value })} />
               </FieldRow>
               <SelectField
                 label={t.machine.firmware}
