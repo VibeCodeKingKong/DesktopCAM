@@ -1,5 +1,8 @@
 import {
+  defaultStrategy,
+  defaultTabs,
   shapeToPolylines,
+  type RouterProfileJob,
   shapesBounds,
   transformShape,
   type VCarveJob,
@@ -57,6 +60,8 @@ export async function computeToolpath(id: string): Promise<void> {
         payload = await camClient.request({ type: 'vcarve', job: buildVCarveJob(tp) }, { onProgress });
         break;
       case 'profile':
+        payload = await camClient.request({ type: 'routerProfile', job: buildRouterProfileJob(tp) }, { onProgress });
+        break;
       case 'laserCut':
         payload = await camClient.request({ type: 'profile', job: buildProfileJob(tp) }, { onProgress });
         break;
@@ -136,6 +141,34 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
     };
   }
   throw new Error('NOT_IMPLEMENTED');
+}
+
+/** Strategi och flikar med standardvärden för äldre projekt. */
+export function resolveProfile(tp: Extract<ToolpathConfig, { operation: 'profile' }>) {
+  const thickness = useAppStore.getState().material.thickness;
+  const tabs = { ...defaultTabs(tp.cutDepth >= thickness - 1e-6, thickness), ...tp.tabs };
+  return { strategy: tp.strategy ?? defaultStrategy('balanced'), tabs };
+}
+
+function buildRouterProfileJob(tp: ToolpathConfig): RouterProfileJob {
+  if (tp.operation !== 'profile') throw new Error('NOT_IMPLEMENTED');
+  const s = useAppStore.getState();
+  const tool = s.tools.find((t) => t.id === tp.toolId);
+  if (!tool || tool.kind === 'laser') throw new Error('WRONG_TOOL');
+  const { strategy, tabs } = resolveProfile(tp);
+  return {
+    groups: groupsOf(shapesOf(tp)),
+    side: tp.side,
+    toolDiameter: tool.diameter,
+    cutDepth: tp.cutDepth,
+    stepDown: tp.params.stepDown,
+    feedRate: tp.params.feedRate,
+    plungeRate: tp.params.plungeRate,
+    spindleRpm: tp.params.spindleRpm ?? 18000,
+    strategy,
+    tabs,
+    post: getMachine().postprocessor,
+  };
 }
 
 function buildPocketJob(tp: ToolpathConfig): PocketJob {

@@ -8,6 +8,7 @@ import {
   offsetShapes,
   parseGcode,
   pocketGcode,
+  routerProfileGcode,
   vcarveGcode,
   type CamEngine,
   type CamRequest,
@@ -72,10 +73,17 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
     }
     case 'pocket':
     case 'drill':
-    case 'vcarve': {
-      progress(0.1, request.type);
+    case 'vcarve':
+    case 'routerProfile': {
+      progress(0.1, request.type === 'routerProfile' ? 'offset' : request.type);
       const gcode =
-        request.type === 'pocket' ? pocketGcode(request.job) : request.type === 'drill' ? drillGcode(request.job) : vcarveGcode(request.job);
+        request.type === 'pocket'
+          ? pocketGcode(request.job)
+          : request.type === 'drill'
+            ? drillGcode(request.job)
+            : request.type === 'vcarve'
+              ? vcarveGcode(request.job)
+              : routerProfileGcode(request.job);
       progress(0.8, 'preview');
       const preview = parseGcode(gcode);
       const result: ToolpathPayload = { gcode, preview };

@@ -139,6 +139,7 @@ interface AppState extends DocSnapshot {
   // Maskin, verktyg, material
   setMachine: (id: string) => void;
   saveMachine: (m: MachineProfile) => void;
+  removeMachine: (id: string) => void;
   setActiveTool: (id: string) => void;
   saveTool: (t: ToolDefinition) => void;
   removeTool: (id: string) => void;
@@ -336,6 +337,13 @@ export const useAppStore = create<AppState>()((set, get) => {
         machineId: m.id,
         activeToolId: toolFor(s.tools, s.activeToolId, m.kind),
       })),
+    removeMachine: (id) =>
+      set((s) => {
+        const machines = s.machines.filter((m) => m.id !== id || !m.custom);
+        const machineId = machines.some((m) => m.id === s.machineId) ? s.machineId : machines[0].id;
+        const kind = machines.find((m) => m.id === machineId)!.kind;
+        return { machines, machineId, activeToolId: toolFor(s.tools, s.activeToolId, kind) };
+      }),
     setActiveTool: (activeToolId) => set({ activeToolId }),
     saveTool: (t) =>
       set((s) => ({

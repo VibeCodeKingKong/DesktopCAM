@@ -7,7 +7,13 @@
     "flutes": 2,
     "fluteLength": 17,
     "units": "mm",
-    "defaults": { "feedRate": 900, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1.5, "stepOver": 0.4 },
+    "defaults": {
+      "feedRate": 900,
+      "plungeRate": 250,
+      "spindleRpm": 18000,
+      "stepDown": 1.5,
+      "stepOver": 0.4
+    },
     "shankDiameter": 3.175,
     "overallLength": 38,
     "stickout": 22
@@ -20,10 +26,36 @@
     "flutes": 2,
     "fluteLength": 22,
     "units": "mm",
-    "defaults": { "feedRate": 1200, "plungeRate": 300, "spindleRpm": 16000, "stepDown": 3, "stepOver": 0.45 },
+    "defaults": {
+      "feedRate": 1200,
+      "plungeRate": 300,
+      "spindleRpm": 16000,
+      "stepDown": 3,
+      "stepOver": 0.45
+    },
     "shankDiameter": 6,
     "overallLength": 50,
     "stickout": 28
+  },
+  {
+    "id": "em-3175-1f-alu",
+    "name": "Enskärsfräs 3,175 mm (aluminium)",
+    "kind": "endmill",
+    "diameter": 3.175,
+    "flutes": 1,
+    "fluteLength": 12,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 500,
+      "plungeRate": 100,
+      "spindleRpm": 20000,
+      "stepDown": 0.3,
+      "stepOver": 0.3
+    },
+    "notes": "Kör med luft eller smörjmedel och grunda pass.",
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 20
   },
   {
     "id": "bn-3175",
@@ -32,7 +64,13 @@
     "diameter": 3.175,
     "flutes": 2,
     "units": "mm",
-    "defaults": { "feedRate": 800, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1, "stepOver": 0.15 },
+    "defaults": {
+      "feedRate": 800,
+      "plungeRate": 250,
+      "spindleRpm": 18000,
+      "stepDown": 1,
+      "stepOver": 0.15
+    },
     "fluteLength": 12,
     "shankDiameter": 3.175,
     "overallLength": 38,
@@ -45,7 +83,13 @@
     "diameter": 12.7,
     "angle": 60,
     "units": "mm",
-    "defaults": { "feedRate": 700, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 },
+    "defaults": {
+      "feedRate": 700,
+      "plungeRate": 200,
+      "spindleRpm": 18000,
+      "stepDown": 2,
+      "stepOver": 0.2
+    },
     "flutes": 2,
     "fluteLength": 11,
     "shankDiameter": 6.35,
@@ -59,7 +103,13 @@
     "diameter": 12.7,
     "angle": 90,
     "units": "mm",
-    "defaults": { "feedRate": 800, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 },
+    "defaults": {
+      "feedRate": 800,
+      "plungeRate": 200,
+      "spindleRpm": 18000,
+      "stepDown": 2,
+      "stepOver": 0.2
+    },
     "flutes": 2,
     "fluteLength": 6.4,
     "shankDiameter": 6.35,
@@ -72,7 +122,13 @@
     "kind": "drill",
     "diameter": 3,
     "units": "mm",
-    "defaults": { "feedRate": 300, "plungeRate": 150, "spindleRpm": 12000, "stepDown": 2, "stepOver": 1 },
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 150,
+      "spindleRpm": 12000,
+      "stepDown": 2,
+      "stepOver": 1
+    },
     "flutes": 2,
     "fluteLength": 33,
     "shankDiameter": 3,
@@ -85,7 +141,14 @@
     "kind": "laser",
     "diameter": 0.1,
     "units": "mm",
-    "defaults": { "feedRate": 600, "plungeRate": 0, "stepDown": 0, "stepOver": 1, "laserPowerPct": 100, "passes": 2 },
+    "defaults": {
+      "feedRate": 600,
+      "plungeRate": 0,
+      "stepDown": 0,
+      "stepOver": 1,
+      "laserPowerPct": 100,
+      "passes": 2
+    },
     "notes": "Kerf ≈ 0,1–0,2 mm beroende på fokus och material."
   }
 ]

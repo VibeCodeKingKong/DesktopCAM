@@ -4,6 +4,7 @@
  */
 import type { ImportFormat, ImportOptions, ImportResult } from './import/types';
 import type { VCarveJob } from './vcarve';
+import type { RouterProfileJob } from './profileStrategy';
 import type { DitherMethod, PostprocessorConfig, ToolKind, ToolpathStats } from './types';
 
 export interface PolylineInput {
@@ -99,6 +100,7 @@ export type CamRequest =
   | { type: 'pocket'; job: PocketJob }
   | { type: 'drill'; job: DrillJob }
   | { type: 'vcarve'; job: VCarveJob }
+  | { type: 'routerProfile'; job: RouterProfileJob }
   | { type: 'import'; format: ImportFormat; text: string; options: ImportOptions };
 
 export interface EngineInfo {
@@ -134,6 +136,7 @@ export interface CamResponseMap {
   pocket: ToolpathPayload;
   drill: ToolpathPayload;
   vcarve: ToolpathPayload;
+  routerProfile: ToolpathPayload;
   import: ImportResult;
 }
 

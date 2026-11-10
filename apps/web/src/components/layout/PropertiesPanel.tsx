@@ -1,8 +1,24 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock } from 'lucide-react';
-import { inlayFit, shapesBounds, type CutSide, type DitherMethod, type InlayToolpath, type ReliefInstance, type ToolpathConfig, type VectorShape } from '@desktopcam/core';
+import {
+  defaultStrategy,
+  inlayFit,
+  matchPreset,
+  shapesBounds,
+  type CutDirection,
+  type CutSide,
+  type DitherMethod,
+  type InlayToolpath,
+  type ProfileStrategy,
+  type ProfileToolpath,
+  type ReliefInstance,
+  type StrategyPreset,
+  type TabSettings,
+  type ToolpathConfig,
+  type VectorShape,
+} from '@desktopcam/core';
 import { allShapes, useAppStore, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
-import { computeToolpath, drillPoints, scheduleCompute } from '../../cam/toolpathService';
+import { computeToolpath, drillPoints, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
   centerSelection,
   createLineEngraving,
@@ -17,15 +33,19 @@ import {
 } from '../../cam/commands';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
-import { materialName, toolName, useT } from '../../i18n';
+import { materialName, toolName, useT, type GuideKey } from '../../i18n';
+import { InfoHint } from '../smartguide/InfoHint';
 import { SidePanel } from './SidePanel';
 import { getNode, moveNode, nodeCount, setClosed } from '../../editing/nodes';
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+function Group({ title, children, hint }: { title: string; children: ReactNode; hint?: GuideKey }) {
   return (
     <fieldset className="space-y-2 border-b border-line px-3 py-3 last:border-b-0">
       <legend className="sr-only">{title}</legend>
-      <p className="text-2xs font-semibold text-muted">{title}</p>
+      <p className="flex items-center gap-1 text-2xs font-semibold text-muted">
+        {title}
+        {hint && <InfoHint topic={hint} />}
+      </p>
       {children}
     </fieldset>
   );
@@ -358,6 +378,14 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
     { value: 'on', label: t.props.sides.on },
   ];
   const dithers = (Object.keys(t.props.ditherMethods) as DitherMethod[]).map((value) => ({ value, label: t.props.ditherMethods[value] }));
+  const preset = useMaterialPreset();
+  const machineKind = useMachine().kind;
+  const materialWarning =
+    tp.operation === 'laserCut' && tp.side !== 'on' && preset.laser.canCut === false
+      ? t.props.cannotCut
+      : machineKind === 'router' && !preset.router
+        ? t.props.notForRouter
+        : null;
   const holes = tp.operation === 'drill' ? drillPoints(allShapes(layers).filter((s) => tp.shapeIds.includes(s.id))).length : 0;
   const speedGroup = (
     <Group title={t.props.speed}>
@@ -384,6 +412,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
             <Segmented label={t.props.side} value={tp.side} options={sides} onChange={(side) => patch({ side })} />
           </FieldRow>
         )}
+        {materialWarning && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{materialWarning}</p>}
       </Group>
 
       {tp.operation === 'profile' && (
@@ -392,6 +421,8 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
             <NumberField label={t.props.cutDepth} unit="mm" step={0.5} min={0} value={tp.cutDepth} hint="cutDepth" onChange={(cutDepth) => patch({ cutDepth })} />
             <NumberField label={t.props.stepDown} unit="mm" step={0.1} min={0.05} value={tp.params.stepDown} hint="stepDown" onChange={(stepDown) => param({ stepDown })} />
           </Group>
+          <ProfileStrategyEditor tp={tp} patch={patch} />
+          <TabsEditor tp={tp} patch={patch} />
           {speedGroup}
         </>
       )}
@@ -596,5 +627,137 @@ function InlaySettings({
         <p className="text-2xs text-muted">{t.props.sharedSettings}</p>
       </Group>
     </>
+  );
+}
+
+/* ───────── Profilstrategi ───────── */
+
+function Chip({ children }: { children: ReactNode }) {
+  return <span className="rounded-full border border-line bg-app px-2 py-0.5 text-2xs text-ink/80">{children}</span>;
+}
+
+function ProfileStrategyEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const { strategy: st, tabs } = resolveProfile(tp);
+  const fmt = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
+  const presets: StrategyPreset[] = ['fast', 'balanced', 'fine'];
+  const set = (p: Partial<ProfileStrategy>) => {
+    const next = { ...st, ...p };
+    patch({ strategy: { ...next, preset: matchPreset(next) } });
+  };
+  const onLine = tp.side === 'on';
+  const dirOptions = (['conventional', 'climb'] as CutDirection[]).map((value) => ({ value, label: t.props.directions[value] }));
+  const finishActive = st.finishPass && st.allowance > 0 && !onLine;
+
+  return (
+    <Group title={t.props.strategy} hint="profileStrategy">
+      <Segmented
+        label={t.props.strategy}
+        value={st.preset === 'custom' ? ('custom' as StrategyPreset) : st.preset}
+        options={[...presets, ...(st.preset === 'custom' ? (['custom'] as StrategyPreset[]) : [])].map((value) => ({ value, label: t.props.presets[value] }))}
+        onChange={(preset) => preset !== 'custom' && patch({ strategy: { ...defaultStrategy(preset), onionSkin: st.onionSkin } })}
+      />
+      <p className="text-xs leading-relaxed text-muted">{t.props.presetDesc[st.preset]}</p>
+      <div className="flex flex-wrap gap-1">
+        {!onLine && <Chip>{t.props.chips.rough(t.props.directions[st.direction])}</Chip>}
+        {!onLine && <Chip>{finishActive ? t.props.chips.finish(t.props.directions[st.finishDirection], fmt(st.allowance)) : t.props.chips.single}</Chip>}
+        <Chip>{st.entry === 'ramp' ? t.props.chips.ramp(st.rampAngle) : t.props.chips.plunge}</Chip>
+        {!onLine && <Chip>{tabs.enabled ? t.props.chips.tabs(tabs.count) : t.props.chips.noTabs}</Chip>}
+        {st.onionSkin > 0 && <Chip>{t.props.chips.onion(fmt(st.onionSkin))}</Chip>}
+      </div>
+
+      <button className="text-left text-xs font-medium text-accent" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        {open ? t.props.hideDetails : t.props.showDetails}
+      </button>
+      {open && (
+        <div className="space-y-2 rounded-lg border border-line p-2.5">
+          {!onLine && (
+            <>
+              <FieldRow label={t.props.finishPass} hint="profileAllowance">
+                <Switch checked={st.finishPass} onChange={(finishPass) => set({ finishPass, allowance: finishPass && st.allowance <= 0 ? 0.3 : st.allowance })} label={t.props.finishPass} />
+              </FieldRow>
+              {st.finishPass && (
+                <>
+                  <NumberField label={t.props.profileAllowance} unit="mm" step={0.05} min={0.05} max={2} value={st.allowance} hint="profileAllowance" onChange={(allowance) => set({ allowance })} />
+                  <FieldRow label={t.props.finishDirection} hint="cutDirection">
+                    <Segmented label={t.props.finishDirection} value={st.finishDirection} options={dirOptions} onChange={(finishDirection) => set({ finishDirection })} />
+                  </FieldRow>
+                  <NumberField
+                    label={t.props.finishFeed}
+                    unit="%"
+                    step={5}
+                    min={20}
+                    max={150}
+                    value={Math.round(st.finishFeedFactor * 100)}
+                    onChange={(pct) => set({ finishFeedFactor: pct / 100 })}
+                  />
+                </>
+              )}
+              <FieldRow label={t.props.roughDirection} hint="cutDirection">
+                <Segmented label={t.props.roughDirection} value={st.direction} options={dirOptions} onChange={(direction) => set({ direction })} />
+              </FieldRow>
+            </>
+          )}
+          <FieldRow label={t.props.entry} hint="rampEntry">
+            <Segmented
+              label={t.props.entry}
+              value={st.entry}
+              options={(['ramp', 'plunge'] as const).map((value) => ({ value, label: t.props.entries[value] }))}
+              onChange={(entry) => set({ entry })}
+            />
+          </FieldRow>
+          {st.entry === 'ramp' && <NumberField label={t.props.rampAngle} unit="°" step={1} min={1} max={45} value={st.rampAngle} hint="rampEntry" onChange={(rampAngle) => set({ rampAngle })} />}
+          <NumberField label={t.props.onionSkin} unit="mm" step={0.1} min={0} max={Math.max(0, tp.cutDepth - 0.1)} value={st.onionSkin} hint="onionSkin" onChange={(onionSkin) => set({ onionSkin })} />
+          {!onLine && <p className="text-2xs text-muted">{t.props.spindleNote}</p>}
+        </div>
+      )}
+    </Group>
+  );
+}
+
+function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
+  const t = useT();
+  const thickness = useAppStore((s) => s.material.thickness);
+  const { strategy: st, tabs } = resolveProfile(tp);
+  if (tp.side === 'on') return null;
+  const set = (p: Partial<TabSettings>) => patch({ tabs: { ...tabs, ...p } });
+  const throughCut = tp.cutDepth - st.onionSkin >= thickness - 0.01;
+  const loose = throughCut && !tabs.enabled && st.onionSkin <= 0;
+
+  return (
+    <Group title={t.props.tabs} hint="tabs">
+      <FieldRow label={t.props.useTabs}>
+        <Switch checked={tabs.enabled} onChange={(enabled) => set({ enabled })} label={t.props.useTabs} />
+      </FieldRow>
+      {loose && (
+        <div className="space-y-2 rounded-md bg-warn/10 p-2 text-xs text-warn">
+          <p>{t.props.looseWarning}</p>
+          <button className="btn h-7 text-ink" onClick={() => set({ enabled: true })}>
+            {t.props.enableTabs}
+          </button>
+        </div>
+      )}
+      {tabs.enabled && (
+        <>
+          <NumberField label={t.props.tabCount} step={1} min={1} max={20} value={tabs.count} onChange={(count) => set({ count: Math.round(count) })} />
+          <NumberField label={t.props.tabWidth} unit="mm" step={1} min={1} value={tabs.width} onChange={(width) => set({ width })} />
+          <NumberField label={t.props.tabHeight} unit="mm" step={0.5} min={0.2} max={Math.max(0.2, tp.cutDepth)} value={tabs.height} onChange={(height) => set({ height })} />
+          <FieldRow label={t.props.tabPosition}>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={Math.round((tabs.offset ?? 0) * 100)}
+              onChange={(e) => set({ offset: Number(e.target.value) / 100 })}
+              className="h-7 w-full accent-[rgb(var(--c-accent))]"
+              aria-label={t.props.tabPosition}
+            />
+          </FieldRow>
+          <p className="text-2xs leading-relaxed text-muted">{t.props.tabsHint}</p>
+        </>
+      )}
+    </Group>
   );
 }

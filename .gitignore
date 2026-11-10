@@ -3,4 +3,5 @@ dist
 target
 .DS_Store
 *.log
+# Byggd Wasm – ta bort raden om du vill checka in motorn i stället för att bygga den i CI
 apps/web/public/wasm/

@@ -13,3 +13,4 @@ export * from './sdf';
 export * from './camOps';
 export * from './strokeFont';
 export * from './vcarve';
+export * from './profileStrategy';
