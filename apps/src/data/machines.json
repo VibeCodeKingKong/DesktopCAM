@@ -1,0 +1,68 @@
+[
+  {
+    "id": "mpcnc-primo",
+    "name": "V1 Engineering MPCNC Primo",
+    "manufacturer": "V1 Engineering",
+    "model": "MPCNC Primo (dubbla ändlägesbrytare)",
+    "kind": "router",
+    "description": "Självbyggd fräs med ramen i rör. Vanlig storlek 600 × 600 mm.",
+    "workArea": { "x": 600, "y": 600, "z": 80 },
+    "maxFeed": { "xy": 1800, "z": 600 },
+    "homing": "xy",
+    "spindle": { "minRpm": 10000, "maxRpm": 30000, "controllable": false },
+    "postprocessor": {
+      "id": "marlin-router",
+      "name": "Marlin (fräs)",
+      "flavor": "marlin",
+      "header": ["G17", "G28 X Y", "G92 Z0"],
+      "footer": ["G0 X0 Y0", "M84"],
+      "decimals": 3,
+      "safeZ": 5,
+      "laserDynamicPower": false
+    }
+  },
+  {
+    "id": "genmitsu-3018",
+    "name": "Genmitsu 3018-PROVer",
+    "manufacturer": "SainSmart",
+    "model": "3018-PROVer V2",
+    "kind": "router",
+    "description": "Liten skrivbordsfräs med GRBL. Bra för gravyr och tunna skivor.",
+    "workArea": { "x": 300, "y": 180, "z": 45 },
+    "maxFeed": { "xy": 1500, "z": 500 },
+    "homing": "xyz",
+    "spindle": { "minRpm": 0, "maxRpm": 10000, "controllable": true },
+    "postprocessor": {
+      "id": "grbl-router",
+      "name": "GRBL (fräs)",
+      "flavor": "grbl",
+      "header": ["G17", "G94"],
+      "footer": ["G0 X0 Y0", "M30"],
+      "decimals": 3,
+      "safeZ": 5,
+      "laserDynamicPower": false
+    }
+  },
+  {
+    "id": "creality-falcon2-22w",
+    "name": "Creality Falcon2 22W",
+    "manufacturer": "Creality",
+    "model": "Falcon2 22W (gravyr och skärning)",
+    "kind": "laser",
+    "description": "Diodlaser med 22 W optisk effekt och GRBL-styrning.",
+    "workArea": { "x": 400, "y": 415, "z": 0 },
+    "maxFeed": { "xy": 25000, "z": 0 },
+    "homing": "xy",
+    "laser": { "opticalPowerW": 22, "sMax": 1000 },
+    "postprocessor": {
+      "id": "grbl-laser",
+      "name": "GRBL (laser, M4)",
+      "flavor": "grbl",
+      "header": ["G17", "G94"],
+      "footer": ["G0 X0 Y0", "M2"],
+      "decimals": 3,
+      "safeZ": 0,
+      "laserDynamicPower": true
+    }
+  }
+]
