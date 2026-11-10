@@ -63,6 +63,7 @@ export const sv = {
   },
 
   groups: {
+    modify: 'Ändra',
     simulation: 'Simulering',
     project: 'Projekt',
     settings: 'Inställningar',
@@ -85,6 +86,8 @@ export const sv = {
   },
 
   buttons: {
+    fillet: { label: 'Radie', title: 'Avrunda hörn', desc: 'Klicka på ett hörn för att avrunda det med radien i ritfältet. Klicka igen för att ta bort radien. Alla hörn på en gång: Hörnradie under Egenskaper.' },
+    measure: { label: 'Mått', title: 'Mått mellan former', desc: 'Klicka på två former för att se och ändra avståndet mellan dem – mitt till mitt eller kant till kant – under Egenskaper. Den första står still.' },
     simPlay: { label: 'Simulera', title: 'Simulera fräsningen', desc: 'Spelar upp hur verktyget skär och graverar i materialet, bana för bana i listans ordning. Dolda banor hoppas över.' },
     simResult: { label: 'Resultat', title: 'Visa resultatet', desc: 'Hoppar direkt till slutet och visar hur arbetsstycket ser ut när alla synliga banor är körda.' },
     simStop: { label: 'Avsluta', title: 'Avsluta simuleringen', desc: 'Stänger simuleringen och visar materialet och banorna som vanligt igen.' },
@@ -341,6 +344,8 @@ export const sv = {
     cancel: 'Avbryt',
     deleteNode: 'Ta bort nod',
     hints: {
+      fillet: 'Klicka på ett hörn för att avrunda det. Klicka igen för att ta bort radien.',
+      measure: 'Klicka på den första formen och sedan på den andra. Ändra måtten under Egenskaper.',
       select: 'Tryck på en form för att markera den, dra för att flytta.',
       nodes: 'Dra punkterna. Dubbeltryck på en linje för att lägga till en punkt.',
       nodesPick: 'Tryck på en form för att redigera dess noder.',
@@ -395,6 +400,13 @@ export const sv = {
     dist: 'Centrumavstånd',
     swap: 'Byt',
     note: (fixed: string, moving: string) => `${fixed} står still, ${moving} flyttas när du ändrar måtten.`,
+  },
+
+  fillet: {
+    radius: 'Radie',
+    set: (r: number) => `Hörnet avrundat (R ${r.toLocaleString('sv-SE')} mm)`,
+    removed: 'Radien borttagen',
+    clickToRemove: 'Klicka för att ta bort radien',
   },
 
   gearDialog: {

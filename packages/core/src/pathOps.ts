@@ -57,8 +57,8 @@ export const transformShape = (shape: VectorShape, m: Mat2D): VectorShape => {
     // Avrundade hörn: flytta/skala de skarpa banorna och avrunda igen. Radien
     // behålls (som i CAD), även när formen ändrar storlek.
     const base = shape.corner.base.map((p) => transformPath(p, m));
-    const radius = shape.corner.radius;
-    return { ...shape, paths: filletPaths(base, radius), corner: { radius, base } };
+    const { radius, radii } = shape.corner;
+    return { ...shape, paths: filletPaths(base, radius, radii), corner: { radius, base, radii } };
   }
   return { ...shape, paths: shape.paths.map((p) => transformPath(p, m)) };
 };

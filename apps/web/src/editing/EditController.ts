@@ -10,6 +10,8 @@
 import {
   makeCircle,
   makeRect,
+  cornerVertices,
+  setVertexRadius,
   textToShape,
   transformShape,
   translate,
@@ -273,8 +275,27 @@ export class EditController {
     const tool = s.editTool;
     const tol = this.tol(e, w);
     const { x: x0, y: y0 } = this.local(e);
+    const t0 = getT();
 
     switch (tool) {
+      case 'fillet': {
+        const hit = this.cornerAt(w, tol);
+        if (!hit) return;
+        this.stop(e);
+        const want = useDraft.getState().filletRadius;
+        const r = Math.abs(hit.r - want) < 1e-6 ? 0 : want;
+        s.replaceShapes([setVertexRadius(hit.shape, hit.pi, hit.vi, r)]);
+        s.setStatus(r > 0 ? t0.fillet.set(r) : t0.fillet.removed);
+        return;
+      }
+      case 'measure': {
+        this.stop(e);
+        const hit = hitShape(s.layers, w, tol);
+        if (!hit) s.clearSelection();
+        else if (s.selectedShapeIds.length === 1 && s.selectedShapeIds[0] !== hit) s.selectShape(hit, true);
+        else s.selectShape(hit, false);
+        return;
+      }
       case 'tabs': {
         const ctx = tabContext();
         if (!ctx) return;
@@ -389,7 +410,7 @@ export class EditController {
     const g = this.gesture;
     const p = this.local(e);
 
-    if (tool === 'tabs') this.cursor = w;
+    if (tool === 'tabs' || tool === 'fillet') this.cursor = w;
     switch (g.kind) {
       case 'tab': {
         if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
@@ -618,6 +639,16 @@ export class EditController {
     const surface = `rgb(${this.surface.split(/\s+/).join(',')})`;
     const P = (v: Vec2) => this.scene.worldToScreen(v.x, v.y);
 
+    // Inskriven längd/vinkel: visa punkten där markören annars sitter.
+    if (this.polarPreview && s.editTool === 'line' && this.draft.length) {
+      const a = this.draft[this.draft.length - 1].p;
+      const rad = (this.polarPreview.angle * Math.PI) / 180;
+      this.cursor = { x: a.x + this.polarPreview.length * Math.cos(rad), y: a.y + this.polarPreview.length * Math.sin(rad) };
+      this.guide = { from: a, angle: this.polarPreview.angle };
+      this.snapKind = 'axis';
+    }
+
+
     // Markeringsram
     if (s.editTool === 'select' && s.selectedShapeIds.length && !s.sim.active) {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -644,7 +675,7 @@ export class EditController {
     }
 
     // Måttlinje mellan två markerade former
-    if (s.editTool === 'select' && s.selectedShapeIds.length === 2 && !s.sim.active) {
+    if ((s.editTool === 'select' || s.editTool === 'measure') && s.selectedShapeIds.length === 2 && !s.sim.active) {
       const all = allShapes(s.layers);
       const [a, b] = s.selectedShapeIds.map((id) => all.find((x) => x.id === id));
       if (a && b) {
@@ -688,6 +719,38 @@ export class EditController {
           if (gx[1] - gx[0] > 0.01) this.label(`X ${f(gx[1] - gx[0])}`, { x: (h0.x + h1.x) / 2 - 20, y: h0.y - 26 });
           if (gy[1] - gy[0] > 0.01) this.label(`Y ${f(gy[1] - gy[0])}`, { x: v0.x, y: (v0.y + v1.y) / 2 - 13 });
         }
+      }
+    }
+
+    // Verktyget Radie: hörnen som kan avrundas
+    if (s.editTool === 'fillet') {
+      const hover = this.cursor ? this.cornerAt(this.cursor, 9 * this.scene.worldPerPixel(this.cursor.x, this.cursor.y)) : null;
+      let budget = 3000;
+      const cur = this.cursor;
+      const m = cur ? 12 * this.scene.worldPerPixel(cur.x, cur.y) : 0;
+      for (const layer of s.layers) {
+        if (!layer.visible) continue;
+        for (const shape of layer.shapes) {
+          // Bara formen under markören, så att former med många hörn inte blir röriga.
+          const g = shapeGeometry(shape);
+          if (!cur || cur.x < g.min.x - m || cur.x > g.max.x + m || cur.y < g.min.y - m || cur.y > g.max.y + m) continue;
+          const verts = cornerVertices(shape);
+          const small = verts.length > 16 ? 2.5 : 4.5;
+          for (const v of verts) {
+            if (budget-- <= 0) break;
+            const q = P(v);
+            const on = hover && hover.shape.id === shape.id && hover.pi === v.pi && hover.vi === v.vi;
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = accent;
+            ctx.fillStyle = v.r > 0 ? accent : surface;
+            ctx.beginPath(); ctx.arc(q.x, q.y, on ? 7 : small, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          }
+        }
+      }
+      if (hover && this.cursor) {
+        const want = useDraft.getState().filletRadius;
+        const loc = getT().locale;
+        this.label(Math.abs(hover.r - want) < 1e-6 ? getT().fillet.clickToRemove : `R ${want.toLocaleString(loc, { maximumFractionDigits: 2 })} mm`, P(hover));
       }
     }
 
@@ -892,6 +955,32 @@ export class EditController {
     this.snapKind = 'axis';
     this.guide = { from: a, angle: snapped };
     return { x: a.x + len * Math.cos(rad), y: a.y + len * Math.sin(rad) };
+  }
+
+  private polarPreview: { length: number; angle: number } | null = null;
+  /** Förhandsvisning av punkten som skrivs in med längd och vinkel. */
+  setPolarPreview(p: { length: number; angle: number } | null) {
+    this.polarPreview = p;
+  }
+
+  /** Hörnet närmast punkten (för verktyget Radie). Rundade hörn träffas även på bågen. */
+  private cornerAt(w: Vec2, tol: number) {
+    const s = useAppStore.getState();
+    let best: { shape: VectorShape; pi: number; vi: number; r: number; x: number; y: number } | null = null;
+    let bestD = Infinity;
+    for (const layer of s.layers) {
+      if (!layer.visible || layer.locked) continue;
+      for (const shape of layer.shapes) {
+        const g = shapeGeometry(shape);
+        if (w.x < g.min.x - tol * 3 || w.x > g.max.x + tol * 3 || w.y < g.min.y - tol * 3 || w.y > g.max.y + tol * 3) continue;
+        for (const v of cornerVertices(shape)) {
+          const d = Math.hypot(v.x - w.x, v.y - w.y);
+          const reach = Math.max(tol * 1.8, v.r * 0.75);
+          if (d < reach && d < bestD) { bestD = d; best = { shape, ...v }; }
+        }
+      }
+    }
+    return best;
   }
 
   /** Lägger till en punkt med längd och vinkel från förra punkten (ritfältets fält). */

@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { useAppStore, type EditTool } from '../store/useAppStore';
 import { createToolpath, deleteSelection, duplicateSelection, exportSelectedGcode, importVectorFile, openProject, redo, saveProject, undo } from '../cam/commands';
 import { activeEditor } from '../editing/EditController';
+import { useDraft } from '../editing/draftStore';
 
-const TOOL_KEYS: Record<string, EditTool> = { v: 'select', n: 'nodes', l: 'line', b: 'curve', r: 'rect', c: 'circle', t: 'text' };
+const TOOL_KEYS: Record<string, EditTool> = { v: 'select', n: 'nodes', l: 'line', b: 'curve', r: 'rect', c: 'circle', t: 'text', k: 'fillet', m: 'measure' };
 
 /** Kortkommandon. Visas även i SmartTooltip för respektive knapp. */
 export function useShortcuts() {
@@ -34,6 +35,13 @@ export function useShortcuts() {
         return;
       }
       if (e.altKey) return;
+
+      // Medan en linje ritas: siffror går till längdfältet (inte till vyernas kortkommandon).
+      if (s.editTool === 'line' && activeEditor?.drafting && /^[0-9.,]$/.test(e.key)) {
+        e.preventDefault();
+        useDraft.getState().type(e.key);
+        return;
+      }
 
       if (key === 'enter' && activeEditor?.drafting) {
         activeEditor.finish(false);

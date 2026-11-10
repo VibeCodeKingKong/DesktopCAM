@@ -92,6 +92,7 @@ export const en: Dict = {
   },
 
   groups: {
+    modify: 'Modify',
     simulation: 'Simulation',
     project: 'Project',
     settings: 'Settings',
@@ -114,6 +115,8 @@ export const en: Dict = {
   },
 
   buttons: {
+    fillet: { label: 'Radius', title: 'Round corners', desc: 'Click a corner to round it with the radius in the drawing bar. Click again to remove it. All corners at once: Corner radius in Properties.' },
+    measure: { label: 'Measure', title: 'Distance between shapes', desc: 'Click two shapes to see and change the distance between them – centre to centre or edge to edge – in Properties. The first one stays put.' },
     simPlay: { label: 'Simulate', title: 'Simulate the machining', desc: 'Plays back how the tool cuts and engraves the material, toolpath by toolpath in list order. Hidden toolpaths are skipped.' },
     simResult: { label: 'Result', title: 'Show the result', desc: 'Jumps straight to the end and shows the workpiece after all visible toolpaths have run.' },
     simStop: { label: 'Close', title: 'Close the simulation', desc: 'Closes the simulation and shows the material and toolpaths as usual again.' },
@@ -370,6 +373,8 @@ export const en: Dict = {
     cancel: 'Cancel',
     deleteNode: 'Delete node',
     hints: {
+      fillet: 'Click a corner to round it. Click it again to remove the radius.',
+      measure: 'Click the first shape, then the second. Change the distances in Properties.',
       select: 'Tap a shape to select it, drag to move it.',
       nodes: 'Drag the points. Double-tap a line to add a point.',
       nodesPick: 'Tap a shape to edit its nodes.',
@@ -424,6 +429,13 @@ export const en: Dict = {
     dist: 'Centre distance',
     swap: 'Swap',
     note: (fixed: string, moving: string) => `${fixed} stays put, ${moving} moves when you change the values.`,
+  },
+
+  fillet: {
+    radius: 'Radius',
+    set: (r: number) => `Corner rounded (R ${r.toLocaleString('en-GB')} mm)`,
+    removed: 'Radius removed',
+    clickToRemove: 'Click to remove the radius',
   },
 
   gearDialog: {

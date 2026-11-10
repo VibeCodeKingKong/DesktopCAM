@@ -162,7 +162,13 @@ export interface VectorShape {
   /** Finns för text som fortfarande kan redigeras som text. */
   text?: TextParams;
   /** Avrundade hörn: radien och banorna med skarpa hörn (för att kunna ändra radien). */
-  corner?: { radius: number; base: VectorPath[] };
+  corner?: {
+    /** Radie för alla hörn (0 = bara de enskilda). */
+    radius: number;
+    base: VectorPath[];
+    /** Radie för enskilda hörn, nyckel "bana:hörn" (index i base). */
+    radii?: Record<string, number>;
+  };
 }
 
 export interface VectorLayer {

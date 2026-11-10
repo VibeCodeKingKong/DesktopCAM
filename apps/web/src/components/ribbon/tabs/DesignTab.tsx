@@ -1,5 +1,6 @@
-import { Circle, Cog, Copy, FileUp, Magnet, Mountain, MousePointer2, PenTool, Redo2, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { Circle, Cog, Copy, FileUp, Magnet, Mountain, MousePointer2, PenTool, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
+import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
 import { useAppStore, type EditTool } from '../../../store/useAppStore';
@@ -42,6 +43,10 @@ export function DesignTab() {
         <RibbonButton icon={Circle} label={b.circle.label} active={tool === 'circle'} onClick={pick('circle')} tooltip={tip(b.circle, { shortcut: 'C', illustration: <IlluCircle /> })} />
         <RibbonButton icon={Type} label={b.text.label} active={tool === 'text'} onClick={pick('text')} tooltip={tip(b.text, { shortcut: 'T' })} />
         <RibbonButton icon={Cog} label={b.gear.label} onClick={() => openDialog('gear')} tooltip={tip(b.gear)} />
+      </RibbonGroup>
+      <RibbonGroup label={t.groups.modify}>
+        <RibbonButton icon={CornerRadius} label={b.fillet.label} active={tool === 'fillet'} onClick={pick('fillet')} tooltip={tip(b.fillet, { shortcut: 'K' })} />
+        <RibbonButton icon={Ruler} label={b.measure.label} active={tool === 'measure'} onClick={pick('measure')} tooltip={tip(b.measure, { shortcut: 'M' })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.snap}>
         <RibbonButton icon={Magnet} label={b.snapGrid.label} active={snap.grid} onClick={() => setSnap({ grid: !snap.grid })} tooltip={tip(b.snapGrid)} />

@@ -277,17 +277,20 @@ export const gearModule = (teeth: number, outerDiameter: number) => outerDiamete
  * polygoner). Radien minskas där en sida är för kort för den. Andra banor
  * lämnas orörda.
  */
-export function filletPaths(paths: VectorPath[], radius: number): VectorPath[] {
-  if (radius <= 0) return paths;
-  return paths.map((path) => {
+export function filletPaths(paths: VectorPath[], radius: number, radii?: Record<string, number>): VectorPath[] {
+  if (radius <= 0 && !(radii && Object.values(radii).some((r) => r > 0))) return paths;
+  return paths.map((path, pi) => {
     if (!path.closed || path.segments.some((s) => s.type !== 'line')) return path;
     const pts: Vec2[] = [path.start, ...path.segments.map((s) => s.to)];
     if (pts.length > 1 && Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) < 1e-9) pts.pop();
     const n = pts.length;
     if (n < 3) return path;
     const corners: { t1: Vec2; t2: Vec2; c: Vec2 | null; cw: boolean }[] = [];
+    const baseRadius = radius;
     for (let i = 0; i < n; i++) {
+      const radius = radii?.[`${pi}:${i}`] ?? baseRadius;
       const p = pts[i], a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+      if (radius <= 0) { corners.push({ t1: p, t2: p, c: null, cw: false }); continue; }
       const la = Math.hypot(a.x - p.x, a.y - p.y), lb = Math.hypot(b.x - p.x, b.y - p.y);
       if (la < 1e-9 || lb < 1e-9) { corners.push({ t1: p, t2: p, c: null, cw: false }); continue; }
       const u1 = { x: (a.x - p.x) / la, y: (a.y - p.y) / la };
@@ -310,7 +313,7 @@ export function filletPaths(paths: VectorPath[], radius: number): VectorPath[] {
     const first = corners[0];
     for (let i = 0; i < n; i++) {
       const k = corners[i];
-      if (i > 0) segments.push({ type: 'line', to: { ...k.t1 } });
+      if (i > 0 && Math.hypot(k.t1.x - corners[i - 1].t2.x, k.t1.y - corners[i - 1].t2.y) > 1e-9) segments.push({ type: 'line', to: { ...k.t1 } });
       if (k.c) segments.push({ type: 'arc', to: { ...k.t2 }, center: { ...k.c }, clockwise: k.cw });
     }
     segments.push({ type: 'line', to: { ...first.t1 } });
@@ -327,4 +330,28 @@ export function setCornerRadius(shape: VectorShape, radius: number): VectorShape
   const base = shape.corner?.base ?? shape.paths;
   if (radius <= 0) return { ...shape, paths: base, corner: undefined };
   return { ...shape, paths: filletPaths(base, radius), corner: { radius, base } };
+}
+
+/** Sätter radien för ett enskilt hörn (bana pi, hörn vi i de skarpa banorna). */
+export function setVertexRadius(shape: VectorShape, pi: number, vi: number, radius: number): VectorShape {
+  const base = shape.corner?.base ?? shape.paths;
+  const all = shape.corner?.radius ?? 0;
+  const radii = { ...(shape.corner?.radii ?? {}), [`${pi}:${vi}`]: Math.max(0, radius) };
+  const any = all > 0 || Object.values(radii).some((r) => r > 0);
+  if (!any) return { ...shape, paths: base, corner: undefined };
+  return { ...shape, paths: filletPaths(base, all, radii), corner: { radius: all, base, radii } };
+}
+
+/** Hörn som kan avrundas, med nuvarande radie (för verktyget Radie). */
+export function cornerVertices(shape: VectorShape): { pi: number; vi: number; x: number; y: number; r: number }[] {
+  if (shape.text) return [];
+  const base = shape.corner?.base ?? shape.paths;
+  const out: { pi: number; vi: number; x: number; y: number; r: number }[] = [];
+  base.forEach((path, pi) => {
+    if (!path.closed || path.segments.length < 2 || path.segments.some((s) => s.type !== 'line')) return;
+    const pts: Vec2[] = [path.start, ...path.segments.map((s) => s.to)];
+    if (Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) < 1e-9) pts.pop();
+    pts.forEach((p, vi) => out.push({ pi, vi, x: p.x, y: p.y, r: shape.corner?.radii?.[`${pi}:${vi}`] ?? shape.corner?.radius ?? 0 }));
+  });
+  return out;
 }
