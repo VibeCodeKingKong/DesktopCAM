@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight } from 'lucide-react';
 import {
+  shapeHasArea,
   canFillet,
   setCornerRadius,
   autoTabPositions,
@@ -117,7 +118,7 @@ function ShapeEditor() {
   };
   const r2 = (n: number) => Math.round(n * 100) / 100;
   const isLaser = machine.kind === 'laser';
-  const anyClosed = shapes.some((x) => x.paths.some((p) => p.closed));
+  const anyClosed = shapes.some(shapeHasArea);
 
   return (
     <div>
@@ -243,7 +244,12 @@ function ShapeEditor() {
             <Copy size={13} /> {t.common.duplicate}
           </button>
         </div>
-        {single && single.paths.length === 1 && (
+        {single && single.paths.length === 1 && nodeCount(single.paths[0]) < 3 && (
+          <FieldRow label={t.props.pathStatus}>
+            <p className="text-xs">{t.props.lineOnly}</p>
+          </FieldRow>
+        )}
+        {single && single.paths.length === 1 && nodeCount(single.paths[0]) >= 3 && (
           <FieldRow label={t.props.pathStatus}>
             <Segmented
               label={t.props.pathStatus}
@@ -262,7 +268,7 @@ function ShapeEditor() {
       </Group>
 
       <Group title={t.props.machining}>
-        <p className="text-2xs text-muted">{t.props.operationsHint}</p>
+        <p className="text-2xs text-muted">{anyClosed || isLaser ? t.props.operationsHint : t.props.openHint}</p>
         <div className="grid grid-cols-2 gap-2">
           {isLaser ? (
             <>

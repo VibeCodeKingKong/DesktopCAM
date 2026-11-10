@@ -204,6 +204,8 @@ export const en: Dict = {
   },
 
   props: {
+    lineOnly: 'Open line (too few points to close)',
+    openHint: 'Open line: can be profiled along the line (engraving). Pocket and drilling need a closed shape with an area.',
     cornerRadius: 'Corner radius',
     title: 'Properties',
     toolpath: 'Toolpath',

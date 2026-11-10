@@ -175,6 +175,8 @@ export const sv = {
   },
 
   props: {
+    lineOnly: 'Öppen linje (för få punkter för att stänga)',
+    openHint: 'Öppen linje: kan profileras längs linjen (gravyr). Ficka och borrning kräver en sluten form med yta.',
     cornerRadius: 'Hörnradie',
     title: 'Egenskaper',
     toolpath: 'Verktygsbana',

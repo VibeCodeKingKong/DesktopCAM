@@ -26,7 +26,7 @@ import {
   Slash,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { OperationType, ShapeKind } from '@desktopcam/core';
+import { shapeHasArea, type OperationType, type ShapeKind } from '@desktopcam/core';
 import { useAppStore, useMachine, useMaterialPreset } from '../../store/useAppStore';
 import { materialName, useT } from '../../i18n';
 import { SidePanel } from './SidePanel';
@@ -146,7 +146,7 @@ export function ProjectTree() {
                 {layer.shapes.map((sh) => {
                   const Icon = SHAPE_ICONS[sh.kind] ?? Shapes;
                   const isSel = selected.includes(sh.id);
-                  const open = sh.paths.some((p) => !p.closed);
+                  const open = !shapeHasArea(sh);
                   return (
                     <button
                       key={sh.id}

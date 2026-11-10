@@ -198,7 +198,8 @@ export class EditController {
     const s = useAppStore.getState();
     let best: Vec2 | null = null;
     let bestD = tol;
-    if (this.draft.length >= 2) {
+    // Första punkten fäster bara när formen kan stängas med en yta (linje: minst 3 punkter).
+    if (this.draft.length >= (useAppStore.getState().editTool === 'curve' ? 2 : 3)) {
       const f = this.draft[0].p;
       const d = Math.hypot(f.x - w.x, f.y - w.y);
       if (d < bestD) { bestD = d; best = f; }
@@ -549,7 +550,7 @@ export class EditController {
           return;
         }
         const dbl = this.isDoubleTap(e);
-        if (this.draft.length >= 2 && this.snapKind === 'node' && q.x === this.draft[0].p.x && q.y === this.draft[0].p.y) {
+        if (this.draft.length >= 3 && this.snapKind === 'node' && q.x === this.draft[0].p.x && q.y === this.draft[0].p.y) {
           this.finish(true);
           return;
         }

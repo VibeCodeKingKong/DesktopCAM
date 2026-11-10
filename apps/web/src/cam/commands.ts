@@ -3,6 +3,7 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import {
+  shapeHasArea,
   type ToolDefinition,
   defaultStrategy,
   defaultTabs,
@@ -197,7 +198,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
     status(t.status.drawFirst);
     return null;
   }
-  if ((operation === 'pocket' || operation === 'drill' || operation === 'vcarve' || operation === 'inlay') && !sel.some((x) => x.paths.some((p) => p.closed))) {
+  if ((operation === 'pocket' || operation === 'drill' || operation === 'vcarve' || operation === 'inlay') && !sel.some(shapeHasArea)) {
     status(t.status.needClosed);
     return null;
   }
@@ -250,7 +251,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         operation,
         name: `${n}. ${opName}`,
         toolId: tool.id,
-        side: sel.every((x) => x.paths.every((p) => !p.closed)) ? 'on' : 'outside',
+        side: sel.some(shapeHasArea) ? 'outside' : 'on',
         cutDepth: s.material.thickness,
         // Genomskärning: flikar på från början så att detaljen inte lossnar.
         tabs: defaultTabs(true, s.material.thickness),
@@ -309,7 +310,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         operation,
         name: `${n}. ${opName}`,
         toolId: tool.id,
-        side: sel.every((x) => x.paths.every((p) => !p.closed)) ? 'on' : 'outside',
+        side: sel.some(shapeHasArea) ? 'outside' : 'on',
         kerf: 0.15,
         // Material som inte kan skäras (metall, sten) får graveringsvärden i stället.
         ...(preset.laser.canCut === false
@@ -361,7 +362,7 @@ export function createInlay(): void {
   }
   const shapes = allShapes(s.layers);
   const sel = s.selectedShapeIds.length ? shapes.filter((x) => s.selectedShapeIds.includes(x.id)) : shapes;
-  if (!sel.some((x) => x.paths.some((p) => p.closed))) {
+  if (!sel.some(shapeHasArea)) {
     status(t.status.needClosed);
     return;
   }

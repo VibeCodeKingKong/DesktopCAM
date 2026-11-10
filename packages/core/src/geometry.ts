@@ -54,10 +54,13 @@ export function flattenPath(path: VectorPath, tolerance = 0.05): Vec2[] {
 }
 
 export function shapeToPolylines(shape: VectorShape, tolerance = 0.05): PolylineInput[] {
-  return shape.paths.map((p) => ({
-    points: flattenPath(p, tolerance).flatMap((v) => [v.x, v.y]),
-    closed: p.closed,
-  }));
+  // En "sluten" bana utan yta (linje fram och tillbaka) räknas som öppen.
+  return normalizeClosed(
+    shape.paths.map((p) => ({
+      points: flattenPath(p, tolerance).flatMap((v) => [v.x, v.y]),
+      closed: p.closed,
+    })),
+  );
 }
 
 export function signedArea(pts: Vec2[]): number {
@@ -68,6 +71,41 @@ export function signedArea(pts: Vec2[]): number {
     a += p.x * q.y - q.x * p.y;
   }
   return a / 2;
+}
+
+/** Minsta yta (mm²) för att en sluten bana ska räknas som en form med yta. */
+const MIN_AREA = 0.01;
+
+/**
+ * Omsluter banan en yta? Kräver att den är sluten och inte bara en linje
+ * fram och tillbaka (t.ex. en linje med två punkter som markerats som sluten).
+ */
+export function pathHasArea(path: VectorPath): boolean {
+  if (!path.closed) return false;
+  return Math.abs(signedArea(flattenPath(path, 0.2))) > MIN_AREA;
+}
+
+/** Har formen minst en bana med yta? (krävs för ficka, borrning, V-gravyr och inlägg) */
+export const shapeHasArea = (shape: VectorShape) => shape.paths.some(pathHasArea);
+
+/** Polylinje med yta (platta koordinater)? */
+export function polylineHasArea(pl: PolylineInput): boolean {
+  if (!pl.closed) return false;
+  let a = 0;
+  const p = pl.points;
+  for (let i = 0; i < p.length; i += 2) {
+    const j = (i + 2) % p.length;
+    a += p[i] * p[j + 1] - p[j] * p[i + 1];
+  }
+  return Math.abs(a / 2) > MIN_AREA;
+}
+
+/**
+ * Slutna banor utan yta (linje fram och tillbaka) behandlas som öppna,
+ * så att verktygsbanorna går längs linjen i stället för att misslyckas.
+ */
+export function normalizeClosed(pls: PolylineInput[]): PolylineInput[] {
+  return pls.map((pl) => (pl.closed && !polylineHasArea(pl) ? { ...pl, closed: false } : pl));
 }
 
 /**
@@ -323,7 +361,7 @@ export function filletPaths(paths: VectorPath[], radius: number, radii?: Record<
 
 /** Kan formens hörn avrundas? (slutna banor med bara raka linjer, eller redan avrundad) */
 export const canFillet = (shape: VectorShape) =>
-  !!shape.corner || (!shape.text && shape.paths.some((p) => p.closed && p.segments.length >= 2 && p.segments.every((s) => s.type === 'line')));
+  !!shape.corner || (!shape.text && shape.kind !== 'text' && cornerVertices(shape).length > 0 && shape.paths.some((p) => p.segments.length >= 3 && p.segments.every((s) => s.type === 'line') && pathHasArea(p)));
 
 /** Sätter hörnradien (0 = skarpa hörn igen). */
 export function setCornerRadius(shape: VectorShape, radius: number): VectorShape {
@@ -344,14 +382,23 @@ export function setVertexRadius(shape: VectorShape, pi: number, vi: number, radi
 
 /** Hörn som kan avrundas, med nuvarande radie (för verktyget Radie). */
 export function cornerVertices(shape: VectorShape): { pi: number; vi: number; x: number; y: number; r: number }[] {
-  if (shape.text) return [];
+  if (shape.text || shape.kind === 'text') return [];
   const base = shape.corner?.base ?? shape.paths;
   const out: { pi: number; vi: number; x: number; y: number; r: number }[] = [];
   base.forEach((path, pi) => {
-    if (!path.closed || path.segments.length < 2 || path.segments.some((s) => s.type !== 'line')) return;
+    if (path.segments.length < 3 || path.segments.some((s) => s.type !== 'line') || !pathHasArea(path)) return;
     const pts: Vec2[] = [path.start, ...path.segments.map((s) => s.to)];
     if (Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) < 1e-9) pts.pop();
-    pts.forEach((p, vi) => out.push({ pi, vi, x: p.x, y: p.y, r: shape.corner?.radii?.[`${pi}:${vi}`] ?? shape.corner?.radius ?? 0 }));
+    const n = pts.length;
+    pts.forEach((p, vi) => {
+      // Bara riktiga hörn: punkter där banan svänger mer än 10° (inte punkter längs en böj).
+      const a = pts[(vi - 1 + n) % n], b = pts[(vi + 1) % n];
+      const t1 = Math.atan2(p.y - a.y, p.x - a.x), t2 = Math.atan2(b.y - p.y, b.x - p.x);
+      let turn = Math.abs(t2 - t1);
+      if (turn > Math.PI) turn = 2 * Math.PI - turn;
+      const r = shape.corner?.radii?.[`${pi}:${vi}`] ?? shape.corner?.radius ?? 0;
+      if (turn > (10 * Math.PI) / 180 || r > 0) out.push({ pi, vi, x: p.x, y: p.y, r });
+    });
   });
   return out;
 }
