@@ -1,4 +1,5 @@
-import { Check, CircleSlash, Spline, Trash2, Undo2, X } from 'lucide-react';
+import { useState } from 'react';
+import { Check, CircleSlash, Plus, Spline, Trash2, Undo2, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useDraft } from '../../editing/draftStore';
 import { activeEditor } from '../../editing/EditController';
@@ -25,6 +26,7 @@ export function DrawingBar() {
     <div className="pointer-events-none absolute left-2 right-12 top-2 flex justify-center sm:inset-x-14 sm:top-3">
       <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-line bg-surface/95 p-1 pl-3 shadow-pop backdrop-blur">
         <p className="min-w-0 flex-1 py-1 pr-2 text-xs text-muted">{hint}</p>
+        {tool === 'line' && points > 0 && <PolarInput />}
         {(tool === 'line' || tool === 'curve') && points > 0 && (
           <>
             <button className={btn} onClick={() => activeEditor?.undoPoint()} title={t.viewport.undoPoint}>
@@ -60,6 +62,33 @@ export function DrawingBar() {
           {tool === 'nodes' || tool === 'tabs' ? t.common.done : t.viewport.cancel}
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Längd och vinkel för nästa punkt, räknat från förra punkten (0° = åt höger, moturs). */
+function PolarInput() {
+  const t = useT();
+  const [len, setLen] = useState('');
+  const [ang, setAng] = useState('0');
+  const num = (v: string) => parseFloat(v.replace(',', '.'));
+  const add = () => {
+    const l = num(len), a = num(ang);
+    if (!(l > 0) || !Number.isFinite(a)) return;
+    activeEditor?.addPolar(l, a);
+    setLen('');
+  };
+  const key = (e: React.KeyboardEvent) => e.key === 'Enter' && add();
+  const field = 'h-8 w-16 rounded-md border border-line bg-app px-2 text-xs tabular-nums';
+  return (
+    <div className="flex items-center gap-1">
+      <input className={field} inputMode="decimal" placeholder={t.viewport.length} aria-label={t.viewport.length} value={len} onChange={(e) => setLen(e.target.value)} onKeyDown={key} />
+      <span className="text-2xs text-muted">mm ∠</span>
+      <input className={`${field} w-12`} inputMode="decimal" aria-label={t.viewport.angle} value={ang} onChange={(e) => setAng(e.target.value)} onKeyDown={key} />
+      <span className="text-2xs text-muted">°</span>
+      <button className="flex h-8 items-center gap-1 rounded-md px-2 text-xs font-medium hover:bg-app" onClick={add} title={t.viewport.addPoint}>
+        <Plus size={14} />
+      </button>
     </div>
   );
 }

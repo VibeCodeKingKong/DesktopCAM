@@ -105,6 +105,9 @@ interface AppState extends DocSnapshot {
   view: { showToolpaths: boolean; showRapids: boolean; showStock: boolean };
   /** Materialsimulering. progress 0–1, duration i sekunder maskintid. */
   sim: { active: boolean; playing: boolean; speed: number; progress: number; duration: number; job: string };
+  /** Måttsättning mellan två former: från mitt till mitt eller mellan kanterna. */
+  measureMode: 'center' | 'edge';
+  setMeasureMode: (m: 'center' | 'edge') => void;
   viewCommand: { kind: ViewCommand; nonce: number } | null;
   cursor: Vec3 | null;
   status: string;
@@ -246,6 +249,8 @@ export const useAppStore = create<AppState>()((set, get) => {
 
     view: { showToolpaths: true, showRapids: true, showStock: true },
     sim: { active: false, playing: false, speed: 1, progress: 0, duration: 0, job: '' },
+    measureMode: 'center',
+    setMeasureMode: (measureMode) => set({ measureMode }),
     viewCommand: null,
     cursor: null,
     status: '',

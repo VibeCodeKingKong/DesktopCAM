@@ -41,9 +41,7 @@ export function DesignTab() {
         <RibbonButton icon={Square} label={b.rect.label} active={tool === 'rect'} onClick={pick('rect')} tooltip={tip(b.rect, { shortcut: 'R', illustration: <IlluRect /> })} />
         <RibbonButton icon={Circle} label={b.circle.label} active={tool === 'circle'} onClick={pick('circle')} tooltip={tip(b.circle, { shortcut: 'C', illustration: <IlluCircle /> })} />
         <RibbonButton icon={Type} label={b.text.label} active={tool === 'text'} onClick={pick('text')} tooltip={tip(b.text, { shortcut: 'T' })} />
-        <RibbonStack>
-          <RibbonButton size="small" icon={Cog} label={b.gear.label} onClick={() => openDialog('gear')} tooltip={tip(b.gear)} />
-        </RibbonStack>
+        <RibbonButton icon={Cog} label={b.gear.label} onClick={() => openDialog('gear')} tooltip={tip(b.gear)} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.snap}>
         <RibbonButton icon={Magnet} label={b.snapGrid.label} active={snap.grid} onClick={() => setSnap({ grid: !snap.grid })} tooltip={tip(b.snapGrid)} />

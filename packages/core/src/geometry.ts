@@ -271,3 +271,60 @@ export function makeGearShape(name: string, cx: number, cy: number, o: GearOptio
 
 /** Modul för ett evolventhjul med given ytterdiameter (för visning). */
 export const gearModule = (teeth: number, outerDiameter: number) => outerDiameter / (Math.max(3, teeth) + 2);
+
+/**
+ * Avrundar hörnen på slutna banor som bara består av raka linjer (rektanglar,
+ * polygoner). Radien minskas där en sida är för kort för den. Andra banor
+ * lämnas orörda.
+ */
+export function filletPaths(paths: VectorPath[], radius: number): VectorPath[] {
+  if (radius <= 0) return paths;
+  return paths.map((path) => {
+    if (!path.closed || path.segments.some((s) => s.type !== 'line')) return path;
+    const pts: Vec2[] = [path.start, ...path.segments.map((s) => s.to)];
+    if (pts.length > 1 && Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) < 1e-9) pts.pop();
+    const n = pts.length;
+    if (n < 3) return path;
+    const corners: { t1: Vec2; t2: Vec2; c: Vec2 | null; cw: boolean }[] = [];
+    for (let i = 0; i < n; i++) {
+      const p = pts[i], a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+      const la = Math.hypot(a.x - p.x, a.y - p.y), lb = Math.hypot(b.x - p.x, b.y - p.y);
+      if (la < 1e-9 || lb < 1e-9) { corners.push({ t1: p, t2: p, c: null, cw: false }); continue; }
+      const u1 = { x: (a.x - p.x) / la, y: (a.y - p.y) / la };
+      const u2 = { x: (b.x - p.x) / lb, y: (b.y - p.y) / lb };
+      const theta = Math.acos(Math.max(-1, Math.min(1, u1.x * u2.x + u1.y * u2.y)));
+      if (theta > Math.PI - 1e-3 || theta < 1e-3) { corners.push({ t1: p, t2: p, c: null, cw: false }); continue; }
+      const tanHalf = Math.tan(theta / 2);
+      const d = Math.min(radius / tanHalf, la / 2, lb / 2);
+      const r = d * tanHalf;
+      const bis = { x: u1.x + u2.x, y: u1.y + u2.y };
+      const bl = Math.hypot(bis.x, bis.y);
+      const h = r / Math.sin(theta / 2);
+      const c = { x: p.x + (bis.x / bl) * h, y: p.y + (bis.y / bl) * h };
+      const t1 = { x: p.x + u1.x * d, y: p.y + u1.y * d };
+      const t2 = { x: p.x + u2.x * d, y: p.y + u2.y * d };
+      const cross = (t1.x - c.x) * (t2.y - c.y) - (t1.y - c.y) * (t2.x - c.x);
+      corners.push({ t1, t2, c, cw: cross < 0 });
+    }
+    const segments: VectorPath['segments'] = [];
+    const first = corners[0];
+    for (let i = 0; i < n; i++) {
+      const k = corners[i];
+      if (i > 0) segments.push({ type: 'line', to: { ...k.t1 } });
+      if (k.c) segments.push({ type: 'arc', to: { ...k.t2 }, center: { ...k.c }, clockwise: k.cw });
+    }
+    segments.push({ type: 'line', to: { ...first.t1 } });
+    return { ...path, start: { ...first.t1 }, segments };
+  });
+}
+
+/** Kan formens hörn avrundas? (slutna banor med bara raka linjer, eller redan avrundad) */
+export const canFillet = (shape: VectorShape) =>
+  !!shape.corner || (!shape.text && shape.paths.some((p) => p.closed && p.segments.length >= 2 && p.segments.every((s) => s.type === 'line')));
+
+/** Sätter hörnradien (0 = skarpa hörn igen). */
+export function setCornerRadius(shape: VectorShape, radius: number): VectorShape {
+  const base = shape.corner?.base ?? shape.paths;
+  if (radius <= 0) return { ...shape, paths: base, corner: undefined };
+  return { ...shape, paths: filletPaths(base, radius), corner: { radius, base } };
+}

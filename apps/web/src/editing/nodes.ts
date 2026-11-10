@@ -28,7 +28,7 @@ export function normalizePath(path: VectorPath): VectorPath {
 export function normalizeShape(shape: VectorShape): VectorShape {
   const needs = shape.paths.some((p) => p.segments.some((s) => s.type === 'arc'));
   const kind = shape.kind === 'rect' || shape.kind === 'circle' ? (needs ? 'bezier' : 'polygon') : shape.kind;
-  return { ...shape, kind, text: undefined, paths: shape.paths.map(normalizePath) };
+  return { ...shape, kind, text: undefined, corner: undefined, paths: shape.paths.map(normalizePath) };
 }
 
 /** Antal noder (för sluten bana utan den dubblerade slutpunkten). */

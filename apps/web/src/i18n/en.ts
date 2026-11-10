@@ -201,6 +201,7 @@ export const en: Dict = {
   },
 
   props: {
+    cornerRadius: 'Corner radius',
     title: 'Properties',
     toolpath: 'Toolpath',
     relief: 'Relief',
@@ -350,6 +351,9 @@ export const en: Dict = {
   },
 
   viewport: {
+    length: 'Length',
+    angle: 'Angle',
+    addPoint: 'Add the point (Enter)',
     navMouse: 'Rotate with the left mouse button, pan with the right and zoom with the wheel.',
     navTouch: 'Rotate with one finger, pinch to zoom and drag with two fingers to pan.',
     navDrawTouch: 'Pinch to zoom and drag with two fingers to pan.',
@@ -369,7 +373,7 @@ export const en: Dict = {
       select: 'Tap a shape to select it, drag to move it.',
       nodes: 'Drag the points. Double-tap a line to add a point.',
       nodesPick: 'Tap a shape to edit its nodes.',
-      line: 'Tap to place points. Tap the first point to close.',
+      line: 'Tap to place points – snaps horizontal and vertical (Shift: every 15°). Or type length and angle.',
       curve: 'Tap for corners, tap and drag for smooth curves.',
       rect: 'Drag from one corner to the opposite corner.',
       circle: 'Drag from the centre out to the edge.',
@@ -409,6 +413,17 @@ export const en: Dict = {
     manualHint: 'Click the outline of the part to add a tab, click a tab to remove it and drag to move it. Tabs show as orange marks.',
     added: 'Tab added',
     removed: 'Tab removed',
+  },
+
+  measure: {
+    title: 'Distance between shapes',
+    reference: 'Measure',
+    modes: { center: 'Centre to centre', edge: 'Edge to edge' },
+    dx: 'Distance X',
+    dy: 'Distance Y',
+    dist: 'Centre distance',
+    swap: 'Swap',
+    note: (fixed: string, moving: string) => `${fixed} stays put, ${moving} moves when you change the values.`,
   },
 
   gearDialog: {

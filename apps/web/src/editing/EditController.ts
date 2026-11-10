@@ -52,7 +52,9 @@ export class EditController {
   private gesture: Gesture = { kind: 'none' };
   private draft: DraftNode[] = [];
   private cursor: Vec2 | null = null;
-  private snapKind: 'node' | 'grid' | 'free' = 'free';
+  private snapKind: 'node' | 'grid' | 'free' | 'axis' = 'free';
+  /** Hjälplinje när en linje fäst vid en vinkel (från senaste punkten). */
+  private guide: { from: Vec2; angle: number } | null = null;
   private lastTap = { time: 0, x: 0, y: 0 };
   private accent = '0 113 227';
   private ink = '29 29 31';
@@ -360,7 +362,7 @@ export class EditController {
         return;
       case 'curve':
         this.stop(e);
-        this.gesture = { kind: 'curveNode', p: this.snap(w, tol), handle: null, x0, y0 };
+        this.gesture = { kind: 'curveNode', p: this.drawSnap(w, tol, e.shiftKey), handle: null, x0, y0 };
         return;
       case 'rect': {
         this.stop(e);
@@ -381,7 +383,7 @@ export class EditController {
     const s = useAppStore.getState();
     const tol = this.tol(e, w);
     const tool = s.editTool;
-    if (DRAW_TOOLS.includes(tool)) this.cursor = this.snap(w, tol);
+    if (DRAW_TOOLS.includes(tool)) this.cursor = this.drawSnap(w, tol, e.shiftKey);
     else this.cursor = null;
     if (this.pointers.size > 1) return;
     const g = this.gesture;
@@ -519,7 +521,7 @@ export class EditController {
         return;
       case 'tap': {
         if (g.moved || !w) return;
-        const q = this.snap(w, this.tol(e, w));
+        const q = this.drawSnap(w, this.tol(e, w), e.shiftKey);
         if (s.editTool === 'text') {
           s.setTextAnchor(q);
           s.openDialog('text');
@@ -638,6 +640,54 @@ export class EditController {
         ctx.closePath();
         ctx.stroke();
         ctx.setLineDash([]);
+      }
+    }
+
+    // Måttlinje mellan två markerade former
+    if (s.editTool === 'select' && s.selectedShapeIds.length === 2 && !s.sim.active) {
+      const all = allShapes(s.layers);
+      const [a, b] = s.selectedShapeIds.map((id) => all.find((x) => x.id === id));
+      if (a && b) {
+        const ga = shapeGeometry(a), gb = shapeGeometry(b);
+        const ca = { x: (ga.min.x + ga.max.x) / 2, y: (ga.min.y + ga.max.y) / 2 };
+        const cb = { x: (gb.min.x + gb.max.x) / 2, y: (gb.min.y + gb.max.y) / 2 };
+        const loc = getT().locale;
+        const f = (n: number) => Math.abs(n).toLocaleString(loc, { maximumFractionDigits: 2 });
+        ctx.save();
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1;
+        if (s.measureMode === 'center') {
+          const pa = P(ca), pb = P(cb), pc = P({ x: cb.x, y: ca.y });
+          ctx.setLineDash([4, 4]);
+          ctx.globalAlpha = 0.6;
+          ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pc.x, pc.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.setLineDash([]);
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+          for (const q of [pa, pb]) { ctx.beginPath(); ctx.arc(q.x, q.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = accent; ctx.fill(); }
+          ctx.restore();
+          this.label(`${f(Math.hypot(cb.x - ca.x, cb.y - ca.y))} mm`, { x: (pa.x + pb.x) / 2 - 20, y: (pa.y + pb.y) / 2 - 26 });
+          if (Math.abs(cb.x - ca.x) > 0.01 && Math.abs(cb.y - ca.y) > 0.01) {
+            this.label(`X ${f(cb.x - ca.x)}`, { x: (pa.x + pc.x) / 2 - 20, y: pc.y - 4 });
+            this.label(`Y ${f(cb.y - ca.y)}`, { x: pc.x, y: (pc.y + pb.y) / 2 - 13 });
+          }
+        } else {
+          // Mellanrum: streckade linjer mellan kanterna i X och Y.
+          ctx.setLineDash([4, 4]);
+          const ys = Math.max(ga.min.y, gb.min.y), ye = Math.min(ga.max.y, gb.max.y);
+          const y = ys <= ye ? (ys + ye) / 2 : (ca.y + cb.y) / 2;
+          const xs = Math.max(ga.min.x, gb.min.x), xe = Math.min(ga.max.x, gb.max.x);
+          const x = xs <= xe ? (xs + xe) / 2 : (ca.x + cb.x) / 2;
+          const gx = cb.x >= ca.x ? [ga.max.x, gb.min.x] : [gb.max.x, ga.min.x];
+          const gy = cb.y >= ca.y ? [ga.max.y, gb.min.y] : [gb.max.y, ga.min.y];
+          const h0 = P({ x: gx[0], y }), h1 = P({ x: gx[1], y });
+          const v0 = P({ x, y: gy[0] }), v1 = P({ x, y: gy[1] });
+          ctx.beginPath(); ctx.moveTo(h0.x, h0.y); ctx.lineTo(h1.x, h1.y); ctx.moveTo(v0.x, v0.y); ctx.lineTo(v1.x, v1.y); ctx.stroke();
+          ctx.restore();
+          if (gx[1] - gx[0] > 0.01) this.label(`X ${f(gx[1] - gx[0])}`, { x: (h0.x + h1.x) / 2 - 20, y: h0.y - 26 });
+          if (gy[1] - gy[0] > 0.01) this.label(`Y ${f(gy[1] - gy[0])}`, { x: v0.x, y: (v0.y + v1.y) / 2 - 13 });
+        }
       }
     }
 
@@ -762,6 +812,31 @@ export class EditController {
       });
     }
 
+    // Vinkelhjälp och längd/vinkel för linjen som ritas
+    if (this.cursor && (s.editTool === 'line' || s.editTool === 'curve') && this.draft.length) {
+      const a = this.draft[this.draft.length - 1].p;
+      if (this.guide) {
+        const rad = (this.guide.angle * Math.PI) / 180;
+        const far = 5000;
+        const p0 = P({ x: a.x - Math.cos(rad) * far, y: a.y - Math.sin(rad) * far });
+        const p1 = P({ x: a.x + Math.cos(rad) * far, y: a.y + Math.sin(rad) * far });
+        ctx.save();
+        ctx.strokeStyle = accent;
+        ctx.globalAlpha = 0.5;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 5]);
+        ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+        ctx.restore();
+      }
+      const len = Math.hypot(this.cursor.x - a.x, this.cursor.y - a.y);
+      if (len > 1e-6) {
+        let deg = (Math.atan2(this.cursor.y - a.y, this.cursor.x - a.x) * 180) / Math.PI;
+        if (deg < 0) deg += 360;
+        const loc = getT().locale;
+        this.label(`${len.toLocaleString(loc, { maximumFractionDigits: 2 })} mm  ∠ ${deg.toLocaleString(loc, { maximumFractionDigits: 1 })}°`, P(this.cursor));
+      }
+    }
+
     // Fästmarkör
     if (this.cursor && DRAW_TOOLS.includes(s.editTool)) {
       const p = P(this.cursor);
@@ -790,6 +865,42 @@ export class EditController {
       const q = P(b.p);
       ctx.lineTo(q.x, q.y);
     }
+  }
+
+  /**
+   * Fästning medan man ritar linjer: först noder, sedan vågrätt/lodrätt från
+   * förra punkten (inom 4°), med Skift i steg om 15°. Längden följer rutnätet.
+   */
+  private drawSnap(w: Vec2, tol: number, shift: boolean): Vec2 {
+    const q = this.snap(w, tol);
+    this.guide = null;
+    const tool = useAppStore.getState().editTool;
+    if ((tool !== 'line' && tool !== 'curve') || !this.draft.length || this.snapKind === 'node') return q;
+    const a = this.draft[this.draft.length - 1].p;
+    const dx = w.x - a.x, dy = w.y - a.y;
+    const L = Math.hypot(dx, dy);
+    if (L < 1e-6) return q;
+    const ang = (Math.atan2(dy, dx) * 180) / Math.PI;
+    const step = shift ? 15 : 90;
+    const snapped = Math.round(ang / step) * step;
+    const diff = ang - snapped;
+    if (!shift && Math.abs(diff) > 4) return q;
+    let len = L * Math.cos((diff * Math.PI) / 180);
+    const s = useAppStore.getState().snap;
+    if (s.grid && s.step > 0) len = Math.round(len / s.step) * s.step;
+    const rad = (snapped * Math.PI) / 180;
+    this.snapKind = 'axis';
+    this.guide = { from: a, angle: snapped };
+    return { x: a.x + len * Math.cos(rad), y: a.y + len * Math.sin(rad) };
+  }
+
+  /** Lägger till en punkt med längd och vinkel från förra punkten (ritfältets fält). */
+  addPolar(length: number, angleDeg: number) {
+    const last = this.draft[this.draft.length - 1];
+    if (!last || !(length > 0)) return;
+    const rad = (angleDeg * Math.PI) / 180;
+    this.draft.push({ p: { x: last.p.x + length * Math.cos(rad), y: last.p.y + length * Math.sin(rad) } });
+    useDraft.getState().setPoints(this.draft.length);
   }
 
   private label(text: string, at: { x: number; y: number }) {

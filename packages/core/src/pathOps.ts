@@ -2,7 +2,7 @@
  * Operationer på vektorbanor: transformera, vända, sammanfoga och mäta.
  * Används av SVG/DXF-importen och när importerade former placeras.
  */
-import { flattenPath, uid } from './geometry';
+import { filletPaths, flattenPath, uid } from './geometry';
 import { applyMat, determinant, isConformal, type Mat2D } from './transform';
 import type { PathSegment, Vec2, VectorPath, VectorShape } from './types';
 
@@ -52,10 +52,16 @@ export function transformPath(path: VectorPath, m: Mat2D): VectorPath {
   return { ...path, start: applyMat(m, path.start), segments };
 }
 
-export const transformShape = (shape: VectorShape, m: Mat2D): VectorShape => ({
-  ...shape,
-  paths: shape.paths.map((p) => transformPath(p, m)),
-});
+export const transformShape = (shape: VectorShape, m: Mat2D): VectorShape => {
+  if (shape.corner) {
+    // Avrundade hörn: flytta/skala de skarpa banorna och avrunda igen. Radien
+    // behålls (som i CAD), även när formen ändrar storlek.
+    const base = shape.corner.base.map((p) => transformPath(p, m));
+    const radius = shape.corner.radius;
+    return { ...shape, paths: filletPaths(base, radius), corner: { radius, base } };
+  }
+  return { ...shape, paths: shape.paths.map((p) => transformPath(p, m)) };
+};
 
 export function endPoint(path: VectorPath): Vec2 {
   return path.segments.length ? path.segments[path.segments.length - 1].to : path.start;

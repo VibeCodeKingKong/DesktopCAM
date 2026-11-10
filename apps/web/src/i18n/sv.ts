@@ -172,6 +172,7 @@ export const sv = {
   },
 
   props: {
+    cornerRadius: 'Hörnradie',
     title: 'Egenskaper',
     toolpath: 'Verktygsbana',
     relief: 'Relief',
@@ -321,6 +322,9 @@ export const sv = {
   },
 
   viewport: {
+    length: 'Längd',
+    angle: 'Vinkel',
+    addPoint: 'Lägg till punkten (Enter)',
     navMouse: 'Rotera med vänster musknapp, panorera med höger och zooma med hjulet.',
     navTouch: 'Rotera med ett finger, nyp för att zooma och dra med två fingrar för att panorera.',
     navDrawTouch: 'Nyp för att zooma och dra med två fingrar för att panorera.',
@@ -340,7 +344,7 @@ export const sv = {
       select: 'Tryck på en form för att markera den, dra för att flytta.',
       nodes: 'Dra punkterna. Dubbeltryck på en linje för att lägga till en punkt.',
       nodesPick: 'Tryck på en form för att redigera dess noder.',
-      line: 'Tryck för att sätta ut punkter. Tryck på första punkten för att stänga.',
+      line: 'Tryck för punkter – fäster vågrätt och lodrätt (Skift: var 15°). Eller skriv längd och vinkel.',
       curve: 'Tryck för hörn, tryck och dra för mjuka kurvor.',
       rect: 'Dra från ett hörn till det motsatta.',
       circle: 'Dra från mitten ut till kanten.',
@@ -380,6 +384,17 @@ export const sv = {
     manualHint: 'Klicka på detaljens kontur för att lägga till en flik, klicka på en flik för att ta bort den och dra för att flytta den. Flikarna visas som orange markeringar.',
     added: 'Flik tillagd',
     removed: 'Flik borttagen',
+  },
+
+  measure: {
+    title: 'Mått mellan formerna',
+    reference: 'Mät från',
+    modes: { center: 'Mitt till mitt', edge: 'Kant till kant' },
+    dx: 'Avstånd X',
+    dy: 'Avstånd Y',
+    dist: 'Centrumavstånd',
+    swap: 'Byt',
+    note: (fixed: string, moving: string) => `${fixed} står still, ${moving} flyttas när du ändrar måtten.`,
   },
 
   gearDialog: {

@@ -1,6 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick } from 'lucide-react';
+import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight } from 'lucide-react';
 import {
+  canFillet,
+  setCornerRadius,
   autoTabPositions,
   distributeTabs,
   shapeToPolylines,
@@ -33,6 +35,8 @@ import {
   rotateSelection,
   setSelectionBox,
   updateText,
+  measure,
+  setMeasure,
 } from '../../cam/commands';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
@@ -168,6 +172,8 @@ function ShapeEditor() {
         </Group>
       )}
 
+      {ids.length === 2 && !selectedNode && <MeasureGroup ids={ids} />}
+
       <Group title={t.props.placement}>
         <NumberField label={t.props.x} unit="mm" step={1} value={r2(b.min.x)} onChange={(x) => setSelectionBox(x, b.min.y, w, h)} />
         <NumberField label={t.props.y} unit="mm" step={1} value={r2(b.min.y)} onChange={(y) => setSelectionBox(b.min.x, y, w, h)} />
@@ -193,6 +199,16 @@ function ShapeEditor() {
             {lock ? t.common.locked : t.common.free}
           </button>
         </FieldRow>
+        {single && canFillet(single) && (
+          <NumberField
+            label={t.props.cornerRadius}
+            unit="mm"
+            step={0.5}
+            min={0}
+            value={single.corner?.radius ?? 0}
+            onChange={(r) => useAppStore.getState().replaceShapes([setCornerRadius(single, Math.max(0, r))])}
+          />
+        )}
         <FieldRow label={t.props.rotate}>
           <div className="flex items-center gap-1">
             <button className="btn h-7 px-2" onClick={() => rotateSelection(angle)} title={`+${angle}°`} aria-label={`${t.props.rotate} +${angle}°`}>
@@ -811,6 +827,47 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
           <p className="text-2xs leading-relaxed text-muted">{manual || placing ? te.manualHint : t.props.tabsHint}</p>
         </>
       )}
+    </Group>
+  );
+}
+
+/** Mått mellan två markerade former. Den först markerade står still, den andra flyttas. */
+function MeasureGroup({ ids }: { ids: string[] }) {
+  const t = useT();
+  const tm = t.measure;
+  const layers = useAppStore((s) => s.layers);
+  const mode = useAppStore((s) => s.measureMode);
+  const setMode = useAppStore((s) => s.setMeasureMode);
+  const [swapped, setSwapped] = useState(false);
+  const all = allShapes(layers);
+  const first = all.find((x) => x.id === ids[0]);
+  const second = all.find((x) => x.id === ids[1]);
+  if (!first || !second) return null;
+  const [fixed, moving] = swapped ? [second, first] : [first, second];
+  const m = measure(fixed, moving, mode);
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  return (
+    <Group title={tm.title}>
+      <FieldRow label={tm.reference}>
+        <Segmented
+          label={tm.reference}
+          value={mode}
+          options={[
+            { value: 'center', label: tm.modes.center },
+            { value: 'edge', label: tm.modes.edge },
+          ]}
+          onChange={setMode}
+        />
+      </FieldRow>
+      <NumberField label={tm.dx} unit="mm" step={1} value={r2(m.dx)} onChange={(dx) => setMeasure(m, mode, { dx })} />
+      <NumberField label={tm.dy} unit="mm" step={1} value={r2(m.dy)} onChange={(dy) => setMeasure(m, mode, { dy })} />
+      {mode === 'center' && <NumberField label={tm.dist} unit="mm" step={1} min={0} value={r2(m.dist)} onChange={(dist) => setMeasure(m, mode, { dist })} />}
+      <div className="flex items-start gap-2">
+        <p className="min-w-0 flex-1 text-2xs leading-relaxed text-muted">{tm.note(fixed.name, moving.name)}</p>
+        <button className="btn h-7 shrink-0 px-2 text-2xs" onClick={() => setSwapped((v) => !v)}>
+          <ArrowLeftRight size={12} /> {tm.swap}
+        </button>
+      </div>
     </Group>
   );
 }

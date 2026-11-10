@@ -161,6 +161,8 @@ export interface VectorShape {
   paths: VectorPath[];
   /** Finns för text som fortfarande kan redigeras som text. */
   text?: TextParams;
+  /** Avrundade hörn: radien och banorna med skarpa hörn (för att kunna ändra radien). */
+  corner?: { radius: number; base: VectorPath[] };
 }
 
 export interface VectorLayer {

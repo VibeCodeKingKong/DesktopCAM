@@ -573,3 +573,55 @@ export function exportSelectedGcode() {
   status(t.status.saved(filename));
 }
 
+
+/* ───────── Mått mellan två former ───────── */
+
+export interface Measure {
+  /** Formen som står still och formen som flyttas. */
+  fixed: VectorShape;
+  moving: VectorShape;
+  dx: number;
+  dy: number;
+  dist: number;
+}
+
+const center = (sh: VectorShape) => {
+  const b = shapesBounds([sh])!;
+  return { x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, b };
+};
+
+/** Avstånd mellan två former: mitt till mitt, eller fritt mellanrum mellan kanterna. */
+export function measure(fixed: VectorShape, moving: VectorShape, mode: 'center' | 'edge'): Measure {
+  const a = center(fixed), c = center(moving);
+  if (mode === 'center') {
+    const dx = c.x - a.x, dy = c.y - a.y;
+    return { fixed, moving, dx, dy, dist: Math.hypot(dx, dy) };
+  }
+  const gap = (amin: number, amax: number, bmin: number, bmax: number, ac: number, bc: number) => (bc >= ac ? bmin - amax : amin - bmax);
+  const dx = gap(a.b.min.x, a.b.max.x, c.b.min.x, c.b.max.x, a.x, c.x);
+  const dy = gap(a.b.min.y, a.b.max.y, c.b.min.y, c.b.max.y, a.y, c.y);
+  return { fixed, moving, dx, dy, dist: Math.hypot(Math.max(0, dx), Math.max(0, dy)) };
+}
+
+function moveShape(sh: VectorShape, dx: number, dy: number) {
+  if (Math.abs(dx) < 1e-9 && Math.abs(dy) < 1e-9) return;
+  const out = transformShape(sh, translate(dx, dy));
+  useAppStore.getState().replaceShapes([sh.text ? { ...out, text: { ...sh.text, x: sh.text.x + dx, y: sh.text.y + dy } } : out]);
+}
+
+/** Flyttar den rörliga formen så att måttet blir det angivna. */
+export function setMeasure(m: Measure, mode: 'center' | 'edge', patch: { dx?: number; dy?: number; dist?: number }) {
+  const a = center(m.fixed), c = center(m.moving);
+  if (patch.dist !== undefined && mode === 'center') {
+    const ang = m.dist > 1e-9 ? Math.atan2(m.dy, m.dx) : 0;
+    moveShape(m.moving, a.x + patch.dist * Math.cos(ang) - c.x, a.y + patch.dist * Math.sin(ang) - c.y);
+    return;
+  }
+  if (mode === 'center') {
+    moveShape(m.moving, patch.dx !== undefined ? patch.dx - m.dx : 0, patch.dy !== undefined ? patch.dy - m.dy : 0);
+    return;
+  }
+  // Kant till kant: åt det håll den rörliga formen redan ligger.
+  const sx = c.x >= a.x ? 1 : -1, sy = c.y >= a.y ? 1 : -1;
+  moveShape(m.moving, patch.dx !== undefined ? sx * (patch.dx - m.dx) : 0, patch.dy !== undefined ? sy * (patch.dy - m.dy) : 0);
+}
