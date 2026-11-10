@@ -15,7 +15,7 @@ import { formatNumber } from './gcode';
 import type { PolylineInput } from './protocol';
 import { depthPasses } from './referenceEngine';
 import { offsetShapes } from './sdf';
-import type { CutDirection, CutSide, PostprocessorConfig, ProfileStrategy, StrategyPreset, TabSettings } from './types';
+import type { CutDirection, CutSide, PostprocessorConfig, ProfileStrategy, StrategyPreset, TabSettings, Vec2 } from './types';
 
 export const STRATEGY_PRESETS: Record<Exclude<StrategyPreset, 'custom'>, Omit<ProfileStrategy, 'preset'>> = {
   fast: { direction: 'conventional', finishPass: false, allowance: 0, finishDirection: 'climb', finishFeedFactor: 1, entry: 'ramp', rampAngle: 10, onionSkin: 0 },
@@ -56,6 +56,61 @@ export interface RouterProfileJob {
   post: PostprocessorConfig;
 }
 
+/* ───────── Flikarnas lägen ───────── */
+
+/** Närmaste punkt på slutna polylinjer: punkt, avstånd och riktning (enhetsvektor). */
+export function nearestOnContours(polys: PolylineInput[], x: number, y: number): { x: number; y: number; dist: number; tx: number; ty: number } | null {
+  let best: { x: number; y: number; dist: number; tx: number; ty: number } | null = null;
+  for (const pl of polys) {
+    if (!pl.closed) continue;
+    const pts = pl.points;
+    const n = pts.length / 2;
+    for (let k = 0; k < n; k++) {
+      const ax = pts[2 * k], ay = pts[2 * k + 1];
+      const b = (k + 1) % n;
+      const bx = pts[2 * b], by = pts[2 * b + 1];
+      const dx = bx - ax, dy = by - ay;
+      const len2 = dx * dx + dy * dy;
+      if (len2 < 1e-12) continue;
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / len2));
+      const px = ax + dx * t, py = ay + dy * t;
+      const d = Math.hypot(x - px, y - py);
+      if (!best || d < best.dist) {
+        const l = Math.sqrt(len2);
+        best = { x: px, y: py, dist: d, tx: dx / l, ty: dy / l };
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Jämnt fördelade flikar: på varje forms yttre kontur, med start i konturens
+ * första punkt förskjuten med `offset`. Korta konturer får färre flikar.
+ */
+export function autoTabPositions(groups: PolylineInput[][], tabs: TabSettings, toolDiameter: number): Vec2[] {
+  const out: Vec2[] = [];
+  const span = tabs.width + toolDiameter;
+  for (const g of groups) {
+    const closed = g.filter((p) => p.closed);
+    if (!closed.length) continue;
+    const outer = closed.reduce((a, b) => (Math.abs(signedArea(b.points)) > Math.abs(signedArea(a.points)) ? b : a));
+    const track = new Track(outer.points, true);
+    const n = Math.min(Math.max(0, Math.round(tabs.count)), Math.floor(track.length / (span * 3)));
+    for (let k = 0; k < n; k++) {
+      const [x, y] = track.at(((tabs.offset + k / n) % 1) * track.length);
+      out.push({ x, y });
+    }
+  }
+  return out;
+}
+
+/** Flikarnas mittpunkter för en bana: manuella eller automatiska. */
+export function tabPositions(groups: PolylineInput[][], tabs: TabSettings, toolDiameter: number): Vec2[] {
+  if (!tabs.enabled) return [];
+  return tabs.mode === 'manual' ? (tabs.positions ?? []) : autoTabPositions(groups, tabs, toolDiameter);
+}
+
 /* ───────── Bana med båglängd ───────── */
 
 class Track {
@@ -89,6 +144,19 @@ class Track {
     const seg = this.cum[hi] - this.cum[lo] || 1e-12;
     const t = (s - this.cum[lo]) / seg;
     return [this.xs[lo] + (this.xs[hi] - this.xs[lo]) * t, this.ys[lo] + (this.ys[hi] - this.ys[lo]) * t];
+  }
+  /** Närmaste läge (båglängd) och avstånd från punkten till banan. */
+  nearest(x: number, y: number): { s: number; dist: number } {
+    let best = { s: 0, dist: Infinity };
+    for (let i = 1; i < this.xs.length; i++) {
+      const ax = this.xs[i - 1], ay = this.ys[i - 1];
+      const dx = this.xs[i] - ax, dy = this.ys[i] - ay;
+      const len2 = dx * dx + dy * dy;
+      const t = len2 > 1e-12 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / len2)) : 0;
+      const d = Math.hypot(x - (ax + dx * t), y - (ay + dy * t));
+      if (d < best.dist) best = { s: this.cum[i - 1] + t * (this.cum[i] - this.cum[i - 1]), dist: d };
+    }
+    return best;
   }
   /** Hörnpunkternas avstånd mellan s0 och s1 (för att behålla formen). */
   vertexStations(s0: number, s1: number): number[] {
@@ -157,13 +225,16 @@ export function routerProfileGcode(job: RouterProfileJob): string {
   const tabs = job.tabs;
   const tabTop = -(finalDepth - Math.min(tabs.height, finalDepth));
   const tabSpan = tabs.width + 2 * r;
+  // Flikarna är punkter på detaljens kontur. Varje pass (grov och fin, oavsett
+  // riktning) projicerar dem på sin egen bana, så att alla pass lyfter på samma ställe.
+  const tabPoints = sideSign === 0 ? [] : tabPositions(closedGroups, tabs, job.toolDiameter);
+  const reach = r + allowance + Math.max(1, r);
   const tabIntervals = (track: Track): [number, number][] => {
-    if (!tabs.enabled || !track.closed || sideSign === 0 || tabs.count < 1) return [];
-    const n = Math.min(tabs.count, Math.floor(track.length / (tabSpan * 3)));
+    if (!tabPoints.length || !track.closed) return [];
     const out: [number, number][] = [];
-    for (let k = 0; k < n; k++) {
-      const c = ((tabs.offset + k / n) % 1) * track.length;
-      out.push([c - tabSpan / 2, c + tabSpan / 2]);
+    for (const pt of tabPoints) {
+      const { s, dist } = track.nearest(pt.x, pt.y);
+      if (dist <= reach) out.push([s - tabSpan / 2, s + tabSpan / 2]);
     }
     return out;
   };

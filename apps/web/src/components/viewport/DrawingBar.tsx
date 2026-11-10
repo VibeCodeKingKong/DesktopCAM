@@ -54,10 +54,10 @@ export function DrawingBar() {
             activeEditor?.cancelDraft();
             setTool('select');
           }}
-          title={tool === 'nodes' ? t.common.done : t.viewport.cancel}
+          title={tool === 'nodes' || tool === 'tabs' ? t.common.done : t.viewport.cancel}
         >
-          {tool === 'nodes' ? <Check size={14} /> : points ? <X size={14} /> : <CircleSlash size={14} />}
-          {tool === 'nodes' ? t.common.done : t.viewport.cancel}
+          {tool === 'nodes' || tool === 'tabs' ? <Check size={14} /> : points ? <X size={14} /> : <CircleSlash size={14} />}
+          {tool === 'nodes' || tool === 'tabs' ? t.common.done : t.viewport.cancel}
         </button>
       </div>
     </div>

@@ -220,6 +220,10 @@ export interface TabSettings {
   height: number;
   /** Var den första fliken sitter, som andel av konturens längd (0–1). */
   offset: number;
+  /** auto: jämnt fördelade (count/offset). manual: placerade för hand (positions). */
+  mode?: 'auto' | 'manual';
+  /** Flikarnas mittpunkter på detaljens kontur (mm), för manuell placering. */
+  positions?: Vec2[];
 }
 
 /** Hur en profil fräses: grov/fin, riktning, nedgång och fasthållning. */

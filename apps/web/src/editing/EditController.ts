@@ -20,6 +20,7 @@ import {
 } from '@desktopcam/core';
 import type { SceneController } from '../components/viewport/SceneController';
 import { getT } from '../i18n';
+import { onContour, setTabPositions, tabContext } from './tabs';
 import { allShapes, useAppStore, type EditTool, type NodeRef } from '../store/useAppStore';
 import { useDraft } from './draftStore';
 import { hitShape, shapeGeometry } from './hitTest';
@@ -37,7 +38,8 @@ type Gesture =
   | { kind: 'rect'; a: Vec2; b: Vec2 }
   | { kind: 'circle'; c: Vec2; r: number }
   | { kind: 'tap'; x0: number; y0: number; moved: boolean }
-  | { kind: 'curveNode'; p: Vec2; handle: Vec2 | null; x0: number; y0: number };
+  | { kind: 'curveNode'; p: Vec2; handle: Vec2 | null; x0: number; y0: number }
+  | { kind: 'tab'; index: number; x0: number; y0: number; moved: boolean; added: boolean };
 
 const DRAW_TOOLS: EditTool[] = ['line', 'curve', 'rect', 'circle', 'text'];
 
@@ -72,6 +74,8 @@ export class EditController {
     this.applyTool(useAppStore.getState().editTool);
     this.unsub = useAppStore.subscribe((s, prev) => {
       if (s.editTool !== prev.editTool) this.applyTool(s.editTool);
+      // Flikverktyget gäller den markerade profilbanan – avsluta om den inte längre finns.
+      if (s.editTool === 'tabs' && (s.selectedToolpathId !== prev.selectedToolpathId || s.toolpaths !== prev.toolpaths) && !tabContext()) s.setEditTool('select');
     });
     activeEditor = this;
   }
@@ -269,6 +273,30 @@ export class EditController {
     const { x: x0, y: y0 } = this.local(e);
 
     switch (tool) {
+      case 'tabs': {
+        const ctx = tabContext();
+        if (!ctx) return;
+        this.stop(e);
+        const grab = Math.max(tol * 1.5, ctx.tabs.width / 2);
+        let index = -1, bestD = grab;
+        ctx.positions.forEach((q, i) => {
+          const d = Math.hypot(q.x - w.x, q.y - w.y);
+          if (d < bestD) { bestD = d; index = i; }
+        });
+        s.checkpoint();
+        let added = false;
+        if (index < 0) {
+          const hit = onContour(ctx, w);
+          if (!hit || hit.dist > tol * 2.5) return;
+          setTabPositions(ctx, [...ctx.positions, { x: hit.x, y: hit.y }]);
+          index = ctx.positions.length;
+          added = true;
+        } else if (ctx.tabs.mode !== 'manual') {
+          setTabPositions(ctx, ctx.positions);
+        }
+        this.gesture = { kind: 'tab', index, x0, y0, moved: false, added };
+        return;
+      }
       case 'select': {
         const hit = hitShape(s.layers, w, tol);
         if (!hit) {
@@ -359,7 +387,17 @@ export class EditController {
     const g = this.gesture;
     const p = this.local(e);
 
+    if (tool === 'tabs') this.cursor = w;
     switch (g.kind) {
+      case 'tab': {
+        if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
+        g.moved = true;
+        const ctx = tabContext();
+        const hit = ctx && onContour(ctx, w);
+        if (!ctx || !hit) return;
+        setTabPositions(ctx, ctx.positions.map((q, i) => (i === g.index ? { x: hit.x, y: hit.y } : q)));
+        return;
+      }
       case 'empty':
         if (Math.hypot(p.x - g.x0, p.y - g.y0) > 5) g.moved = true;
         return;
@@ -430,6 +468,14 @@ export class EditController {
     const t = getT();
 
     switch (g.kind) {
+      case 'tab': {
+        const ctx = tabContext();
+        if (ctx && !g.moved && !g.added) {
+          setTabPositions(ctx, ctx.positions.filter((_, i) => i !== g.index));
+          s.setStatus(t.tabsEdit.removed);
+        } else if (ctx && g.added) s.setStatus(t.tabsEdit.added);
+        return;
+      }
       case 'empty':
         if (!g.moved && !(e.shiftKey || e.metaKey)) {
           if (s.editTool === 'nodes' && s.selectedNode) s.selectNode(null);
@@ -571,7 +617,7 @@ export class EditController {
     const P = (v: Vec2) => this.scene.worldToScreen(v.x, v.y);
 
     // Markeringsram
-    if (s.editTool === 'select' && s.selectedShapeIds.length) {
+    if (s.editTool === 'select' && s.selectedShapeIds.length && !s.sim.active) {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const sh of this.selectedShapes()) {
         const g = shapeGeometry(sh);
@@ -593,6 +639,35 @@ export class EditController {
         ctx.stroke();
         ctx.setLineDash([]);
       }
+    }
+
+    // Flikar på den markerade profilbanan
+    const tabCtx = s.sim.active ? null : tabContext();
+    if (tabCtx) {
+      const editing = s.editTool === 'tabs';
+      const half = tabCtx.tabs.width / 2;
+      const marker = (q: Vec2, ghost: boolean) => {
+        const hit = onContour(tabCtx, q);
+        if (!hit) return;
+        const a = P({ x: hit.x - hit.tx * half, y: hit.y - hit.ty * half });
+        const b = P({ x: hit.x + hit.tx * half, y: hit.y + hit.ty * half });
+        ctx.lineCap = 'butt';
+        ctx.lineWidth = ghost ? 6 : 9;
+        ctx.strokeStyle = ghost ? accent.replace('rgb', 'rgba').replace(')', ',0.35)') : '#f59e0b';
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        if (!ghost) {
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = editing ? accent : 'rgba(0,0,0,0.45)';
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      };
+      tabCtx.positions.forEach((q) => marker(q, false));
+      if (editing && this.cursor && this.gesture.kind === 'none') {
+        const hit = onContour(tabCtx, this.cursor);
+        const near = tabCtx.positions.some((q) => Math.hypot(q.x - this.cursor!.x, q.y - this.cursor!.y) < Math.max(half, 3));
+        if (hit && !near && hit.dist < 6 * this.scene.worldPerPixel(hit.x, hit.y) * 2.5) marker({ x: hit.x, y: hit.y }, true);
+      }
+      ctx.lineCap = 'butt';
     }
 
     // Noder

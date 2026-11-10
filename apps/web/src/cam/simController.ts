@@ -33,7 +33,7 @@ function showSim() {
 function draw() {
   if (!scene || !sim) return;
   if (sim.version !== drawnVersion) {
-    scene.updateSimulation(sim.heights, sim.burn, sim.nx, sim.ny, sim.material.thickness);
+    scene.updateSimulation(sim.heights, sim.burn, sim.nx, sim.ny, sim.material.thickness, sim.tabMark);
     drawnVersion = sim.version;
   }
   const done = sim.currentTime >= sim.duration;
@@ -86,6 +86,7 @@ export function startSimulation(autoplay = true): boolean {
     return false;
   }
   sim = next;
+  if (s.editTool === 'tabs') s.setEditTool('select');
   s.setSim({ active: true, playing: autoplay, progress: 0, duration: sim.duration, job: sim.jobs[0]?.name ?? '' });
   s.setStatus(t.sim.started);
   showSim();

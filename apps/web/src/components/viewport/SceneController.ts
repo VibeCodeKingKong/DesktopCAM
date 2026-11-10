@@ -231,7 +231,7 @@ export class SceneController {
   }
 
   /** Läser in höjder (mm, 0 = ovansidan) och bränning (0–1) i simuleringsytan. */
-  updateSimulation(heights: Float32Array, burn: Float32Array, nx: number, ny: number, thickness: number) {
+  updateSimulation(heights: Float32Array, burn: Float32Array, nx: number, ny: number, thickness: number, tabMark?: Uint8Array) {
     const top = this.simTop;
     if (!top) return;
     const geo = top.geometry as THREE.BufferGeometry;
@@ -250,6 +250,10 @@ export class SceneController {
         const d = z < -1e-3 ? 0.45 + 0.55 * Math.min(1, -z / thickness) : 0;
         const b = burn[k];
         let r = base.r + (cutTint.r - base.r) * d, g = base.g + (cutTint.g - base.g) * d, bl = base.b + (cutTint.b - base.b) * d;
+        // Genomskuret: mörkt, så att detaljens kant och flikarna syns tydligt.
+        if (z <= -thickness + 0.02) { r = 0.13; g = 0.13; bl = 0.15; }
+        // Flikar som står kvar: orange, som markeringarna i ritvyn.
+        else if (tabMark && tabMark[k]) { r = 0.96; g = 0.62; bl = 0.04; }
         r += (burnt.r - r) * b; g += (burnt.g - g) * b; bl += (burnt.b - bl) * b;
         col.setXYZ(v, r, g, bl);
       }

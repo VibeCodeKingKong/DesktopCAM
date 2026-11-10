@@ -1,6 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock } from 'lucide-react';
+import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick } from 'lucide-react';
 import {
+  autoTabPositions,
+  shapeToPolylines,
   defaultStrategy,
   inlayFit,
   matchPreset,
@@ -719,9 +721,26 @@ function ProfileStrategyEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: 
 function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
   const t = useT();
   const thickness = useAppStore((s) => s.material.thickness);
+  const tool = useAppStore((s) => s.editTool);
+  const setTool = useAppStore((s) => s.setEditTool);
   const { strategy: st, tabs } = resolveProfile(tp);
   if (tp.side === 'on') return null;
   const set = (p: Partial<TabSettings>) => patch({ tabs: { ...tabs, ...p } });
+  const te = t.tabsEdit;
+  const manual = tabs.mode === 'manual';
+  const placing = tool === 'tabs';
+  const autoPositions = () => {
+    const s = useAppStore.getState();
+    const groups = allShapes(s.layers)
+      .filter((sh) => tp.shapeIds.includes(sh.id))
+      .map((sh) => shapeToPolylines(sh).filter((p) => p.closed))
+      .filter((g) => g.length);
+    return autoTabPositions(groups, { ...tabs, mode: 'auto' }, s.tools.find((x) => x.id === tp.toolId)?.diameter ?? 3);
+  };
+  const startPlacing = () => {
+    if (!manual) set({ mode: 'manual', positions: autoPositions() });
+    setTool('tabs');
+  };
   const throughCut = tp.cutDepth - st.onionSkin >= thickness - 0.01;
   const loose = throughCut && !tabs.enabled && st.onionSkin <= 0;
 
@@ -740,22 +759,56 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
       )}
       {tabs.enabled && (
         <>
-          <NumberField label={t.props.tabCount} step={1} min={1} max={20} value={tabs.count} onChange={(count) => set({ count: Math.round(count) })} />
           <NumberField label={t.props.tabWidth} unit="mm" step={1} min={1} value={tabs.width} onChange={(width) => set({ width })} />
           <NumberField label={t.props.tabHeight} unit="mm" step={0.5} min={0.2} max={Math.max(0.2, tp.cutDepth)} value={tabs.height} onChange={(height) => set({ height })} />
-          <FieldRow label={t.props.tabPosition}>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={1}
-              value={Math.round((tabs.offset ?? 0) * 100)}
-              onChange={(e) => set({ offset: Number(e.target.value) / 100 })}
-              className="h-7 w-full accent-[rgb(var(--c-accent))]"
-              aria-label={t.props.tabPosition}
+          <FieldRow label={te.placement}>
+            <Segmented
+              label={te.placement}
+              value={manual ? 'manual' : 'auto'}
+              options={[
+                { value: 'auto', label: te.modes.auto },
+                { value: 'manual', label: te.modes.manual },
+              ]}
+              onChange={(m) => {
+                if (m === 'auto') {
+                  set({ mode: 'auto' });
+                  if (placing) setTool('select');
+                } else startPlacing();
+              }}
             />
           </FieldRow>
-          <p className="text-2xs leading-relaxed text-muted">{t.props.tabsHint}</p>
+          {!manual && (
+            <>
+              <NumberField label={t.props.tabCount} step={1} min={1} max={20} value={tabs.count} onChange={(count) => set({ count: Math.round(count) })} />
+              <FieldRow label={t.props.tabPosition}>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={Math.round((tabs.offset ?? 0) * 100)}
+                  onChange={(e) => set({ offset: Number(e.target.value) / 100 })}
+                  className="h-7 w-full accent-[rgb(var(--c-accent))]"
+                  aria-label={t.props.tabPosition}
+                />
+              </FieldRow>
+            </>
+          )}
+          {manual && <p className="text-xs font-medium">{te.manualCount(tabs.positions?.length ?? 0)}</p>}
+          <button className={`btn w-full ${placing ? 'btn-primary' : ''}`} onClick={() => (placing ? setTool('select') : startPlacing())}>
+            <MousePointerClick size={13} /> {placing ? te.placing : te.place}
+          </button>
+          {manual && (
+            <div className="grid grid-cols-2 gap-2">
+              <button className="btn" onClick={() => set({ mode: 'manual', positions: autoPositions() })}>
+                {te.distribute}
+              </button>
+              <button className="btn" onClick={() => set({ mode: 'manual', positions: [] })}>
+                {te.clear}
+              </button>
+            </div>
+          )}
+          <p className="text-2xs leading-relaxed text-muted">{manual || placing ? te.manualHint : t.props.tabsHint}</p>
         </>
       )}
     </Group>

@@ -31,6 +31,8 @@ export interface SimJob {
   tool: SimToolShape;
   /** Laserskärning: skär genom hela materialet där strålen går. */
   laserCut: boolean;
+  /** Profil med flikar: Z för flikarnas ovansida (markeras i simuleringen). */
+  tabTop?: number;
 }
 
 /** Tolkar G-koden till rörelser med tider (sekunder i maskintid). */
@@ -77,6 +79,8 @@ export class StockSimulator {
   readonly heights: Float32Array;
   /** Bränningsgrad 0–1 för lasergravyr. */
   readonly burn: Float32Array;
+  /** 1 där en flik står kvar (verktyget lyfte över materialet). */
+  readonly tabMark: Uint8Array;
   readonly duration: number;
   readonly jobs: SimJob[];
   private moves: Move[];
@@ -98,6 +102,7 @@ export class StockSimulator {
     this.ny = Math.max(2, Math.round(height / this.cell) + 1);
     this.heights = new Float32Array(this.nx * this.ny);
     this.burn = new Float32Array(this.nx * this.ny);
+    this.tabMark = new Uint8Array(this.nx * this.ny);
     this.jobs = jobs.map((j) => j.job);
     const all: Move[] = [];
     let t = 0;
@@ -118,6 +123,7 @@ export class StockSimulator {
   reset() {
     this.heights.fill(0);
     this.burn.fill(0);
+    this.tabMark.fill(0);
     this.index = 0;
     this.time = 0;
     if (this.moves.length) this.position = { x: this.moves[0].x0, y: this.moves[0].y0, z: this.moves[0].z0 };
@@ -195,7 +201,10 @@ export class StockSimulator {
         let zt = z;
         if (tool.kind === 'ballnose') zt = z + R - Math.sqrt(Math.max(0, R2 - r2));
         else if (tool.kind === 'vbit') zt = z + r / tanHalf;
-        if (zt < heights[k]) heights[k] = Math.max(floor, zt);
+        if (zt < heights[k]) {
+          heights[k] = Math.max(floor, zt);
+          if (job.tabTop !== undefined && Math.abs(heights[k] - job.tabTop) < 0.05) this.tabMark[k] = 1;
+        }
       }
     }
   }
@@ -218,7 +227,13 @@ export function buildSimulator(
     const shape: SimToolShape = laser
       ? { kind: 'laser', radius: Math.max(0.05, (tp.operation === 'laserCut' ? tp.kerf : tp.lineIntervalMm) / 2), angle: 0 }
       : { kind: tool?.kind ?? 'endmill', radius: (tool?.diameter ?? 3) / 2, angle: tool?.angle ?? 90 };
-    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' }, gcode: res.gcode });
+    let tabTop: number | undefined;
+    if (tp.operation === 'profile' && tp.side !== 'on' && tp.tabs?.enabled) {
+      const finalDepth = Math.max(0, tp.cutDepth - Math.max(0, tp.strategy?.onionSkin ?? 0));
+      const top = -(finalDepth - Math.min(tp.tabs.height, finalDepth));
+      if (top < -0.05) tabTop = top;
+    }
+    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut', tabTop }, gcode: res.gcode });
   }
   if (!jobs.length) return null;
   return new StockSimulator(material, jobs, sMax);

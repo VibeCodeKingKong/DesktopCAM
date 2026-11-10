@@ -345,6 +345,7 @@ export const sv = {
       rect: 'Dra från ett hörn till det motsatta.',
       circle: 'Dra från mitten ut till kanten.',
       text: 'Tryck där texten ska börja.',
+      tabs: 'Klicka på konturen för att lägga till en flik, på en flik för att ta bort den, dra för att flytta.',
     },
   },
 
@@ -366,6 +367,19 @@ export const sv = {
     flute: (depth: number, len: number) => `Banan går ${mmSv(depth)} djupt men verktygets skärlängd är bara ${mmSv(len)}. Skaftet gnider mot materialet – välj ett längre verktyg eller minska djupet.`,
     vbit: (depth: number, len: number) => `Banan går ${mmSv(depth)} djupt men V-fräsens kona är bara ${mmSv(len)} hög. Över det skär skaftet och spåret blir bredare än ritningen.`,
     collet: (depth: number, stick: number) => `Varning: spännhylsan slår i materialet! Banan går ${mmSv(depth)} djupt men verktyget sticker bara ut ${mmSv(stick)}. Dra ut verktyget mer eller minska djupet.`,
+  },
+
+  tabsEdit: {
+    placement: 'Placering',
+    modes: { auto: 'Jämnt fördelade', manual: 'Egna lägen' },
+    place: 'Placera flikar i vyn',
+    placing: 'Klar med flikarna',
+    distribute: 'Fördela jämnt',
+    clear: 'Ta bort alla',
+    manualCount: (n: number) => (n === 1 ? '1 flik placerad' : `${n} flikar placerade`),
+    manualHint: 'Klicka på detaljens kontur för att lägga till en flik, klicka på en flik för att ta bort den och dra för att flytta den. Flikarna visas som orange markeringar.',
+    added: 'Flik tillagd',
+    removed: 'Flik borttagen',
   },
 
   gearDialog: {

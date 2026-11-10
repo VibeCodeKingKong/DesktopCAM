@@ -374,6 +374,7 @@ export const en: Dict = {
       rect: 'Drag from one corner to the opposite corner.',
       circle: 'Drag from the centre out to the edge.',
       text: 'Tap where the text should start.',
+      tabs: 'Click the outline to add a tab, click a tab to remove it, drag to move it.',
     },
   },
 
@@ -395,6 +396,19 @@ export const en: Dict = {
     flute: (depth: number, len: number) => `The toolpath goes ${mmEn(depth)} deep but the tool's flute length is only ${mmEn(len)}. The shank will rub the material – use a longer tool or reduce the depth.`,
     vbit: (depth: number, len: number) => `The toolpath goes ${mmEn(depth)} deep but the V-bit's cone is only ${mmEn(len)} tall. Below that the shank cuts and the groove gets wider than the drawing.`,
     collet: (depth: number, stick: number) => `Warning: the collet will hit the material! The toolpath goes ${mmEn(depth)} deep but the tool only sticks out ${mmEn(stick)}. Extend the tool or reduce the depth.`,
+  },
+
+  tabsEdit: {
+    placement: 'Placement',
+    modes: { auto: 'Evenly spaced', manual: 'Custom' },
+    place: 'Place tabs in the view',
+    placing: 'Done placing tabs',
+    distribute: 'Space evenly',
+    clear: 'Remove all',
+    manualCount: (n: number) => (n === 1 ? '1 tab placed' : `${n} tabs placed`),
+    manualHint: 'Click the outline of the part to add a tab, click a tab to remove it and drag to move it. Tabs show as orange marks.',
+    added: 'Tab added',
+    removed: 'Tab removed',
   },
 
   gearDialog: {
