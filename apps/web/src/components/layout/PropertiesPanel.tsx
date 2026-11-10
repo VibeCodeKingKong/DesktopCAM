@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick } from 'lucide-react';
 import {
   autoTabPositions,
+  distributeTabs,
   shapeToPolylines,
   defaultStrategy,
   inlayFit,
@@ -729,14 +730,13 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
   const te = t.tabsEdit;
   const manual = tabs.mode === 'manual';
   const placing = tool === 'tabs';
-  const autoPositions = () => {
-    const s = useAppStore.getState();
-    const groups = allShapes(s.layers)
+  const contourGroups = () =>
+    allShapes(useAppStore.getState().layers)
       .filter((sh) => tp.shapeIds.includes(sh.id))
       .map((sh) => shapeToPolylines(sh).filter((p) => p.closed))
       .filter((g) => g.length);
-    return autoTabPositions(groups, { ...tabs, mode: 'auto' }, s.tools.find((x) => x.id === tp.toolId)?.diameter ?? 3);
-  };
+  const autoPositions = () =>
+    autoTabPositions(contourGroups(), { ...tabs, mode: 'auto' }, useAppStore.getState().tools.find((x) => x.id === tp.toolId)?.diameter ?? 3);
   const startPlacing = () => {
     if (!manual) set({ mode: 'manual', positions: autoPositions() });
     setTool('tabs');
@@ -800,7 +800,7 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
           </button>
           {manual && (
             <div className="grid grid-cols-2 gap-2">
-              <button className="btn" onClick={() => set({ mode: 'manual', positions: autoPositions() })}>
+              <button className="btn" onClick={() => set({ mode: 'manual', positions: distributeTabs(contourGroups(), tabs.positions ?? []) })}>
                 {te.distribute}
               </button>
               <button className="btn" onClick={() => set({ mode: 'manual', positions: [] })}>

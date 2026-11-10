@@ -105,6 +105,41 @@ export function autoTabPositions(groups: PolylineInput[][], tabs: TabSettings, t
   return out;
 }
 
+/**
+ * Fördelar befintliga flikar jämnt: varje kontur behåller lika många flikar
+ * som den har nu, och den första fliken (räknat från konturens start) står kvar.
+ */
+export function distributeTabs(groups: PolylineInput[][], positions: Vec2[]): Vec2[] {
+  const outers = groups
+    .map((g) => g.filter((p) => p.closed))
+    .filter((g) => g.length)
+    .map((g) => new Track(g.reduce((a, b) => (Math.abs(signedArea(b.points)) > Math.abs(signedArea(a.points)) ? b : a)).points, true));
+  if (!outers.length) return positions;
+  // Fördela flikarna på närmaste kontur.
+  const onTrack: number[][] = outers.map(() => []);
+  const loose: Vec2[] = [];
+  for (const q of positions) {
+    let best = -1, bestD = Infinity, bestS = 0;
+    outers.forEach((tr, i) => {
+      const n = tr.nearest(q.x, q.y);
+      if (n.dist < bestD) { bestD = n.dist; best = i; bestS = n.s; }
+    });
+    if (best >= 0) onTrack[best].push(bestS);
+    else loose.push(q);
+  }
+  const out: Vec2[] = [...loose];
+  outers.forEach((tr, i) => {
+    const ss = onTrack[i].sort((a, b) => a - b);
+    const n = ss.length;
+    if (!n) return;
+    for (let k = 0; k < n; k++) {
+      const [x, y] = tr.at(ss[0] + (k * tr.length) / n);
+      out.push({ x, y });
+    }
+  });
+  return out;
+}
+
 /** Flikarnas mittpunkter för en bana: manuella eller automatiska. */
 export function tabPositions(groups: PolylineInput[][], tabs: TabSettings, toolDiameter: number): Vec2[] {
   if (!tabs.enabled) return [];
