@@ -3,6 +3,7 @@
  * TypeScript kontrollerar det via typen Dict.
  */
 import type { ImportLabels, MaterialPreset, OperationType, ReliefCategory, ToolKind } from '@desktopcam/core';
+const mmSv = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 type Tip = { label: string; title: string; desc: string };
 export type GuideEntry = { title: string; body: string; steps?: string[] };
@@ -318,6 +319,12 @@ export const sv = {
     noToolpaths: 'Det finns inga beräknade, synliga verktygsbanor att simulera.',
   },
 
+  reach: {
+    flute: (depth: number, len: number) => `Banan går ${mmSv(depth)} djupt men verktygets skärlängd är bara ${mmSv(len)}. Skaftet gnider mot materialet – välj ett längre verktyg eller minska djupet.`,
+    vbit: (depth: number, len: number) => `Banan går ${mmSv(depth)} djupt men V-fräsens kona är bara ${mmSv(len)} hög. Över det skär skaftet och spåret blir bredare än ritningen.`,
+    collet: (depth: number, stick: number) => `Varning: spännhylsan slår i materialet! Banan går ${mmSv(depth)} djupt men verktyget sticker bara ut ${mmSv(stick)}. Dra ut verktyget mer eller minska djupet.`,
+  },
+
   gearDialog: {
     title: 'Nytt kugghjul',
     teeth: 'Antal kuggar',
@@ -484,6 +491,16 @@ export const sv = {
   },
 
   machine: {
+    dimensions: 'Mått',
+    flutes: 'Antal skär',
+    cutShort: 'skär',
+    stickoutShort: 'utstick',
+    advanced: 'Avancerat – längder',
+    fluteLength: 'Skärlängd',
+    shankDiameter: 'Skaftdiameter',
+    overallLength: 'Total längd',
+    stickout: 'Utstick från spännhylsan',
+    lengthNote: 'Skärlängden och utsticket kontrolleras när banor beräknas: du får en varning om banan går djupare än verktyget skär, eller om spännhylsan skulle slå i materialet. 0 = okänt.',
     title: 'Maskininställning',
     newProfile: 'Ny profil',
     steps: { preset: '1. Välj maskin', post: '2. Postprocessor', tools: '3. Verktygsbibliotek' },

@@ -107,7 +107,7 @@ export function SetupTab() {
             />
           </RibbonField>
         </RibbonStack>
-        <RibbonButton icon={Wrench} label={b.toolLibrary.label} onClick={() => openDialog('machineSetup')} tooltip={tip(b.toolLibrary)} />
+        <RibbonButton icon={Wrench} label={b.toolLibrary.label} onClick={() => openDialog('machineSetup', 'tools')} tooltip={tip(b.toolLibrary)} />
       </RibbonGroup>
 
       {isLaser && machine.laser && (

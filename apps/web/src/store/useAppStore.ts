@@ -32,6 +32,8 @@ export interface ToolpathResult {
   stats: ToolpathStats;
   engine: EngineInfo['engine'];
   computedAt: number;
+  /** Varningar från kontrollerna efter beräkningen (t.ex. verktyget når inte). */
+  warnings?: string[];
 }
 
 export interface RasterSource {
@@ -108,6 +110,8 @@ interface AppState extends DocSnapshot {
   status: string;
   engine: EngineInfo | null;
   dialog: DialogId | null;
+  /** Vilket steg en dialog ska öppnas på (t.ex. 'tools' i maskininställningen). */
+  dialogStep: string | null;
 
   // Gränssnitt
   setLanguage: (l: Language) => void;
@@ -122,7 +126,7 @@ interface AppState extends DocSnapshot {
   setCursor: (p: Vec3 | null) => void;
   setStatus: (s: string) => void;
   setEngine: (e: EngineInfo) => void;
-  openDialog: (d: DialogId | null) => void;
+  openDialog: (d: DialogId | null, step?: string) => void;
 
   // Historik
   checkpoint: () => void;
@@ -246,6 +250,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     status: '',
     engine: null,
     dialog: null,
+    dialogStep: null,
 
     setLanguage: (language) => {
       try {
@@ -267,7 +272,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     setCursor: (cursor) => set({ cursor }),
     setStatus: (status) => set({ status }),
     setEngine: (engine) => set({ engine }),
-    openDialog: (dialog) => set({ dialog }),
+    openDialog: (dialog, step) => set({ dialog, dialogStep: step ?? null }),
 
     checkpoint: () => set((s) => push(s)),
     undo: () => {

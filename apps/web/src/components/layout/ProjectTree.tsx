@@ -102,6 +102,7 @@ export function ProjectTree() {
   const removeToolpath = useAppStore((s) => s.removeToolpath);
   const progress = useAppStore((s) => s.progress);
   const errors = useAppStore((s) => s.errors);
+  const results = useAppStore((s) => s.results);
   const material = useAppStore((s) => s.material);
   const preset = useMaterialPreset();
   const machine = useMachine();
@@ -189,7 +190,7 @@ export function ProjectTree() {
             const Icon = OP_ICONS[tp.operation];
             const isSel = tp.id === selectedTp;
             const busy = !!progress[tp.id];
-            const failed = !!errors[tp.id];
+            const failed = !!errors[tp.id] || !!results[tp.id]?.warnings?.length;
             return (
               <div key={tp.id} className={`group ${row} pr-1 ${isSel ? 'bg-accent/10 text-accent' : 'hover:bg-app'}`}>
                 <button className="flex min-w-0 flex-1 items-center gap-1.5 text-left" onClick={() => selectToolpath(isSel ? null : tp.id)}>

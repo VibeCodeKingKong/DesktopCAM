@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { ToolIcon } from '../ui/ToolIcon';
+import { cuttingLength } from '../../cam/toolReach';
 import { CheckCircle2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { uid, type FirmwareFlavor, type MachineProfile, type ToolDefinition, type ToolKind } from '@desktopcam/core';
 import { useAppStore } from '../../store/useAppStore';
@@ -18,6 +20,7 @@ export function MachineSetupDialog() {
   const machines = useAppStore((s) => s.machines);
   const machineId = useAppStore((s) => s.machineId);
   const saveMachine = useAppStore((s) => s.saveMachine);
+  const initialStep = useAppStore((s) => s.dialogStep);
 
   const [step, setStep] = useState<Step>('preset');
   const [draft, setDraft] = useState<MachineProfile>(() => machines.find((m) => m.id === machineId) ?? machines[0]);
@@ -25,9 +28,11 @@ export function MachineSetupDialog() {
   useEffect(() => {
     if (open) {
       setDraft(structuredClone(machines.find((m) => m.id === machineId) ?? machines[0]));
-      setStep('preset');
+      setStep(STEP_ORDER.includes(initialStep as Step) ? (initialStep as Step) : 'preset');
     }
-  }, [open, machineId, machines]);
+    // Bara när dialogen öppnas – inte när maskinlistan ändras medan den är öppen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const set = (p: Partial<MachineProfile>) => setDraft((d) => ({ ...d, ...p }));
   const setPost = (p: Partial<MachineProfile['postprocessor']>) => setDraft((d) => ({ ...d, postprocessor: { ...d.postprocessor, ...p } }));
@@ -196,6 +201,15 @@ function ToolLibrary({ laser }: { laser: boolean }) {
   const [editing, setEditing] = useState<ToolDefinition | null>(null);
   const list = tools.filter((x) => (laser ? x.kind === 'laser' : x.kind !== 'laser'));
   const kinds: ToolKind[] = laser ? ['laser'] : ['endmill', 'ballnose', 'vbit', 'drill'];
+  const beginner = useAppStore((s) => s.beginnerMode);
+  const num = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
+  const toolDims = (x: ToolDefinition) => {
+    const parts = [`Ø ${num(x.diameter)}`];
+    const cut = cuttingLength(x);
+    if (x.kind !== 'laser' && cut) parts.push(`${t.machine.cutShort} ${num(cut)}`);
+    if (x.kind !== 'laser' && x.stickout && !beginner) parts.push(`${t.machine.stickoutShort} ${num(x.stickout)}`);
+    return `${parts.join(' · ')} mm`;
+  };
 
   const startNew = () =>
     setEditing({
@@ -218,9 +232,11 @@ function ToolLibrary({ laser }: { laser: boolean }) {
         <table className="w-full text-xs">
           <thead className="bg-app text-left text-muted">
             <tr>
+              <th className="w-10 px-2 py-2" />
               <th className="px-3 py-2 font-medium">{t.machine.tool}</th>
               <th className="px-3 py-2 font-medium">{t.machine.type}</th>
-              <th className="px-3 py-2 text-right font-medium">{t.machine.diameter}</th>
+              <th className="px-3 py-2 font-medium">{t.machine.dimensions}</th>
+              {!laser && <th className="px-3 py-2 text-right font-medium">{t.machine.flutes}</th>}
               <th className="px-3 py-2 text-right font-medium">{t.machine.feed}</th>
               <th className="w-16 px-2 py-2" />
             </tr>
@@ -228,12 +244,16 @@ function ToolLibrary({ laser }: { laser: boolean }) {
           <tbody>
             {list.map((x) => (
               <tr key={x.id} className={`border-t border-line ${editing?.id === x.id ? 'bg-accent/5' : ''}`}>
+                <td className="px-2 py-1">
+                  <ToolIcon tool={x} size={40} />
+                </td>
                 <td className="px-3 py-2">{toolName(t, x.id, x.name)}</td>
                 <td className="px-3 py-2 text-muted">
                   {t.machine.toolKinds[x.kind]}
                   {x.angle ? ` ${x.angle}°` : ''}
                 </td>
-                <td className="px-3 py-2 text-right tabular-nums">{x.diameter} mm</td>
+                <td className="px-3 py-2 tabular-nums text-muted">{toolDims(x)}</td>
+                {!laser && <td className="px-3 py-2 text-right tabular-nums">{x.flutes ?? '–'}</td>}
                 <td className="px-3 py-2 text-right tabular-nums">{x.defaults.feedRate}</td>
                 <td className="px-2 py-1 text-right">
                   <button className="rounded p-1.5 text-muted hover:bg-app hover:text-ink" onClick={() => setEditing(structuredClone({ ...x, name: toolName(t, x.id, x.name) }))} aria-label={t.machine.editTool}>
@@ -252,6 +272,11 @@ function ToolLibrary({ laser }: { laser: boolean }) {
       {editing ? (
         <section className="space-y-2.5 rounded-lg border border-line bg-app/60 p-4">
           <h3 className="text-sm font-semibold">{t.machine.editTool}</h3>
+          <div className="flex gap-4">
+          <div className="hidden shrink-0 self-start rounded-lg bg-surface px-2 py-3 sm:block">
+            <ToolIcon tool={editing} size={150} dimensions />
+          </div>
+          <div className="min-w-0 flex-1 space-y-2.5">
           <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
             <FieldRow label={t.common.name}>
               <input className="field" value={editing.name} onChange={(e) => set({ name: e.target.value })} />
@@ -259,6 +284,7 @@ function ToolLibrary({ laser }: { laser: boolean }) {
             <SelectField label={t.machine.type} value={editing.kind} options={kinds.map((k) => ({ value: k, label: t.machine.toolKinds[k] }))} onChange={(kind) => set({ kind })} />
             <NumberField label={t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
             {editing.kind === 'vbit' && <NumberField label={t.machine.angle} unit="°" step={5} min={10} max={170} value={editing.angle ?? 90} onChange={(angle) => set({ angle })} />}
+            {!laser && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}
             <NumberField label={t.machine.feed} unit="mm/min" step={50} min={1} value={editing.defaults.feedRate} onChange={(feedRate) => setDef({ feedRate })} />
             {!laser && (
               <>
@@ -268,6 +294,20 @@ function ToolLibrary({ laser }: { laser: boolean }) {
               </>
             )}
             {laser && <NumberField label={t.props.power} unit="%" step={5} min={0} max={100} value={editing.defaults.laserPowerPct ?? 100} onChange={(laserPowerPct) => setDef({ laserPowerPct })} />}
+          </div>
+          {!laser && !beginner && (
+            <div className="space-y-2.5 border-t border-line pt-3">
+              <h4 className="text-xs font-semibold">{t.machine.advanced}</h4>
+              <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+                <NumberField label={t.machine.fluteLength} unit="mm" step={0.5} min={0} value={editing.fluteLength ?? +(cuttingLength(editing) ?? 0).toFixed(2)} onChange={(fluteLength) => set({ fluteLength })} />
+                <NumberField label={t.machine.shankDiameter} unit="mm" step={0.1} min={0} value={editing.shankDiameter ?? editing.diameter} onChange={(shankDiameter) => set({ shankDiameter })} />
+                <NumberField label={t.machine.overallLength} unit="mm" step={1} min={0} value={editing.overallLength ?? 0} onChange={(overallLength) => set({ overallLength: overallLength || undefined })} />
+                <NumberField label={t.machine.stickout} unit="mm" step={1} min={0} value={editing.stickout ?? 0} onChange={(stickout) => set({ stickout: stickout || undefined })} />
+              </div>
+              <p className="text-2xs leading-relaxed text-muted">{t.machine.lengthNote}</p>
+            </div>
+          )}
+          </div>
           </div>
           <div className="flex justify-end gap-2 pt-1">
             <button className="btn" onClick={() => setEditing(null)}>

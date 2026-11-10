@@ -3,6 +3,7 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import {
+  type ToolDefinition,
   detectFormat,
   getReliefDefinition,
 
@@ -22,6 +23,7 @@ import {
   type VectorShape,
 } from '@desktopcam/core';
 import { getT } from '../i18n';
+import toolsJson from '../data/tools.json';
 import { allShapes, getMachine, getMaterialPreset, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
 import { computeToolpath } from './toolpathService';
@@ -486,7 +488,8 @@ function loadProject(data: unknown): boolean {
     reliefs: d.reliefs ?? [],
     toolpaths: d.toolpaths ?? [],
     material: d.material,
-    tools: d.tools?.length ? d.tools : useAppStore.getState().tools,
+    // Äldre projekt saknar verktygens längder – fyll i från de inbyggda verktygen.
+    tools: d.tools?.length ? d.tools.map((x) => ({ ...(toolsJson as ToolDefinition[]).find((b) => b.id === x.id), ...x })) : useAppStore.getState().tools,
     machineId: d.machineId,
     customMachines: d.customMachines ?? [],
   });

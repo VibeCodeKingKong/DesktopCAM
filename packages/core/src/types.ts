@@ -74,8 +74,16 @@ export interface ToolDefinition {
   diameter: number;
   /** Spetsvinkel i grader för V-fräs. */
   angle?: number;
+  /** Antal skär. */
   flutes?: number;
+  /** Skärlängd (mm): hur djupt verktyget kan skära. */
   fluteLength?: number;
+  /** Skaftdiameter (mm). */
+  shankDiameter?: number;
+  /** Total längd (mm). */
+  overallLength?: number;
+  /** Utstick (mm): hur långt verktyget sticker ut ur spännhylsan. */
+  stickout?: number;
   units: Units;
   defaults: CuttingParams;
   notes?: string;

@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, Unlock } from 'lucide-react';
+import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock } from 'lucide-react';
 import { inlayFit, shapesBounds, type CutSide, type DitherMethod, type InlayToolpath, type ReliefInstance, type ToolpathConfig, type VectorShape } from '@desktopcam/core';
 import { allShapes, useAppStore, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
 import { computeToolpath, drillPoints, scheduleCompute } from '../../cam/toolpathService';
@@ -509,6 +509,11 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
 
       <Group title={t.props.result}>
         {error && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{error}</p>}
+        {result?.warnings?.map((w) => (
+          <p key={w} role="alert" className="flex gap-1.5 rounded-md bg-warn/10 px-2 py-1.5 text-xs leading-relaxed text-warn">
+            <TriangleAlert size={13} className="mt-0.5 shrink-0" /> {w}
+          </p>
+        ))}
         {result && (
           <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
             <dt className="text-muted">{t.props.cutLength}</dt>

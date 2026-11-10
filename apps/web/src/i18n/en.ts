@@ -1,6 +1,7 @@
 /** English texts. Same shape as sv.ts – enforced by the Dict type. */
 import type { MaterialPreset } from '@desktopcam/core';
 import type { Dict, GuideEntry, GuideKey } from './sv';
+const mmEn = (n: number) => `${n.toLocaleString('en-GB', { maximumFractionDigits: 2 })} mm`;
 
 const mm = (n: number) => `${n.toLocaleString('en-GB', { maximumFractionDigits: 2 })} mm`;
 
@@ -342,6 +343,12 @@ export const en: Dict = {
     noToolpaths: 'There are no calculated, visible toolpaths to simulate.',
   },
 
+  reach: {
+    flute: (depth: number, len: number) => `The toolpath goes ${mmEn(depth)} deep but the tool's flute length is only ${mmEn(len)}. The shank will rub the material – use a longer tool or reduce the depth.`,
+    vbit: (depth: number, len: number) => `The toolpath goes ${mmEn(depth)} deep but the V-bit's cone is only ${mmEn(len)} tall. Below that the shank cuts and the groove gets wider than the drawing.`,
+    collet: (depth: number, stick: number) => `Warning: the collet will hit the material! The toolpath goes ${mmEn(depth)} deep but the tool only sticks out ${mmEn(stick)}. Extend the tool or reduce the depth.`,
+  },
+
   gearDialog: {
     title: 'New gear',
     teeth: 'Number of teeth',
@@ -508,6 +515,16 @@ export const en: Dict = {
   },
 
   machine: {
+    dimensions: 'Dimensions',
+    flutes: 'Flutes',
+    cutShort: 'cut',
+    stickoutShort: 'stick-out',
+    advanced: 'Advanced – lengths',
+    fluteLength: 'Flute length',
+    shankDiameter: 'Shank diameter',
+    overallLength: 'Overall length',
+    stickout: 'Stick-out from collet',
+    lengthNote: 'Flute length and stick-out are checked when toolpaths are calculated: you get a warning if the path goes deeper than the tool cuts, or if the collet would hit the material. 0 = unknown.',
     title: 'Machine setup',
     newProfile: 'New profile',
     steps: { preset: '1. Choose machine', post: '2. Post-processor', tools: '3. Tool library' },

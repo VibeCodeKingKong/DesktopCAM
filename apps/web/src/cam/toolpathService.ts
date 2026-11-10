@@ -17,6 +17,7 @@ import { errorText, getT } from '../i18n';
 import { allShapes, getMachine, useAppStore } from '../store/useAppStore';
 import { rasterizeGray } from '../utils/image';
 import { heightmapFor } from './reliefs';
+import { toolReachWarnings } from './toolReach';
 
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -63,7 +64,9 @@ export async function computeToolpath(id: string): Promise<void> {
         throw new Error('NOT_IMPLEMENTED');
     }
     const st = useAppStore.getState();
+    const warnings = toolReachWarnings(st.tools.find((x) => x.id === tp.toolId), payload.preview.stats, getT());
     st.setResult(id, {
+      warnings,
       gcode: payload.gcode,
       rapids: payload.preview.rapids,
       cuts: payload.preview.cuts,
@@ -71,7 +74,7 @@ export async function computeToolpath(id: string): Promise<void> {
       engine: st.engine?.engine ?? 'typescript',
       computedAt: Date.now(),
     });
-    st.setStatus(getT().status.computed(tp.name, payload.preview.stats.lineCount.toLocaleString(getT().locale)));
+    st.setStatus(warnings.length ? `${tp.name}: ${warnings[0]}` : getT().status.computed(tp.name, payload.preview.stats.lineCount.toLocaleString(getT().locale)));
   } catch (err) {
     const tt = getT();
     const message = errorText(tt, err instanceof Error ? err.message : String(err));

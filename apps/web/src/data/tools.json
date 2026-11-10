@@ -7,7 +7,10 @@
     "flutes": 2,
     "fluteLength": 17,
     "units": "mm",
-    "defaults": { "feedRate": 900, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1.5, "stepOver": 0.4 }
+    "defaults": { "feedRate": 900, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1.5, "stepOver": 0.4 },
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 22
   },
   {
     "id": "em-6-2f",
@@ -17,7 +20,10 @@
     "flutes": 2,
     "fluteLength": 22,
     "units": "mm",
-    "defaults": { "feedRate": 1200, "plungeRate": 300, "spindleRpm": 16000, "stepDown": 3, "stepOver": 0.45 }
+    "defaults": { "feedRate": 1200, "plungeRate": 300, "spindleRpm": 16000, "stepDown": 3, "stepOver": 0.45 },
+    "shankDiameter": 6,
+    "overallLength": 50,
+    "stickout": 28
   },
   {
     "id": "bn-3175",
@@ -26,7 +32,11 @@
     "diameter": 3.175,
     "flutes": 2,
     "units": "mm",
-    "defaults": { "feedRate": 800, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1, "stepOver": 0.15 }
+    "defaults": { "feedRate": 800, "plungeRate": 250, "spindleRpm": 18000, "stepDown": 1, "stepOver": 0.15 },
+    "fluteLength": 12,
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 22
   },
   {
     "id": "vbit-60",
@@ -35,7 +45,12 @@
     "diameter": 12.7,
     "angle": 60,
     "units": "mm",
-    "defaults": { "feedRate": 700, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 }
+    "defaults": { "feedRate": 700, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 },
+    "flutes": 2,
+    "fluteLength": 11,
+    "shankDiameter": 6.35,
+    "overallLength": 45,
+    "stickout": 25
   },
   {
     "id": "vbit-90",
@@ -44,7 +59,12 @@
     "diameter": 12.7,
     "angle": 90,
     "units": "mm",
-    "defaults": { "feedRate": 800, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 }
+    "defaults": { "feedRate": 800, "plungeRate": 200, "spindleRpm": 18000, "stepDown": 2, "stepOver": 0.2 },
+    "flutes": 2,
+    "fluteLength": 6.4,
+    "shankDiameter": 6.35,
+    "overallLength": 45,
+    "stickout": 25
   },
   {
     "id": "drill-3",
@@ -52,7 +72,12 @@
     "kind": "drill",
     "diameter": 3,
     "units": "mm",
-    "defaults": { "feedRate": 300, "plungeRate": 150, "spindleRpm": 12000, "stepDown": 2, "stepOver": 1 }
+    "defaults": { "feedRate": 300, "plungeRate": 150, "spindleRpm": 12000, "stepDown": 2, "stepOver": 1 },
+    "flutes": 2,
+    "fluteLength": 33,
+    "shankDiameter": 3,
+    "overallLength": 61,
+    "stickout": 40
   },
   {
     "id": "laser-diode",
