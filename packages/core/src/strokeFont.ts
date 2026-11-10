@@ -11,6 +11,7 @@
  *                         ökande = moturs). Fortsätter linjen från förra punkten.
  */
 import { uid } from './geometry';
+import { strokeOutline } from './sdf';
 import type { PathSegment, Vec2, VectorPath, VectorShape } from './types';
 
 interface Glyph {
@@ -136,6 +137,12 @@ export interface TextOptions {
   /** Radavstånd som andel av höjden. */
   lineHeight?: number;
   align?: 'left' | 'center' | 'right';
+  /**
+   * Linjebredd i mm. 0 = enkellinje (öppna banor för gravyr). Större än 0 ger
+   * slutna konturer runt linjerna så att texten kan fickfräsas, V-graveras
+   * och användas för inlägg.
+   */
+  weight?: number;
 }
 
 /** Mått för en textrad i fontenheter. */
@@ -181,7 +188,21 @@ export function textToShape(text: string, x: number, y: number, opts: TextOption
       pen += g.w * k + TRACKING + extra;
     }
   });
-  return { id: uid('shape'), name: text.replace(/\s+/g, ' ').slice(0, 24), kind: 'text', paths };
+  const name = text.replace(/\s+/g, ' ').slice(0, 24);
+  const weight = opts.weight ?? 0;
+  if (weight > 0 && paths.length) {
+    const lines = paths.map((pa) => ({
+      points: [pa.start, ...pa.segments.map((sg) => sg.to)].slice(0, pa.closed ? -1 : undefined).flatMap((p) => [p.x, p.y]),
+      closed: pa.closed,
+    }));
+    const outline: VectorPath[] = strokeOutline(lines, weight).map((pts) => {
+      const ps: Vec2[] = [];
+      for (let i = 0; i + 1 < pts.length; i += 2) ps.push({ x: pts[i], y: pts[i + 1] });
+      return { id: uid('path'), start: ps[0], segments: [...ps.slice(1), ps[0]].map((to) => ({ type: 'line' as const, to })), closed: true };
+    });
+    return { id: uid('shape'), name, kind: 'text', paths: outline };
+  }
+  return { id: uid('shape'), name, kind: 'text', paths };
 }
 
 export const SUPPORTED_TEXT_CHARS = Object.keys(GLYPHS).join('');

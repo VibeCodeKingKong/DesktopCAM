@@ -6,7 +6,8 @@ import {
   detectFormat,
   getReliefDefinition,
 
-  makeGear,
+  makeGearShape,
+  type GearOptions,
   multiply,
   rotate,
   scale,
@@ -37,11 +38,11 @@ const selected = () => {
 
 /* ───────── Design ───────── */
 
-export function addGear() {
+export function addGear(opts: GearOptions) {
   const s = useAppStore.getState();
   const t = getT();
   const n = allShapes(s.layers).filter((x) => x.name.startsWith(t.shapeNames.gear)).length + 1;
-  s.addShape(makeGear(`${t.shapeNames.gear} ${n}`, s.material.width / 2, s.material.height / 2, 40, 33, 14));
+  s.addShape(makeGearShape(`${t.shapeNames.gear} ${n}`, s.material.width / 2, s.material.height / 2, opts));
   status(t.status.shapeAdded(t.shapeNames.gear));
 }
 
@@ -138,12 +139,15 @@ export function centerSelection() {
   transformSelection(translate(material.width / 2 - (b.min.x + b.max.x) / 2, material.height / 2 - (b.min.y + b.max.y) / 2));
 }
 
+/** Enkellinjig text har öppna streck – bara t.ex. "O" blir slutna och skulle fräsas. */
+export const isSingleLineText = (sh: VectorShape) => !!sh.text && !(sh.text.weight && sh.text.weight > 0) && sh.paths.some((p) => !p.closed);
+
 /** Ritar om en textform med nya parametrar. */
 export function updateText(shape: VectorShape, patch: Partial<NonNullable<VectorShape['text']>>) {
   if (!shape.text) return;
   const text = { ...shape.text, ...patch };
   if (!text.content.trim()) return;
-  const fresh = textToShape(text.content, text.x, text.y, { height: text.height, spacing: text.spacing, align: text.align });
+  const fresh = textToShape(text.content, text.x, text.y, { height: text.height, spacing: text.spacing, align: text.align, weight: text.weight ?? 0 });
   useAppStore.getState().replaceShapes([{ ...shape, paths: fresh.paths, text, name: fresh.name }]);
 }
 
@@ -188,6 +192,10 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   }
   if ((operation === 'pocket' || operation === 'drill' || operation === 'vcarve' || operation === 'inlay') && !sel.some((x) => x.paths.some((p) => p.closed))) {
     status(t.status.needClosed);
+    return null;
+  }
+  if ((operation === 'pocket' || operation === 'vcarve' || operation === 'inlay') && sel.some(isSingleLineText)) {
+    status(t.status.textNeedsOutline);
     return null;
   }
 
@@ -341,6 +349,10 @@ export function createInlay(): void {
   const sel = s.selectedShapeIds.length ? shapes.filter((x) => s.selectedShapeIds.includes(x.id)) : shapes;
   if (!sel.some((x) => x.paths.some((p) => p.closed))) {
     status(t.status.needClosed);
+    return;
+  }
+  if (sel.some(isSingleLineText)) {
+    status(t.status.textNeedsOutline);
     return;
   }
   const tool = s.tools.find((x) => x.id === s.activeToolId && x.kind === 'vbit') ?? s.tools.find((x) => x.kind === 'vbit' && x.angle === 60) ?? s.tools.find((x) => x.kind === 'vbit');

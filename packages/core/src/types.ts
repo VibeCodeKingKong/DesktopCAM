@@ -135,6 +135,8 @@ export interface TextParams {
   height: number;
   spacing: number;
   align: 'left' | 'center' | 'right';
+  /** Linjebredd (mm). 0 eller saknas = enkellinje; större ger fyllbara konturer. */
+  weight?: number;
   /** Vänstra baslinjen för första raden. */
   x: number;
   y: number;

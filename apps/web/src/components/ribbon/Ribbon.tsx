@@ -11,8 +11,8 @@ import { OutputTab } from './tabs/OutputTab';
 
 const TABS: { id: RibbonTabId; panel: ComponentType }[] = [
   { id: 'file', panel: FileTab },
-  { id: 'design', panel: DesignTab },
   { id: 'setup', panel: SetupTab },
+  { id: 'design', panel: DesignTab },
   { id: 'toolpaths', panel: ToolpathsTab },
   { id: 'simulate', panel: SimulateTab },
   { id: 'output', panel: OutputTab },
@@ -20,7 +20,7 @@ const TABS: { id: RibbonTabId; panel: ComponentType }[] = [
 
 /**
  * Ribbon-menyn. Flikarna följer arbetsflödet från vänster till höger:
- * rita → ställ in maskin och material → skapa banor → kontrollera → exportera.
+ * ställ in maskin och material → rita → skapa banor → kontrollera → exportera.
  */
 export function Ribbon() {
   const t = useT();

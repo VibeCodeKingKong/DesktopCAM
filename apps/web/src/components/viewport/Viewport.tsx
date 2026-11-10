@@ -10,6 +10,8 @@ import { importVectorFile } from '../../cam/commands';
 import { EditController } from '../../editing/EditController';
 import { useT } from '../../i18n';
 import { DrawingBar } from './DrawingBar';
+import { SimulationBar } from './SimulationBar';
+import { attachSimulationScene } from '../../cam/simController';
 
 /** React-skal runt SceneController: översätter app-tillstånd till scenanrop. */
 export function Viewport() {
@@ -30,6 +32,7 @@ export function Viewport() {
   const view = useAppStore((s) => s.view);
   const viewCommand = useAppStore((s) => s.viewCommand);
   const reliefs = useAppStore((s) => s.reliefs);
+  const simActive = useAppStore((s) => s.sim.active);
   const [dragging, setDragging] = useState(false);
 
   // 1. Skapa scenen en gång
@@ -38,7 +41,9 @@ export function Viewport() {
     ctl.onCursor = (p) => useAppStore.getState().setCursor(p);
     ctlRef.current = ctl;
     const editor = new EditController(ctl);
+    attachSimulationScene(ctl);
     return () => {
+      attachSimulationScene(null);
       editor.dispose();
       ctl.dispose();
       ctlRef.current = null;
@@ -61,8 +66,8 @@ export function Viewport() {
 
   const surface = useMemo(() => composeStockSurface(material, reliefs), [material, reliefs]);
   useEffect(() => {
-    ctlRef.current?.setStock(material.width, material.height, material.thickness, preset.color, view.showStock, surface);
-  }, [theme, material.width, material.height, material.thickness, preset.color, view.showStock, surface]);
+    ctlRef.current?.setStock(material.width, material.height, material.thickness, preset.color, view.showStock && !simActive, surface);
+  }, [theme, material.width, material.height, material.thickness, preset.color, view.showStock, surface, simActive]);
 
   const vectors = useMemo<VectorDisplay[]>(
     () =>
@@ -72,11 +77,11 @@ export function Viewport() {
         .flatMap((sh) => shapeToPolylines(sh).map((pl) => ({ ...pl, selected: selected.includes(sh.id) }))),
     [layers, selected],
   );
-  useEffect(() => ctlRef.current?.setVectors(vectors), [theme, vectors]);
+  useEffect(() => ctlRef.current?.setVectors(simActive ? [] : vectors), [theme, vectors, simActive]);
 
   useEffect(() => {
     if (!ctlRef.current) return;
-    const display: ToolpathDisplay[] = view.showToolpaths
+    const display: ToolpathDisplay[] = view.showToolpaths && !simActive
       ? toolpaths
           .filter((t) => (t.visible || t.id === selectedToolpathId) && results[t.id])
           .map((t) => ({
@@ -87,7 +92,7 @@ export function Viewport() {
           }))
       : [];
     ctlRef.current.setToolpaths(display, view.showRapids);
-  }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids]);
+  }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids, simActive]);
 
   useEffect(() => {
     if (viewCommand) ctlRef.current?.command(viewCommand.kind);
@@ -115,6 +120,7 @@ export function Viewport() {
       <ViewportToolbar />
       <ViewportOverlay />
       <DrawingBar />
+      <SimulationBar />
       {dragging && (
         <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-xl border-2 border-dashed border-accent bg-accent/10">
           <p className="flex items-center gap-2 rounded-lg bg-surface px-4 py-2 text-sm font-medium shadow-pop">

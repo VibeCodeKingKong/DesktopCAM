@@ -253,3 +253,47 @@ export function offsetShapes(groups: PolylineInput[][], distance: number): Polyl
   if (!field) return [];
   return isolines(field, distance).map((points) => ({ points, closed: true }));
 }
+
+/**
+ * Gör linjer (öppna eller slutna) till slutna konturer med given bredd,
+ * med runda ändar och hörn – som att rita linjerna med en rund penna.
+ * Används för att göra enkellinjig text fyllbar (ficka, V-gravyr, inlägg).
+ */
+export function strokeOutline(polylines: PolylineInput[], width: number): number[][] {
+  const r = width / 2;
+  if (r <= 0) return [];
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of polylines) for (let i = 0; i + 1 < p.points.length; i += 2) {
+    minX = Math.min(minX, p.points[i]); maxX = Math.max(maxX, p.points[i]);
+    minY = Math.min(minY, p.points[i + 1]); maxY = Math.max(maxY, p.points[i + 1]);
+  }
+  if (!Number.isFinite(minX)) return [];
+  const margin = r + 0.5;
+  const w = maxX - minX + 2 * margin, h = maxY - minY + 2 * margin;
+  let cell = Math.min(0.2, Math.max(0.01, Math.min(r / 6, Math.max(w, h) / 2500)));
+  if ((w / cell) * (h / cell) > 4_000_000) cell = Math.sqrt((w * h) / 4_000_000);
+  const nx = Math.ceil(w / cell) + 2, ny = Math.ceil(h / cell) + 2;
+  const x0 = minX - margin - cell, y0 = minY - margin - cell;
+  const mask = new Uint8Array(nx * ny);
+  const mark = (x: number, y: number) => {
+    const i = Math.floor((x - x0) / cell), j = Math.floor((y - y0) / cell);
+    if (i >= 0 && j >= 0 && i < nx && j < ny) mask[j * nx + i] = 1;
+  };
+  for (const p of polylines) {
+    const n = p.points.length / 2;
+    const segs = p.closed ? n : n - 1;
+    if (n === 1) mark(p.points[0], p.points[1]);
+    for (let k = 0; k < segs; k++) {
+      const ax = p.points[2 * k], ay = p.points[2 * k + 1];
+      const b = (k + 1) % n;
+      const bx = p.points[2 * b], by = p.points[2 * b + 1];
+      const steps = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) / (cell * 0.4)));
+      for (let s = 0; s <= steps; s++) mark(ax + ((bx - ax) * s) / steps, ay + ((by - ay) * s) / steps);
+    }
+  }
+  const dist = edt2d(mask, nx, ny, 1);
+  const d = new Float32Array(nx * ny);
+  // Avståndet mäts mellan rutmittpunkter; en halv ruta är medelfelet för linjens läge.
+  for (let k = 0; k < d.length; k++) d[k] = dist[k] * cell;
+  return isolines({ nx, ny, x0, y0, cell, d }, r, Math.min(0.01, cell / 2));
+}

@@ -22,7 +22,7 @@ import { initialLanguage, type Language } from '../i18n/initial';
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
 export type ViewCommand = 'fit' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text';
-export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text';
+export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear';
 export type MobilePanel = 'tree' | 'props' | null;
 
 export interface ToolpathResult {
@@ -101,6 +101,8 @@ interface AppState extends DocSnapshot {
   future: DocSnapshot[];
 
   view: { showToolpaths: boolean; showRapids: boolean; showStock: boolean };
+  /** Materialsimulering. progress 0–1, duration i sekunder maskintid. */
+  sim: { active: boolean; playing: boolean; speed: number; progress: number; duration: number; job: string };
   viewCommand: { kind: ViewCommand; nonce: number } | null;
   cursor: Vec3 | null;
   status: string;
@@ -115,6 +117,7 @@ interface AppState extends DocSnapshot {
   toggleRibbon: () => void;
   setMobilePanel: (p: MobilePanel) => void;
   setView: (patch: Partial<AppState['view']>) => void;
+  setSim: (patch: Partial<AppState['sim']>) => void;
   sendViewCommand: (kind: ViewCommand) => void;
   setCursor: (p: Vec3 | null) => void;
   setStatus: (s: string) => void;
@@ -237,6 +240,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     future: [],
 
     view: { showToolpaths: true, showRapids: true, showStock: true },
+    sim: { active: false, playing: false, speed: 1, progress: 0, duration: 0, job: '' },
     viewCommand: null,
     cursor: null,
     status: '',
@@ -258,6 +262,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     toggleRibbon: () => set((s) => ({ ribbonCollapsed: !s.ribbonCollapsed })),
     setMobilePanel: (mobilePanel) => set({ mobilePanel }),
     setView: (patch) => set((s) => ({ view: { ...s.view, ...patch } })),
+    setSim: (patch) => set((s) => ({ sim: { ...s.sim, ...patch } })),
     sendViewCommand: (kind) => set({ viewCommand: { kind, nonce: Date.now() } }),
     setCursor: (cursor) => set({ cursor }),
     setStatus: (status) => set({ status }),

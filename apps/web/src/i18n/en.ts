@@ -85,6 +85,7 @@ export const en: Dict = {
   },
 
   groups: {
+    simulation: 'Simulation',
     project: 'Project',
     settings: 'Settings',
     edit: 'Edit',
@@ -106,6 +107,9 @@ export const en: Dict = {
   },
 
   buttons: {
+    simPlay: { label: 'Simulate', title: 'Simulate the machining', desc: 'Plays back how the tool cuts and engraves the material, toolpath by toolpath in list order. Hidden toolpaths are skipped.' },
+    simResult: { label: 'Result', title: 'Show the result', desc: 'Jumps straight to the end and shows the workpiece after all visible toolpaths have run.' },
+    simStop: { label: 'Close', title: 'Close the simulation', desc: 'Closes the simulation and shows the material and toolpaths as usual again.' },
     newProject: { label: 'New', title: 'New project', desc: 'Starts over with an empty layer. Machine, material and tools are kept.' },
     open: { label: 'Open', title: 'Open project', desc: 'Opens a saved .dcam file with drawing, reliefs, toolpaths and tools.' },
     save: { label: 'Save', title: 'Save project', desc: 'Saves the project as a .dcam file. On iPhone it ends up in the Files app.' },
@@ -118,7 +122,7 @@ export const en: Dict = {
     curve: { label: 'Curve', title: 'Bézier curve', desc: 'Tap for corners, tap and drag for smooth curves.' },
     rect: { label: 'Rectangle', title: 'Rectangle', desc: 'Drag from one corner to the opposite corner. Fine-tune the size in the properties panel.' },
     circle: { label: 'Circle', title: 'Circle', desc: 'Drag from the centre out to the edge.' },
-    gear: { label: 'Gear', title: 'Gear', desc: 'Adds a gear with 14 teeth – handy for testing toolpaths.' },
+    gear: { label: 'Gear', title: 'Gear', desc: 'Draws a gear. Choose the number of teeth, size, tooth shape and a centre hole.' },
     text: { label: 'Text', title: 'Text', desc: 'Tap where the text should start. Text uses a single-line engraving font.' },
     importVector: { label: 'SVG / DXF', title: 'Import vectors', desc: 'Brings in drawings from Inkscape, Illustrator, Fusion 360 or LibreCAD. You can also drop the file on the 3D view.' },
     reliefLibrary: { label: 'Relief library', title: 'Relief library', desc: 'Ready-made 3D motifs to place on the material and cut with a ball nose cutter.' },
@@ -282,6 +286,7 @@ export const en: Dict = {
     textContent: 'Content',
     textHeight: 'Letter height',
     textSpacing: 'Letter spacing',
+    textWeight: 'Stroke width',
     textAlign: 'Alignment',
     align: { left: 'Left', center: 'Centre', right: 'Right' },
     nodes: 'Nodes',
@@ -323,6 +328,33 @@ export const en: Dict = {
     },
   },
 
+  sim: {
+    title: 'Simulation',
+    play: 'Play',
+    pause: 'Pause',
+    position: 'Position in the job',
+    speed: 'Playback speed',
+    result: 'Show the result',
+    close: 'Close the simulation',
+    finished: 'Done – this is the finished workpiece',
+    machineTime: 'machine time',
+    started: 'Simulation started',
+    noToolpaths: 'There are no calculated, visible toolpaths to simulate.',
+  },
+
+  gearDialog: {
+    title: 'New gear',
+    teeth: 'Number of teeth',
+    diameter: 'Outer diameter',
+    depth: 'Tooth depth',
+    shape: 'Tooth shape',
+    shapes: { involute: 'Involute', trapezoid: 'Trapezoid', triangle: 'Pointed', rounded: 'Rounded' },
+    pressure: 'Pressure angle',
+    bore: 'Centre hole',
+    module: (m: string) => `Module ${m} – the tooth depth follows the standard (2.25 × module).`,
+    note: 'Involute teeth mesh properly: two gears with the same module fit together. The gear is placed in the middle of the material.',
+    create: 'Create gear',
+  },
   textDialog: {
     title: 'New text',
     content: 'Text',
@@ -331,6 +363,10 @@ export const en: Dict = {
     align: 'Alignment',
     create: 'Create text',
     note: 'Single-line engraving font with capitals, digits and ÅÄÖ. Lower case is drawn as small capitals. Engrave with Profile on the line or Line engraving.',
+    noteOutline: 'Outline gives closed letters that can be pocketed, V-carved and used for inlays. Choose Single line to engrave along a line.',
+    style: 'Style',
+    styles: { outline: 'Outline', single: 'Single line' },
+    weight: 'Stroke width',
   },
 
   status: {
@@ -343,6 +379,7 @@ export const en: Dict = {
     needRouter: (op: string) => `${op} needs a router – change machine under Setup`,
     needLaser: (op: string) => `${op} needs a laser – change machine under Setup`,
     drawFirst: 'Draw or import a shape first',
+    textNeedsOutline: 'The text is single-line – only closed letters such as O would be cut. Select the text and choose Style: Outline in Properties.',
     needClosed: 'Select at least one closed shape',
     addReliefFirst: 'Add a relief from the relief library first',
     computing: (n: string) => `Calculating ${n}…`,

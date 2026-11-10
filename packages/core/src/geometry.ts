@@ -165,3 +165,109 @@ export function makeGear(name: string, cx: number, cy: number, rOuter: number, r
     ],
   };
 }
+
+export type GearToothShape = 'trapezoid' | 'triangle' | 'rounded' | 'involute';
+
+export interface GearOptions {
+  teeth: number;
+  /** Ytterdiameter (topp till topp), mm. */
+  outerDiameter: number;
+  /** Kuggdjup, mm. Ignoreras för evolvent (räknas från modulen). */
+  toothDepth: number;
+  shape: GearToothShape;
+  /** Ingreppsvinkel för evolvent (grader), normalt 20. */
+  pressureAngle?: number;
+  /** Hål i mitten (diameter, mm). 0 = inget hål. */
+  boreDiameter?: number;
+}
+
+/** Evolventkugghjul enligt standardproportioner: topp = 1·m, fot = 1,25·m. */
+function involuteOutline(teeth: number, outerDiameter: number, pressureDeg: number): { pts: Vec2[]; module: number } {
+  const z = teeth;
+  const m = outerDiameter / (z + 2);
+  const rp = (m * z) / 2;
+  const ra = rp + m;
+  const rf = Math.max(rp - 1.25 * m, m * 0.5);
+  const alpha = (pressureDeg * Math.PI) / 180;
+  const rb = rp * Math.cos(alpha);
+  const inv = (r: number) => {
+    const b = Math.acos(Math.min(1, rb / r));
+    return Math.tan(b) - b;
+  };
+  const invA = Math.tan(alpha) - alpha;
+  const psi = Math.PI / (2 * z);
+  const r0 = Math.max(rb, rf);
+  const N = 10;
+  const pts: Vec2[] = [];
+  const polar = (r: number, a: number) => ({ x: r * Math.cos(a), y: r * Math.sin(a) });
+  for (let i = 0; i < z; i++) {
+    const th = (i * TAU) / z;
+    const sideB = (r: number) => th - psi - invA + inv(r);
+    const sideA = (r: number) => th + psi + invA - inv(r);
+    // Fot → evolventens början (radiell linje om grundcirkeln ligger över foten)
+    pts.push(polar(rf, sideB(r0)));
+    for (let k = 0; k <= N; k++) {
+      const r = r0 + ((ra - r0) * k) / N;
+      pts.push(polar(r, sideB(r)));
+    }
+    const tipA = sideA(ra);
+    const tipB = sideB(ra);
+    if (tipA > tipB) for (let k = 1; k < 4; k++) pts.push(polar(ra, tipB + ((tipA - tipB) * k) / 4));
+    for (let k = N; k >= 0; k--) {
+      const r = r0 + ((ra - r0) * k) / N;
+      pts.push(polar(r, sideA(r)));
+    }
+    pts.push(polar(rf, sideA(r0)));
+    // Fotcirkel fram till nästa kugge
+    const next = th + TAU / z - psi - invA + inv(r0);
+    const from = sideA(r0);
+    for (let k = 1; k < 4; k++) pts.push(polar(rf, from + ((next - from) * k) / 4));
+  }
+  return { pts, module: m };
+}
+
+/** Kugghjul med valbar kuggform. Mitten i (cx, cy). */
+export function makeGearShape(name: string, cx: number, cy: number, o: GearOptions): VectorShape {
+  const z = Math.max(3, Math.round(o.teeth));
+  const rOuter = o.outerDiameter / 2;
+  const rRoot = Math.max(rOuter * 0.2, rOuter - Math.max(0.1, o.toothDepth));
+  const step = TAU / z;
+  let pts: Vec2[] = [];
+  if (o.shape === 'involute') {
+    pts = involuteOutline(z, o.outerDiameter, o.pressureAngle ?? 20).pts.map((p) => ({ x: p.x + cx, y: p.y + cy }));
+  } else if (o.shape === 'rounded') {
+    const n = z * 24;
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * TAU;
+      // Platt topp och botten med mjuka flanker
+      const c = Math.cos(a * z);
+      const s = Math.max(-1, Math.min(1, c * 1.6));
+      const r = rRoot + ((rOuter - rRoot) * (s + 1)) / 2;
+      pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+    }
+  } else {
+    const prof: [number, number][] = o.shape === 'triangle' ? [[0, rRoot], [0.5, rOuter]] : [[0, rRoot], [0.18, rOuter], [0.45, rOuter], [0.63, rRoot]];
+    for (let i = 0; i < z; i++) {
+      for (const [f, r] of prof) {
+        const a = (i + f) * step;
+        pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+      }
+    }
+  }
+  const toPath = (p: Vec2[]): VectorPath => ({
+    id: uid('path'),
+    start: p[0],
+    segments: [...p.slice(1), p[0]].map((to) => ({ type: 'line' as const, to })),
+    closed: true,
+  });
+  const paths = [toPath(pts)];
+  const bore = o.boreDiameter ?? 0;
+  if (bore > 0 && bore / 2 < rRoot * 0.95) {
+    const c = makeCircle('', cx, cy, bore / 2);
+    paths.push(...c.paths);
+  }
+  return { id: uid('shape'), name, kind: 'polygon', paths };
+}
+
+/** Modul för ett evolventhjul med given ytterdiameter (för visning). */
+export const gearModule = (teeth: number, outerDiameter: number) => outerDiameter / (Math.max(3, teeth) + 2);

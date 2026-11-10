@@ -10,12 +10,14 @@ import { GcodeViewer } from './components/dialogs/GcodeViewer';
 import { ImportDialog } from './components/dialogs/ImportDialog';
 import { ReliefLibraryDialog } from './components/dialogs/ReliefLibraryDialog';
 import { TextDialog } from './components/dialogs/TextDialog';
+import { GearDialog } from './components/dialogs/GearDialog';
 import { camClient } from './engine/camClient';
 import { useShortcuts } from './hooks/useShortcuts';
 import { useAppStore } from './store/useAppStore';
 import { getT } from './i18n';
 import { startAutosave } from './cam/commands';
 import { computeToolpath, watchForChanges } from './cam/toolpathService';
+import { watchSimulationInputs } from './cam/simController';
 
 export default function App() {
   const theme = useAppStore((s) => s.theme);
@@ -38,10 +40,12 @@ export default function App() {
       .catch((err: Error) => useAppStore.getState().setStatus(getT().status.engineFailed(err.message)));
     const stopAutosave = startAutosave();
     const stopWatch = watchForChanges();
+    const stopSimWatch = watchSimulationInputs();
     for (const tp of useAppStore.getState().toolpaths) void computeToolpath(tp.id);
     return () => {
       stopAutosave();
       stopWatch();
+      stopSimWatch();
     };
   }, []);
 
@@ -62,6 +66,7 @@ export default function App() {
       <ImportDialog />
       <ReliefLibraryDialog />
       <TextDialog />
+      <GearDialog />
     </div>
   );
 }

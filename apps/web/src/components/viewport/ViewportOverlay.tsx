@@ -11,6 +11,7 @@ export function ViewportOverlay() {
   const toolpaths = useAppStore((s) => s.toolpaths);
   const beginner = useAppStore((s) => s.beginnerMode);
   const tool = useAppStore((s) => s.editTool);
+  const simActive = useAppStore((s) => s.sim.active);
   const jobs = Object.entries(progress);
   const hasSelection = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedToolpathId || !!s.selectedReliefId);
   const panelOpen = useAppStore((s) => s.mobilePanel !== null);
@@ -42,7 +43,7 @@ export function ViewportOverlay() {
           <SlidersHorizontal size={16} /> {t.header.properties}
         </button>
       )}
-      {beginner && (
+      {beginner && !simActive && (
         <p className="pointer-events-none absolute bottom-3 left-3 right-14 rounded-md bg-surface/85 px-2 py-1 text-2xs text-muted backdrop-blur sm:right-auto">{nav}</p>
       )}
     </>

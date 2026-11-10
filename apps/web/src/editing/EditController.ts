@@ -530,11 +530,11 @@ export class EditController {
   }
 
   /** Skapar text vid ankarpunkten (anropas från textdialogen). */
-  static createText(content: string, height: number, align: 'left' | 'center' | 'right') {
+  static createText(content: string, height: number, align: 'left' | 'center' | 'right', weight = 0) {
     const s = useAppStore.getState();
     const a = s.textAnchor ?? { x: 10, y: 10 };
-    const shape = textToShape(content, a.x, a.y, { height, align });
-    shape.text = { content, height, spacing: 0, align, x: a.x, y: a.y };
+    const shape = textToShape(content, a.x, a.y, { height, align, weight });
+    shape.text = { content, height, spacing: 0, align, weight, x: a.x, y: a.y };
     s.addShape(shape);
     s.setTextAnchor(null);
     s.setEditTool('select');

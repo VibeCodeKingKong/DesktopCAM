@@ -61,6 +61,7 @@ export const sv = {
   },
 
   groups: {
+    simulation: 'Simulering',
     project: 'Projekt',
     settings: 'Inställningar',
     edit: 'Redigera',
@@ -82,6 +83,9 @@ export const sv = {
   },
 
   buttons: {
+    simPlay: { label: 'Simulera', title: 'Simulera fräsningen', desc: 'Spelar upp hur verktyget skär och graverar i materialet, bana för bana i listans ordning. Dolda banor hoppas över.' },
+    simResult: { label: 'Resultat', title: 'Visa resultatet', desc: 'Hoppar direkt till slutet och visar hur arbetsstycket ser ut när alla synliga banor är körda.' },
+    simStop: { label: 'Avsluta', title: 'Avsluta simuleringen', desc: 'Stänger simuleringen och visar materialet och banorna som vanligt igen.' },
     newProject: { label: 'Nytt', title: 'Nytt projekt', desc: 'Börjar om med ett tomt lager. Maskin, material och verktyg behålls.' },
     open: { label: 'Öppna', title: 'Öppna projekt', desc: 'Öppnar en sparad .dcam-fil. Ritning, reliefer, verktygsbanor och verktyg läses in.' },
     save: { label: 'Spara', title: 'Spara projekt', desc: 'Sparar projektet som en .dcam-fil. På iPhone hamnar den i appen Filer.' },
@@ -94,7 +98,7 @@ export const sv = {
     curve: { label: 'Kurva', title: 'Bézierkurva', desc: 'Tryck för hörn, tryck och dra för mjuka kurvor.' },
     rect: { label: 'Rektangel', title: 'Rektangel', desc: 'Dra från ett hörn till det motsatta. Måtten kan justeras exakt i egenskapspanelen.' },
     circle: { label: 'Cirkel', title: 'Cirkel', desc: 'Dra från mitten ut till kanten.' },
-    gear: { label: 'Kugghjul', title: 'Kugghjul', desc: 'Lägger till ett kugghjul med 14 kuggar – bra att testa verktygsbanor på.' },
+    gear: { label: 'Kugghjul', title: 'Kugghjul', desc: 'Ritar ett kugghjul. Du väljer antal kuggar, storlek, kuggform och hål i mitten.' },
     text: { label: 'Text', title: 'Text', desc: 'Tryck där texten ska börja. Texten ritas med ett enkellinjigt gravyrtypsnitt.' },
     importVector: { label: 'SVG / DXF', title: 'Importera vektorer', desc: 'Hämtar in ritningar från Inkscape, Illustrator, Fusion 360 eller LibreCAD. Du kan också dra filen till 3D-vyn.' },
     reliefLibrary: { label: 'Relief­bibliotek', title: 'Reliefbibliotek', desc: 'Färdiga 3D-motiv att placera på materialet och fräsa med kulfräs.' },
@@ -258,6 +262,7 @@ export const sv = {
     textContent: 'Innehåll',
     textHeight: 'Teckenhöjd',
     textSpacing: 'Teckenavstånd',
+    textWeight: 'Linjebredd',
     textAlign: 'Justering',
     align: { left: 'Vänster', center: 'Mitten', right: 'Höger' },
     nodes: 'Noder',
@@ -299,6 +304,33 @@ export const sv = {
     },
   },
 
+  sim: {
+    title: 'Simulering',
+    play: 'Spela upp',
+    pause: 'Pausa',
+    position: 'Position i körningen',
+    speed: 'Uppspelningshastighet',
+    result: 'Visa resultatet',
+    close: 'Avsluta simuleringen',
+    finished: 'Klar – så här ser arbetsstycket ut',
+    machineTime: 'maskintid',
+    started: 'Simulering startad',
+    noToolpaths: 'Det finns inga beräknade, synliga verktygsbanor att simulera.',
+  },
+
+  gearDialog: {
+    title: 'Nytt kugghjul',
+    teeth: 'Antal kuggar',
+    diameter: 'Ytterdiameter',
+    depth: 'Kuggdjup',
+    shape: 'Kuggform',
+    shapes: { involute: 'Evolvent', trapezoid: 'Trapets', triangle: 'Spetsig', rounded: 'Rundad' },
+    pressure: 'Ingreppsvinkel',
+    bore: 'Hål i mitten',
+    module: (m: string) => `Modul ${m} – kuggdjupet följer standarden (2,25 × modul).`,
+    note: 'Evolvent ger kugghjul som går att låta greppa i varandra: två hjul med samma modul passar ihop. Kugghjulet placeras mitt på materialet.',
+    create: 'Skapa kugghjul',
+  },
   textDialog: {
     title: 'Ny text',
     content: 'Text',
@@ -307,6 +339,10 @@ export const sv = {
     align: 'Justering',
     create: 'Skapa text',
     note: 'Enkellinjigt gravyrtypsnitt med versaler, siffror och ÅÄÖ. Gemener ritas som små versaler. Gravera med Profil på linjen eller Linjegravyr.',
+    noteOutline: 'Kontur ger slutna bokstäver som kan fickfräsas, V-graveras och användas för inlägg. Välj Enkellinje för att gravera längs en linje.',
+    style: 'Stil',
+    styles: { outline: 'Kontur', single: 'Enkellinje' },
+    weight: 'Linjebredd',
   },
 
   status: {
@@ -319,6 +355,7 @@ export const sv = {
     needRouter: (op: string) => `${op} kräver en fräs – byt maskin under Inställning`,
     needLaser: (op: string) => `${op} kräver en laser – byt maskin under Inställning`,
     drawFirst: 'Rita eller importera en form först',
+    textNeedsOutline: 'Texten är enkellinjig – bara slutna bokstäver som O skulle fräsas. Markera texten och välj Stil: Kontur under Egenskaper.',
     needClosed: 'Markera minst en sluten form',
     addReliefFirst: 'Lägg till en relief från reliefbiblioteket först',
     computing: (n: string) => `Beräknar ${n}…`,

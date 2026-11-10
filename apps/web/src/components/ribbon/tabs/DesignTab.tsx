@@ -1,7 +1,7 @@
 import { Circle, Cog, Copy, FileUp, Magnet, Mountain, MousePointer2, PenTool, Redo2, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
-import { addGear, deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
+import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
 import { useAppStore, type EditTool } from '../../../store/useAppStore';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
@@ -42,7 +42,7 @@ export function DesignTab() {
         <RibbonButton icon={Circle} label={b.circle.label} active={tool === 'circle'} onClick={pick('circle')} tooltip={tip(b.circle, { shortcut: 'C', illustration: <IlluCircle /> })} />
         <RibbonButton icon={Type} label={b.text.label} active={tool === 'text'} onClick={pick('text')} tooltip={tip(b.text, { shortcut: 'T' })} />
         <RibbonStack>
-          <RibbonButton size="small" icon={Cog} label={b.gear.label} onClick={addGear} tooltip={tip(b.gear)} />
+          <RibbonButton size="small" icon={Cog} label={b.gear.label} onClick={() => openDialog('gear')} tooltip={tip(b.gear)} />
         </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t.groups.snap}>

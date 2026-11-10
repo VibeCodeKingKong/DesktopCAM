@@ -15,6 +15,9 @@ export function TextDialog() {
   const [content, setContent] = useState('');
   const [height, setHeight] = useState(10);
   const [align, setAlign] = useState<Align>('left');
+  const [style, setStyle] = useState<'outline' | 'single'>('outline');
+  const [weightPct, setWeightPct] = useState(15);
+  const weight = style === 'outline' ? (height * weightPct) / 100 : 0;
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -27,13 +30,13 @@ export function TextDialog() {
   };
   const create = () => {
     if (!content.trim()) return;
-    EditController.createText(content, height, align);
+    EditController.createText(content, height, align, weight);
     useAppStore.getState().openDialog(null);
     setContent('');
   };
 
   // Förhandsvisning
-  const preview = content.trim() ? textToShape(content, 0, 0, { height: 10, align }) : null;
+  const preview = content.trim() ? textToShape(content, 0, 0, { height: 10, align, weight: style === 'outline' ? weightPct / 10 : 0 }) : null;
   let d = '';
   let vb = '0 -12 60 14';
   if (preview) {
@@ -95,6 +98,20 @@ export function TextDialog() {
             ]}
           />
         </FieldRow>
+        <FieldRow label={t.textDialog.style}>
+          <Segmented
+            label={t.textDialog.style}
+            value={style}
+            onChange={setStyle}
+            options={[
+              { value: 'outline', label: t.textDialog.styles.outline },
+              { value: 'single', label: t.textDialog.styles.single },
+            ]}
+          />
+        </FieldRow>
+        {style === 'outline' && (
+          <NumberField label={t.textDialog.weight} unit="%" min={3} max={40} step={1} value={weightPct} onChange={setWeightPct} />
+        )}
         <div className="flex h-20 items-center justify-center rounded-lg bg-app p-2">
           {preview && (
             <svg viewBox={vb} className="h-full w-full" aria-hidden="true">
@@ -102,7 +119,7 @@ export function TextDialog() {
             </svg>
           )}
         </div>
-        <p className="text-2xs leading-relaxed text-muted">{t.textDialog.note}</p>
+        <p className="text-2xs leading-relaxed text-muted">{style === 'outline' ? t.textDialog.noteOutline : t.textDialog.note}</p>
       </div>
     </Dialog>
   );

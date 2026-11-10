@@ -60,6 +60,10 @@ export class SceneController {
   private stockGroup = new THREE.Group();
   private vectorGroup = new THREE.Group();
   private toolpathGroup = new THREE.Group();
+  private simGroup = new THREE.Group();
+  private simTop: THREE.Mesh | null = null;
+  private simBase = new THREE.Color();
+  private toolMarker = new THREE.Group();
   private raycaster = new THREE.Raycaster();
   private ndc = new THREE.Vector2();
   private cursorPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
@@ -94,7 +98,8 @@ export class SceneController {
 
     const axes = new THREE.AxesHelper(25);
     axes.position.z = 0.2;
-    this.scene.add(axes, this.bedGroup, this.stockGroup, this.vectorGroup, this.toolpathGroup);
+    this.scene.add(axes, this.bedGroup, this.stockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker);
+    this.toolMarker.visible = false;
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(container);
@@ -200,6 +205,111 @@ export class SceneController {
       lines.renderOrder = key === 'selected' ? 2 : 1;
       this.vectorGroup.add(lines);
     }
+  }
+
+  /**
+   * Simulerat material: ovansidan som höjdfält (uppdateras med updateSimulation)
+   * och sidorna som en låda. null tar bort simuleringen.
+   */
+  setSimulation(sim: { width: number; height: number; thickness: number; nx: number; ny: number; color: string } | null) {
+    disposeChildren(this.simGroup);
+    this.simTop = null;
+    if (!sim) return;
+    const { width, height, thickness } = sim;
+    const geo = new THREE.BoxGeometry(width, height, thickness);
+    const side = new THREE.MeshStandardMaterial({ color: sim.color, roughness: 0.85 });
+    const box = new THREE.Mesh(geo, [side, side, side, side, new THREE.MeshBasicMaterial({ visible: false }), side]);
+    box.position.set(width / 2, height / 2, -thickness / 2);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 }));
+    edges.position.copy(box.position);
+    const top = new THREE.PlaneGeometry(width, height, sim.nx - 1, sim.ny - 1);
+    top.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(sim.nx * sim.ny * 3), 3));
+    this.simTop = new THREE.Mesh(top, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide }));
+    this.simTop.position.set(width / 2, height / 2, 0);
+    this.simBase.set(sim.color);
+    this.simGroup.add(box, edges, this.simTop);
+  }
+
+  /** Läser in höjder (mm, 0 = ovansidan) och bränning (0–1) i simuleringsytan. */
+  updateSimulation(heights: Float32Array, burn: Float32Array, nx: number, ny: number, thickness: number) {
+    const top = this.simTop;
+    if (!top) return;
+    const geo = top.geometry as THREE.BufferGeometry;
+    const pos = geo.getAttribute('position') as THREE.BufferAttribute;
+    const col = geo.getAttribute('color') as THREE.BufferAttribute;
+    const base = this.simBase;
+    const burnt = { r: 0.16, g: 0.09, b: 0.05 };
+    const cutTint = { r: base.r * 0.62, g: base.g * 0.5, b: base.b * 0.38 };
+    for (let row = 0; row < ny; row++) {
+      for (let c = 0; c < nx; c++) {
+        const v = row * nx + c;
+        const k = (ny - 1 - row) * nx + c;
+        const z = heights[k];
+        pos.setZ(v, z);
+        // Fräst yta lite mörkare (nysågat trä), bränt mörkbrunt, genomskuret syns inte.
+        const d = z < -1e-3 ? 0.45 + 0.55 * Math.min(1, -z / thickness) : 0;
+        const b = burn[k];
+        let r = base.r + (cutTint.r - base.r) * d, g = base.g + (cutTint.g - base.g) * d, bl = base.b + (cutTint.b - base.b) * d;
+        r += (burnt.r - r) * b; g += (burnt.g - g) * b; bl += (burnt.b - bl) * b;
+        col.setXYZ(v, r, g, bl);
+      }
+    }
+    pos.needsUpdate = true;
+    col.needsUpdate = true;
+    geo.computeVertexNormals();
+  }
+
+  /** Verktyget i simuleringen: spetsen i (x, y, z). null döljer det. */
+  setToolMarker(p: { x: number; y: number; z: number } | null, tool?: { kind: string; radius: number; angle: number }) {
+    if (!p) {
+      this.toolMarker.visible = false;
+      return;
+    }
+    const key = tool ? `${tool.kind}:${tool.radius}:${tool.angle}` : '';
+    if (tool && this.toolMarker.userData.key !== key) {
+      disposeChildren(this.toolMarker);
+      this.toolMarker.userData.key = key;
+      const metal = new THREE.MeshStandardMaterial({ color: 0xc8ccd4, metalness: 0.7, roughness: 0.3 });
+      if (tool.kind === 'laser') {
+        const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 30, 12), new THREE.MeshBasicMaterial({ color: 0xff7a1a, transparent: true, opacity: 0.7 }));
+        beam.rotation.x = Math.PI / 2;
+        beam.position.z = 15;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(14, 14, 18), new THREE.MeshStandardMaterial({ color: 0x333740 }));
+        head.position.z = 39;
+        this.toolMarker.add(beam, head);
+      } else {
+        const r = tool.radius;
+        const cutLen = Math.max(6, r * 5);
+        const parts: THREE.Mesh[] = [];
+        if (tool.kind === 'vbit') {
+          const h = r / Math.tan(((tool.angle || 90) * Math.PI) / 360);
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 24), metal);
+          cone.rotation.x = -Math.PI / 2;
+          cone.position.z = h / 2;
+          const shank = new THREE.Mesh(new THREE.CylinderGeometry(r, r, cutLen, 24), metal);
+          shank.rotation.x = Math.PI / 2;
+          shank.position.z = h + cutLen / 2;
+          parts.push(cone, shank);
+        } else {
+          const body = new THREE.Mesh(new THREE.CylinderGeometry(r, r, cutLen, 24), metal);
+          body.rotation.x = Math.PI / 2;
+          body.position.z = cutLen / 2 + (tool.kind === 'ballnose' ? r : 0);
+          parts.push(body);
+          if (tool.kind === 'ballnose') {
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 12), metal);
+            ball.position.z = r;
+            parts.push(ball);
+          }
+        }
+        const collet = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(4, r * 2.2), Math.max(4, r * 2.2), 14, 24), new THREE.MeshStandardMaterial({ color: 0x41454f, metalness: 0.4, roughness: 0.5 }));
+        collet.rotation.x = Math.PI / 2;
+        const top = parts.reduce((m, x) => Math.max(m, x.position.z), 0) + cutLen / 2;
+        collet.position.z = top + 7;
+        this.toolMarker.add(...parts, collet);
+      }
+    }
+    this.toolMarker.position.set(p.x, p.y, p.z);
+    this.toolMarker.visible = true;
   }
 
   setToolpaths(paths: ToolpathDisplay[], showRapids: boolean) {
@@ -326,7 +436,7 @@ export class SceneController {
     this.renderer.domElement.removeEventListener('pointermove', this.handlePointer);
     this.renderer.domElement.removeEventListener('pointerleave', this.handleLeave);
     this.controls.dispose();
-    [this.bedGroup, this.stockGroup, this.vectorGroup, this.toolpathGroup].forEach(disposeChildren);
+    [this.bedGroup, this.stockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker].forEach(disposeChildren);
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

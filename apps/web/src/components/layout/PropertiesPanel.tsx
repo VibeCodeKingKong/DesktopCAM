@@ -116,6 +116,20 @@ function ShapeEditor() {
           </FieldRow>
           <NumberField label={t.props.textHeight} unit="mm" min={1} step={1} value={single.text.height} onChange={(height) => updateText(single, { height })} />
           <NumberField label={t.props.textSpacing} unit="mm" step={0.5} value={single.text.spacing} onChange={(spacing) => updateText(single, { spacing })} />
+          <FieldRow label={t.textDialog.style}>
+            <Segmented
+              label={t.textDialog.style}
+              value={(single.text.weight ?? 0) > 0 ? 'outline' : 'single'}
+              options={[
+                { value: 'outline', label: t.textDialog.styles.outline },
+                { value: 'single', label: t.textDialog.styles.single },
+              ]}
+              onChange={(v) => updateText(single, { weight: v === 'outline' ? Math.round(single.text!.height * 1.5) / 10 : 0 })}
+            />
+          </FieldRow>
+          {(single.text.weight ?? 0) > 0 && (
+            <NumberField label={t.props.textWeight} unit="mm" min={0.2} step={0.1} value={single.text.weight!} onChange={(weight) => updateText(single, { weight: Math.max(0.2, weight) })} />
+          )}
           <FieldRow label={t.props.textAlign}>
             <Segmented
               label={t.props.textAlign}
