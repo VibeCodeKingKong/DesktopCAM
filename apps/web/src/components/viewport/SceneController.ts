@@ -75,7 +75,9 @@ export class SceneController {
   constructor(private container: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.domElement.style.display = 'block';
+    // CSS-storleken styrs här och inte av setSize, annars blir canvasen
+    // devicePixelRatio gånger för stor och hamnar ur fas med ritlagret.
+    this.renderer.domElement.style.cssText = 'display:block;width:100%;height:100%';
     this.renderer.domElement.style.touchAction = 'none';
     container.appendChild(this.renderer.domElement);
 
@@ -253,7 +255,7 @@ export class SceneController {
   }
 
   private handlePointer = (e: PointerEvent) => {
-    const rect = this.renderer.domElement.getBoundingClientRect();
+    const rect = this.container.getBoundingClientRect();
     this.ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     this.raycaster.setFromCamera(this.ndc, this.camera);
     const hit = new THREE.Vector3();
@@ -283,7 +285,7 @@ export class SceneController {
 
   /** Skärmposition (clientX/Y) → punkt på materialets ovansida (Z = 0). */
   screenToWorld(clientX: number, clientY: number): { x: number; y: number } | null {
-    const rect = this.renderer.domElement.getBoundingClientRect();
+    const rect = this.container.getBoundingClientRect();
     if (!rect.width || !rect.height) return null;
     this.ndc.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
     this.raycaster.setFromCamera(this.ndc, this.camera);
