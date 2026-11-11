@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { RotateCcw, RotateCw, Wand2 } from 'lucide-react';
+import { RotateCcw, RotateCw, Undo2, Wand2 } from 'lucide-react';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import { imageReliefHeights, rgbaToGray, type ImageReliefKind, type ImageReliefSettings } from '@desktopcam/core';
@@ -154,6 +154,50 @@ function rotateAndFit(c: Cropper, angle: number) {
   c.setCropBoxData(c.getCanvasData());
 }
 
+/** Vinkeln inom −180…180° (180 behålls som 180). */
+const wrapAngle = (a: number) => {
+  const w = ((((a + 180) % 360) + 360) % 360) - 180;
+  return w === -180 && a > 0 ? 180 : Math.round(w * 10) / 10;
+};
+
+/** Fält för exakt vinkel (grader, decimalkomma eller -punkt). */
+function AngleInput({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
+  const t = useT();
+  const fmt = (v: number) => v.toLocaleString(t.locale, { maximumFractionDigits: 1 });
+  const [draft, setDraft] = useState(fmt(value));
+  const [focused, setFocused] = useState(false);
+  useEffect(() => {
+    if (!focused) setDraft(fmt(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, focused]);
+  const commit = () => {
+    const v = parseFloat(draft.replace(',', '.').replace('−', '-'));
+    if (Number.isFinite(v)) onChange(v);
+    else setDraft(fmt(value));
+  };
+  return (
+    <label className="flex items-center gap-0.5 text-2xs text-muted">
+      <input
+        className="h-7 w-14 rounded-md border border-line bg-app px-1.5 text-right text-xs tabular-nums text-ink"
+        inputMode="decimal"
+        aria-label={label}
+        value={draft}
+        onFocus={(e) => {
+          setFocused(true);
+          e.currentTarget.select();
+        }}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          setFocused(false);
+          commit();
+        }}
+        onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+      />
+      °
+    </label>
+  );
+}
+
 /** Canvas → källa för förbehandlingen (gråskala och bakgrundens ljushet). */
 function canvasToSource(c: HTMLCanvasElement, fileName: string): PendingImage {
   const ctx = c.getContext('2d', { willReadFrequently: true })!;
@@ -172,10 +216,9 @@ export function ImageReliefDialog() {
   const pending = useImageRelief((s) => s.pending);
   const [prep, setPrep] = useState<ImagePrep>({ crop: null, removeBackground: false, blackWhite: false, threshold: null });
   const [view, setView] = useState<'crop' | 'result' | 'relief'>('crop');
-  // Vinkeln = kvartsvarv (knapparna) + finjustering ±45° (reglaget).
-  const [quarter, setQuarter] = useState(0);
-  const [fine, setFine] = useState(0);
-  const angle = quarter * 90 + fine;
+  // Vinkel −180…180° (0 = originalet). Knapparna vrider 90°, reglaget och fältet fritt.
+  const [angle, setAngleRaw] = useState(0);
+  const setAngle = (a: number) => setAngleRaw(wrapAngle(a));
   const [source, setSource] = useState<PendingImage | null>(null);
   const [settings, setSettings] = useState<ImageReliefSettings | null>(null);
   const [width, setWidth] = useState(100);
@@ -188,8 +231,7 @@ export function ImageReliefDialog() {
     if (!pending) return;
     setPrep({ crop: null, removeBackground: false, blackWhite: false, threshold: null });
     setView('crop');
-    setQuarter(0);
-    setFine(0);
+    setAngleRaw(0);
     setSource(null);
     setMirror(false);
     lastKind.current = '';
@@ -285,35 +327,27 @@ export function ImageReliefDialog() {
             />
             {view === 'crop' && (
               <div className="flex items-center gap-1">
-                <button className="btn h-7 px-2" onClick={() => setQuarter((q) => (q + 3) % 4)} title={ti.rotateLeft} aria-label={ti.rotateLeft}>
+                <button className="btn h-7 px-2" onClick={() => setAngle(angle - 90)} title={ti.rotateLeft} aria-label={ti.rotateLeft}>
                   <RotateCcw size={13} />
                 </button>
-                <button className="btn h-7 px-2" onClick={() => setQuarter((q) => (q + 1) % 4)} title={ti.rotateRight} aria-label={ti.rotateRight}>
+                <button className="btn h-7 px-2" onClick={() => setAngle(angle + 90)} title={ti.rotateRight} aria-label={ti.rotateRight}>
                   <RotateCw size={13} />
                 </button>
                 <input
                   type="range"
-                  min={-45}
-                  max={45}
+                  min={-180}
+                  max={180}
                   step={0.5}
-                  value={fine}
-                  onChange={(e) => setFine(Number(e.target.value))}
-                  className="h-7 w-28 accent-[rgb(var(--c-accent))]"
-                  aria-label={ti.straighten}
-                  title={ti.straighten}
+                  value={angle}
+                  onChange={(e) => setAngle(Number(e.target.value))}
+                  className="h-7 w-40 accent-[rgb(var(--c-accent))]"
+                  aria-label={ti.angle}
+                  title={ti.angle}
                 />
-                <span className="w-12 text-right text-2xs tabular-nums text-muted">{(((angle + 540) % 360) - 180).toLocaleString(t.locale, { maximumFractionDigits: 1 })}°</span>
-                {angle !== 0 && (
-                  <button
-                    className="btn h-7 px-2 text-2xs"
-                    onClick={() => {
-                      setQuarter(0);
-                      setFine(0);
-                    }}
-                  >
-                    {ti.rotateReset}
-                  </button>
-                )}
+                <AngleInput value={angle} onChange={setAngle} label={ti.angle} />
+                <button className="btn h-7 px-2 text-2xs" onClick={() => setAngle(0)} disabled={angle === 0} title={ti.rotateResetDesc}>
+                  <Undo2 size={12} /> {ti.rotateReset}
+                </button>
               </div>
             )}
           </div>
