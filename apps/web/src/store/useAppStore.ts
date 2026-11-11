@@ -78,6 +78,8 @@ interface AppState extends DocSnapshot {
   theme: 'light' | 'dark';
   beginnerMode: boolean;
   activeTab: RibbonTabId;
+  /** Lagret som nya former hamnar i (saknas = första lagret). */
+  activeLayerId: string | null;
   ribbonCollapsed: boolean;
   mobilePanel: MobilePanel;
 
@@ -162,6 +164,12 @@ interface AppState extends DocSnapshot {
   replaceShapes: (shapes: VectorShape[], history?: boolean) => void;
   deleteShapes: (ids: string[]) => void;
   toggleLayer: (id: string) => void;
+  addLayer: (name: string) => void;
+  renameLayer: (id: string, name: string) => void;
+  /** Tar bort lagret och dess former. */
+  removeLayer: (id: string) => void;
+  setActiveLayer: (id: string) => void;
+  moveShapesToLayer: (ids: string[], layerId: string) => void;
   selectShape: (id: string, additive: boolean) => void;
   setSelection: (ids: string[]) => void;
   clearSelection: () => void;
@@ -178,6 +186,8 @@ interface AppState extends DocSnapshot {
   addToolpath: (tp: ToolpathConfig) => void;
   updateToolpath: (id: string, patch: Partial<ToolpathConfig>) => void;
   removeToolpath: (id: string) => void;
+  /** Flyttar en bana i listan (körordningen). Numren i standardnamnen följer med. */
+  moveToolpath: (from: number, to: number) => void;
   selectToolpath: (id: string | null) => void;
   setResult: (id: string, r: ToolpathResult) => void;
   setProgress: (id: string, p: JobProgress | null) => void;
@@ -220,6 +230,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     theme: prefersDark ? 'dark' : 'light',
     beginnerMode: true,
     activeTab: 'design',
+    activeLayerId: null,
     ribbonCollapsed: false,
     mobilePanel: null,
 
@@ -369,8 +380,9 @@ export const useAppStore = create<AppState>()((set, get) => {
     setTextAnchor: (textAnchor) => set({ textAnchor }),
     addShape: (shape) =>
       set((s) => {
+        const target = s.layers.find((l) => l.id === s.activeLayerId) ?? s.layers[0];
         const layers = s.layers.length
-          ? s.layers.map((l, i) => (i === 0 ? { ...l, shapes: [...l.shapes, shape] } : l))
+          ? s.layers.map((l) => (l === target ? { ...l, shapes: [...l.shapes, shape] } : l))
           : [{ id: `layer_${Date.now()}`, name: 'Layer 1', color: '#0071e3', visible: true, locked: false, shapes: [shape] }];
         return { ...push(s), layers, selectedShapeIds: [shape.id], selectedToolpathId: null, selectedReliefId: null };
       }),
@@ -399,6 +411,35 @@ export const useAppStore = create<AppState>()((set, get) => {
         toolpaths: s.toolpaths.map((t) => (t.shapeIds.some((id) => ids.includes(id)) ? { ...t, shapeIds: t.shapeIds.filter((id) => !ids.includes(id)) } : t)),
       })),
     toggleLayer: (id) => set((s) => ({ layers: s.layers.map((l) => (l.id === id ? { ...l, visible: !l.visible } : l)) })),
+    addLayer: (name) =>
+      set((s) => {
+        const colors = ['#0071e3', '#2e9d5b', '#b35ad6', '#d4572a', '#0b8f9c', '#8a6d1d'];
+        const layer: VectorLayer = { id: `layer_${Date.now()}`, name, color: colors[s.layers.length % colors.length], visible: true, locked: false, shapes: [] };
+        return { ...push(s), layers: [...s.layers, layer], activeLayerId: layer.id };
+      }),
+    renameLayer: (id, name) => set((s) => ({ ...push(s), layers: s.layers.map((l) => (l.id === id ? { ...l, name } : l)) })),
+    removeLayer: (id) =>
+      set((s) => {
+        const gone = new Set(s.layers.find((l) => l.id === id)?.shapes.map((sh) => sh.id) ?? []);
+        return {
+          ...push(s),
+          layers: s.layers.filter((l) => l.id !== id),
+          activeLayerId: s.activeLayerId === id ? null : s.activeLayerId,
+          selectedShapeIds: s.selectedShapeIds.filter((x) => !gone.has(x)),
+          selectedNode: null,
+          toolpaths: s.toolpaths.map((t) => (t.shapeIds.some((x) => gone.has(x)) ? { ...t, shapeIds: t.shapeIds.filter((x) => !gone.has(x)) } : t)),
+        };
+      }),
+    setActiveLayer: (activeLayerId) => set({ activeLayerId }),
+    moveShapesToLayer: (ids, layerId) =>
+      set((s) => {
+        const moving = s.layers.flatMap((l) => l.shapes.filter((sh) => ids.includes(sh.id) && l.id !== layerId));
+        if (!moving.length) return {};
+        return {
+          ...push(s),
+          layers: s.layers.map((l) => (l.id === layerId ? { ...l, shapes: [...l.shapes, ...moving] } : { ...l, shapes: l.shapes.filter((sh) => !moving.includes(sh)) })),
+        };
+      }),
     selectShape: (id, additive) =>
       set((s) => {
         const base = { selectedToolpathId: null, selectedReliefId: null, selectedNode: null };
@@ -436,6 +477,15 @@ export const useAppStore = create<AppState>()((set, get) => {
         errors: without(s.errors, id),
         selectedToolpathId: s.selectedToolpathId === id ? null : s.selectedToolpathId,
       })),
+    moveToolpath: (from, to) =>
+      set((s) => {
+        if (from === to || from < 0 || to < 0 || from >= s.toolpaths.length || to >= s.toolpaths.length) return {};
+        const list = [...s.toolpaths];
+        const [tp] = list.splice(from, 1);
+        list.splice(to, 0, tp);
+        // "3. Ficka" → nytt nummer efter platsen; egna namn lämnas orörda.
+        return { ...push(s), toolpaths: list.map((t, i) => (/^\d+\. /.test(t.name) ? { ...t, name: t.name.replace(/^\d+\. /, `${i + 1}. `) } : t)) };
+      }),
     selectToolpath: (selectedToolpathId) =>
       set((s) => ({ selectedToolpathId, selectedReliefId: selectedToolpathId ? null : s.selectedReliefId })),
     setResult: (id, r) => set((s) => ({ results: { ...s.results, [id]: r }, errors: without(s.errors, id) })),

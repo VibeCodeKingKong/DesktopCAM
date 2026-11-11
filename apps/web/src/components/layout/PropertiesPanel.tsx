@@ -208,6 +208,17 @@ function ShapeEditor() {
       {ids.length === 2 && !selectedNode && <MeasureGroup ids={ids} />}
 
       <Group title={t.props.placement}>
+        {layers.length > 1 && (
+          <SelectField
+            label={t.tree.layer}
+            value={(() => {
+              const owners = new Set(layers.filter((l) => l.shapes.some((sh) => ids.includes(sh.id))).map((l) => l.id));
+              return owners.size === 1 ? [...owners][0] : '';
+            })()}
+            options={[{ value: '', label: '–' }, ...layers.map((l) => ({ value: l.id, label: l.name }))]}
+            onChange={(id) => id && useAppStore.getState().moveShapesToLayer(ids, id)}
+          />
+        )}
         <NumberField label={t.props.x} unit="mm" step={1} value={r2(b.min.x)} onChange={(x) => setSelectionBox(x, b.min.y, w, h)} />
         <NumberField label={t.props.y} unit="mm" step={1} value={r2(b.min.y)} onChange={(y) => setSelectionBox(b.min.x, y, w, h)} />
         <NumberField

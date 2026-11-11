@@ -206,6 +206,15 @@ export const es: Dict = {
     hideLayer: 'Ocultar capa',
     showLayer: 'Mostrar capa',
     openPath: 'Trazado abierto',
+    layer: 'Capa',
+    addLayer: 'Nueva capa',
+    removeLayer: 'Eliminar la capa y sus formas',
+    renameLayer: 'Nombre de la capa',
+    activeLayer: 'activa',
+    emptyLayer: 'Capa vacía: las formas nuevas van aquí mientras esté activa.',
+    layerHint: 'Haz clic para activar la capa (las formas nuevas van aquí) y seleccionar todas sus formas. Doble clic para renombrar.',
+    dragToReorder: 'Arrastra para reordenar',
+    orderHint: 'Las trayectorias se ejecutan de arriba abajo: arrastra el asa para cambiar el orden.',
   },
 
   props: {

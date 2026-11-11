@@ -207,6 +207,15 @@ export const en: Dict = {
     hideLayer: 'Hide layer',
     showLayer: 'Show layer',
     openPath: 'Open path',
+    layer: 'Layer',
+    addLayer: 'New layer',
+    removeLayer: 'Delete the layer and its shapes',
+    renameLayer: 'Layer name',
+    activeLayer: 'active',
+    emptyLayer: 'Empty layer – new shapes go here while it is active.',
+    layerHint: 'Click to make the layer active (new shapes go here) and select all its shapes. Double-click to rename.',
+    dragToReorder: 'Drag to reorder',
+    orderHint: 'Toolpaths run from top to bottom – drag the handle to change the order.',
   },
 
   props: {

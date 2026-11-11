@@ -206,6 +206,15 @@ export const fr: Dict = {
     hideLayer: 'Masquer le calque',
     showLayer: 'Afficher le calque',
     openPath: 'Chemin ouvert',
+    layer: 'Calque',
+    addLayer: 'Nouveau calque',
+    removeLayer: 'Supprimer le calque et ses formes',
+    renameLayer: 'Nom du calque',
+    activeLayer: 'actif',
+    emptyLayer: 'Calque vide – les nouvelles formes y vont tant qu’il est actif.',
+    layerHint: 'Cliquez pour activer le calque (les nouvelles formes y vont) et sélectionner toutes ses formes. Double-cliquez pour renommer.',
+    dragToReorder: 'Glisser pour réordonner',
+    orderHint: 'Les parcours s’exécutent de haut en bas – faites glisser la poignée pour changer l’ordre.',
   },
 
   props: {

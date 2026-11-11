@@ -206,6 +206,15 @@ export const de: Dict = {
     hideLayer: 'Ebene ausblenden',
     showLayer: 'Ebene anzeigen',
     openPath: 'Offener Pfad',
+    layer: 'Ebene',
+    addLayer: 'Neue Ebene',
+    removeLayer: 'Ebene und ihre Formen löschen',
+    renameLayer: 'Ebenenname',
+    activeLayer: 'aktiv',
+    emptyLayer: 'Leere Ebene – neue Formen landen hier, solange sie aktiv ist.',
+    layerHint: 'Klicken, um die Ebene zu aktivieren (neue Formen landen hier) und alle ihre Formen auszuwählen. Doppelklick zum Umbenennen.',
+    dragToReorder: 'Ziehen zum Umsortieren',
+    orderHint: 'Die Bahnen laufen von oben nach unten – am Griff ziehen, um die Reihenfolge zu ändern.',
   },
 
   props: {

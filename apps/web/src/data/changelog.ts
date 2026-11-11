@@ -16,6 +16,47 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.16.0',
+    date: '2026-11-11',
+    text: {
+      sv: [
+        'Papperskorg på varje form, relief och verktygsbana i projektträdet.',
+        'Dra verktygsbanorna i projektträdet för att ändra i vilken ordning de körs. Numren i namnen följer med.',
+        'Lager: skapa nya lager, byt namn (dubbelklick), gör ett lager aktivt så att nya former hamnar där, markera alla former i ett lager med ett klick och flytta former mellan lager under Egenskaper.',
+      ],
+      en: [
+        'A bin on every shape, relief and toolpath in the project tree.',
+        'Drag toolpaths in the project tree to change the order they run in. The numbers in the names follow along.',
+        'Layers: create new layers, rename them (double-click), make a layer active so new shapes go there, select all shapes in a layer with one click and move shapes between layers in Properties.',
+      ],
+      fr: [
+        'Une corbeille sur chaque forme, relief et parcours dans l’arborescence du projet.',
+        'Faites glisser les parcours dans l’arborescence pour changer leur ordre d’exécution. Les numéros des noms suivent.',
+        'Calques : créez des calques, renommez-les (double-clic), activez un calque pour y placer les nouvelles formes, sélectionnez toutes ses formes d’un clic et déplacez des formes entre calques dans Propriétés.',
+      ],
+      de: [
+        'Ein Papierkorb an jeder Form, jedem Relief und jeder Werkzeugbahn im Projektbaum.',
+        'Werkzeugbahnen im Projektbaum ziehen, um ihre Reihenfolge zu ändern. Die Nummern in den Namen ziehen mit.',
+        'Ebenen: neue Ebenen anlegen, umbenennen (Doppelklick), eine Ebene aktiv setzen, damit neue Formen dort landen, alle Formen einer Ebene mit einem Klick auswählen und Formen unter Eigenschaften zwischen Ebenen verschieben.',
+      ],
+      es: [
+        'Papelera en cada forma, relieve y trayectoria del árbol del proyecto.',
+        'Arrastra las trayectorias en el árbol del proyecto para cambiar el orden en que se ejecutan. Los números de los nombres se actualizan.',
+        'Capas: crea capas nuevas, renómbralas (doble clic), activa una capa para que las formas nuevas vayan ahí, selecciona todas sus formas con un clic y mueve formas entre capas en Propiedades.',
+      ],
+      pl: [
+        'Kosz przy każdym kształcie, reliefie i ścieżce w drzewie projektu.',
+        'Przeciągaj ścieżki w drzewie projektu, aby zmienić kolejność ich wykonywania. Numery w nazwach się aktualizują.',
+        'Warstwy: twórz nowe warstwy, zmieniaj nazwy (dwuklik), uaktywnij warstwę, aby nowe kształty trafiały do niej, zaznacz wszystkie jej kształty jednym kliknięciem i przenoś kształty między warstwami we Właściwościach.',
+      ],
+      uk: [
+        'Кошик біля кожної фігури, рельєфу й траєкторії в дереві проєкту.',
+        'Перетягуйте траєкторії в дереві проєкту, щоб змінити порядок їх виконання. Номери в назвах оновлюються.',
+        'Шари: створюйте нові шари, перейменовуйте їх (подвійний клік), робіть шар активним, щоб нові фігури потрапляли туди, виділяйте всі його фігури одним клацанням і переміщуйте фігури між шарами у Властивостях.',
+      ],
+    },
+  },
+  {
     version: '0.15.0',
     date: '2026-11-11',
     text: {

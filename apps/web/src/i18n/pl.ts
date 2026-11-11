@@ -213,6 +213,15 @@ export const pl: Dict = {
     hideLayer: 'Ukryj warstwę',
     showLayer: 'Pokaż warstwę',
     openPath: 'Ścieżka otwarta',
+    layer: 'Warstwa',
+    addLayer: 'Nowa warstwa',
+    removeLayer: 'Usuń warstwę i jej kształty',
+    renameLayer: 'Nazwa warstwy',
+    activeLayer: 'aktywna',
+    emptyLayer: 'Pusta warstwa – nowe kształty trafiają tutaj, gdy jest aktywna.',
+    layerHint: 'Kliknij, aby uaktywnić warstwę (nowe kształty trafią tutaj) i zaznaczyć wszystkie jej kształty. Kliknij dwukrotnie, aby zmienić nazwę.',
+    dragToReorder: 'Przeciągnij, aby zmienić kolejność',
+    orderHint: 'Ścieżki wykonują się od góry do dołu – przeciągnij uchwyt, aby zmienić kolejność.',
   },
 
   props: {

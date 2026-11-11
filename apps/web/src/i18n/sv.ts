@@ -176,6 +176,15 @@ export const sv = {
     hideLayer: 'Dölj lager',
     showLayer: 'Visa lager',
     openPath: 'Öppen bana',
+    layer: 'Lager',
+    addLayer: 'Nytt lager',
+    removeLayer: 'Ta bort lagret och dess former',
+    renameLayer: 'Lagrets namn',
+    activeLayer: 'aktivt',
+    emptyLayer: 'Tomt lager – nya former hamnar här när lagret är aktivt.',
+    layerHint: 'Klicka för att göra lagret aktivt (nya former hamnar här) och markera alla dess former. Dubbelklicka för att byta namn.',
+    dragToReorder: 'Dra för att ändra ordning',
+    orderHint: 'Banorna körs uppifrån och ned – dra i greppet för att ändra ordning.',
   },
 
   props: {
