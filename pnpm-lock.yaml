@@ -13,6 +13,9 @@ importers:
       '@desktopcam/core':
         specifier: workspace:*
         version: link:../../packages/core
+      cropperjs:
+        specifier: 1.7.0
+        version: 1.7.0
       lucide-react:
         specifier: 0.441.0
         version: 0.441.0(react@18.3.1)
@@ -545,6 +548,9 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  cropperjs@1.7.0:
+    resolution: {integrity: sha512-AkGnZxr7xAJBa63ObXq5ZKLkh9c8wisC+Ym8VzIDn3KZ+6qRTbBnOl2w2dFOTMzLP5IcfOpEK9PICDywNXhncg==}
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
@@ -1360,6 +1366,8 @@ snapshots:
   commander@4.1.1: {}
 
   convert-source-map@2.0.0: {}
+
+  cropperjs@1.7.0: {}
 
   csstype@3.2.3: {}
 

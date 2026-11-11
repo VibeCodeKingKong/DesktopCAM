@@ -41,7 +41,8 @@ type Gesture =
   | { kind: 'circle'; c: Vec2; r: number }
   | { kind: 'tap'; x0: number; y0: number; moved: boolean }
   | { kind: 'curveNode'; p: Vec2; handle: Vec2 | null; x0: number; y0: number }
-  | { kind: 'tab'; index: number; x0: number; y0: number; moved: boolean; added: boolean };
+  | { kind: 'tab'; index: number; x0: number; y0: number; moved: boolean; added: boolean }
+  | { kind: 'relief'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean };
 
 const DRAW_TOOLS: EditTool[] = ['line', 'curve', 'rect', 'circle', 'text'];
 
@@ -322,7 +323,17 @@ export class EditController {
         return;
       }
       case 'select': {
-        const hit = hitShape(s.layers, w, tol);
+        // Reliefer: tryck inuti för att markera, dra för att flytta. Över en relief
+        // träffas former bara på sin linje (som i Vectric) – annars vore reliefen
+        // omöjlig att markera där en sluten form ligger ovanpå.
+        const relief = this.reliefAt(w);
+        const hit = hitShape(s.layers, w, tol, !!relief);
+        if (relief && (!hit || (relief.id === s.selectedReliefId && !s.selectedShapeIds.includes(hit)))) {
+          this.stop(e);
+          if (s.selectedReliefId !== relief.id) s.selectRelief(relief.id);
+          this.gesture = { kind: 'relief', id: relief.id, start: w, ox: relief.x, oy: relief.y, x0, y0, moved: false };
+          return;
+        }
         if (!hit) {
           this.gesture = { kind: 'empty', x0, y0, moved: false };
           return;
@@ -413,6 +424,20 @@ export class EditController {
 
     if (tool === 'tabs' || tool === 'fillet') this.cursor = w;
     switch (g.kind) {
+      case 'relief': {
+        if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
+        if (!g.moved) {
+          g.moved = true;
+          s.checkpoint();
+        }
+        let dx = w.x - g.start.x, dy = w.y - g.start.y;
+        if (s.snap.grid && s.snap.step > 0) {
+          dx = Math.round((g.ox + dx) / s.snap.step) * s.snap.step - g.ox;
+          dy = Math.round((g.oy + dy) / s.snap.step) * s.snap.step - g.oy;
+        }
+        s.updateRelief(g.id, { x: g.ox + dx, y: g.oy + dy });
+        return;
+      }
       case 'tab': {
         if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
         g.moved = true;
@@ -503,7 +528,10 @@ export class EditController {
       case 'empty':
         if (!g.moved && !(e.shiftKey || e.metaKey)) {
           if (s.editTool === 'nodes' && s.selectedNode) s.selectNode(null);
-          else s.clearSelection();
+          else {
+            s.clearSelection();
+            if (s.selectedReliefId) s.selectRelief(null);
+          }
         }
         return;
       case 'move':
@@ -672,6 +700,27 @@ export class EditController {
         ctx.closePath();
         ctx.stroke();
         ctx.setLineDash([]);
+      }
+    }
+
+    // Markerad relief: ram och namn
+    if (s.selectedReliefId && s.editTool === 'select' && !s.sim.active) {
+      const r = s.reliefs.find((x) => x.id === s.selectedReliefId);
+      if (r) {
+        const c = [{ x: r.x, y: r.y }, { x: r.x + r.width, y: r.y }, { x: r.x + r.width, y: r.y + r.height }, { x: r.x, y: r.y + r.height }].map(P);
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        c.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
+        ctx.closePath();
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = surface;
+        for (const q of c) { ctx.fillRect(q.x - 3.5, q.y - 3.5, 7, 7); ctx.strokeRect(q.x - 3.5, q.y - 3.5, 7, 7); }
+        const loc = getT().locale;
+        const f = (n: number) => n.toLocaleString(loc, { maximumFractionDigits: 1 });
+        this.label(`${r.name}  X ${f(r.x)}  Y ${f(r.y)}`, { x: Math.min(...c.map((q) => q.x)), y: Math.max(...c.map((q) => q.y)) });
       }
     }
 
@@ -962,6 +1011,16 @@ export class EditController {
   /** Förhandsvisning av punkten som skrivs in med längd och vinkel. */
   setPolarPreview(p: { length: number; angle: number } | null) {
     this.polarPreview = p;
+  }
+
+  /** Översta synliga relief under punkten. */
+  private reliefAt(w: Vec2) {
+    const rs = useAppStore.getState().reliefs;
+    for (let i = rs.length - 1; i >= 0; i--) {
+      const r = rs[i];
+      if (r.visible && w.x >= r.x && w.x <= r.x + r.width && w.y >= r.y && w.y <= r.y + r.height) return r;
+    }
+    return null;
   }
 
   /** Hörnet närmast punkten (för verktyget Radie). Rundade hörn träffas även på bågen. */

@@ -44,7 +44,7 @@ function inside(points: number[], x: number, y: number) {
 }
 
 /** Formen närmast punkten (inom tol), annars den minsta slutna formen som innehåller den. */
-export function hitShape(layers: VectorLayer[], p: Vec2, tol: number): string | null {
+export function hitShape(layers: VectorLayer[], p: Vec2, tol: number, outlineOnly = false): string | null {
   let bestId: string | null = null;
   let bestDist = tol;
   let insideId: string | null = null;
@@ -78,5 +78,5 @@ export function hitShape(layers: VectorLayer[], p: Vec2, tol: number): string | 
       }
     }
   }
-  return bestId ?? insideId;
+  return outlineOnly ? bestId : (bestId ?? insideId);
 }

@@ -462,9 +462,12 @@ export const en: Dict = {
 
   imageRelief: {
     view: 'Show',
-    views: { image: 'Image', relief: '3D relief' },
-    cropHint: 'Drag in the image to select a part. Click for the whole image.',
-    cropReset: 'Whole image',
+    views: { crop: 'Crop and rotate', result: 'Result', relief: '3D relief' },
+    cropHint: 'Drag the edges and corners of the box to select part of the image. Rotate with the buttons, or straighten a skewed photo with the slider.',
+    rotateLeft: 'Rotate 90° anticlockwise',
+    rotateRight: 'Rotate 90° clockwise',
+    straighten: 'Straighten (fine-tune the angle)',
+    rotateReset: 'Straight',
     prepare: 'Prepare the image',
     paper: 'Drawing on paper',
     paperDesc: 'A photo of a drawing or logo on paper? Remove background evens out shadows and uneven light, and Black and white gives clean lines.',

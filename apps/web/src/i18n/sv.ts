@@ -431,9 +431,12 @@ export const sv = {
 
   imageRelief: {
     view: 'Visa',
-    views: { image: 'Bild', relief: '3D-relief' },
-    cropHint: 'Dra i bilden för att välja en del. Klicka för hela bilden.',
-    cropReset: 'Hela bilden',
+    views: { crop: 'Beskär och vrid', result: 'Resultat', relief: '3D-relief' },
+    cropHint: 'Dra i rutans kanter och hörn för att välja en del av bilden. Vrid med knapparna, eller räta upp ett snett foto med reglaget.',
+    rotateLeft: 'Vrid 90° moturs',
+    rotateRight: 'Vrid 90° medurs',
+    straighten: 'Räta upp (finjustera vinkeln)',
+    rotateReset: 'Rakt',
     prepare: 'Förbered bilden',
     paper: 'Ritning på papper',
     paperDesc: 'Foto av en ritning eller logotyp på papper? Ta bort bakgrund jämnar ut skuggor och ojämnt ljus, och Svartvit ger rena streck.',

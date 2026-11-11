@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Wand2 } from 'lucide-react';
-import { imageReliefHeights, type CropRect, type ImageReliefKind, type ImageReliefSettings } from '@desktopcam/core';
+import { RotateCcw, RotateCw, Wand2 } from 'lucide-react';
+import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
+import { imageReliefHeights, rgbaToGray, type ImageReliefKind, type ImageReliefSettings } from '@desktopcam/core';
 import { useAppStore } from '../../store/useAppStore';
-import { addImageRelief, imageReliefPreset, prepareImage, processedFull, useImageRelief, type ImagePrep } from '../../cam/imageRelief';
+import { addImageRelief, imageReliefPreset, prepareImage, processedFull, useImageRelief, type ImagePrep, type PendingImage } from '../../cam/imageRelief';
 import { shadeHeights } from '../../cam/reliefs';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
@@ -74,54 +76,74 @@ function toDataUrl(w: number, h: number, gray: Uint8Array | null, rgba: Uint8Cla
   return canvas.toDataURL();
 }
 
-/** Bilden med beskärningsruta: dra för att välja en del. */
-function CropView({ src, w, h, crop, onCrop, hint }: { src: string; w: number; h: number; crop: CropRect | null; onCrop: (c: CropRect | null) => void; hint: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const start = useRef<{ x: number; y: number } | null>(null);
-  const [drag, setDrag] = useState<CropRect | null>(null);
-  const toImg = (e: React.PointerEvent) => {
-    const r = ref.current!.getBoundingClientRect();
-    return { x: Math.min(w, Math.max(0, ((e.clientX - r.left) / r.width) * w)), y: Math.min(h, Math.max(0, ((e.clientY - r.top) / r.height) * h)) };
+/**
+ * Beskärning och vridning med Cropper.js (github.com/fengyuanchen/cropperjs).
+ * Lämnar ifrån sig den vridna och beskurna bilden som en ny källa.
+ */
+function ImageCropper({ src, angle, onResult }: { src: string; angle: number; onResult: (c: HTMLCanvasElement) => void }) {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const cropper = useRef<Cropper | null>(null);
+  const ready = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const emit = () => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      const c = cropper.current;
+      if (!c || !ready.current) return;
+      onResult(c.getCroppedCanvas({ maxWidth: 1000, maxHeight: 1000, imageSmoothingQuality: 'high' }));
+    }, 120);
   };
-  const rect = (a: { x: number; y: number }, b: { x: number; y: number }): CropRect => ({ x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) });
-  const shown = drag ?? crop;
-  const aspect = w / h;
+  useEffect(() => {
+    if (!imgRef.current) return;
+    ready.current = false;
+    const c = new Cropper(imgRef.current, {
+      viewMode: 1,
+      autoCropArea: 1,
+      background: false,
+      zoomable: false,
+      movable: false,
+      scalable: false,
+      rotatable: true,
+      checkOrientation: false,
+      toggleDragModeOnDblclick: false,
+      ready() {
+        ready.current = true;
+        if (angle) c.rotateTo(angle);
+        emit();
+      },
+      cropend: emit,
+    });
+    cropper.current = c;
+    return () => {
+      clearTimeout(timer.current);
+      c.destroy();
+      cropper.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
+  useEffect(() => {
+    const c = cropper.current;
+    if (!c || !ready.current) return;
+    c.rotateTo(angle);
+    // Efter vridning: låt rutan omfatta hela den vridna bilden igen.
+    c.setCropBoxData(c.getCanvasData());
+    emit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [angle]);
   return (
-    <div
-      ref={ref}
-      className="relative mx-auto cursor-crosshair touch-none select-none overflow-hidden rounded-md"
-      style={{ width: `min(100%, calc(52vh * ${aspect}))`, aspectRatio: `${w} / ${h}` }}
-      onPointerDown={(e) => {
-        e.currentTarget.setPointerCapture(e.pointerId);
-        start.current = toImg(e);
-        setDrag(null);
-      }}
-      onPointerMove={(e) => start.current && setDrag(rect(start.current, toImg(e)))}
-      onPointerUp={(e) => {
-        if (!start.current) return;
-        const r = rect(start.current, toImg(e));
-        start.current = null;
-        setDrag(null);
-        // Ett klick utan att dra tar bort beskärningen.
-        onCrop(r.w > w * 0.02 && r.h > h * 0.02 ? r : null);
-      }}
-      title={hint}
-    >
-      <img src={src} alt="" draggable={false} className="pointer-events-none absolute inset-0 h-full w-full" />
-      {shown && (
-        <div
-          className="pointer-events-none absolute border-2 border-dashed border-white"
-          style={{
-            left: `${(shown.x / w) * 100}%`,
-            top: `${(shown.y / h) * 100}%`,
-            width: `${(shown.w / w) * 100}%`,
-            height: `${(shown.h / h) * 100}%`,
-            boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-          }}
-        />
-      )}
+    <div className="h-[48vh] w-full">
+      <img ref={imgRef} src={src} alt="" className="block max-w-full" />
     </div>
   );
+}
+
+/** Canvas → källa för förbehandlingen (gråskala och bakgrundens ljushet). */
+function canvasToSource(c: HTMLCanvasElement, fileName: string): PendingImage {
+  const ctx = c.getContext('2d', { willReadFrequently: true })!;
+  const rgba = ctx.getImageData(0, 0, c.width, c.height).data;
+  const gray = rgbaToGray(rgba, c.width, c.height);
+  const sorted = Float32Array.from(gray).sort();
+  return { fileName, width: c.width, height: c.height, rgba, gray, lightBackground: sorted[Math.floor(sorted.length * 0.5)] >= 110 };
 }
 
 /** Bild till relief: förbehandling, förhandsvisning och inställningar innan reliefen placeras. */
@@ -132,7 +154,9 @@ export function ImageReliefDialog() {
   const material = useAppStore((s) => s.material);
   const pending = useImageRelief((s) => s.pending);
   const [prep, setPrep] = useState<ImagePrep>({ crop: null, removeBackground: false, blackWhite: false, threshold: null });
-  const [view, setView] = useState<'image' | 'relief'>('image');
+  const [view, setView] = useState<'crop' | 'result' | 'relief'>('crop');
+  const [angle, setAngle] = useState(0);
+  const [source, setSource] = useState<PendingImage | null>(null);
   const [settings, setSettings] = useState<ImageReliefSettings | null>(null);
   const [width, setWidth] = useState(100);
   const [depth, setDepth] = useState(4);
@@ -143,12 +167,17 @@ export function ImageReliefDialog() {
   useEffect(() => {
     if (!pending) return;
     setPrep({ crop: null, removeBackground: false, blackWhite: false, threshold: null });
-    setView('image');
+    setView('crop');
+    setAngle(0);
+    setSource(null);
     setMirror(false);
     lastKind.current = '';
   }, [pending]);
 
-  const prepared = useMemo(() => (pending ? prepareImage(pending, prep) : null), [pending, prep]);
+  // Källan är det som Cropper.js lämnar ifrån sig (vriden och beskuren), annars hela bilden.
+  const src = source ?? pending;
+  const prepared = useMemo(() => (src ? prepareImage(src, prep) : null), [src, prep]);
+  const originalUrl = useMemo(() => (pending ? toDataUrl(pending.width, pending.height, null, pending.rgba) : ''), [pending]);
 
   // Ny bildtyp efter analysen (t.ex. när svartvitt slås på): ladda typens inställningar.
   useEffect(() => {
@@ -170,11 +199,11 @@ export function ImageReliefDialog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aspect, pending]);
 
-  const imageUrl = useMemo(() => {
-    if (!pending) return '';
-    if (!prep.removeBackground && !prep.blackWhite) return toDataUrl(pending.width, pending.height, null, pending.rgba);
-    return toDataUrl(pending.width, pending.height, processedFull(pending, prep).gray, null);
-  }, [pending, prep.removeBackground, prep.blackWhite, prep.threshold, prep.crop]);
+  const resultUrl = useMemo(() => {
+    if (!src || view !== 'result') return '';
+    if (!prep.removeBackground && !prep.blackWhite) return toDataUrl(src.width, src.height, null, src.rgba);
+    return toDataUrl(src.width, src.height, processedFull(src, prep).gray, null);
+  }, [src, view, prep]);
 
   const reliefUrl = useMemo(() => {
     if (!prepared || !settings || view !== 'relief') return '';
@@ -222,34 +251,56 @@ export function ImageReliefDialog() {
     >
       <div className="grid gap-4 p-4 md:grid-cols-[1fr_310px]">
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Segmented
               label={ti.view}
               value={view}
               options={[
-                { value: 'image', label: ti.views.image },
+                { value: 'crop', label: ti.views.crop },
+                { value: 'result', label: ti.views.result },
                 { value: 'relief', label: ti.views.relief },
               ]}
               onChange={setView}
             />
-            {view === 'image' && (
-              <>
-                <p className="min-w-0 flex-1 text-2xs text-muted">{ti.cropHint}</p>
-                {prep.crop && (
-                  <button className="btn h-7 shrink-0 px-2 text-2xs" onClick={() => setP({ crop: null })}>
-                    {ti.cropReset}
+            {view === 'crop' && (
+              <div className="flex items-center gap-1">
+                <button className="btn h-7 px-2" onClick={() => setAngle((a) => ((a - 90 + 540) % 360) - 180)} title={ti.rotateLeft} aria-label={ti.rotateLeft}>
+                  <RotateCcw size={13} />
+                </button>
+                <button className="btn h-7 px-2" onClick={() => setAngle((a) => ((a + 90 + 540) % 360) - 180)} title={ti.rotateRight} aria-label={ti.rotateRight}>
+                  <RotateCw size={13} />
+                </button>
+                <input
+                  type="range"
+                  min={-45}
+                  max={45}
+                  step={0.5}
+                  value={Math.max(-45, Math.min(45, angle - Math.round(angle / 90) * 90))}
+                  onChange={(e) => setAngle(Math.round(angle / 90) * 90 + Number(e.target.value))}
+                  className="h-7 w-28 accent-[rgb(var(--c-accent))]"
+                  aria-label={ti.straighten}
+                  title={ti.straighten}
+                />
+                <span className="w-12 text-right text-2xs tabular-nums text-muted">{angle.toLocaleString(t.locale, { maximumFractionDigits: 1 })}°</span>
+                {angle !== 0 && (
+                  <button className="btn h-7 px-2 text-2xs" onClick={() => setAngle(0)}>
+                    {ti.rotateReset}
                   </button>
                 )}
-              </>
+              </div>
             )}
           </div>
           <div className="flex items-center justify-center rounded-lg bg-app p-2">
-            {view === 'image' ? (
-              <CropView src={imageUrl} w={pending.width} h={pending.height} crop={prep.crop} onCrop={(crop) => setP({ crop })} hint={ti.cropHint} />
-            ) : (
-              <img src={reliefUrl} alt={t.relief.previewAlt(pending.fileName)} className="max-h-[52vh] w-full object-contain" style={{ transform: mirror ? 'scaleX(-1)' : undefined }} />
+            {/* Döljs i stället för att tas bort, så att beskärningen finns kvar mellan vyerna. */}
+            <div className={view === 'crop' ? 'w-full' : 'hidden'}>
+              <ImageCropper src={originalUrl} angle={angle} onResult={(c) => setSource(canvasToSource(c, pending.fileName))} />
+            </div>
+            {view === 'result' && <img src={resultUrl} alt="" className="max-h-[48vh] w-full object-contain" />}
+            {view === 'relief' && (
+              <img src={reliefUrl} alt={t.relief.previewAlt(pending.fileName)} className="max-h-[48vh] w-full object-contain" style={{ transform: mirror ? 'scaleX(-1)' : undefined }} />
             )}
           </div>
+          {view === 'crop' && <p className="text-2xs text-muted">{ti.cropHint}</p>}
           <p className="text-xs">
             <span className="font-medium">{ti.detected(ti.kinds[prepared.analysis.kind])}</span> <span className="text-muted">{ti.why[prepared.analysis.kind]}</span>
           </p>
