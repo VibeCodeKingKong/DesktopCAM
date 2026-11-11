@@ -86,6 +86,7 @@ export const sv = {
   },
 
   buttons: {
+    imageRelief: { label: 'Bild till relief', title: 'Bild till relief', desc: 'Gör om en bild till en 3D-relief: ljusstyrkan blir höjd. Bilden analyseras och får inställningar efter typ – logotyp, teckning, höjdkarta eller foto.' },
     fillet: { label: 'Radie', title: 'Avrunda hörn', desc: 'Klicka på ett hörn för att avrunda det med radien i ritfältet. Klicka igen för att ta bort radien. Alla hörn på en gång: Hörnradie under Egenskaper.' },
     measure: { label: 'Mått', title: 'Mått mellan former', desc: 'Klicka på två former för att se och ändra avståndet mellan dem – mitt till mitt eller kant till kant – under Egenskaper. Den första står still.' },
     simPlay: { label: 'Simulera', title: 'Simulera fräsningen', desc: 'Spelar upp hur verktyget skär och graverar i materialet, bana för bana i listans ordning. Dolda banor hoppas över.' },
@@ -426,6 +427,38 @@ export const sv = {
     set: (r: number) => `Hörnet avrundat (R ${r.toLocaleString('sv-SE')} mm)`,
     removed: 'Radien borttagen',
     clickToRemove: 'Klicka för att ta bort radien',
+  },
+
+  imageRelief: {
+    title: 'Bild till relief',
+    kind: 'Bildtyp',
+    kinds: { logo: 'Logotyp / grafik', drawing: 'Teckning / linjer', depthmap: 'Höjdkarta', photo: 'Foto' },
+    detectedTag: 'upptäckt',
+    detected: (k: string) => `Upptäckt: ${k}.`,
+    why: {
+      logo: 'Få tydliga toner med stora ytor. Motivet lyfts från bakgrunden som en platå med mjukt rundade kanter.',
+      drawing: 'Tunna linjer på enfärgad bakgrund. Linjerna blir upphöjda åsar.',
+      depthmap: 'Gråskala med mjuka övergångar. Används som den är: ljust är högt.',
+      photo: 'Färger, många toner och struktur. Utjämnas mer för en jämn yta. Ljusstyrka är inte djup, så resultatet blir mer som en litofan än en skulptur.',
+    },
+    kindDesc: {
+      logo: 'Platå med mjuka kanter. Fräs gärna med en kulfräs, eller använd V-gravyr om motivet finns som vektor.',
+      drawing: 'Linjerna lyfts fram. Öka utjämningen för bredare och mjukare åsar.',
+      depthmap: 'Höjdkartan används som den är. Välj bara storlek och djup.',
+      photo: 'Utjämning och kontrast gör störst skillnad. Prova Mörkt är högt för porträtt med ljus bakgrund.',
+    },
+    high: 'Högst är',
+    highLight: 'Ljust',
+    highDark: 'Mörkt',
+    smoothing: 'Utjämning',
+    contrast: 'Kontrast',
+    gamma: 'Gamma',
+    background: 'Platt bakgrund',
+    depth: 'Djup',
+    mirror: 'Spegelvänd',
+    footer: 'Reliefen placeras mitt på materialet. Skapa sedan en 3D-bana under Verktygsbanor.',
+    unreadable: (n: string) => `Kunde inte läsa bilden ${n}.`,
+    settings: 'Bild',
   },
 
   gearDialog: {

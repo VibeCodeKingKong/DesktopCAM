@@ -182,6 +182,8 @@ export interface VectorLayer {
 
 /* ───────────────────────── Reliefer (3D) ───────────────────────── */
 
+import type { ImageReliefSource } from './imageRelief';
+
 export type ReliefCategory = 'geometric' | 'pattern' | 'nature';
 
 /** En relief i projektet, placerad på materialet. Höjden ritas nedåt från Z = 0. */
@@ -199,6 +201,8 @@ export interface ReliefInstance {
   invert: boolean;
   mirror: boolean;
   visible: boolean;
+  /** Relief från en bild (reliefId är då "image"). */
+  image?: ImageReliefSource;
 }
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */

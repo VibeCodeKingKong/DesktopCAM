@@ -1,5 +1,6 @@
-import { Circle, Cog, Copy, FileUp, Magnet, Mountain, MousePointer2, PenTool, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { Circle, Cog, Copy, FileUp, ImageUp, Magnet, Mountain, MousePointer2, PenTool, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
+import { importImageRelief } from '../../../cam/imageRelief';
 import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
@@ -66,6 +67,7 @@ export function DesignTab() {
       </RibbonGroup>
       <RibbonGroup label={t.groups.library}>
         <RibbonButton icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />
+        <RibbonButton icon={ImageUp} label={b.imageRelief.label} onClick={() => void importImageRelief()} tooltip={tip(b.imageRelief)} />
       </RibbonGroup>
     </>
   );

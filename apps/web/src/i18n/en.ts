@@ -117,6 +117,7 @@ export const en: Dict = {
   },
 
   buttons: {
+    imageRelief: { label: 'Image to relief', title: 'Image to relief', desc: 'Turns an image into a 3D relief: brightness becomes height. The image is analysed and gets settings by type – logo, drawing, height map or photo.' },
     fillet: { label: 'Radius', title: 'Round corners', desc: 'Click a corner to round it with the radius in the drawing bar. Click again to remove it. All corners at once: Corner radius in Properties.' },
     measure: { label: 'Measure', title: 'Distance between shapes', desc: 'Click two shapes to see and change the distance between them – centre to centre or edge to edge – in Properties. The first one stays put.' },
     simPlay: { label: 'Simulate', title: 'Simulate the machining', desc: 'Plays back how the tool cuts and engraves the material, toolpath by toolpath in list order. Hidden toolpaths are skipped.' },
@@ -457,6 +458,38 @@ export const en: Dict = {
     set: (r: number) => `Corner rounded (R ${r.toLocaleString('en-GB')} mm)`,
     removed: 'Radius removed',
     clickToRemove: 'Click to remove the radius',
+  },
+
+  imageRelief: {
+    title: 'Image to relief',
+    kind: 'Image type',
+    kinds: { logo: 'Logo / graphic', drawing: 'Drawing / lines', depthmap: 'Height map', photo: 'Photo' },
+    detectedTag: 'detected',
+    detected: (k: string) => `Detected: ${k}.`,
+    why: {
+      logo: 'A few clear tones with large areas. The motif is raised from the background as a plateau with softly rounded edges.',
+      drawing: 'Thin lines on a plain background. The lines become raised ridges.',
+      depthmap: 'Greyscale with smooth transitions. Used as is: light is high.',
+      photo: 'Colours, many tones and texture. Smoothed more for an even surface. Brightness is not depth, so the result is more like a lithophane than a sculpture.',
+    },
+    kindDesc: {
+      logo: 'Plateau with soft edges. Mill it with a ball nose, or use V-carving if you have the motif as a vector.',
+      drawing: 'The lines are raised. Increase smoothing for wider, softer ridges.',
+      depthmap: 'The height map is used as is. Just choose size and depth.',
+      photo: 'Smoothing and contrast make the biggest difference. Try Dark is high for portraits on a light background.',
+    },
+    high: 'Highest is',
+    highLight: 'Light',
+    highDark: 'Dark',
+    smoothing: 'Smoothing',
+    contrast: 'Contrast',
+    gamma: 'Gamma',
+    background: 'Flat background',
+    depth: 'Depth',
+    mirror: 'Mirror',
+    footer: 'The relief is placed in the middle of the material. Then create a 3D toolpath on the Toolpaths tab.',
+    unreadable: (n: string) => `Could not read the image ${n}.`,
+    settings: 'Image',
   },
 
   gearDialog: {

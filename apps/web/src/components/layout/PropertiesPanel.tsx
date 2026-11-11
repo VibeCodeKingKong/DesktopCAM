@@ -48,6 +48,7 @@ import { duration, mm } from '../../utils/format';
 import { materialName, toolName, useT, type GuideKey } from '../../i18n';
 import { InfoHint } from '../smartguide/InfoHint';
 import { SidePanel } from './SidePanel';
+import { ImageReliefFields } from '../dialogs/ImageReliefDialog';
 import { getNode, moveNode, nodeCount, setClosed } from '../../editing/nodes';
 
 function Group({ title, children, hint }: { title: string; children: ReactNode; hint?: GuideKey }) {
@@ -327,8 +328,20 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
       <Group title={t.props.placement}>
         <NumberField label={t.props.x} unit="mm" value={relief.x} onChange={(x) => patch({ x })} />
         <NumberField label={t.props.y} unit="mm" value={relief.y} onChange={(y) => patch({ y })} />
-        <NumberField label={t.props.width} unit="mm" min={5} value={relief.width} onChange={(width) => patch({ width })} />
-        <NumberField label={t.props.height} unit="mm" min={5} value={relief.height} onChange={(height) => patch({ height })} />
+        <NumberField
+          label={t.props.width}
+          unit="mm"
+          min={5}
+          value={relief.width}
+          onChange={(width) => patch(relief.image ? { width, height: (width * relief.image.height) / relief.image.width } : { width })}
+        />
+        <NumberField
+          label={t.props.height}
+          unit="mm"
+          min={5}
+          value={Math.round(relief.height * 100) / 100}
+          onChange={(height) => patch(relief.image ? { height, width: (height * relief.image.width) / relief.image.height } : { height })}
+        />
         <button className="btn w-full" onClick={() => patch({ x: (material.width - relief.width) / 2, y: (material.height - relief.height) / 2 })}>
           {t.props.centerOnStock}
         </button>
@@ -343,6 +356,16 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
         </FieldRow>
         {relief.depth > material.thickness && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.tooDeep(material.thickness)}</p>}
       </Group>
+      {relief.image && (
+        <Group title={t.imageRelief.settings}>
+          <ImageReliefFields
+            settings={relief.image.settings}
+            detected={relief.image.detected}
+            lightBackground={relief.image.lightBackground ?? true}
+            onChange={(settings) => patch({ image: { ...relief.image!, settings } })}
+          />
+        </Group>
+      )}
       <Group title={t.props.machining}>
         <div className="flex gap-2">
           <button className="btn btn-primary flex-1" onClick={() => createToolpath('relief')} disabled={isLaser} title={isLaser ? t.reasons.needsRouter : undefined}>

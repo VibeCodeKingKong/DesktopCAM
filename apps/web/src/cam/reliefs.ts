@@ -2,7 +2,17 @@
  * Höjdkartor för reliefer i projektet: cache, miniatyrer och den samlade
  * materialytan som 3D-vyn visar.
  */
-import { getReliefDefinition, sampleRelief, type MaterialSetup, type ReliefDefinition, type ReliefInstance } from '@desktopcam/core';
+import {
+  base64ToBytes,
+  getReliefDefinition,
+  imageReliefHeights,
+  resampleHeights,
+  sampleRelief,
+  type ImageReliefSource,
+  type MaterialSetup,
+  type ReliefDefinition,
+  type ReliefInstance,
+} from '@desktopcam/core';
 
 /** Upplösning för beräkning: ungefär 0,25 mm mellan punkterna, högst 600 per sida. */
 const CAM_SPACING = 0.25;
@@ -16,7 +26,33 @@ export interface Heightmap {
 
 const cache = new Map<string, Heightmap>();
 
+/** Bildreliefer: höjdfältet i bildens egen upplösning, cachat per inställning. */
+const imageCache = new Map<string, Float32Array>();
+function imageHeights(img: ImageReliefSource): Float32Array {
+  const key = `${img.gray.length}:${img.gray.slice(0, 64)}:${img.gray.slice(-64)}:${JSON.stringify(img.settings)}`;
+  let h = imageCache.get(key);
+  if (!h) {
+    h = imageReliefHeights(base64ToBytes(img.gray), img.width, img.height, img.settings);
+    if (imageCache.size > 12) imageCache.delete(imageCache.keys().next().value!);
+    imageCache.set(key, h);
+  }
+  return h;
+}
+
 export function heightmapFor(r: ReliefInstance, spacing = CAM_SPACING): Heightmap {
+  if (r.image) {
+    const nx = Math.min(MAX_SAMPLES, Math.max(16, Math.round(r.width / spacing) + 1));
+    const ny = Math.min(MAX_SAMPLES, Math.max(16, Math.round(r.height / spacing) + 1));
+    let src = imageHeights(r.image);
+    const w = r.image.width;
+    if (r.invert) src = src.map((v) => 1 - v);
+    if (r.mirror) {
+      const m = new Float32Array(src.length);
+      for (let j = 0; j < r.image.height; j++) for (let i = 0; i < w; i++) m[j * w + i] = src[j * w + (w - 1 - i)];
+      src = m;
+    }
+    return { heights: resampleHeights(src, w, r.image.height, nx, ny), nx, ny };
+  }
   const def = getReliefDefinition(r.reliefId);
   if (!def) throw new Error(`Reliefen ${r.reliefId} finns inte i biblioteket`);
   const nx = Math.min(MAX_SAMPLES, Math.max(16, Math.round(r.width / spacing) + 1));
@@ -119,4 +155,34 @@ export function reliefThumbnail(def: ReliefDefinition, size = 112, color = [214,
   const url = canvas.toDataURL();
   thumbs.set(key, url);
   return url;
+}
+
+/** Skuggad bild (hillshade) av ett höjdfält, som data-URL – för förhandsvisning av bildreliefer. */
+export function shadeHeights(hm: Float32Array, w: number, h: number, color = [214, 178, 128]): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d')!;
+  const img = ctx.createImageData(w, h);
+  const L = [-0.45, 0.55, 0.7];
+  const ll = Math.hypot(L[0], L[1], L[2]);
+  const relief = Math.max(w, h) / 40;
+  const at = (i: number, j: number) => hm[Math.min(h - 1, Math.max(0, j)) * w + Math.min(w - 1, Math.max(0, i))];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const j = h - 1 - y;
+      const gx = (at(x + 1, j) - at(x - 1, j)) * relief;
+      const gy = (at(x, j + 1) - at(x, j - 1)) * relief;
+      const nl = Math.hypot(gx, gy, 1);
+      const shade = Math.max(0, (-gx * L[0] - gy * L[1] + L[2]) / (nl * ll));
+      const k = 0.35 + 0.5 * shade + 0.25 * at(x, j);
+      const o = (y * w + x) * 4;
+      img.data[o] = Math.min(255, color[0] * k);
+      img.data[o + 1] = Math.min(255, color[1] * k);
+      img.data[o + 2] = Math.min(255, color[2] * k);
+      img.data[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas.toDataURL();
 }
