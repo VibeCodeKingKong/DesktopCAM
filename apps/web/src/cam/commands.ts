@@ -755,8 +755,8 @@ export function applyPattern(cfg: PatternConfig) {
   const shapes = selected();
   const b = shapesBounds(shapes);
   if (!shapes.length || !b) return;
-  const transforms = patternTransforms(cfg, b);
-  if (!transforms.length) return;
+  const { origin, copies: transforms } = patternTransforms(cfg, b);
+  if (!transforms.length && !origin) return;
   const isTranslate = (m: Mat2D) => m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1;
   const copies: VectorShape[] = [];
   const byShape = new Map<string, VectorShape[]>();
@@ -774,9 +774,17 @@ export function applyPattern(cfg: PatternConfig) {
       byShape.set(sh.id, [...(byShape.get(sh.id) ?? []), copy]);
     }
   });
+  // Cirkulärt mönster med radie: originalet flyttas ut på cirkeln.
+  const movedOriginal = (sh: VectorShape): VectorShape => {
+    if (!origin) return sh;
+    const out = transformShape(sh, origin);
+    return sh.text ? { ...out, text: { ...sh.text, x: sh.text.x + origin[4], y: sh.text.y + origin[5] } } : out;
+  };
+  const ids = new Set(shapes.map((x) => x.id));
   const layers = s.layers.map((l) => {
     const mine = l.shapes.flatMap((sh) => byShape.get(sh.id) ?? []);
-    return mine.length ? { ...l, shapes: [...l.shapes, ...mine] } : l;
+    if (!mine.length && !l.shapes.some((sh) => ids.has(sh.id))) return l;
+    return { ...l, shapes: [...l.shapes.map((sh) => (ids.has(sh.id) ? movedOriginal(sh) : sh)), ...mine] };
   });
   s.checkpoint();
   useAppStore.setState({ layers, selectedShapeIds: [...shapes.map((x) => x.id), ...copies.map((c) => c.id)] });

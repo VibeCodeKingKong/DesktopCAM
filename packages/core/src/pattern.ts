@@ -27,12 +27,38 @@ export interface CircularPattern {
   totalAngle: number;
   /** Vrid kopiorna med (som ekrar) eller behåll deras riktning. */
   rotateCopies: boolean;
+  /**
+   * Cirkelns radie (mm). Anges den flyttas originalet ut på cirkeln vid
+   * startvinkeln; annars ligger det kvar där det är.
+   */
+  radius?: number;
+  /** Vinkel (grader, moturs från +X) där originalet placeras på cirkeln. */
+  startAngle?: number;
 }
 
 export type PatternConfig = LinearPattern | CircularPattern;
 
-/** Transformationer för kopiorna (utan originalet). */
-export function patternTransforms(p: PatternConfig, b: Bounds2D): Mat2D[] {
+export interface PatternResult {
+  /** Flytt av originalet (cirkulärt mönster med radie), annars null. */
+  origin: Mat2D | null;
+  /** Transformationer för kopiorna, räknade från markeringens ursprungliga läge. */
+  copies: Mat2D[];
+}
+
+/** Transformationer för mönstret: eventuell flytt av originalet och kopiorna. */
+export function patternTransforms(p: PatternConfig, b: Bounds2D): PatternResult {
+  if (p.kind === 'circular' && p.radius !== undefined && p.radius >= 0) {
+    const mx = (b.min.x + b.max.x) / 2, my = (b.min.y + b.max.y) / 2;
+    const a = ((p.startAngle ?? 0) * Math.PI) / 180;
+    const origin = translate(p.cx + p.radius * Math.cos(a) - mx, p.cy + p.radius * Math.sin(a) - my);
+    const moved: Bounds2D = { min: { x: b.min.x + origin[4], y: b.min.y + origin[5] }, max: { x: b.max.x + origin[4], y: b.max.y + origin[5] } };
+    return { origin, copies: copyTransforms(p, moved).map((m) => multiply(m, origin)) };
+  }
+  return { origin: null, copies: copyTransforms(p, b) };
+}
+
+/** Kopiornas transformationer från markeringens nuvarande läge (utan originalet). */
+function copyTransforms(p: PatternConfig, b: Bounds2D): Mat2D[] {
   const out: Mat2D[] = [];
   if (p.kind === 'linear') {
     const w = b.max.x - b.min.x, h = b.max.y - b.min.y;

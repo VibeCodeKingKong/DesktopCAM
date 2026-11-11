@@ -13,6 +13,12 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.12.0',
+    date: '2026-11-11',
+    sv: ['Cirkulärt mönster: ange cirkelns diameter eller radie och en startvinkel. Originalet flyttas ut på cirkeln och kopiorna fördelas därifrån.'],
+    en: ['Circular pattern: enter the circle’s diameter or radius and a start angle. The original is moved onto the circle and the copies are spread from there.'],
+  },
+  {
     version: '0.11.0',
     date: '2026-11-11',
     sv: [

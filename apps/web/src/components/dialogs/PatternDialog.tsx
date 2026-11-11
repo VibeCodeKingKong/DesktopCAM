@@ -29,6 +29,10 @@ export function PatternDialog() {
   const [cy, setCy] = useState(0);
   const [totalAngle, setTotalAngle] = useState(360);
   const [rotateCopies, setRotateCopies] = useState(true);
+  // Cirkelns storlek: radie eller diameter, och var originalet hamnar på cirkeln.
+  const [radius, setRadius] = useState(30);
+  const [sizeMode, setSizeMode] = useState<'diameter' | 'radius'>('diameter');
+  const [startAngle, setStartAngle] = useState(90);
 
   // Ny öppning: rimliga förval utifrån markeringen och materialet.
   useEffect(() => {
@@ -36,22 +40,30 @@ export function PatternDialog() {
     const w = b.max.x - b.min.x, h = b.max.y - b.min.y;
     setSpacingX(Math.round(w + 10));
     setSpacingY(Math.round(h + 10));
-    setCx(material.width / 2);
-    setCy(material.height / 2);
+    const ccx = material.width / 2, ccy = material.height / 2;
+    setCx(ccx);
+    setCy(ccy);
+    // Utgå från där markeringen ligger nu; ligger den i mitten, börja med en cirkel upptill.
+    const mx = (b.min.x + b.max.x) / 2, my = (b.min.y + b.max.y) / 2;
+    const r = Math.hypot(mx - ccx, my - ccy);
+    setRadius(r > 0.5 ? Math.round(r * 10) / 10 : Math.round(Math.min(material.width, material.height) / 4));
+    setStartAngle(r > 0.5 ? Math.round((Math.atan2(my - ccy, mx - ccx) * 180) / Math.PI) : 90);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const cfg: PatternConfig =
     kind === 'linear'
       ? { kind, countX, countY, spacingX, spacingY, spacingMode }
-      : { kind, count, cx, cy, totalAngle, rotateCopies };
-  const copies = useMemo(() => (b ? patternTransforms(cfg, b).flatMap((m) => shapes.map((sh) => transformShape(sh, m))) : []), [b, shapes, JSON.stringify(cfg)]);
+      : { kind, count, cx, cy, totalAngle, rotateCopies, radius, startAngle };
+  const result = useMemo(() => (b ? patternTransforms(cfg, b) : null), [b, JSON.stringify(cfg)]);
+  const copies = useMemo(() => (result ? result.copies.flatMap((m) => shapes.map((sh) => transformShape(sh, m))) : []), [result, shapes]);
+  // Originalet där det hamnar (flyttas ut på cirkeln i ett cirkulärt mönster).
+  const placed = useMemo(() => (result?.origin ? shapes.map((sh) => transformShape(sh, result.origin!)) : shapes), [result, shapes]);
   if (!open || !b) return null;
 
-  const all = shapesBounds([...shapes, ...copies]) ?? b;
+  const all = shapesBounds([...placed, ...copies]) ?? b;
   const outside = all.min.x < -1e-6 || all.min.y < -1e-6 || all.max.x > material.width + 1e-6 || all.max.y > material.height + 1e-6;
   const mx = (b.min.x + b.max.x) / 2, my = (b.min.y + b.max.y) / 2;
-  const radius = Math.hypot(mx - cx, my - cy);
   const fmt = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 1 });
 
   // Förhandsvisning: materialet, originalet och kopiorna (y uppåt).
@@ -100,7 +112,7 @@ export function PatternDialog() {
             {copies.map((sh, i) => (
               <path key={i} d={pathOf(sh)} fill="none" stroke="currentColor" className="text-accent" strokeWidth={sw * 1.5} strokeDasharray={`${sw * 4} ${sw * 3}`} />
             ))}
-            {shapes.map((sh) => (
+            {placed.map((sh) => (
               <path key={sh.id} d={pathOf(sh)} fill="none" className="stroke-ink" strokeWidth={sw * 2} />
             ))}
             {kind === 'circular' && (
@@ -155,7 +167,27 @@ export function PatternDialog() {
                   </button>
                 )}
               </div>
-              <p className="text-2xs text-muted">{tp.radius(fmt(radius))}</p>
+              <FieldRow label={tp.size}>
+                <Segmented
+                  label={tp.size}
+                  value={sizeMode}
+                  options={[
+                    { value: 'diameter', label: tp.sizeModes.diameter },
+                    { value: 'radius', label: tp.sizeModes.radius },
+                  ]}
+                  onChange={setSizeMode}
+                />
+              </FieldRow>
+              <NumberField
+                label={sizeMode === 'diameter' ? tp.diameter : tp.radiusLabel}
+                unit="mm"
+                step={1}
+                min={0}
+                value={sizeMode === 'diameter' ? Math.round(radius * 2 * 100) / 100 : radius}
+                onChange={(v) => setRadius(Math.max(0, sizeMode === 'diameter' ? v / 2 : v))}
+              />
+              <NumberField label={tp.startAngle} unit="°" step={15} min={-360} max={360} value={startAngle} onChange={setStartAngle} />
+              <p className="text-2xs text-muted">{tp.radius(fmt(radius), fmt(radius * 2))}</p>
               <NumberField label={tp.totalAngle} unit="°" step={15} min={-360} max={360} value={totalAngle} onChange={setTotalAngle} />
               {!beginner && (
                 <FieldRow label={tp.rotateCopies}>
