@@ -1,5 +1,6 @@
 import type { ToolDefinition } from '@desktopcam/core';
 import { cuttingLength } from '../../cam/toolReach';
+import { useT } from '../../i18n';
 
 /**
  * Sidovy av ett verktyg: skaft, skärande del med spiralskär och spetsens form.
@@ -7,6 +8,7 @@ import { cuttingLength } from '../../cam/toolReach';
  * måttlinjer för diameter, skärlängd och utstick.
  */
 export function ToolIcon({ tool, size = 40, dimensions = false }: { tool: ToolDefinition; size?: number; dimensions?: boolean }) {
+  const t = useT();
   const H = 100;
   const W = dimensions ? 90 : 40;
   const cx = dimensions ? 34 : 20;
@@ -61,7 +63,7 @@ export function ToolIcon({ tool, size = 40, dimensions = false }: { tool: ToolDe
 
   const collet = stick ? tipY - stick * k : null;
   const dimX = cx + Math.max(rC, rS) + 8;
-  const label = (n: number) => String(+n.toFixed(2)).replace('.', ',');
+  const label = (n: number) => (+n.toFixed(2)).toLocaleString(t.locale);
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={(size * W) / H} height={size} aria-hidden="true" className="overflow-visible">

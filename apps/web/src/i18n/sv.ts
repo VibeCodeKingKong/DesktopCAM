@@ -3,6 +3,7 @@
  * TypeScript kontrollerar det via typen Dict.
  */
 import type { ImportLabels, MaterialPreset, OperationType, ReliefCategory, ToolKind } from '@desktopcam/core';
+import type { Language } from './initial';
 const mmSv = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 type Tip = { label: string; title: string; desc: string };
@@ -16,7 +17,7 @@ export type GuideKey =
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
-  code: 'sv' as 'sv' | 'en',
+  code: 'sv' as Language,
   name: 'Svenska',
   locale: 'sv-SE',
 

@@ -1,10 +1,8 @@
 import { makeCircle, makeGear, makeRect, uid, type VectorLayer } from '@desktopcam/core';
-import { initialLanguage } from '../i18n/initial';
-import { en } from '../i18n/en';
-import { sv } from '../i18n/sv';
+import { DICTS, initialLanguage } from '../i18n';
 
 export function createDemoLayers(): VectorLayer[] {
-  const t = initialLanguage() === 'sv' ? sv : en;
+  const t = DICTS[initialLanguage()];
   return [
     {
       id: uid('layer'),

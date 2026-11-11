@@ -5,7 +5,7 @@ import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
 import { useAppStore, type EditTool } from '../../../store/useAppStore';
-import { useT } from '../../../i18n';
+import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
 import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluMeasure, IlluPattern, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
 import { Select } from '../../ui/Field';
@@ -65,7 +65,7 @@ export function DesignTab() {
             <Select
               value={String(snap.step)}
               onChange={(v) => setSnap({ step: Number(v), grid: true })}
-              options={['0.1', '0.5', '1', '2', '5', '10'].map((v) => ({ value: v, label: `${v.replace('.', t.code === 'sv' ? ',' : '.')} mm` }))}
+              options={['0.1', '0.5', '1', '2', '5', '10'].map((v) => ({ value: v, label: `${v.replace('.', decimalSep(t))} mm` }))}
             />
           </div>
         </RibbonStack>

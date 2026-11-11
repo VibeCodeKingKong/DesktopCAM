@@ -11,7 +11,6 @@ export function AboutDialog() {
   const t = useT();
   const open = useAppStore((s) => s.dialog === 'about');
   const close = () => useAppStore.getState().openDialog(null);
-  const lang = t.code;
 
   // Efter en uppdatering: visa nyheterna en gång. Nya användare får dem inte direkt.
   useEffect(() => {
@@ -46,7 +45,7 @@ export function AboutDialog() {
                 {e.version === APP_VERSION && <span className="rounded bg-accent/10 px-1.5 py-0.5 text-2xs font-medium text-accent">{t.about.current}</span>}
               </p>
               <ul className="list-disc space-y-0.5 pl-5 text-xs leading-relaxed">
-                {(lang === 'sv' ? e.sv : e.en).map((x) => (
+                {e.text[t.code].map((x) => (
                   <li key={x}>{x}</li>
                 ))}
               </ul>

@@ -1,17 +1,23 @@
 import { useAppStore } from '../store/useAppStore';
+import { de } from './de';
 import { en } from './en';
+import { es } from './es';
+import { fr } from './fr';
+import { pl } from './pl';
+import { uk } from './uk';
 import { sv, type Dict } from './sv';
 
 export type { Dict, GuideKey } from './sv';
 export type { Language } from './initial';
-import type { Language } from './initial';
+import { LANGUAGE_CODES, type Language } from './initial';
 export { initialLanguage } from './initial';
 
-export const DICTS: Record<Language, Dict> = { sv, en };
-export const LANGUAGES: { code: Language; name: string }[] = [
-  { code: 'sv', name: sv.name },
-  { code: 'en', name: en.name },
-];
+export const DICTS: Record<Language, Dict> = { sv, en, fr, de, es, pl, uk };
+/** I väljaren: varje språk med sitt eget namn. */
+export const LANGUAGES: { code: Language; name: string }[] = LANGUAGE_CODES.map((code) => ({ code, name: DICTS[code].name }));
+
+/** Decimaltecknet för valt språk (komma i de flesta europeiska språk). */
+export const decimalSep = (t: Dict) => (1.5).toLocaleString(t.locale).charAt(1);
 
 /** Ordlistan för valt språk, i React-komponenter. */
 export const useT = (): Dict => DICTS[useAppStore((s) => s.language)];

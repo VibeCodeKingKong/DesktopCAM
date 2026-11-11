@@ -1,7 +1,7 @@
 import { Pause, Play, SkipForward, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
-import { useT } from '../../i18n';
+import { decimalSep, useT } from '../../i18n';
 
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
 
@@ -51,7 +51,7 @@ export function SimulationBar() {
         >
           {SPEEDS.map((v) => (
             <option key={v} value={v}>
-              {String(v).replace('.', t.code === 'sv' ? ',' : '.')}×
+              {String(v).replace('.', decimalSep(t))}×
             </option>
           ))}
         </select>

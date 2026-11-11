@@ -21,11 +21,11 @@ type UnitChoice = 'auto' | 'mm' | 'cm' | 'in' | 'px96' | 'px72';
 
 const UNIT_SCALE: Record<UnitChoice, number | null> = { auto: null, mm: 1, cm: 10, in: 25.4, px96: 25.4 / 96, px72: 25.4 / 72 };
 const LAYER_COLORS = ['#0071e3', '#2e9d5b', '#b35ad6', '#d4572a', '#0b8f9c', '#8a6d1d'];
-const fmt = (n: number) => n.toLocaleString('sv-SE', { maximumFractionDigits: 1 });
 
 /** Förhandsvisning och inställningar innan en SVG eller DXF läggs till i projektet. */
 export function ImportDialog() {
   const t = useT();
+  const fmt = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 1 });
   const open = useAppStore((s) => s.dialog === 'importFile');
   const pending = useAppStore((s) => s.pendingImport);
   const material = useAppStore((s) => s.material);

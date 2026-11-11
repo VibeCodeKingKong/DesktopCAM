@@ -145,6 +145,21 @@ export interface TextOptions {
   weight?: number;
 }
 
+/** Bokstäver utan nedbrytbar accent som ritas som sin grundbokstav. */
+const BASE: Record<string, string> = { Ł: 'L', Đ: 'D', Ħ: 'H', Ŀ: 'L', Œ: 'OE', ẞ: 'S', ß: 'S' };
+
+/**
+ * Tecknet i fonten. Finns det inte ritas grundbokstaven utan accent
+ * (É → E, Ñ → N, Ł → L) så att franska, spanska, tyska och polska texter
+ * blir läsbara. Andra skriftsystem (t.ex. kyrilliska) blir "?".
+ */
+function glyphFor(ch: string): Glyph {
+  const up = ch.toUpperCase();
+  if (GLYPHS[up]) return GLYPHS[up];
+  const base = BASE[up] ?? up.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return GLYPHS[base[0]] ?? GLYPHS['?'];
+}
+
 /** Mått för en textrad i fontenheter. */
 function measure(line: string): number {
   let w = 0;
@@ -152,7 +167,7 @@ function measure(line: string): number {
     if (ch === ' ') w += SPACE;
     else {
       const small = ch !== ch.toUpperCase();
-      const g = GLYPHS[ch.toUpperCase()] ?? GLYPHS['?'];
+      const g = glyphFor(ch);
       w += g.w * (small ? 0.78 : 1) + TRACKING;
     }
   }
@@ -177,7 +192,7 @@ export function textToShape(text: string, x: number, y: number, opts: TextOption
       }
       const small = ch !== ch.toUpperCase();
       const k = small ? 0.78 : 1;
-      const g = GLYPHS[ch.toUpperCase()] ?? GLYPHS['?'];
+      const g = glyphFor(ch);
       for (const stroke of parseGlyph(g.d, s * k, s * k, x + pen * s, base)) {
         const closed = stroke.length > 3 && Math.hypot(stroke[0].x - stroke[stroke.length - 1].x, stroke[0].y - stroke[stroke.length - 1].y) < 1e-6;
         const pts = closed ? stroke.slice(0, -1) : stroke;
