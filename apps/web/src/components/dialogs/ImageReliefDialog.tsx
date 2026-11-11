@@ -108,7 +108,7 @@ function ImageCropper({ src, angle, onResult }: { src: string; angle: number; on
       toggleDragModeOnDblclick: false,
       ready() {
         ready.current = true;
-        if (angle) c.rotateTo(angle);
+        if (angle) rotateAndFit(c, angle);
         emit();
       },
       cropend: emit,
@@ -124,9 +124,7 @@ function ImageCropper({ src, angle, onResult }: { src: string; angle: number; on
   useEffect(() => {
     const c = cropper.current;
     if (!c || !ready.current) return;
-    c.rotateTo(angle);
-    // Efter vridning: låt rutan omfatta hela den vridna bilden igen.
-    c.setCropBoxData(c.getCanvasData());
+    rotateAndFit(c, angle);
     emit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [angle]);
@@ -135,6 +133,25 @@ function ImageCropper({ src, angle, onResult }: { src: string; angle: number; on
       <img ref={imgRef} src={src} alt="" className="block max-w-full" />
     </div>
   );
+}
+
+/**
+ * Vrider och skalar sedan ner bilden så att hela den vridna bilden ryms i
+ * rutan. Cropper.js förstorar annars arbetsytan till den vridna bildens
+ * omslutande rektangel, så att bilden ser inzoomad ut och delar hamnar utanför.
+ * I viewMode 1 kan arbetsytan inte bli mindre än beskärningsrutan, så rutan
+ * släpps först och läggs sedan om hela bilden igen.
+ */
+function rotateAndFit(c: Cropper, angle: number) {
+  c.clear();
+  c.rotateTo(angle);
+  const box = c.getContainerData();
+  const cv = c.getCanvasData();
+  const k = Math.min(box.width / cv.width, box.height / cv.height);
+  const width = cv.width * k, height = cv.height * k;
+  c.setCanvasData({ left: (box.width - width) / 2, top: (box.height - height) / 2, width, height });
+  c.crop();
+  c.setCropBoxData(c.getCanvasData());
 }
 
 /** Canvas → källa för förbehandlingen (gråskala och bakgrundens ljushet). */
@@ -155,7 +172,10 @@ export function ImageReliefDialog() {
   const pending = useImageRelief((s) => s.pending);
   const [prep, setPrep] = useState<ImagePrep>({ crop: null, removeBackground: false, blackWhite: false, threshold: null });
   const [view, setView] = useState<'crop' | 'result' | 'relief'>('crop');
-  const [angle, setAngle] = useState(0);
+  // Vinkeln = kvartsvarv (knapparna) + finjustering ±45° (reglaget).
+  const [quarter, setQuarter] = useState(0);
+  const [fine, setFine] = useState(0);
+  const angle = quarter * 90 + fine;
   const [source, setSource] = useState<PendingImage | null>(null);
   const [settings, setSettings] = useState<ImageReliefSettings | null>(null);
   const [width, setWidth] = useState(100);
@@ -168,7 +188,8 @@ export function ImageReliefDialog() {
     if (!pending) return;
     setPrep({ crop: null, removeBackground: false, blackWhite: false, threshold: null });
     setView('crop');
-    setAngle(0);
+    setQuarter(0);
+    setFine(0);
     setSource(null);
     setMirror(false);
     lastKind.current = '';
@@ -264,10 +285,10 @@ export function ImageReliefDialog() {
             />
             {view === 'crop' && (
               <div className="flex items-center gap-1">
-                <button className="btn h-7 px-2" onClick={() => setAngle((a) => ((a - 90 + 540) % 360) - 180)} title={ti.rotateLeft} aria-label={ti.rotateLeft}>
+                <button className="btn h-7 px-2" onClick={() => setQuarter((q) => (q + 3) % 4)} title={ti.rotateLeft} aria-label={ti.rotateLeft}>
                   <RotateCcw size={13} />
                 </button>
-                <button className="btn h-7 px-2" onClick={() => setAngle((a) => ((a + 90 + 540) % 360) - 180)} title={ti.rotateRight} aria-label={ti.rotateRight}>
+                <button className="btn h-7 px-2" onClick={() => setQuarter((q) => (q + 1) % 4)} title={ti.rotateRight} aria-label={ti.rotateRight}>
                   <RotateCw size={13} />
                 </button>
                 <input
@@ -275,15 +296,21 @@ export function ImageReliefDialog() {
                   min={-45}
                   max={45}
                   step={0.5}
-                  value={Math.max(-45, Math.min(45, angle - Math.round(angle / 90) * 90))}
-                  onChange={(e) => setAngle(Math.round(angle / 90) * 90 + Number(e.target.value))}
+                  value={fine}
+                  onChange={(e) => setFine(Number(e.target.value))}
                   className="h-7 w-28 accent-[rgb(var(--c-accent))]"
                   aria-label={ti.straighten}
                   title={ti.straighten}
                 />
-                <span className="w-12 text-right text-2xs tabular-nums text-muted">{angle.toLocaleString(t.locale, { maximumFractionDigits: 1 })}°</span>
+                <span className="w-12 text-right text-2xs tabular-nums text-muted">{(((angle + 540) % 360) - 180).toLocaleString(t.locale, { maximumFractionDigits: 1 })}°</span>
                 {angle !== 0 && (
-                  <button className="btn h-7 px-2 text-2xs" onClick={() => setAngle(0)}>
+                  <button
+                    className="btn h-7 px-2 text-2xs"
+                    onClick={() => {
+                      setQuarter(0);
+                      setFine(0);
+                    }}
+                  >
                     {ti.rotateReset}
                   </button>
                 )}
