@@ -203,6 +203,56 @@ export interface ReliefInstance {
   visible: boolean;
   /** Relief från en bild (reliefId är då "image"). */
   image?: ImageReliefSource;
+  /** Plugg för ett reliefinlägg (reliefId är då "plug"). */
+  plug?: ReliefPlug;
+  /**
+   * Ficka i ett reliefinlägg: vassa toppar rundas av med denna radie (mm) så
+   * att pluggens fräs kan följa dem. Annars krockar pluggen med topparna.
+   */
+  inlayRadius?: number;
+}
+
+/**
+ * Plugg för ett reliefinlägg: fickans relief inverterad och spegelvänd, så
+ * att pluggen vänd upp och ner passar i fickan. Runt reliefen fräses en
+ * marginal djupare så att resten av pluggbrädan går fri från grundträet.
+ */
+export interface ReliefPlug {
+  /** Fickan (reliefen i grundträet) som pluggen hör till. */
+  pocketId: string;
+  /** Kopia av fickans form – uppdateras när fickan ändras. */
+  source: {
+    reliefId: string;
+    image?: ImageReliefSource;
+    invert: boolean;
+    mirror: boolean;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    depth: number;
+    inlayRadius?: number;
+  };
+  /** Limspalt mellan pluggen och fickans botten (mm). */
+  gap: number;
+  /** Marginal runt reliefen som fräses bort på pluggbrädan (mm). */
+  margin: number;
+  /** Hur högt pluggbrädan går fri över grundträet utanför reliefen (mm). */
+  clearance: number;
+  /** Radien på kulfräsen som fräser fickan (mm) – fickan blir aldrig skarpare än så. */
+  toolRadius: number;
+}
+
+/** Pluggens yttermått och djup utifrån fickan. */
+export function plugGeometry(p: ReliefPlug) {
+  const s = p.source;
+  return {
+    x: s.x - p.margin,
+    y: s.y - p.margin,
+    width: s.width + 2 * p.margin,
+    height: s.height + 2 * p.margin,
+    depth: s.depth + 2 * p.gap + p.clearance,
+  };
 }
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */

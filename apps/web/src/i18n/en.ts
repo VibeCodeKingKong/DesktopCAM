@@ -42,6 +42,7 @@ const guides: Record<GuideKey, GuideEntry> = {
   tabs: { title: 'Tabs', body: 'Small bridges of material that hold the part when it is cut free, so it does not come loose, chatter or get thrown.', steps: ['3–4 tabs are enough for most parts.', 'Height about a quarter of the material thickness.', 'Move the tabs away from corners and visible edges.'] },
   pocketStrategy: { title: 'Pocket strategy', body: 'Decides how the pocket is cleared and how the cutter enters the material. The presets suit most jobs.', steps: ['Fast: everything in one go, fine for hidden pockets.', 'Balanced: finishing passes on walls and floor – most jobs.', 'Fine finish: visible pockets, box bottoms and inlays.'] },
   pocketPattern: { title: 'Offset or raster', body: 'Offset cuts rings that follow the shape from the inside out – few lifts and an even load. Raster cuts straight lines back and forth and then one lap along the wall.', steps: ['Offset: most pockets, especially round and curvy ones.', 'Raster: large, straight pockets where you want even lines in the floor, e.g. surfacing.', 'Set the raster angle along the grain in wood for the best floor.'] },
+  reliefInlay: { title: 'Relief inlay', body: 'The plug is the opposite of the relief: inverted and mirrored. Flipped over, it fits into the pocket with a thin glue gap. Around the relief the plug board is milled away so it does not touch the base wood.', steps: ['A glue gap of 0.1–0.3 mm is enough with wood glue.', 'A clearance of 1 mm keeps the board clear of the base wood outside the relief.', 'Cut both parts with the same ball nose for the best fit.'] },
   onionSkin: { title: 'Onion skin', body: 'A thin layer left at the bottom so the part stays attached. Break or cut it free afterwards and sand the edge.', steps: ['0.2–0.4 mm in plywood and MDF.', 'Often used instead of tabs on small parts.'] },
   snap: { title: 'Snap to grid', body: 'Points you draw and move land on the nearest grid step. Turn it off for completely free placement.' },
 };
@@ -507,6 +508,32 @@ export const en: Dict = {
     footer: 'The relief is placed in the middle of the material. Then create a 3D toolpath on the Toolpaths tab.',
     unreadable: (n: string) => `Could not read the image ${n}.`,
     settings: 'Image',
+  },
+
+  reliefInlay: {
+    title: 'Inlay',
+    intro: 'Turn the relief into an inlay: the relief is cut as a pocket in the base wood and its opposite as a plug in another wood. The plug is flipped, glued into the pocket and planed flush.',
+    create: 'Create inlay plug',
+    openPlug: 'Show the plug',
+    plugSuffix: 'plug',
+    created: (n: string) => `Plug for ${n} created. It is hidden – choose Show: Plug to see it.`,
+    edgeWarning: 'The edge of the relief is not at the top, so there will be a sharp edge around the whole rectangle that the plug cannot fit. Change Highest is or Invert so the background is highest.',
+    plugTitle: 'Inlay plug',
+    show: 'Show',
+    parts: { pocket: 'Pocket', plug: 'Plug' },
+    gap: 'Glue gap',
+    margin: 'Margin around',
+    clearance: 'Clearance',
+    tool: 'Ball nose diameter',
+    boardNote: (t: string, w: string, h: string) => `The plug board must be at least ${t} mm thick and ${w} × ${h} mm. The plug is inverted and mirrored – that is correct.`,
+    tooThick: (t: string) => `Deeper than the material (${t} mm). Choose a thicker material for the plug on the Setup tab, or reduce the depth.`,
+    pocketMissing: 'The pocket this plug belongs to no longer exists.',
+    steps: [
+      'Create a 3D toolpath for the pocket with a ball nose of the diameter above and cut it in the base wood.',
+      'Change to the inlay wood, zero at the same place and cut the plug (Show: Plug, create a 3D toolpath).',
+      'Apply glue, flip the plug and clamp it into the pocket.',
+      'When the glue has dried: plane or mill away the excess down to the base wood and sand.',
+    ],
   },
 
   gearDialog: {

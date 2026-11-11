@@ -12,7 +12,7 @@ export type GuideKey =
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
   | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
-  | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern';
+  | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay';
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
@@ -478,6 +478,32 @@ export const sv = {
     settings: 'Bild',
   },
 
+  reliefInlay: {
+    title: 'Inlägg',
+    intro: 'Gör reliefen till ett inlägg: reliefen fräses som ficka i grundträet och dess motsats som plugg i ett annat trä. Pluggen vänds upp och ner, limmas i fickan och planas av.',
+    create: 'Skapa plugg för inlägg',
+    openPlug: 'Visa pluggen',
+    plugSuffix: 'plugg',
+    created: (n: string) => `Plugg för ${n} skapad. Den är dold – välj Visa: Plugg för att se den.`,
+    edgeWarning: 'Reliefens kant ligger inte på ovansidan, så det blir en vass kant runt hela rektangeln som pluggen inte kan passa mot. Ändra Högst är eller Invertera så att bakgrunden blir högst.',
+    plugTitle: 'Plugg för inlägg',
+    show: 'Visa',
+    parts: { pocket: 'Fickan', plug: 'Pluggen' },
+    gap: 'Limspalt',
+    margin: 'Marginal runt',
+    clearance: 'Frigång',
+    tool: 'Kulfräsens diameter',
+    boardNote: (t: string, w: string, h: string) => `Pluggbrädan behöver vara minst ${t} mm tjock och ${w} × ${h} mm stor. Pluggen är inverterad och spegelvänd – det är rätt.`,
+    tooThick: (t: string) => `Djupare än materialet (${t} mm). Välj ett tjockare material för pluggen under Inställning, eller minska djupet.`,
+    pocketMissing: 'Fickan som pluggen hör till finns inte längre.',
+    steps: [
+      'Skapa en 3D-bana för fickan med en kulfräs med diametern ovan och fräs den i grundträet.',
+      'Byt till inläggsträet, nollställ på samma ställe och fräs pluggen (Visa: Pluggen, skapa en 3D-bana).',
+      'Stryk lim, vänd pluggen och pressa ner den i fickan med tving.',
+      'När limmet torkat: hyvla eller fräs bort överskottet ner till grundträets yta och slipa.',
+    ],
+  },
+
   gearDialog: {
     title: 'Nytt kugghjul',
     teeth: 'Antal kuggar',
@@ -811,6 +837,7 @@ export const sv = {
       tabs: { title: 'Flikar', body: 'Små bryggor av material som håller kvar detaljen när den skärs loss, så att den inte lossnar, vibrerar eller slungas iväg.', steps: ['3–4 flikar räcker för de flesta delar.', 'Höjd ungefär en fjärdedel av materialtjockleken.', 'Flytta flikarna bort från hörn och synliga kanter.'] },
       pocketStrategy: { title: 'Strategi för fickor', body: 'Bestämmer hur fickan rensas och hur fräsen går ner i materialet. Förinställningarna passar de flesta jobb.', steps: ['Snabb: allt i ett pass, bra för dolda fickor.', 'Balanserad: finpass på väggar och botten – det mesta.', 'Fin yta: synliga fickor, lådbottnar och inlägg.'] },
       pocketPattern: { title: 'Konturparallell eller raster', body: 'Konturparallell fräser ringar som följer formen, inifrån och ut – få lyft och jämn belastning. Raster fräser raka linjer fram och tillbaka och sedan ett varv längs väggen.', steps: ['Konturparallell: de flesta fickor, särskilt runda och krokiga.', 'Raster: stora, raka fickor där du vill ha jämna spår i botten, t.ex. planfräsning.', 'Ställ rastervinkeln längs med fiberriktningen i trä för finast botten.'] },
+      reliefInlay: { title: 'Reliefinlägg', body: 'Pluggen är reliefens motsats: inverterad och spegelvänd. Vänd upp och ner passar den ner i fickan med en tunn limspalt. Runt reliefen fräses pluggbrädan bort så att den inte tar i grundträet.', steps: ['Limspalt 0,1–0,3 mm räcker med trälim.', 'Frigång 1 mm gör att brädan går fri från grundträet utanför reliefen.', 'Fräs båda delarna med samma kulfräs för bäst passform.'] },
       onionSkin: { title: 'Lökskal', body: 'Ett tunt lager som lämnas kvar i botten så att detaljen sitter fast. Bryt eller skär loss den efteråt och slipa kanten.', steps: ['0,2–0,4 mm i plywood och MDF.', 'Används ofta i stället för flikar på små delar.'] },
       snap: { title: 'Fäst mot rutnät', body: 'Punkter du ritar och flyttar hamnar på närmaste steg i rutnätet. Stäng av för helt fri placering.' },
     } satisfies Record<GuideKey, GuideEntry> as Record<GuideKey, GuideEntry>,

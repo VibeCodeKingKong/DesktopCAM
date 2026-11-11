@@ -3,6 +3,9 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import {
+  type ReliefInstance,
+  plugGeometry,
+  type ReliefPlug,
   defaultPocketStrategy,
   shapeHasArea,
   type ToolDefinition,
@@ -627,4 +630,89 @@ export function setMeasure(m: Measure, mode: 'center' | 'edge', patch: { dx?: nu
   // Kant till kant: åt det håll den rörliga formen redan ligger.
   const sx = c.x >= a.x ? 1 : -1, sy = c.y >= a.y ? 1 : -1;
   moveShape(m.moving, patch.dx !== undefined ? sx * (patch.dx - m.dx) : 0, patch.dy !== undefined ? sy * (patch.dy - m.dy) : 0);
+}
+
+/* ───────── Reliefinlägg ───────── */
+
+const plugSource = (r: ReliefInstance): ReliefPlug['source'] => ({
+  reliefId: r.reliefId,
+  image: r.image,
+  invert: r.invert,
+  mirror: r.mirror,
+  x: r.x,
+  y: r.y,
+  width: r.width,
+  height: r.height,
+  depth: r.depth,
+  inlayRadius: r.inlayRadius,
+});
+
+/** Skapar pluggen till ett reliefinlägg. Den döljs tills man väljer att visa den. */
+export function createReliefPlug(pocketId: string) {
+  const s = useAppStore.getState();
+  const t = getT();
+  const pocket = s.reliefs.find((r) => r.id === pocketId);
+  if (!pocket || pocket.plug) return;
+  const existing = s.reliefs.find((r) => r.plug?.pocketId === pocketId);
+  if (existing) {
+    s.selectRelief(existing.id);
+    return;
+  }
+  // Fräsradien: från fickans 3D-bana om den finns, annars en kulfräs på 3,175 mm.
+  const tp = s.toolpaths.find((x) => x.operation === 'relief' && x.reliefId === pocketId);
+  const tool = s.tools.find((x) => x.id === tp?.toolId) ?? s.tools.find((x) => x.kind === 'ballnose');
+  const plug: ReliefPlug = { pocketId, source: plugSource(pocket), gap: 0.2, margin: 4, clearance: 1, toolRadius: (tool?.diameter ?? 3.175) / 2 };
+  // Fickans vassa toppar rundas av så att pluggens fräs kan följa dem.
+  s.updateRelief(pocket.id, { inlayRadius: plug.toolRadius });
+  plug.source = plugSource({ ...pocket, inlayRadius: plug.toolRadius });
+  s.addRelief({
+    id: uid('relief'),
+    name: `${pocket.name} – ${t.reliefInlay.plugSuffix}`,
+    reliefId: 'plug',
+    ...plugGeometry(plug),
+    invert: false,
+    mirror: false,
+    visible: false,
+    plug,
+  });
+  status(t.reliefInlay.created(pocket.name));
+}
+
+/** Visar fickan eller pluggen (de ligger på samma ställe, så bara en åt gången). */
+export function showInlayPart(plugId: string, part: 'pocket' | 'plug') {
+  const s = useAppStore.getState();
+  const plug = s.reliefs.find((r) => r.id === plugId);
+  if (!plug?.plug) return;
+  s.updateRelief(plug.id, { visible: part === 'plug' });
+  const pocket = s.reliefs.find((r) => r.id === plug.plug!.pocketId);
+  if (pocket) s.updateRelief(pocket.id, { visible: part === 'pocket' });
+}
+
+/** Ändrar pluggens limspalt, marginal eller frigång och räknar om dess mått. */
+export function updateReliefPlug(plugId: string, patch: Partial<Pick<ReliefPlug, 'gap' | 'margin' | 'clearance' | 'toolRadius'>>) {
+  const s = useAppStore.getState();
+  const r = s.reliefs.find((x) => x.id === plugId);
+  if (!r?.plug) return;
+  const plug = { ...r.plug, ...patch };
+  s.checkpoint();
+  // Byts fräsen, rundas fickans toppar med den nya radien (pluggen följer via watchReliefPlugs).
+  if (patch.toolRadius !== undefined) s.updateRelief(plug.pocketId, { inlayRadius: patch.toolRadius });
+  s.updateRelief(r.id, { plug, ...plugGeometry(plug) });
+}
+
+/** Pluggen följer fickan: flyttas, skalas eller ändras fickan, uppdateras pluggen. */
+export function watchReliefPlugs() {
+  return useAppStore.subscribe((s, prev) => {
+    if (s.reliefs === prev.reliefs) return;
+    for (const r of s.reliefs) {
+      if (!r.plug) continue;
+      const pocket = s.reliefs.find((x) => x.id === r.plug!.pocketId);
+      if (!pocket) continue;
+      const src = plugSource(pocket);
+      const old = r.plug.source;
+      if ((Object.keys(src) as (keyof typeof src)[]).every((k) => src[k] === old[k])) continue;
+      const plug = { ...r.plug, source: src };
+      useAppStore.getState().updateRelief(r.id, { plug, ...plugGeometry(plug) });
+    }
+  });
 }

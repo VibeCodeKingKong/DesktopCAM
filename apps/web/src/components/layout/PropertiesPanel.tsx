@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight } from 'lucide-react';
+import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine } from 'lucide-react';
 import {
   defaultPocketStrategy,
   matchPocketPreset,
@@ -42,12 +42,16 @@ import {
   updateText,
   measure,
   setMeasure,
+  createReliefPlug,
+  showInlayPart,
+  updateReliefPlug,
 } from '../../cam/commands';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
 import { materialName, toolName, useT, type GuideKey } from '../../i18n';
 import { InfoHint } from '../smartguide/InfoHint';
 import { SidePanel } from './SidePanel';
+import { reliefEdgeAtTop } from '../../cam/reliefs';
 import { ImageReliefFields } from '../dialogs/ImageReliefDialog';
 import { getNode, moveNode, nodeCount, setClosed } from '../../editing/nodes';
 
@@ -325,6 +329,9 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
           <Switch checked={relief.visible} onChange={(visible) => update(relief.id, { visible })} label={t.props.visible} />
         </FieldRow>
       </Group>
+      {relief.plug && <PlugEditor relief={relief} />}
+      {!relief.plug && (
+      <>
       <Group title={t.props.placement}>
         <NumberField label={t.props.x} unit="mm" value={relief.x} onChange={(x) => patch({ x })} />
         <NumberField label={t.props.y} unit="mm" value={relief.y} onChange={(y) => patch({ y })} />
@@ -356,6 +363,8 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
         </FieldRow>
         {relief.depth > material.thickness && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.tooDeep(material.thickness)}</p>}
       </Group>
+      </>
+      )}
       {relief.image && (
         <Group title={t.imageRelief.settings}>
           <ImageReliefFields
@@ -366,6 +375,7 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
           />
         </Group>
       )}
+      {!relief.plug && <InlayGroup relief={relief} />}
       <Group title={t.props.machining}>
         <div className="flex gap-2">
           <button className="btn btn-primary flex-1" onClick={() => createToolpath('relief')} disabled={isLaser} title={isLaser ? t.reasons.needsRouter : undefined}>
@@ -984,6 +994,67 @@ function MeasureGroup({ ids }: { ids: string[] }) {
           <ArrowLeftRight size={12} /> {tm.swap}
         </button>
       </div>
+    </Group>
+  );
+}
+
+/** Reliefinlägg: skapa pluggen, eller visa den om den redan finns. */
+function InlayGroup({ relief }: { relief: ReliefInstance }) {
+  const t = useT();
+  const ti = t.reliefInlay;
+  const plug = useAppStore((s) => s.reliefs.find((r) => r.plug?.pocketId === relief.id));
+  const edgeOk = useMemo(() => reliefEdgeAtTop(relief), [relief]);
+  return (
+    <Group title={ti.title} hint="reliefInlay">
+      <p className="text-2xs leading-relaxed text-muted">{ti.intro}</p>
+      {!edgeOk && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs leading-relaxed text-warn">{ti.edgeWarning}</p>}
+      {plug ? (
+        <button className="btn w-full" onClick={() => useAppStore.getState().selectRelief(plug.id)}>
+          {ti.openPlug}
+        </button>
+      ) : (
+        <button className="btn w-full" onClick={() => createReliefPlug(relief.id)}>
+          <Combine size={13} /> {ti.create}
+        </button>
+      )}
+    </Group>
+  );
+}
+
+/** Pluggens inställningar: limspalt, marginal och frigång. */
+function PlugEditor({ relief }: { relief: ReliefInstance }) {
+  const t = useT();
+  const ti = t.reliefInlay;
+  const material = useAppStore((s) => s.material);
+  const pocket = useAppStore((s) => s.reliefs.find((r) => r.id === relief.plug!.pocketId));
+  const p = relief.plug!;
+  const fmt = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
+  const board = p.source.depth + 2 * p.gap + p.clearance;
+  return (
+    <Group title={ti.plugTitle} hint="reliefInlay">
+      <FieldRow label={ti.show}>
+        <Segmented
+          label={ti.show}
+          value={relief.visible ? 'plug' : 'pocket'}
+          options={[
+            { value: 'pocket', label: ti.parts.pocket },
+            { value: 'plug', label: ti.parts.plug },
+          ]}
+          onChange={(part) => showInlayPart(relief.id, part)}
+        />
+      </FieldRow>
+      <NumberField label={ti.gap} unit="mm" step={0.05} min={0} max={2} value={p.gap} onChange={(gap) => updateReliefPlug(relief.id, { gap })} />
+      <NumberField label={ti.margin} unit="mm" step={0.5} min={0} max={30} value={p.margin} onChange={(margin) => updateReliefPlug(relief.id, { margin })} />
+      <NumberField label={ti.clearance} unit="mm" step={0.5} min={0} max={10} value={p.clearance} onChange={(clearance) => updateReliefPlug(relief.id, { clearance })} />
+      <NumberField label={ti.tool} unit="mm" step={0.5} min={0.2} max={25} value={p.toolRadius * 2} onChange={(d) => updateReliefPlug(relief.id, { toolRadius: d / 2 })} />
+      <p className="text-2xs leading-relaxed text-muted">{ti.boardNote(fmt(board), fmt(p.source.width + 2 * p.margin), fmt(p.source.height + 2 * p.margin))}</p>
+      {board > material.thickness && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{ti.tooThick(fmt(material.thickness))}</p>}
+      {!pocket && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{ti.pocketMissing}</p>}
+      <ol className="list-decimal space-y-0.5 pl-4 text-2xs leading-relaxed text-muted">
+        {ti.steps.map((x) => (
+          <li key={x}>{x}</li>
+        ))}
+      </ol>
     </Group>
   );
 }

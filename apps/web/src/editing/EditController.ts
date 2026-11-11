@@ -331,6 +331,8 @@ export class EditController {
         if (relief && (!hit || (relief.id === s.selectedReliefId && !s.selectedShapeIds.includes(hit)))) {
           this.stop(e);
           if (s.selectedReliefId !== relief.id) s.selectRelief(relief.id);
+          // En inläggsplugg följer sin ficka och kan inte flyttas för sig.
+          if (relief.plug) return;
           this.gesture = { kind: 'relief', id: relief.id, start: w, ox: relief.x, oy: relief.y, x0, y0, moved: false };
           return;
         }

@@ -19,6 +19,7 @@ import { getT } from './i18n';
 import { startAutosave } from './cam/commands';
 import { computeToolpath, watchForChanges } from './cam/toolpathService';
 import { watchSimulationInputs } from './cam/simController';
+import { watchReliefPlugs } from './cam/commands';
 
 export default function App() {
   const theme = useAppStore((s) => s.theme);
@@ -42,11 +43,13 @@ export default function App() {
     const stopAutosave = startAutosave();
     const stopWatch = watchForChanges();
     const stopSimWatch = watchSimulationInputs();
+    const stopPlugWatch = watchReliefPlugs();
     for (const tp of useAppStore.getState().toolpaths) void computeToolpath(tp.id);
     return () => {
       stopAutosave();
       stopWatch();
       stopSimWatch();
+      stopPlugWatch();
     };
   }, []);
 
