@@ -5,7 +5,7 @@ import { useAppStore, useMachine } from '../../../store/useAppStore';
 import { createInlay, createLineEngraving, createToolpath, importPhotoForEngraving } from '../../../cam/commands';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluDither, IlluDrill, IlluInlay, IlluLaserCut, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
+import { IlluDither, IlluDrill, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
 
 export function ToolpathsTab() {
   const t = useT();
@@ -36,7 +36,7 @@ export function ToolpathsTab() {
       </RibbonGroup>
       <RibbonGroup label={t.groups.laser}>
         <RibbonButton icon={Scissors} tone="laser" label={b.laserCut.label} disabled={!isLaser} onClick={() => createToolpath('laserCut')} tooltip={tip(b.laserCut, { illustration: <IlluLaserCut />, disabledReason: needsLaser })} />
-        <RibbonButton icon={Flame} tone="laser" label={b.lineEngrave.label} disabled={!isLaser} onClick={createLineEngraving} tooltip={tip(b.lineEngrave, { disabledReason: needsLaser })} />
+        <RibbonButton icon={Flame} tone="laser" label={b.lineEngrave.label} disabled={!isLaser} onClick={createLineEngraving} tooltip={tip(b.lineEngrave, { illustration: <IlluLineEngrave />,  disabledReason: needsLaser })} />
         <RibbonButton icon={ImagePlus} tone="laser" label={b.photoEngrave.label} disabled={!isLaser} onClick={() => void importPhotoForEngraving()} tooltip={tip(b.photoEngrave, { illustration: <IlluDither />, disabledReason: needsLaser })} />
       </RibbonGroup>
     </>

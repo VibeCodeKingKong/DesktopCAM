@@ -27,7 +27,7 @@ import {
   type ToolpathConfig,
   type VectorShape,
 } from '@desktopcam/core';
-import { allShapes, useAppStore, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
+import { allShapes, useAppStore, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
 import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
   centerSelection,
@@ -55,6 +55,9 @@ import { duration, mm } from '../../utils/format';
 import { materialName, toolName, useT, type GuideKey } from '../../i18n';
 import { InfoHint } from '../smartguide/InfoHint';
 import { SidePanel } from './SidePanel';
+import { SmartTooltip } from '../smartguide/SmartTooltip';
+import { tip } from '../ribbon/tip';
+import { IlluCenter, IlluDuplicate, IlluFlip, IlluLockAspect, IlluRotate } from '../smartguide/illustrations';
 import { reliefEdgeAtTop } from '../../cam/reliefs';
 import { ImageReliefFields } from '../dialogs/ImageReliefDialog';
 import { getNode, moveNode, nodeCount, setClosed } from '../../editing/nodes';
@@ -208,10 +211,12 @@ function ShapeEditor() {
           onChange={(nh) => setSelectionBox(b.min.x, b.min.y, lock && h > 0 ? (w * nh) / h : w, nh)}
         />
         <FieldRow label={t.props.lockAspect}>
+          <SmartTooltip content={tip(t.hover.lock, { illustration: <IlluLockAspect /> })}>
           <button className="btn h-6 px-2" onClick={() => setLock((l) => !l)} aria-pressed={lock}>
             {lock ? <Lock size={12} /> : <Unlock size={12} />}
             {lock ? t.common.locked : t.common.free}
           </button>
+          </SmartTooltip>
         </FieldRow>
         {single && canFillet(single) && (
           <NumberField
@@ -225,9 +230,11 @@ function ShapeEditor() {
         )}
         <FieldRow label={t.props.rotate}>
           <div className="flex items-center gap-1">
+            <SmartTooltip content={tip(t.hover.rotate, { illustration: <IlluRotate /> })}>
             <button className="btn h-7 px-2" onClick={() => rotateSelection(angle)} title={`+${angle}°`} aria-label={`${t.props.rotate} +${angle}°`}>
               <RotateCcw size={13} />
             </button>
+            </SmartTooltip>
             <input
               className="field w-14 text-center"
               inputMode="decimal"
@@ -238,26 +245,36 @@ function ShapeEditor() {
                 if (Number.isFinite(v)) setAngle(v);
               }}
             />
+            <SmartTooltip content={tip(t.hover.rotate, { illustration: <IlluRotate /> })}>
             <button className="btn h-7 px-2" onClick={() => rotateSelection(-angle)} title={`−${angle}°`} aria-label={`${t.props.rotate} −${angle}°`}>
               <RotateCw size={13} />
             </button>
+            </SmartTooltip>
           </div>
         </FieldRow>
         <div className="grid grid-cols-2 gap-2">
+          <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.mirrorH, { illustration: <IlluFlip /> })}>
           <button className="btn" onClick={() => mirrorSelection('h')} title={t.props.mirrorH}>
             <FlipHorizontal2 size={13} /> <span className="truncate">{t.props.mirrorH}</span>
           </button>
+          </SmartTooltip>
+          <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.mirrorV, { illustration: <IlluFlip vertical /> })}>
           <button className="btn" onClick={() => mirrorSelection('v')} title={t.props.mirrorV}>
             <FlipVertical2 size={13} /> <span className="truncate">{t.props.mirrorV}</span>
           </button>
+          </SmartTooltip>
+          <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.center, { illustration: <IlluCenter /> })}>
           <button className="btn" onClick={centerSelection}>
             <Crosshair size={13} /> <span className="truncate">{t.props.alignCenter}</span>
           </button>
+          </SmartTooltip>
+          <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.duplicate, { shortcut: '⌘D', illustration: <IlluDuplicate /> })}>
           <button className="btn" onClick={duplicateSelection}>
             <Copy size={13} /> {t.common.duplicate}
           </button>
+          </SmartTooltip>
         </div>
-        {single && single.paths.length === 1 && nodeCount(single.paths[0]) < 3 && (
+        {single && single.paths.length === 1 && nodeCount(single.paths[0]) < 3 && !shapeHasArea(single) && (
           <FieldRow label={t.props.pathStatus}>
             <p className="text-xs">{t.props.lineOnly}</p>
           </FieldRow>
@@ -397,6 +414,7 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
 /* ───────── Verktygsbanor ───────── */
 
 function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
+  const expert = useExpert();
   const t = useT();
   const tools = useAppStore((s) => s.tools);
   const layers = useAppStore((s) => s.layers);
@@ -457,7 +475,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
     <Group title={t.props.speed}>
       <NumberField label={t.props.feed} unit="mm/min" step={50} min={1} value={tp.params.feedRate} hint="feedRate" onChange={(feedRate) => param({ feedRate })} />
       <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={tp.params.plungeRate} hint="plungeRate" onChange={(plungeRate) => param({ plungeRate })} />
-      <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 18000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />
+      {expert && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 18000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />}
     </Group>
   );
 
@@ -519,7 +537,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
           <Group title={t.props.depth}>
             <NumberField label={t.props.flatDepth} unit="mm" step={0.5} min={0} value={tp.flatDepth} hint="vFlatDepth" onChange={(flatDepth) => patch({ flatDepth })} />
             <p className="-mt-1 text-2xs text-muted">{t.props.flatDepthNote}</p>
-            <NumberField label={t.props.contourStep} unit="mm" step={0.05} min={0.03} max={1} value={tp.contourStep} hint="contourStep" onChange={(contourStep) => patch({ contourStep })} />
+            {expert && <NumberField label={t.props.contourStep} unit="mm" step={0.05} min={0.03} max={1} value={tp.contourStep} hint="contourStep" onChange={(contourStep) => patch({ contourStep })} />}
             <NumberField label={t.props.stepDown} unit="mm" step={0.5} min={0.1} value={tp.params.stepDown} hint="stepDown" onChange={(stepDown) => param({ stepDown })} />
           </Group>
           {speedGroup}
@@ -536,7 +554,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
             <NumberField label={t.props.drillDepth} unit="mm" step={0.5} min={0.1} value={tp.depth} hint="cutDepth" onChange={(depth) => patch({ depth })} />
             <NumberField label={t.props.peck} unit="mm" step={0.5} min={0} value={tp.peckDepth} hint="peck" onChange={(peckDepth) => patch({ peckDepth })} />
             <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={tp.params.plungeRate} hint="plungeRate" onChange={(plungeRate) => param({ plungeRate })} />
-            <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 12000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />
+            {expert && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 12000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />}
           </Group>
         </>
       )}
@@ -554,6 +572,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
               hint="reliefStepOver"
               onChange={(pct) => param({ stepOver: pct / 100 })}
             />
+            {expert && (
             <FieldRow label={t.props.direction}>
               <Segmented
                 label={t.props.direction}
@@ -565,13 +584,14 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
                 onChange={(direction) => patch({ direction })}
               />
             </FieldRow>
+            )}
             <FieldRow label={t.props.roughing} hint="roughing">
               <Switch checked={tp.roughing} onChange={(roughing) => patch({ roughing })} label={t.props.roughing} />
             </FieldRow>
             {tp.roughing && (
               <>
                 <NumberField label={t.props.stepDown} unit="mm" step={0.1} min={0.1} value={tp.params.stepDown} hint="stepDown" onChange={(stepDown) => param({ stepDown })} />
-                <NumberField label={t.props.allowance} unit="mm" step={0.05} min={0} max={2} value={tp.allowance} hint="allowance" onChange={(allowance) => patch({ allowance })} />
+                {expert && <NumberField label={t.props.allowance} unit="mm" step={0.05} min={0} max={2} value={tp.allowance} hint="allowance" onChange={(allowance) => patch({ allowance })} />}
               </>
             )}
           </Group>
@@ -652,6 +672,7 @@ function InlaySettings({
   patch: (p: Partial<ToolpathConfig>) => void;
   param: (p: Partial<ToolpathConfig['params']>) => void;
 }) {
+  const expert = useExpert();
   const t = useT();
   const tools = useAppStore((s) => s.tools);
   const toolpaths = useAppStore((s) => s.toolpaths);
@@ -676,8 +697,12 @@ function InlaySettings({
         <NumberField label={t.props.pocketDepth} unit="mm" step={0.5} min={0.5} value={tp.pocketDepth} hint="inlayPocketDepth" onChange={(pocketDepth) => patch({ pocketDepth })} />
         <NumberField label={t.props.startDepth} unit="mm" step={0.1} min={0} value={tp.startDepth} hint="startDepth" onChange={(startDepth) => patch({ startDepth })} />
         <NumberField label={t.props.plugDepth} unit="mm" step={0.1} min={0.1} value={tp.plugDepth} hint="plugDepth" onChange={(plugDepth) => patch({ plugDepth })} />
+        {expert && (
+          <>
         <NumberField label={t.props.plugMargin} unit="mm" step={1} min={1} value={tp.margin} hint="plugMargin" onChange={(margin) => patch({ margin })} />
         <NumberField label={t.props.contourStep} unit="mm" step={0.05} min={0.03} max={1} value={tp.contourStep} hint="contourStep" onChange={(contourStep) => patch({ contourStep })} />
+          </>
+        )}
         <NumberField label={t.props.stepDown} unit="mm" step={0.5} min={0.1} value={tp.params.stepDown} hint="stepDown" onChange={(stepDown) => param({ stepDown })} />
 
         <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 rounded-md bg-app p-2 text-xs">
@@ -704,6 +729,7 @@ function Chip({ children }: { children: ReactNode }) {
 }
 
 function ProfileStrategyEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
+  const expert = useExpert();
   const t = useT();
   const [open, setOpen] = useState(false);
   const { strategy: st, tabs } = resolveProfile(tp);
@@ -734,10 +760,13 @@ function ProfileStrategyEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: 
         {st.onionSkin > 0 && <Chip>{t.props.chips.onion(fmt(st.onionSkin))}</Chip>}
       </div>
 
-      <button className="text-left text-xs font-medium text-accent" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        {open ? t.props.hideDetails : t.props.showDetails}
-      </button>
-      {open && (
+      {!expert && <ExpertNote />}
+      {expert && (
+        <button className="text-left text-xs font-medium text-accent" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+          {open ? t.props.hideDetails : t.props.showDetails}
+        </button>
+      )}
+      {expert && open && (
         <div className="space-y-2 rounded-lg border border-line p-2.5">
           {!onLine && (
             <>
@@ -784,6 +813,7 @@ function ProfileStrategyEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: 
 }
 
 function PocketStrategyEditor({ tp, patch }: { tp: PocketToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
+  const expert = useExpert();
   const t = useT();
   const [open, setOpen] = useState(false);
   const st = resolvePocket(tp);
@@ -813,7 +843,7 @@ function PocketStrategyEditor({ tp, patch }: { tp: PocketToolpath; patch: (p: Pa
           onChange={(pattern) => set({ pattern })}
         />
       </FieldRow>
-      {st.pattern === 'raster' && (
+      {expert && st.pattern === 'raster' && (
         <NumberField label={t.props.rasterAngle} unit="°" step={15} min={-90} max={180} value={st.rasterAngle} hint="pocketPattern" onChange={(rasterAngle) => set({ rasterAngle })} />
       )}
       <div className="flex flex-wrap gap-1">
@@ -822,10 +852,13 @@ function PocketStrategyEditor({ tp, patch }: { tp: PocketToolpath; patch: (p: Pa
         <Chip>{st.entry === 'helix' ? t.props.pocketChips.helix(st.rampAngle) : st.entry === 'ramp' ? t.props.chips.ramp(st.rampAngle) : t.props.chips.plunge}</Chip>
       </div>
 
-      <button className="text-left text-xs font-medium text-accent" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        {open ? t.props.hideDetails : t.props.showDetails}
-      </button>
-      {open && (
+      {!expert && <ExpertNote />}
+      {expert && (
+        <button className="text-left text-xs font-medium text-accent" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+          {open ? t.props.hideDetails : t.props.showDetails}
+        </button>
+      )}
+      {expert && open && (
         <div className="space-y-2 rounded-lg border border-line p-2.5">
           <FieldRow label={t.props.roughDirection} hint="cutDirection">
             <Segmented label={t.props.roughDirection} value={st.direction} options={dirOptions} onChange={(direction) => set({ direction })} />
@@ -866,6 +899,7 @@ function PocketStrategyEditor({ tp, patch }: { tp: PocketToolpath; patch: (p: Pa
 }
 
 function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
+  const expert = useExpert();
   const t = useT();
   const thickness = useAppStore((s) => s.material.thickness);
   const tool = useAppStore((s) => s.editTool);
@@ -926,6 +960,7 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
           {!manual && (
             <>
               <NumberField label={t.props.tabCount} step={1} min={1} max={20} value={tabs.count} onChange={(count) => set({ count: Math.round(count) })} />
+              {expert && (
               <FieldRow label={t.props.tabPosition}>
                 <input
                   type="range"
@@ -938,6 +973,7 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
                   aria-label={t.props.tabPosition}
                 />
               </FieldRow>
+              )}
             </>
           )}
           {manual && <p className="text-xs font-medium">{te.manualCount(tabs.positions?.length ?? 0)}</p>}
@@ -1072,6 +1108,7 @@ function InlayGroup({ relief }: { relief: ReliefInstance }) {
 
 /** Pluggens inställningar: limspalt, marginal och frigång. */
 function PlugEditor({ relief }: { relief: ReliefInstance }) {
+  const expert = useExpert();
   const t = useT();
   const ti = t.reliefInlay;
   const material = useAppStore((s) => s.material);
@@ -1094,8 +1131,13 @@ function PlugEditor({ relief }: { relief: ReliefInstance }) {
       </FieldRow>
       <NumberField label={ti.gap} unit="mm" step={0.05} min={0} max={2} value={p.gap} onChange={(gap) => updateReliefPlug(relief.id, { gap })} />
       <NumberField label={ti.margin} unit="mm" step={0.5} min={0} max={30} value={p.margin} onChange={(margin) => updateReliefPlug(relief.id, { margin })} />
+      {expert && (
+        <>
       <NumberField label={ti.clearance} unit="mm" step={0.5} min={0} max={10} value={p.clearance} onChange={(clearance) => updateReliefPlug(relief.id, { clearance })} />
       <NumberField label={ti.tool} unit="mm" step={0.5} min={0.2} max={25} value={p.toolRadius * 2} onChange={(d) => updateReliefPlug(relief.id, { toolRadius: d / 2 })} />
+        </>
+      )}
+      {!expert && <ExpertNote />}
       <p className="text-2xs leading-relaxed text-muted">{ti.boardNote(fmt(board), fmt(p.source.width + 2 * p.margin), fmt(p.source.height + 2 * p.margin))}</p>
       {board > material.thickness && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{ti.tooThick(fmt(material.thickness))}</p>}
       {!pocket && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{ti.pocketMissing}</p>}
@@ -1106,4 +1148,10 @@ function PlugEditor({ relief }: { relief: ReliefInstance }) {
       </ol>
     </Group>
   );
+}
+
+/** Kort rad där inställningar är dolda i nybörjarläget. */
+function ExpertNote() {
+  const t = useT();
+  return <p className="text-2xs italic text-muted">{t.props.expertNote}</p>;
 }

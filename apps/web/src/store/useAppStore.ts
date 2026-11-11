@@ -23,7 +23,7 @@ import type { MeasureRef } from '../cam/commands';
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
 export type ViewCommand = 'fit' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
-export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about';
+export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern';
 export type MobilePanel = 'tree' | 'props' | null;
 
 export interface ToolpathResult {
@@ -451,6 +451,9 @@ export const useMachine = () => useAppStore((s) => s.machines.find((m) => m.id =
 export const useMaterialPreset = () => useAppStore((s) => s.materials.find((m) => m.id === s.material.presetId) ?? s.materials[0]);
 export const useSelectedRelief = () => useAppStore((s) => s.reliefs.find((r) => r.id === s.selectedReliefId) ?? null);
 export const useSelectedToolpath = () => useAppStore((s) => s.toolpaths.find((t) => t.id === s.selectedToolpathId) ?? null);
+
+/** Avancerade inställningar visas bara när nybörjarläget är av. */
+export const useExpert = () => !useAppStore((s) => s.beginnerMode);
 
 export const getMachine = () => {
   const s = useAppStore.getState();

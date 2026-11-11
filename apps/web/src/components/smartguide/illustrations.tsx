@@ -188,3 +188,362 @@ export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' }) 
     )}
   </svg>
 );
+
+export const IlluPattern = () => (
+  <Frame>
+    <Board />
+    {/* Linjärt: en rad hål som fylls i efter varandra */}
+    {[34, 52, 70].map((x, i) => (
+      <circle key={x} cx={x} cy="40" r="6" stroke="currentColor" strokeWidth="2" className={i ? 'anim-pop' : ''} style={{ animationDelay: `${i * 0.35}s` }} />
+    ))}
+    {/* Cirkulärt: hål runt en mittpunkt */}
+    <circle cx="112" cy="40" r="16" className="stroke-muted" strokeWidth="1" strokeDasharray="2 3" />
+    {[0, 1, 2, 3, 4, 5].map((k) => {
+      const a = (k * Math.PI) / 3;
+      return <circle key={k} cx={112 + 16 * Math.cos(a)} cy={40 + 16 * Math.sin(a)} r="3.5" stroke="currentColor" strokeWidth="1.8" className={k ? 'anim-pop' : ''} style={{ animationDelay: `${k * 0.2}s` }} />;
+    })}
+  </Frame>
+);
+
+/* ───────── Fler illustrationer (0.11) ───────── */
+
+const Cursor = ({ x, y, className = '' }: { x: number; y: number; className?: string }) => (
+  <path d={`M${x} ${y}l0 12 3.5-3.2 2.6 5.2 2-1-2.6-5.1 4.7-.4z`} className={`fill-surface stroke-ink ${className}`} strokeWidth="1" />
+);
+
+/** Ångra: formen hoppar tillbaka till sitt förra läge. */
+export const IlluUndo = () => (
+  <Frame>
+    <rect x="34" y="26" width="30" height="28" rx="2" className="stroke-muted" strokeWidth="1.5" strokeDasharray="3 3" />
+    <rect x="34" y="26" width="30" height="28" rx="2" stroke="currentColor" strokeWidth="2" className="anim-slide" style={{ ['--slide' as string]: '60px' }} />
+    <path d="M112 22c-14-8-34-8-46 2m0 0 2-9m-2 9 9 1" stroke="currentColor" strokeWidth="1.8" />
+  </Frame>
+);
+
+export const IlluRedo = () => (
+  <Frame>
+    <rect x="94" y="26" width="30" height="28" rx="2" className="stroke-muted" strokeWidth="1.5" strokeDasharray="3 3" />
+    <rect x="34" y="26" width="30" height="28" rx="2" stroke="currentColor" strokeWidth="2" className="anim-slide" style={{ ['--slide' as string]: '60px' }} />
+    <path d="M48 22c14-8 34-8 46 2m0 0-2-9m2 9-9 1" stroke="currentColor" strokeWidth="1.8" />
+  </Frame>
+);
+
+export const IlluDuplicate = () => (
+  <Frame>
+    <rect x="50" y="22" width="34" height="26" rx="3" className="stroke-ink/60" strokeWidth="1.5" />
+    <rect x="58" y="30" width="34" height="26" rx="3" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+  </Frame>
+);
+
+export const IlluDelete = () => (
+  <Frame>
+    <circle cx="62" cy="40" r="16" stroke="currentColor" strokeWidth="2" className="anim-blink" />
+    <path d="M96 26h22m-18 0 2 26h12l2-26m-12-4h8" className="stroke-warn" strokeWidth="1.8" />
+  </Frame>
+);
+
+export const IlluSelect = () => (
+  <Frame>
+    <rect x="44" y="22" width="44" height="30" rx="2" stroke="currentColor" strokeWidth="2" className="anim-slide" style={{ ['--slide' as string]: '28px' }} />
+    <rect x="40" y="18" width="52" height="38" rx="3" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" className="anim-slide" style={{ ['--slide' as string]: '28px' }} />
+    <g className="anim-slide" style={{ ['--slide' as string]: '28px' }}>
+      <Cursor x={70} y={38} />
+    </g>
+  </Frame>
+);
+
+export const IlluLine = () => (
+  <Frame>
+    <path d="M30 56 70 56 104 24" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+    {[[30, 56], [70, 56], [104, 24]].map(([x, y]) => (
+      <circle key={x} cx={x} cy={y} r="3.5" className="fill-surface" stroke="currentColor" strokeWidth="1.5" />
+    ))}
+    <path d="M70 56h50" className="stroke-muted" strokeWidth="1" strokeDasharray="2 3" />
+    <text x="118" y="50" className="fill-muted" fontSize="9">45°</text>
+  </Frame>
+);
+
+export const IlluText = () => (
+  <Frame>
+    <Board />
+    <text x="80" y="50" textAnchor="middle" fontSize="26" fontWeight="700" fill="none" stroke="currentColor" strokeWidth="1.5">
+      ABC
+    </text>
+    <path d="M118 30v20" stroke="currentColor" strokeWidth="1.5" className="anim-blink" />
+  </Frame>
+);
+
+export const IlluGear = () => {
+  const pts: string[] = [];
+  for (let i = 0; i < 12; i++) {
+    for (const [f, r] of [[0, 15], [0.18, 21], [0.45, 21], [0.63, 15]] as const) {
+      const a = ((i + f) / 12) * Math.PI * 2;
+      pts.push(`${80 + r * Math.cos(a)},${40 + r * Math.sin(a)}`);
+    }
+  }
+  return (
+    <Frame>
+      <g className="anim-turn" style={{ ['--turn' as string]: '30deg' }}>
+        <polygon points={pts.join(' ')} stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="80" cy="40" r="5" stroke="currentColor" strokeWidth="1.5" />
+      </g>
+    </Frame>
+  );
+};
+
+export const IlluFillet = () => (
+  <Frame>
+    <path d="M40 62V24h80" className="stroke-muted" strokeWidth="1.5" strokeDasharray="3 3" />
+    <path d="M40 62V42a18 18 0 0 1 18-18h62" stroke="currentColor" strokeWidth="2" />
+    <path d="M58 42 45.3 29.3" className="stroke-muted" strokeWidth="1" />
+    <text x="60" y="52" className="fill-muted" fontSize="9">R</text>
+    <circle cx="40" cy="24" r="4" fill="currentColor" className="anim-blink" />
+  </Frame>
+);
+
+export const IlluMeasure = () => (
+  <Frame>
+    <rect x="22" y="14" width="116" height="52" rx="2" className="stroke-ink/60" strokeWidth="1.5" />
+    <circle cx="106" cy="30" r="7" stroke="currentColor" strokeWidth="2" />
+    <path d="M138 30h-32M106 14v16" stroke="currentColor" strokeWidth="1" strokeDasharray="3 2" className="anim-dash" />
+    <text x="118" y="27" className="fill-muted" fontSize="8">25</text>
+    <text x="108" y="22" className="fill-muted" fontSize="8">20</text>
+    <circle cx="138" cy="14" r="2.5" fill="currentColor" />
+  </Frame>
+);
+
+export const IlluSnap = () => (
+  <Frame>
+    {[0, 1, 2, 3, 4].map((i) => (
+      <path key={`v${i}`} d={`M${40 + i * 20} 12v56`} className="stroke-line" strokeWidth="1" />
+    ))}
+    {[0, 1, 2].map((i) => (
+      <path key={`h${i}`} d={`M28 ${20 + i * 20}h104`} className="stroke-line" strokeWidth="1" />
+    ))}
+    <g className="anim-slide" style={{ ['--slide' as string]: '20px' }}>
+      <circle cx="80" cy="40" r="4" fill="currentColor" />
+      <Cursor x={82} y={42} />
+    </g>
+  </Frame>
+);
+
+export const IlluImageRelief = () => (
+  <Frame>
+    <rect x="16" y="16" width="44" height="48" rx="2" className="fill-surface stroke-muted" strokeWidth="1.2" />
+    <path d="M24 54 34 34l8 12 6-8 8 16z" className="fill-ink/70" />
+    <circle cx="48" cy="26" r="4" className="fill-ink/50" />
+    <path d="M66 40h14m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M90 58c10 0 12-22 22-22s10 12 16 12 8-12 14-12" className="fill-wood stroke-ink/60" strokeWidth="1.2" />
+    <path d="M90 62h52" className="stroke-wood" strokeWidth="1" />
+    <path d="M90 58c10 0 12-22 22-22s10 12 16 12 8-12 14-12" stroke="currentColor" strokeWidth="1.5" className="anim-dash" />
+  </Frame>
+);
+
+export const IlluLineEngrave = () => (
+  <Frame>
+    <Board />
+    <path d="M36 52c12-30 26-30 34 0s24 22 30-8 18-16 24 4" className="stroke-laser" strokeWidth="2.2" strokeDasharray="5 5">
+      <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1s" repeatCount="indefinite" />
+    </path>
+  </Frame>
+);
+
+export const IlluToolLibrary = () => (
+  <Frame>
+    {[
+      ['M38 66V36h8v30', 'M38 36l4-16 4 16'],
+      ['M70 66V30h8v36', 'M70 30h8v-8h-8z'],
+      ['M102 66V34h8v32', 'M102 34l4-14 4 14'],
+    ].map(([a, b], i) => (
+      <g key={i} className={i === 1 ? 'anim-pop' : ''}>
+        <path d={a} className="stroke-ink/70" strokeWidth="1.5" />
+        <path d={b} stroke="currentColor" strokeWidth="1.8" />
+      </g>
+    ))}
+    <path d="M26 66h108" className="stroke-muted" strokeWidth="1.5" />
+  </Frame>
+);
+
+/** Simuleringen: verktyget går längs banan och lämnar ett spår. */
+export const IlluSimulate = () => (
+  <Frame>
+    <Board />
+    <path d="M36 46h88" className="stroke-wood" strokeWidth="7" strokeLinecap="round" />
+    <path d="M36 46h88" stroke="currentColor" strokeWidth="7" strokeLinecap="round" opacity=".35" strokeDasharray="88" strokeDashoffset="88">
+      <animate attributeName="stroke-dashoffset" values="88;0;0" keyTimes="0;0.8;1" dur="2.4s" repeatCount="indefinite" />
+    </path>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0;88 0;88 0" keyTimes="0;0.8;1" dur="2.4s" repeatCount="indefinite" />
+      <path d="M33 14h6v24h-6z" className="fill-ink/60" />
+      <path d="M34 38h4v6h-4z" fill="currentColor" />
+    </g>
+  </Frame>
+);
+
+export const IlluResult = () => (
+  <Frame>
+    <Board />
+    <rect x="44" y="26" width="72" height="28" rx="6" className="fill-wood stroke-ink/40" strokeWidth="1" />
+    <rect x="52" y="32" width="56" height="16" rx="4" className="fill-ink/25" />
+    <path d="M124 18l6 6 10-12" stroke="currentColor" strokeWidth="2.2" className="anim-pop" />
+  </Frame>
+);
+
+export const IlluStop = () => (
+  <Frame>
+    <Board />
+    <rect x="62" y="22" width="36" height="36" rx="4" stroke="currentColor" strokeWidth="2" />
+    <path d="M72 32l16 16m0-16-16 16" stroke="currentColor" strokeWidth="2" />
+  </Frame>
+);
+
+export const IlluShowToolpaths = () => (
+  <Frame>
+    <Board />
+    <rect x="46" y="24" width="68" height="32" rx="4" stroke="currentColor" strokeWidth="2" className="anim-blink" />
+  </Frame>
+);
+
+export const IlluRapids = () => (
+  <Frame>
+    <Board />
+    <rect x="30" y="30" width="30" height="20" rx="3" className="stroke-ink/60" strokeWidth="1.5" />
+    <rect x="100" y="30" width="30" height="20" rx="3" className="stroke-ink/60" strokeWidth="1.5" />
+    <path d="M60 40h40" className="stroke-warn" strokeWidth="1.5" strokeDasharray="4 3">
+      <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.8s" repeatCount="indefinite" />
+    </path>
+  </Frame>
+);
+
+export const IlluStock = () => (
+  <Frame>
+    <path d="M40 50 60 34h70L110 50z" className="fill-wood/60 stroke-wood anim-blink" strokeWidth="1" />
+    <path d="M40 50v10h70V50M110 60l20-16V34" className="stroke-wood" strokeWidth="1" />
+    <path d="M58 44h40" stroke="currentColor" strokeWidth="2" />
+  </Frame>
+);
+
+const Cube = ({ iso }: { iso: boolean }) =>
+  iso ? (
+    <g className="stroke-ink/70" strokeWidth="1.5">
+      <path d="M80 18 104 30v26L80 68 56 56V30z" className="fill-wood/40" />
+      <path d="M56 30l24 12 24-12M80 42v26" />
+    </g>
+  ) : (
+    <rect x="56" y="18" width="48" height="48" rx="2" className="fill-wood/40 stroke-ink/70" strokeWidth="1.5" />
+  );
+
+export const IlluViewTop = () => (
+  <Frame>
+    <Cube iso={false} />
+    <path d="M128 10v18m-5-5 5 5 5-5" stroke="currentColor" strokeWidth="1.8" className="anim-blink" />
+  </Frame>
+);
+
+export const IlluViewIso = () => (
+  <Frame>
+    <Cube iso />
+    <path d="M128 12l-10 10m0-7v7h7" stroke="currentColor" strokeWidth="1.8" className="anim-blink" />
+  </Frame>
+);
+
+export const IlluViewFit = () => (
+  <Frame>
+    <rect x="62" y="30" width="36" height="20" rx="2" className="fill-wood/40 stroke-ink/60" strokeWidth="1.2" />
+    <path d="M30 26V16h12M130 26V16h-12M30 54v10h12M130 54v10h-12" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+  </Frame>
+);
+
+export const IlluZoom = ({ out = false }: { out?: boolean }) => (
+  <Frame>
+    <rect x="66" y="30" width="28" height="20" rx="2" className="fill-wood/40 stroke-ink/60 anim-pop" strokeWidth="1.2" style={{ animationDirection: out ? 'reverse' : 'normal' }} />
+    <circle cx="118" cy="34" r="10" stroke="currentColor" strokeWidth="1.8" />
+    <path d={`M112 34h12${out ? '' : 'M118 28v12'}M125 41l8 8`} stroke="currentColor" strokeWidth="1.8" />
+  </Frame>
+);
+
+export const IlluGcode = () => (
+  <Frame>
+    <rect x="44" y="10" width="72" height="60" rx="3" className="stroke-muted" strokeWidth="1.5" />
+    {['G0 X10 Y5', 'G1 Z-3', 'G1 X60', 'G1 Y40'].map((l, i) => (
+      <text key={l} x="52" y={26 + i * 12} fontSize="8" fontFamily="monospace" className={i === 2 ? 'fill-accent anim-blink' : 'fill-muted'}>
+        {l}
+      </text>
+    ))}
+  </Frame>
+);
+
+export const IlluNewProject = () => (
+  <Frame>
+    <path d="M60 10h30l12 12v48H60z" className="fill-surface stroke-muted" strokeWidth="1.5" />
+    <path d="M90 10v12h12" className="stroke-muted" strokeWidth="1.5" />
+    <path d="M81 38v16m-8-8h16" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+  </Frame>
+);
+
+export const IlluOpen = () => (
+  <Frame>
+    <path d="M46 26h20l6 6h42v32H46z" className="fill-wood/30 stroke-muted" strokeWidth="1.5" />
+    <path d="M80 60V40m-7 7 7-7 7 7" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+  </Frame>
+);
+
+export const IlluSave = () => (
+  <Frame>
+    <rect x="58" y="16" width="44" height="48" rx="4" className="stroke-muted" strokeWidth="1.5" />
+    <rect x="66" y="16" width="28" height="14" className="stroke-muted" strokeWidth="1.2" />
+    <path d="M80 36v16m-7-7 7 7 7-7" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+  </Frame>
+);
+
+/** Spegla: formen vänds runt en mittlinje. */
+export const IlluFlip = ({ vertical = false }: { vertical?: boolean }) => (
+  <Frame>
+    {vertical ? (
+      <>
+        <path d="M40 40h80" className="stroke-muted" strokeWidth="1" strokeDasharray="3 3" />
+        <path d="M60 36l20-20 20 20z" className="stroke-ink/60" strokeWidth="1.5" />
+        <path d="M60 44l20 20 20-20z" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+      </>
+    ) : (
+      <>
+        <path d="M80 12v56" className="stroke-muted" strokeWidth="1" strokeDasharray="3 3" />
+        <path d="M76 24 52 40l24 16z" className="stroke-ink/60" strokeWidth="1.5" />
+        <path d="M84 24l24 16-24 16z" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+      </>
+    )}
+  </Frame>
+);
+
+export const IlluRotate = () => (
+  <Frame>
+    <rect x="62" y="28" width="36" height="24" rx="2" stroke="currentColor" strokeWidth="2" className="anim-turn" style={{ ['--turn' as string]: '-30deg' }} />
+    <path d="M108 26a26 26 0 0 0-14-12" className="stroke-muted" strokeWidth="1.5" />
+    <path d="M94 14l1 7m-1-7 7 1" className="stroke-muted" strokeWidth="1.5" />
+  </Frame>
+);
+
+export const IlluCenter = () => (
+  <Frame>
+    <Board />
+    <path d="M80 10v60M16 40h128" className="stroke-muted" strokeWidth="1" strokeDasharray="2 3" />
+    <rect x="34" y="20" width="28" height="18" rx="2" stroke="currentColor" strokeWidth="2" className="anim-slide" style={{ ['--slide' as string]: '32px' }} />
+  </Frame>
+);
+
+export const IlluLockAspect = () => (
+  <Frame>
+    <rect x="50" y="30" width="30" height="20" rx="2" className="stroke-ink/60" strokeWidth="1.5" />
+    <rect x="50" y="22" width="48" height="32" rx="2" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+    <path d="M120 38v-6a6 6 0 0 1 12 0v6m-15 0h18v14h-18z" className="stroke-muted" strokeWidth="1.5" />
+  </Frame>
+);
+
+export const IlluPathClosed = () => (
+  <Frame>
+    <path d="M30 56 50 24h30l14 32" className="stroke-ink/60" strokeWidth="1.5" />
+    <path d="M94 56H30" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+    <path d="M108 40h10m-3-3 3 3-3 3" className="stroke-muted" strokeWidth="1.2" />
+    <path d="M124 56l8-20h8l6 20z" className="fill-wood/40" stroke="currentColor" strokeWidth="1.5" />
+  </Frame>
+);

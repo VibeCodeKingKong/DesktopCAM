@@ -3,7 +3,7 @@ import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { useAppStore, useMachine } from '../../../store/useAppStore';
 import { exportSelectedGcode } from '../../../cam/commands';
-import { IlluExport } from '../../smartguide/illustrations';
+import { IlluExport, IlluGcode } from '../../smartguide/illustrations';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
 
@@ -18,7 +18,7 @@ export function OutputTab() {
     <>
       <RibbonGroup label={t.groups.gcode}>
         <RibbonButton icon={Download} label={b.saveGcode.label} disabled={!hasResult} onClick={exportSelectedGcode} tooltip={tip(b.saveGcode, { shortcut: '⌘E', illustration: <IlluExport />, disabledReason })} />
-        <RibbonButton icon={FileCode} label={b.viewGcode.label} disabled={!hasResult} onClick={() => openDialog('gcodeViewer')} tooltip={tip(b.viewGcode, { disabledReason })} />
+        <RibbonButton icon={FileCode} label={b.viewGcode.label} disabled={!hasResult} onClick={() => openDialog('gcodeViewer')} tooltip={tip(b.viewGcode, { illustration: <IlluGcode />,  disabledReason })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.post}>
         <RibbonStack>

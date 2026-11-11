@@ -3,7 +3,7 @@ import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { useAppStore, useMachine } from '../../../store/useAppStore';
 import { Select } from '../../ui/Field';
-import { IlluMachine } from '../../smartguide/illustrations';
+import { IlluMachine, IlluToolLibrary } from '../../smartguide/illustrations';
 import { materialName, toolName, useT } from '../../../i18n';
 import { tip } from '../tip';
 
@@ -107,7 +107,7 @@ export function SetupTab() {
             />
           </RibbonField>
         </RibbonStack>
-        <RibbonButton icon={Wrench} label={b.toolLibrary.label} onClick={() => openDialog('machineSetup', 'tools')} tooltip={tip(b.toolLibrary)} />
+        <RibbonButton icon={Wrench} label={b.toolLibrary.label} onClick={() => openDialog('machineSetup', 'tools')} tooltip={tip(b.toolLibrary, { illustration: <IlluToolLibrary /> })} />
       </RibbonGroup>
 
       {isLaser && machine.laser && (

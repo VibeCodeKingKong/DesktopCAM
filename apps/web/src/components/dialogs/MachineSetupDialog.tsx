@@ -3,14 +3,14 @@ import { ToolIcon } from '../ui/ToolIcon';
 import { cuttingLength } from '../../cam/toolReach';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { uid, type FirmwareFlavor, type MachineProfile, type ToolDefinition, type ToolKind } from '@desktopcam/core';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, useExpert } from '../../store/useAppStore';
 import { toolName, useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 import { FieldRow, NumberField, SelectField, Switch } from '../ui/Field';
 import { IlluMachine } from '../smartguide/illustrations';
 
 type Step = 'preset' | 'post' | 'tools';
-const STEP_ORDER: Step[] = ['preset', 'post', 'tools'];
+const ALL_STEPS: Step[] = ['preset', 'post', 'tools'];
 
 /** Maskininställning i tre steg: maskin, postprocessor och verktygsbibliotek. */
 export function MachineSetupDialog() {
@@ -20,6 +20,7 @@ export function MachineSetupDialog() {
   const machines = useAppStore((s) => s.machines);
   const machineId = useAppStore((s) => s.machineId);
   const saveMachine = useAppStore((s) => s.saveMachine);
+  const expert = useExpert();
   const removeMachine = useAppStore((s) => s.removeMachine);
   const nameRef = useRef<HTMLInputElement>(null);
   const [justCreated, setJustCreated] = useState(false);
@@ -32,7 +33,7 @@ export function MachineSetupDialog() {
     if (open) {
       const s = useAppStore.getState();
       setDraft(structuredClone(s.machines.find((m) => m.id === s.machineId) ?? s.machines[0]));
-      setStep(STEP_ORDER.includes(s.dialogStep as Step) ? (s.dialogStep as Step) : 'preset');
+      setStep(ALL_STEPS.includes(s.dialogStep as Step) ? (s.dialogStep as Step) : 'preset');
       setJustCreated(false);
     }
   }, [open]);
@@ -75,6 +76,8 @@ export function MachineSetupDialog() {
     saveMachine(draft);
     useAppStore.getState().setStatus(t.status.machine(draft.name));
   };
+  // Postprocessorn är förinställd per maskin – i nybörjarläget visas den inte.
+  const STEP_ORDER = expert ? ALL_STEPS : ALL_STEPS.filter((x) => x !== 'post');
   const stepIndex = STEP_ORDER.indexOf(step);
   const stepLabel = (s: Step) => t.machine.steps[s];
 
@@ -338,7 +341,7 @@ function ToolLibrary({ laser }: { laser: boolean }) {
               <>
                 <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={editing.defaults.plungeRate} onChange={(plungeRate) => setDef({ plungeRate })} />
                 <NumberField label={t.machine.stepDown} unit="mm" step={0.1} min={0.05} value={editing.defaults.stepDown} onChange={(stepDown) => setDef({ stepDown })} />
-                <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={editing.defaults.spindleRpm ?? 18000} onChange={(spindleRpm) => setDef({ spindleRpm })} />
+                {!beginner && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={editing.defaults.spindleRpm ?? 18000} onChange={(spindleRpm) => setDef({ spindleRpm })} />}
               </>
             )}
             {laser && <NumberField label={t.props.power} unit="%" step={5} min={0} max={100} value={editing.defaults.laserPowerPct ?? 100} onChange={(laserPowerPct) => setDef({ laserPowerPct })} />}

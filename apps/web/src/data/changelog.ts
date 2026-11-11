@@ -13,6 +13,22 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.11.0',
+    date: '2026-11-11',
+    sv: [
+      'Mönster: kopiera markeringen linjärt (rader och kolumner) eller cirkulärt runt en mittpunkt – t.ex. hål på en bultcirkel.',
+      'Nybörjarläget döljer finjusteringar där standardvärdet nästan alltid är rätt (t.ex. spindelvarvtal, strategidetaljer, postprocessor). Stäng av det för att se allt.',
+      'Bilder och små animeringar i inforutorna för alla knappar, och nya inforutor för vyns verktygsrad och knapparna under Egenskaper.',
+      'Rättat: cirklar visades som "Öppen linje" under Egenskaper.',
+    ],
+    en: [
+      'Pattern: copy the selection linearly (rows and columns) or circularly around a centre point – e.g. holes on a bolt circle.',
+      'Beginner mode hides fine-tuning where the default is almost always right (e.g. spindle speed, strategy details, post-processor). Turn it off to see everything.',
+      'Pictures and small animations in the info boxes for all buttons, and new info boxes for the view toolbar and the buttons in Properties.',
+      'Fixed: circles were shown as "Open line" in Properties.',
+    ],
+  },
+  {
     version: '0.10.0',
     date: '2026-11-11',
     sv: [

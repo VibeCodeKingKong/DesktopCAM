@@ -17,6 +17,8 @@ interface Props {
   content: SmartTooltipContent;
   children: ReactNode;
   delay?: number;
+  /** Klasser på omslaget, t.ex. "flex [&>*]:flex-1" för knappar som ska fylla en rutnätscell. */
+  className?: string;
 }
 
 const WIDTH = 288;
@@ -25,7 +27,7 @@ const WIDTH = 288;
  * Rik tooltip för Ribbon-knappar: titel, beskrivning, kortkommando och en
  * illustration. I Nybörjarläge visas den snabbare och med längre text.
  */
-export function SmartTooltip({ content, children, delay }: Props) {
+export function SmartTooltip({ content, children, delay, className = 'inline-flex' }: Props) {
   const beginner = useAppStore((s) => s.beginnerMode);
   const anchorRef = useRef<HTMLSpanElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export function SmartTooltip({ content, children, delay }: Props) {
   return (
     <span
       ref={anchorRef}
-      className="inline-flex"
+      className={className}
       onMouseEnter={show}
       onMouseLeave={hide}
       onMouseDown={hide}

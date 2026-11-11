@@ -118,6 +118,7 @@ export const en: Dict = {
   },
 
   buttons: {
+    pattern: { label: 'Pattern', title: 'Pattern', desc: 'Copies the selection in a grid (linear) or around a centre point (circular) – e.g. a row of holes or holes on a bolt circle.' },
     imageRelief: { label: 'Image to relief', title: 'Image to relief', desc: 'Turns an image into a 3D relief: brightness becomes height. The image is analysed and gets settings by type – logo, drawing, height map or photo.' },
     fillet: { label: 'Radius', title: 'Round corners', desc: 'Click a corner to round it with the radius in the drawing bar. Click again to remove it. All corners at once: Corner radius in Properties.' },
     measure: { label: 'Measure', title: 'Distance between shapes', desc: 'Click two shapes to see and change the distance between them – centre to centre or edge to edge – in Properties. The first one stays put.' },
@@ -208,6 +209,7 @@ export const en: Dict = {
   },
 
   props: {
+    expertNote: 'More settings are available with beginner mode off.',
     pocketPresetDesc: {
       fast: 'Clears to full depth straight away. Fastest, but walls and floor may show small marks.',
       balanced: 'Leaves 0.3 mm on the walls and 0.2 mm on the floor, then takes finishing passes. Clean walls, flat floor and accurate size.',
@@ -548,6 +550,50 @@ export const en: Dict = {
     version: (v: string) => `version ${v}`,
     whatsNew: 'What is new',
     current: 'Your version',
+  },
+
+  pattern: {
+    title: 'Pattern',
+    kind: 'Type',
+    kinds: { linear: 'Linear', circular: 'Circular' },
+    kindDesc: {
+      linear: 'Copies in rows and columns with even spacing. The original is the first copy, bottom left.',
+      circular: 'Copies spread evenly around a centre point, e.g. holes on a bolt circle. Positive angle is anticlockwise.',
+    },
+    countX: 'Count in X',
+    countY: 'Count in Y',
+    spacingMode: 'Spacing is',
+    spacingModes: { center: 'Centre–centre', gap: 'Gap' },
+    spacingX: 'Spacing X',
+    spacingY: 'Spacing Y',
+    count: 'Count',
+    cx: 'Centre X',
+    cy: 'Centre Y',
+    centerMaterial: 'Centre of material',
+    centerSelection: 'Centre of selection',
+    radius: (r: string) => `Radius from the centre: ${r} mm`,
+    totalAngle: 'Angle to spread over',
+    rotateCopies: 'Rotate the copies',
+    preview: 'Preview of the pattern',
+    outside: 'Some copies end up outside the material.',
+    total: (n: number) => `${n} in total, including the original.`,
+    create: 'Create pattern',
+    created: (n: number) => `Pattern with ${n} created`,
+  },
+
+  hover: {
+    mirrorH: { title: 'Flip horizontally', desc: 'Flips the selection left–right around its own centre.' },
+    mirrorV: { title: 'Flip vertically', desc: 'Flips the selection upside down around its own centre.' },
+    center: { title: 'Centre on material', desc: 'Moves the selection so its centre is in the middle of the workpiece.' },
+    duplicate: { title: 'Duplicate', desc: 'Makes a copy of the selection, slightly offset. Need many copies? Use Pattern.' },
+    lock: { title: 'Lock proportions', desc: 'With the lock on, the height follows the width (and the other way round) so the shape is not stretched.' },
+    rotate: { title: 'Rotate', desc: 'Rotates the selection around its centre by the angle in the field. The left arrow turns anticlockwise, the right clockwise.' },
+    zoomIn: { title: 'Zoom in', desc: 'Moves closer. You can also use the mouse wheel or pinch with two fingers.' },
+    zoomOut: { title: 'Zoom out', desc: 'Moves further away. You can also use the mouse wheel or pinch with two fingers.' },
+    fit: { title: 'Fit', desc: 'Shows the whole work area in the view.' },
+    top: { title: 'Top', desc: 'Looks straight down at the material – best for drawing and dimensioning.' },
+    iso: { title: 'Iso', desc: 'From above at an angle – best for seeing depth, reliefs and the simulation.' },
+    front: { title: 'Front', desc: 'Looks at the front edge of the material – good for seeing the depth of the toolpaths.' },
   },
 
   gearDialog: {

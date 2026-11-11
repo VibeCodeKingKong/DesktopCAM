@@ -3,7 +3,7 @@ import { RotateCcw, RotateCw, Undo2, Wand2 } from 'lucide-react';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import { imageReliefHeights, rgbaToGray, type ImageReliefKind, type ImageReliefSettings } from '@desktopcam/core';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, useExpert } from '../../store/useAppStore';
 import { addImageRelief, imageReliefPreset, prepareImage, processedFull, useImageRelief, type ImagePrep, type PendingImage } from '../../cam/imageRelief';
 import { shadeHeights } from '../../cam/reliefs';
 import { useT } from '../../i18n';
@@ -24,6 +24,7 @@ export function ImageReliefFields({
 }) {
   const t = useT();
   const ti = t.imageRelief;
+  const expert = useExpert();
   const set = (p: Partial<ImageReliefSettings>) => onChange({ ...settings, ...p });
   const kinds: ImageReliefKind[] = ['logo', 'drawing', 'depthmap', 'photo'];
   return (
@@ -56,8 +57,8 @@ export function ImageReliefFields({
         />
       </FieldRow>
       <NumberField label={ti.smoothing} step={0.5} min={0} max={10} value={settings.smoothing} onChange={(smoothing) => set({ smoothing })} />
-      <NumberField label={ti.contrast} step={0.1} min={0.5} max={3} value={settings.contrast} onChange={(contrast) => set({ contrast })} />
-      <NumberField label={ti.gamma} step={0.1} min={0.3} max={3} value={settings.gamma} onChange={(gamma) => set({ gamma })} />
+      {expert && <NumberField label={ti.contrast} step={0.1} min={0.5} max={3} value={settings.contrast} onChange={(contrast) => set({ contrast })} />}
+      {expert && <NumberField label={ti.gamma} step={0.1} min={0.3} max={3} value={settings.gamma} onChange={(gamma) => set({ gamma })} />}
       <NumberField label={ti.background} unit="%" step={5} min={0} max={60} value={Math.round(settings.background * 100)} onChange={(pct) => set({ background: pct / 100 })} />
     </div>
   );

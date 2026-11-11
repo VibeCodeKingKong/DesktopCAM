@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { gearModule, makeGearShape, shapeToPolylines, type GearToothShape } from '@desktopcam/core';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, useExpert } from '../../store/useAppStore';
 import { addGear } from '../../cam/commands';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
@@ -11,6 +11,7 @@ export function GearDialog() {
   const t = useT();
   const g = t.gearDialog;
   const open = useAppStore((s) => s.dialog === 'gear');
+  const expert = useExpert();
   const [teeth, setTeeth] = useState(20);
   const [diameter, setDiameter] = useState(80);
   const [depth, setDepth] = useState(6);
@@ -66,7 +67,7 @@ export function GearDialog() {
           <NumberField label={g.teeth} min={3} max={200} step={1} value={teeth} onChange={(v) => setTeeth(Math.round(v))} />
           <NumberField label={g.diameter} unit="mm" min={5} step={1} value={diameter} onChange={setDiameter} />
           {shape === 'involute' ? (
-            <NumberField label={g.pressure} unit="°" min={14.5} max={30} step={0.5} value={pressure} onChange={setPressure} />
+            expert && <NumberField label={g.pressure} unit="°" min={14.5} max={30} step={0.5} value={pressure} onChange={setPressure} />
           ) : (
             <NumberField label={g.depth} unit="mm" min={0.5} max={diameter / 2 - 1} step={0.5} value={depth} onChange={setDepth} />
           )}

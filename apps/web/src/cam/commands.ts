@@ -3,6 +3,8 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import {
+  patternTransforms,
+  type PatternConfig,
   type ReliefInstance,
   plugGeometry,
   type ReliefPlug,
@@ -742,4 +744,41 @@ export function watchReliefPlugs() {
       useAppStore.getState().updateRelief(r.id, { plug, ...plugGeometry(plug) });
     }
   });
+}
+
+/* ───────── Mönster ───────── */
+
+/** Kopierar markeringen i ett linjärt eller cirkulärt mönster. Kopiorna markeras tillsammans med originalet. */
+export function applyPattern(cfg: PatternConfig) {
+  const s = useAppStore.getState();
+  const t = getT();
+  const shapes = selected();
+  const b = shapesBounds(shapes);
+  if (!shapes.length || !b) return;
+  const transforms = patternTransforms(cfg, b);
+  if (!transforms.length) return;
+  const isTranslate = (m: Mat2D) => m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1;
+  const copies: VectorShape[] = [];
+  const byShape = new Map<string, VectorShape[]>();
+  transforms.forEach((m, k) => {
+    for (const sh of shapes) {
+      const moved = transformShape(sh, m);
+      const copy: VectorShape = {
+        ...moved,
+        id: uid('shape'),
+        name: `${sh.name} (${k + 2})`,
+        paths: moved.paths.map((p) => ({ ...p, id: uid('path') })),
+        text: sh.text && isTranslate(m) ? { ...sh.text, x: sh.text.x + m[4], y: sh.text.y + m[5] } : undefined,
+      };
+      copies.push(copy);
+      byShape.set(sh.id, [...(byShape.get(sh.id) ?? []), copy]);
+    }
+  });
+  const layers = s.layers.map((l) => {
+    const mine = l.shapes.flatMap((sh) => byShape.get(sh.id) ?? []);
+    return mine.length ? { ...l, shapes: [...l.shapes, ...mine] } : l;
+  });
+  s.checkpoint();
+  useAppStore.setState({ layers, selectedShapeIds: [...shapes.map((x) => x.id), ...copies.map((c) => c.id)] });
+  status(t.pattern.created(transforms.length + 1));
 }

@@ -86,6 +86,7 @@ export const sv = {
   },
 
   buttons: {
+    pattern: { label: 'Mönster', title: 'Mönster', desc: 'Kopierar markeringen i ett rutnät (linjärt) eller runt en mittpunkt (cirkulärt) – t.ex. en rad hål eller hål på en bultcirkel.' },
     imageRelief: { label: 'Bild till relief', title: 'Bild till relief', desc: 'Gör om en bild till en 3D-relief: ljusstyrkan blir höjd. Bilden analyseras och får inställningar efter typ – logotyp, teckning, höjdkarta eller foto.' },
     fillet: { label: 'Radie', title: 'Avrunda hörn', desc: 'Klicka på ett hörn för att avrunda det med radien i ritfältet. Klicka igen för att ta bort radien. Alla hörn på en gång: Hörnradie under Egenskaper.' },
     measure: { label: 'Mått', title: 'Mått mellan former', desc: 'Klicka på två former för att se och ändra avståndet mellan dem – mitt till mitt eller kant till kant – under Egenskaper. Den första står still.' },
@@ -176,6 +177,7 @@ export const sv = {
   },
 
   props: {
+    expertNote: 'Fler inställningar finns när nybörjarläget är avstängt.',
     pocketPresetDesc: {
       fast: 'Rensar till slutdjupet direkt. Snabbast, men väggar och botten kan få små märken.',
       balanced: 'Lämnar 0,3 mm mot väggarna och 0,2 mm i botten och tar sedan finpass. Rena väggar, jämn botten och rätt mått.',
@@ -516,6 +518,50 @@ export const sv = {
     version: (v: string) => `version ${v}`,
     whatsNew: 'Nyheter',
     current: 'Din version',
+  },
+
+  pattern: {
+    title: 'Mönster',
+    kind: 'Typ',
+    kinds: { linear: 'Linjärt', circular: 'Cirkulärt' },
+    kindDesc: {
+      linear: 'Kopior i rader och kolumner med jämnt avstånd. Originalet är första kopian, nere till vänster.',
+      circular: 'Kopior jämnt fördelade runt en mittpunkt, t.ex. hål på en bultcirkel. Positiv vinkel är moturs.',
+    },
+    countX: 'Antal i X',
+    countY: 'Antal i Y',
+    spacingMode: 'Avstånd mäts',
+    spacingModes: { center: 'Mitt–mitt', gap: 'Mellanrum' },
+    spacingX: 'Avstånd X',
+    spacingY: 'Avstånd Y',
+    count: 'Antal',
+    cx: 'Mittpunkt X',
+    cy: 'Mittpunkt Y',
+    centerMaterial: 'Materialets mitt',
+    centerSelection: 'Markeringens mitt',
+    radius: (r: string) => `Radie från mittpunkten: ${r} mm`,
+    totalAngle: 'Vinkel att fördela över',
+    rotateCopies: 'Vrid kopiorna',
+    preview: 'Förhandsvisning av mönstret',
+    outside: 'Några kopior hamnar utanför materialet.',
+    total: (n: number) => `${n} st totalt, inklusive originalet.`,
+    create: 'Skapa mönster',
+    created: (n: number) => `Mönster med ${n} st skapat`,
+  },
+
+  hover: {
+    mirrorH: { title: 'Spegla vågrätt', desc: 'Vänder markeringen höger–vänster runt sin egen mitt.' },
+    mirrorV: { title: 'Spegla lodrätt', desc: 'Vänder markeringen upp–ner runt sin egen mitt.' },
+    center: { title: 'Centrera på materialet', desc: 'Flyttar markeringen så att dess mitt hamnar mitt på arbetsstycket.' },
+    duplicate: { title: 'Dubblera', desc: 'Gör en kopia av markeringen, lite förskjuten. Behöver du många kopior: använd Mönster.' },
+    lock: { title: 'Lås proportioner', desc: 'När låset är på ändras höjden med bredden (och tvärtom) så att formen inte blir utdragen.' },
+    rotate: { title: 'Vrid', desc: 'Vrider markeringen runt sin mitt med vinkeln i fältet. Pilen åt vänster vrider moturs, åt höger medurs.' },
+    zoomIn: { title: 'Zooma in', desc: 'Kommer närmare. Du kan också använda mushjulet eller nypa med två fingrar.' },
+    zoomOut: { title: 'Zooma ut', desc: 'Går längre bort. Du kan också använda mushjulet eller nypa med två fingrar.' },
+    fit: { title: 'Anpassa', desc: 'Visar hela arbetsytan i vyn.' },
+    top: { title: 'Ovanifrån', desc: 'Tittar rakt ner på materialet – bäst när du ritar och måttsätter.' },
+    iso: { title: 'Iso', desc: 'Snett ovanifrån – bäst för att se djup, reliefer och simulering.' },
+    front: { title: 'Framifrån', desc: 'Tittar på materialets framkant – bra för att se djupet på banorna.' },
   },
 
   gearDialog: {
