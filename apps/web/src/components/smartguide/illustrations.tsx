@@ -547,3 +547,13 @@ export const IlluPathClosed = () => (
     <path d="M124 56l8-20h8l6 20z" className="fill-wood/40" stroke="currentColor" strokeWidth="1.5" />
   </Frame>
 );
+
+/** Formbiblioteket: en banderoll och en ram ritas upp. */
+export const IlluShapeLibrary = () => (
+  <Frame>
+    <Board />
+    <rect x="30" y="18" width="100" height="44" rx="6" className="stroke-ink/60" strokeWidth="1.5" />
+    <rect x="36" y="24" width="88" height="32" rx="3" className="stroke-ink/60" strokeWidth="1.5" />
+    <path d="M52 34h56v14H52zM52 37l-10 0 4 4.5-4 4.5h10M108 37h10l-4 4.5 4 4.5h-10" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+  </Frame>
+);

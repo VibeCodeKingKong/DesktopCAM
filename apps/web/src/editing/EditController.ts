@@ -12,7 +12,6 @@ import {
   makeRect,
   cornerVertices,
   setVertexRadius,
-  textToShape,
   transformShape,
   translate,
   uid,
@@ -24,6 +23,8 @@ import type { SceneController } from '../components/viewport/SceneController';
 import { getT } from '../i18n';
 import { onContour, setTabPositions, tabContext } from './tabs';
 import { defaultMeasureRef, measure } from '../cam/commands';
+import { buildTextShape } from '../text/textShape';
+import { isOutlineFont } from '../text/fonts';
 import { allShapes, useAppStore, type EditTool, type NodeRef } from '../store/useAppStore';
 import { useDraft } from './draftStore';
 import { hitShape, shapeGeometry } from './hitTest';
@@ -630,12 +631,13 @@ export class EditController {
     return `${base} ${n}`;
   }
 
-  /** Skapar text vid ankarpunkten (anropas från textdialogen). */
-  static createText(content: string, height: number, align: 'left' | 'center' | 'right', weight = 0) {
+  /** Skapar text vid ankarpunkten (anropas från textdialogen). Ett kontur-typsnitt måste vara inläst. */
+  static createText(content: string, height: number, align: 'left' | 'center' | 'right', weight = 0, font?: string) {
     const s = useAppStore.getState();
     const a = s.textAnchor ?? { x: 10, y: 10 };
-    const shape = textToShape(content, a.x, a.y, { height, align, weight });
-    shape.text = { content, height, spacing: 0, align, weight, x: a.x, y: a.y };
+    const text = { content, height, spacing: 0, align, weight: isOutlineFont(font) ? 0 : weight, font: isOutlineFont(font) ? font : undefined, x: a.x, y: a.y };
+    const shape = buildTextShape(text);
+    shape.text = text;
     s.addShape(shape);
     s.setTextAnchor(null);
     s.setEditTool('select');

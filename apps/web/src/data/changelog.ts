@@ -16,6 +16,47 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.15.0',
+    date: '2026-11-11',
+    text: {
+      sv: [
+        'Text i sju konturtypsnitt (t.ex. romersk inskrift, smal versal, slab serif och skrivstil) – eller läs in ett eget TTF/OTF-typsnitt. Bokstäverna blir slutna konturer för V-gravyr, ficka och inlägg.',
+        'Formbibliotek med ramar, banderoller, ornament och mönster (vågor, höjdkurvor, bikakor, hålrad). Välj bearbetning efter att motivet lagts in.',
+        'Rundtur för nybörjare med animerade bilder – startar första gången och finns under ?-knappen i sidhuvudet.',
+      ],
+      en: [
+        'Text in seven outline fonts (e.g. Roman inscription, condensed caps, slab serif and script) – or load your own TTF/OTF font. The letters become closed outlines for V-carving, pockets and inlays.',
+        'Shape library with frames, banners, ornaments and patterns (waves, contour lines, honeycomb, rows of holes). Choose the machining after adding the motif.',
+        'Beginner tour with animated pictures – starts the first time and is available under the ? button in the header.',
+      ],
+      fr: [
+        'Texte en sept polices contour (inscription romaine, capitales étroites, égyptienne, manuscrite…) – ou chargez votre propre police TTF/OTF. Les lettres deviennent des contours fermés pour la gravure en V, les poches et les incrustations.',
+        'Bibliothèque de formes : cadres, bannières, ornements et motifs (vagues, courbes de niveau, nid d’abeille, rangées de trous). Choisissez l’usinage après l’ajout.',
+        'Visite guidée pour débutants avec images animées – démarre la première fois et reste disponible sous le bouton ? de l’en-tête.',
+      ],
+      de: [
+        'Text in sieben Konturschriften (z. B. römische Inschrift, schmale Versalien, Slab Serif und Schreibschrift) – oder eine eigene TTF/OTF-Schrift laden. Die Buchstaben werden geschlossene Konturen für V-Gravur, Taschen und Intarsien.',
+        'Formenbibliothek mit Rahmen, Bannern, Ornamenten und Mustern (Wellen, Höhenlinien, Bienenwaben, Lochreihen). Die Bearbeitung nach dem Einfügen wählen.',
+        'Einsteiger-Tour mit animierten Bildern – startet beim ersten Mal und ist unter dem ?-Knopf in der Kopfzeile verfügbar.',
+      ],
+      es: [
+        'Texto en siete fuentes de contorno (p. ej. inscripción romana, mayúsculas estrechas, slab serif y manuscrita), o carga tu propia fuente TTF/OTF. Las letras se convierten en contornos cerrados para grabado en V, vaciados e incrustaciones.',
+        'Biblioteca de formas con marcos, banderolas, ornamentos y patrones (olas, curvas de nivel, panal, filas de agujeros). Elige el mecanizado después de añadir el motivo.',
+        'Recorrido para principiantes con imágenes animadas: se inicia la primera vez y está en el botón ? de la cabecera.',
+      ],
+      pl: [
+        'Tekst w siedmiu czcionkach konturowych (np. inskrypcja rzymska, wąskie wersaliki, slab serif i pisana) – lub wczytaj własną czcionkę TTF/OTF. Litery stają się zamkniętymi konturami do grawerowania V, kieszeni i intarsji.',
+        'Biblioteka kształtów z ramkami, banerami, ornamentami i wzorami (fale, poziomice, plaster miodu, rzędy otworów). Obróbkę wybierasz po dodaniu motywu.',
+        'Przewodnik dla początkujących z animowanymi obrazkami – uruchamia się za pierwszym razem i jest pod przyciskiem ? w nagłówku.',
+      ],
+      uk: [
+        'Текст сімома контурними шрифтами (напр. римський напис, вузькі великі, брусковий і рукописний) – або завантажте власний шрифт TTF/OTF. Літери стають замкненими контурами для V-гравіювання, кишень та інкрустацій. Кирилиця – у п’яти з них.',
+        'Бібліотека фігур із рамками, банерами, орнаментами й візерунками (хвилі, горизонталі, стільники, ряди отворів). Обробку обираєте після додавання мотиву.',
+        'Тур для новачків з анімованими зображеннями – запускається першого разу й доступний під кнопкою ? у заголовку.',
+      ],
+    },
+  },
+  {
     version: '0.14.0',
     date: '2026-11-11',
     text: {

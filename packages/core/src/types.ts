@@ -149,6 +149,12 @@ export interface TextParams {
   align: 'left' | 'center' | 'right';
   /** Linjebredd (mm). 0 eller saknas = enkellinje; större ger fyllbara konturer. */
   weight?: number;
+  /**
+   * Typsnitt: saknas eller 'line' = det inbyggda enkellinjiga gravyrtypsnittet.
+   * Annars ett kontur-typsnitt (t.ex. 'cinzel') – bokstäverna blir slutna
+   * konturer för V-gravyr, ficka och inlägg, och weight används inte.
+   */
+  font?: string;
   /** Vänstra baslinjen för första raden. */
   x: number;
   y: number;

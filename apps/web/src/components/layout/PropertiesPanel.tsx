@@ -1,3 +1,5 @@
+import { FontPicker } from '../ui/FontPicker';
+import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine } from 'lucide-react';
 import {
@@ -171,6 +173,8 @@ function ShapeEditor() {
           </FieldRow>
           <NumberField label={t.props.textHeight} unit="mm" min={1} step={1} value={single.text.height} onChange={(height) => updateText(single, { height })} />
           <NumberField label={t.props.textSpacing} unit="mm" step={0.5} value={single.text.spacing} onChange={(spacing) => updateText(single, { spacing })} />
+          <FontPicker value={single.text.font ?? LINE_FONT} onChange={(font) => updateText(single, { font: isOutlineFont(font) ? font : undefined, weight: isOutlineFont(font) ? 0 : single.text!.weight })} />
+          {!single.text.font && (
           <FieldRow label={t.textDialog.style}>
             <Segmented
               label={t.textDialog.style}
@@ -182,7 +186,8 @@ function ShapeEditor() {
               onChange={(v) => updateText(single, { weight: v === 'outline' ? Math.round(single.text!.height * 1.5) / 10 : 0 })}
             />
           </FieldRow>
-          {(single.text.weight ?? 0) > 0 && (
+          )}
+          {!single.text.font && (single.text.weight ?? 0) > 0 && (
             <NumberField label={t.props.textWeight} unit="mm" min={0.2} step={0.1} value={single.text.weight!} onChange={(weight) => updateText(single, { weight: Math.max(0.2, weight) })} />
           )}
           <FieldRow label={t.props.textAlign}>

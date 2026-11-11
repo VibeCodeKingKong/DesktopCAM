@@ -31,7 +31,7 @@ export function Ribbon() {
   const Panel = TABS.find((x) => x.id === active)?.panel ?? DesignTab;
 
   return (
-    <div className="shrink-0 border-b border-line bg-surface">
+    <div className="shrink-0 border-b border-line bg-surface" data-tour="ribbon">
       <div role="tablist" aria-label="Ribbon" className="flex h-8 items-end gap-0.5 overflow-x-auto px-2">
         {TABS.map((x) => {
           const selected = x.id === active && !collapsed;

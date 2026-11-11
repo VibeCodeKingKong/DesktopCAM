@@ -29,6 +29,7 @@ export function SidePanel({
       {open && <div className="fixed inset-0 z-30 bg-black/25 lg:hidden" onClick={close} aria-hidden="true" />}
       <aside
         aria-label={title}
+        data-tour={`panel-${id}`}
         className={`${open ? 'flex' : 'hidden'} fixed inset-y-0 z-40 w-[min(88vw,340px)] flex-col bg-surface shadow-pop lg:static lg:z-auto lg:flex lg:shadow-none ${width} shrink-0 ${
           side === 'left' ? 'left-0 border-r border-line' : 'right-0 border-l border-line'
         } pt-[env(safe-area-inset-top)] lg:pt-0`}

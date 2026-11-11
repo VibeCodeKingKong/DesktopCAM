@@ -1,8 +1,9 @@
-import { GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
+import { CircleHelp, GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
 import { Switch } from '../ui/Field';
+import { startTour } from '../../tutorial/tour';
 import { APP_VERSION } from '../../data/changelog';
 
 function Logo() {
@@ -63,7 +64,10 @@ export function AppHeader() {
         </span>
         {machine.name}
       </p>
-      <label className="flex cursor-pointer items-center gap-1.5 text-xs" title={t.header.beginnerMode}>
+      <button className={iconBtn} onClick={() => startTour()} aria-label={t.tour.open} title={t.tour.open} data-tour="help">
+        <CircleHelp size={16} />
+      </button>
+      <label className="flex cursor-pointer items-center gap-1.5 text-xs" title={t.header.beginnerMode} data-tour="beginner">
         <GraduationCap size={16} className={beginner ? 'text-accent' : 'text-muted'} />
         <span className="hidden md:inline">{t.header.beginnerMode}</span>
         <Switch checked={beginner} onChange={toggleBeginner} label={t.header.beginnerMode} />

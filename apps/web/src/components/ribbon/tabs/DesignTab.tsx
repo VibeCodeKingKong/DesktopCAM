@@ -1,4 +1,4 @@
-import { Circle, Cog, Copy, FileUp, ImageUp, Magnet, Mountain, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { Circle, Cog, Copy, FileUp, ImageUp, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { CornerRadius } from '../../ui/icons';
@@ -7,7 +7,7 @@ import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } fro
 import { useAppStore, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluMeasure, IlluPattern, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
+import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluMeasure, IlluPattern, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluShapeLibrary, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
 import { Select } from '../../ui/Field';
 
 export function DesignTab() {
@@ -74,6 +74,7 @@ export function DesignTab() {
         <RibbonButton icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.library}>
+        <RibbonButton icon={Shapes} label={b.shapeLibrary.label} onClick={() => openDialog('shapeLibrary')} tooltip={tip(b.shapeLibrary, { illustration: <IlluShapeLibrary /> })} />
         <RibbonButton icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />
         <RibbonButton icon={ImageUp} label={b.imageRelief.label} onClick={() => void importImageRelief()} tooltip={tip(b.imageRelief, { illustration: <IlluImageRelief /> })} />
       </RibbonGroup>

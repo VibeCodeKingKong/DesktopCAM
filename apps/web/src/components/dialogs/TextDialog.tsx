@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { textToShape, shapeToPolylines } from '@desktopcam/core';
+import { shapeToPolylines } from '@desktopcam/core';
+import { buildTextShape } from '../../text/textShape';
+import { getLoadedFont, isOutlineFont, LINE_FONT } from '../../text/fonts';
+import { FontPicker } from '../ui/FontPicker';
 import { useAppStore } from '../../store/useAppStore';
 import { EditController } from '../../editing/EditController';
 import { useT } from '../../i18n';
@@ -17,6 +20,8 @@ export function TextDialog() {
   const [align, setAlign] = useState<Align>('left');
   const [style, setStyle] = useState<'outline' | 'single'>('outline');
   const [weightPct, setWeightPct] = useState(15);
+  const [font, setFont] = useState(LINE_FONT);
+  const outlineFont = isOutlineFont(font);
   const weight = style === 'outline' ? (height * weightPct) / 100 : 0;
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -30,13 +35,18 @@ export function TextDialog() {
   };
   const create = () => {
     if (!content.trim()) return;
-    EditController.createText(content, height, align, weight);
+    if (outlineFont && !getLoadedFont(font)) return;
+    EditController.createText(content, height, align, weight, font);
     useAppStore.getState().openDialog(null);
     setContent('');
   };
 
   // Förhandsvisning
-  const preview = content.trim() ? textToShape(content, 0, 0, { height: 10, align, weight: style === 'outline' ? weightPct / 10 : 0 }) : null;
+  const sample = content.trim() ? content : outlineFont ? 'Abc 123' : '';
+  const preview =
+    sample && (!outlineFont || getLoadedFont(font))
+      ? buildTextShape({ content: sample, x: 0, y: 0, height: 10, spacing: 0, align, weight: style === 'outline' ? weightPct / 10 : 0, font: outlineFont ? font : undefined })
+      : null;
   let d = '';
   let vb = '0 -12 60 14';
   if (preview) {
@@ -98,6 +108,8 @@ export function TextDialog() {
             ]}
           />
         </FieldRow>
+        <FontPicker value={font} onChange={setFont} />
+        {!outlineFont && (
         <FieldRow label={t.textDialog.style}>
           <Segmented
             label={t.textDialog.style}
@@ -109,17 +121,18 @@ export function TextDialog() {
             ]}
           />
         </FieldRow>
-        {style === 'outline' && (
+        )}
+        {!outlineFont && style === 'outline' && (
           <NumberField label={t.textDialog.weight} unit="%" min={3} max={40} step={1} value={weightPct} onChange={setWeightPct} />
         )}
-        <div className="flex h-20 items-center justify-center rounded-lg bg-app p-2">
+        <div className="flex h-24 items-center justify-center rounded-lg bg-app p-2">
           {preview && (
             <svg viewBox={vb} className="h-full w-full" aria-hidden="true">
-              <path d={d} fill="none" className="stroke-ink" strokeWidth={0.6} strokeLinecap="round" strokeLinejoin="round" />
+              <path d={d} fillRule="evenodd" className={outlineFont || style === 'outline' ? 'fill-ink/15 stroke-ink' : 'fill-none stroke-ink'} strokeWidth={0.4} strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </div>
-        <p className="text-2xs leading-relaxed text-muted">{style === 'outline' ? t.textDialog.noteOutline : t.textDialog.note}</p>
+        <p className="text-2xs leading-relaxed text-muted">{outlineFont ? t.textDialog.noteFont : style === 'outline' ? t.textDialog.noteOutline : t.textDialog.note}</p>
       </div>
     </Dialog>
   );

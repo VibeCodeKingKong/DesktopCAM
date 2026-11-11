@@ -17,3 +17,4 @@ export * from './profileStrategy';
 export * from './pocketStrategy';
 export * from './imageRelief';
 export * from './pattern';
+export * from './shapeLibrary';

@@ -22,7 +22,6 @@ import {
   rotate,
   scale,
   shapesBounds,
-  textToShape,
   transformShape,
   translate,
   uid,
@@ -37,6 +36,7 @@ import toolsJson from '../data/tools.json';
 import { allShapes, getMachine, getMaterialPreset, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
 import { computeToolpath } from './toolpathService';
+import { buildTextShape, ensureTextFont } from '../text/textShape';
 import { activeEditor } from '../editing/EditController';
 import machinesJson from '../data/machines.json';
 import { materialName } from '../i18n';
@@ -154,15 +154,22 @@ export function centerSelection() {
 }
 
 /** Enkellinjig text har öppna streck – bara t.ex. "O" blir slutna och skulle fräsas. */
-export const isSingleLineText = (sh: VectorShape) => !!sh.text && !(sh.text.weight && sh.text.weight > 0) && sh.paths.some((p) => !p.closed);
+export const isSingleLineText = (sh: VectorShape) => !!sh.text && !sh.text.font && !(sh.text.weight && sh.text.weight > 0) && sh.paths.some((p) => !p.closed);
 
-/** Ritar om en textform med nya parametrar. */
-export function updateText(shape: VectorShape, patch: Partial<NonNullable<VectorShape['text']>>) {
+/** Ritar om en textform med nya parametrar (läser in typsnittet först om det behövs). */
+export async function updateText(shape: VectorShape, patch: Partial<NonNullable<VectorShape['text']>>) {
   if (!shape.text) return;
   const text = { ...shape.text, ...patch };
   if (!text.content.trim()) return;
-  const fresh = textToShape(text.content, text.x, text.y, { height: text.height, spacing: text.spacing, align: text.align, weight: text.weight ?? 0 });
-  useAppStore.getState().replaceShapes([{ ...shape, paths: fresh.paths, text, name: fresh.name }]);
+  if (!(await ensureTextFont(text.font))) {
+    status(getT().textDialog.fontMissing);
+    return;
+  }
+  // Formen kan ha ändrats medan typsnittet laddades.
+  const current = allShapes(useAppStore.getState().layers).find((x) => x.id === shape.id);
+  if (!current) return;
+  const fresh = buildTextShape(text);
+  useAppStore.getState().replaceShapes([{ ...current, paths: fresh.paths, text, name: fresh.name }]);
 }
 
 export function undo() {

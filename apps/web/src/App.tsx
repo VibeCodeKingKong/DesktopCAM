@@ -1,3 +1,4 @@
+import { maybeStartTour } from './tutorial/tour';
 import { useEffect } from 'react';
 import { AppHeader } from './components/layout/AppHeader';
 import { ProjectTree } from './components/layout/ProjectTree';
@@ -9,6 +10,7 @@ import { MachineSetupDialog } from './components/dialogs/MachineSetupDialog';
 import { GcodeViewer } from './components/dialogs/GcodeViewer';
 import { ImportDialog } from './components/dialogs/ImportDialog';
 import { ReliefLibraryDialog } from './components/dialogs/ReliefLibraryDialog';
+import { ShapeLibraryDialog } from './components/dialogs/ShapeLibraryDialog';
 import { TextDialog } from './components/dialogs/TextDialog';
 import { GearDialog } from './components/dialogs/GearDialog';
 import { ImageReliefDialog } from './components/dialogs/ImageReliefDialog';
@@ -47,11 +49,13 @@ export default function App() {
     const stopSimWatch = watchSimulationInputs();
     const stopPlugWatch = watchReliefPlugs();
     for (const tp of useAppStore.getState().toolpaths) void computeToolpath(tp.id);
+    const tourTimer = maybeStartTour();
     return () => {
       stopAutosave();
       stopWatch();
       stopSimWatch();
       stopPlugWatch();
+      clearTimeout(tourTimer);
     };
   }, []);
 
@@ -61,7 +65,7 @@ export default function App() {
       <Ribbon />
       <div className="relative flex min-h-0 flex-1">
         <ProjectTree />
-        <main className="relative min-w-0 flex-1">
+        <main className="relative min-w-0 flex-1" data-tour="viewport">
           <Viewport />
         </main>
         <PropertiesPanel />
@@ -71,6 +75,7 @@ export default function App() {
       <GcodeViewer />
       <ImportDialog />
       <ReliefLibraryDialog />
+      <ShapeLibraryDialog />
       <TextDialog />
       <GearDialog />
       <ImageReliefDialog />
