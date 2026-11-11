@@ -3,6 +3,7 @@ import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
 import { Switch } from '../ui/Field';
+import { APP_VERSION } from '../../data/changelog';
 
 function Logo() {
   return (
@@ -39,6 +40,14 @@ export function AppHeader() {
       <div className="flex min-w-0 items-center gap-2">
         <Logo />
         <span className="hidden text-sm font-semibold tracking-tight sm:inline">desktopCAM</span>
+        <button
+          className="rounded px-1 py-0.5 text-2xs tabular-nums text-muted hover:bg-app hover:text-ink"
+          onClick={() => openDialog('about')}
+          title={t.about.open}
+          aria-label={t.about.open}
+        >
+          v{APP_VERSION}
+        </button>
       </div>
       <div className="flex items-center">
         <button className={iconBtn} onClick={undo} disabled={!canUndo} aria-label={t.header.undo} title={`${t.header.undo} (⌘Z)`}>

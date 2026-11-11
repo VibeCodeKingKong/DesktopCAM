@@ -18,11 +18,12 @@ import toolsJson from '../data/tools.json';
 import materialsJson from '../data/materials.json';
 import { createDemoLayers } from '../data/demoProject';
 import { initialLanguage, type Language } from '../i18n/initial';
+import type { MeasureRef } from '../cam/commands';
 
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
 export type ViewCommand = 'fit' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
-export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief';
+export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about';
 export type MobilePanel = 'tree' | 'props' | null;
 
 export interface ToolpathResult {
@@ -106,8 +107,11 @@ interface AppState extends DocSnapshot {
   /** Materialsimulering. progress 0–1, duration i sekunder maskintid. */
   sim: { active: boolean; playing: boolean; speed: number; progress: number; duration: number; job: string };
   /** Måttsättning mellan två former: från mitt till mitt eller mellan kanterna. */
-  measureMode: 'center' | 'edge';
-  setMeasureMode: (m: 'center' | 'edge') => void;
+  measureRef: MeasureRef | null;
+  setMeasureRef: (r: MeasureRef | null) => void;
+  /** Byt vilken av de två formerna som står still. */
+  measureSwapped: boolean;
+  setMeasureSwapped: (v: boolean) => void;
   viewCommand: { kind: ViewCommand; nonce: number } | null;
   cursor: Vec3 | null;
   status: string;
@@ -249,8 +253,10 @@ export const useAppStore = create<AppState>()((set, get) => {
 
     view: { showToolpaths: true, showRapids: true, showStock: true },
     sim: { active: false, playing: false, speed: 1, progress: 0, duration: 0, job: '' },
-    measureMode: 'center',
-    setMeasureMode: (measureMode) => set({ measureMode }),
+    measureRef: null,
+    setMeasureRef: (measureRef) => set({ measureRef }),
+    measureSwapped: false,
+    setMeasureSwapped: (measureSwapped) => set({ measureSwapped }),
     viewCommand: null,
     cursor: null,
     status: '',

@@ -582,31 +582,65 @@ export function exportSelectedGcode() {
 
 /* ───────── Mått mellan två former ───────── */
 
+/** Referenspunkt på en form: −1 = vänster/nederkant, 0 = mitten, 1 = höger/överkant. */
+export interface Anchor {
+  x: -1 | 0 | 1;
+  y: -1 | 0 | 1;
+}
+export interface MeasureRef {
+  fixed: Anchor;
+  moving: Anchor;
+}
+
 export interface Measure {
   /** Formen som står still och formen som flyttas. */
   fixed: VectorShape;
   moving: VectorShape;
+  /** Punkterna som måttet går mellan. */
+  from: { x: number; y: number };
+  to: { x: number; y: number };
   dx: number;
   dy: number;
   dist: number;
 }
 
-const center = (sh: VectorShape) => {
+const anchorPoint = (sh: VectorShape, a: Anchor) => {
   const b = shapesBounds([sh])!;
-  return { x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, b };
+  const pick = (min: number, max: number, k: number) => (k < 0 ? min : k > 0 ? max : (min + max) / 2);
+  return { x: pick(b.min.x, b.max.x, a.x), y: pick(b.min.y, b.max.y, a.y) };
 };
 
-/** Avstånd mellan två former: mitt till mitt, eller fritt mellanrum mellan kanterna. */
-export function measure(fixed: VectorShape, moving: VectorShape, mode: 'center' | 'edge'): Measure {
-  const a = center(fixed), c = center(moving);
-  if (mode === 'center') {
-    const dx = c.x - a.x, dy = c.y - a.y;
-    return { fixed, moving, dx, dy, dist: Math.hypot(dx, dy) };
-  }
-  const gap = (amin: number, amax: number, bmin: number, bmax: number, ac: number, bc: number) => (bc >= ac ? bmin - amax : amin - bmax);
-  const dx = gap(a.b.min.x, a.b.max.x, c.b.min.x, c.b.max.x, a.x, c.x);
-  const dy = gap(a.b.min.y, a.b.max.y, c.b.min.y, c.b.max.y, a.y, c.y);
-  return { fixed, moving, dx, dy, dist: Math.hypot(Math.max(0, dx), Math.max(0, dy)) };
+/** Avståndet från en punkt på den fasta formen till en punkt på den rörliga. */
+export function measure(fixed: VectorShape, moving: VectorShape, ref: MeasureRef): Measure {
+  const from = anchorPoint(fixed, ref.fixed), to = anchorPoint(moving, ref.moving);
+  const dx = to.x - from.x, dy = to.y - from.y;
+  return { fixed, moving, from, to, dx, dy, dist: Math.hypot(dx, dy) };
+}
+
+/**
+ * Förvalda referenspunkter:
+ *  - center: mitt till mitt
+ *  - side: närmaste sidor/hörn på den fasta formen till mitten av den rörliga
+ *    (t.ex. ett hål i en platta, måttsatt från plattans kanter)
+ *  - edge: fritt mellanrum mellan de motstående kanterna
+ */
+export function measurePreset(fixed: VectorShape, moving: VectorShape, preset: 'center' | 'side' | 'edge'): MeasureRef {
+  const a = shapesBounds([fixed])!, b = shapesBounds([moving])!;
+  const ac = { x: (a.min.x + a.max.x) / 2, y: (a.min.y + a.max.y) / 2 };
+  const bc = { x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2 };
+  const side = (v: number, c: number): -1 | 1 => (v >= c ? 1 : -1);
+  if (preset === 'center') return { fixed: { x: 0, y: 0 }, moving: { x: 0, y: 0 } };
+  if (preset === 'side') return { fixed: { x: side(bc.x, ac.x), y: side(bc.y, ac.y) }, moving: { x: 0, y: 0 } };
+  const sx = side(bc.x, ac.x), sy = side(bc.y, ac.y);
+  return { fixed: { x: sx, y: sy }, moving: { x: (-sx) as -1 | 1, y: (-sy) as -1 | 1 } };
+}
+
+/** Bästa förval: ligger den rörliga formens mitt inuti den fasta måttsätts den från närmaste sidor. */
+export function defaultMeasureRef(fixed: VectorShape, moving: VectorShape): MeasureRef {
+  const a = shapesBounds([fixed])!, b = shapesBounds([moving])!;
+  const bx = (b.min.x + b.max.x) / 2, by = (b.min.y + b.max.y) / 2;
+  const inside = bx > a.min.x && bx < a.max.x && by > a.min.y && by < a.max.y;
+  return measurePreset(fixed, moving, inside ? 'side' : 'center');
 }
 
 function moveShape(sh: VectorShape, dx: number, dy: number) {
@@ -616,20 +650,13 @@ function moveShape(sh: VectorShape, dx: number, dy: number) {
 }
 
 /** Flyttar den rörliga formen så att måttet blir det angivna. */
-export function setMeasure(m: Measure, mode: 'center' | 'edge', patch: { dx?: number; dy?: number; dist?: number }) {
-  const a = center(m.fixed), c = center(m.moving);
-  if (patch.dist !== undefined && mode === 'center') {
+export function setMeasure(m: Measure, patch: { dx?: number; dy?: number; dist?: number }) {
+  if (patch.dist !== undefined) {
     const ang = m.dist > 1e-9 ? Math.atan2(m.dy, m.dx) : 0;
-    moveShape(m.moving, a.x + patch.dist * Math.cos(ang) - c.x, a.y + patch.dist * Math.sin(ang) - c.y);
+    moveShape(m.moving, m.from.x + patch.dist * Math.cos(ang) - m.to.x, m.from.y + patch.dist * Math.sin(ang) - m.to.y);
     return;
   }
-  if (mode === 'center') {
-    moveShape(m.moving, patch.dx !== undefined ? patch.dx - m.dx : 0, patch.dy !== undefined ? patch.dy - m.dy : 0);
-    return;
-  }
-  // Kant till kant: åt det håll den rörliga formen redan ligger.
-  const sx = c.x >= a.x ? 1 : -1, sy = c.y >= a.y ? 1 : -1;
-  moveShape(m.moving, patch.dx !== undefined ? sx * (patch.dx - m.dx) : 0, patch.dy !== undefined ? sy * (patch.dy - m.dy) : 0);
+  moveShape(m.moving, patch.dx !== undefined ? patch.dx - m.dx : 0, patch.dy !== undefined ? patch.dy - m.dy : 0);
 }
 
 /* ───────── Reliefinlägg ───────── */

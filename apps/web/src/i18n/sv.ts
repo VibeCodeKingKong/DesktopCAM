@@ -413,13 +413,19 @@ export const sv = {
 
   measure: {
     title: 'Mått mellan formerna',
-    reference: 'Mät från',
-    modes: { center: 'Mitt till mitt', edge: 'Kant till kant' },
+    reference: 'Mät',
+    presets: { side: 'Från sida', center: 'Mitt–mitt', edge: 'Kant–kant', custom: 'Egna punkter' },
+    from: (n: string) => `Från ${n}`,
+    to: (n: string) => `Till ${n}`,
+    fromLabel: 'Punkt på formen som står still',
+    toLabel: 'Punkt på formen som flyttas',
+    anchorNames: { '-11': 'Övre vänstra hörnet', '01': 'Överkanten', '11': 'Övre högra hörnet', '-10': 'Vänster sida', '00': 'Mitten', '10': 'Höger sida', '-1-1': 'Nedre vänstra hörnet', '0-1': 'Nederkanten', '1-1': 'Nedre högra hörnet' },
     dx: 'Avstånd X',
     dy: 'Avstånd Y',
-    dist: 'Centrumavstånd',
+    dist: 'Avstånd rakt',
     swap: 'Byt',
-    note: (fixed: string, moving: string) => `${fixed} står still, ${moving} flyttas när du ändrar måtten.`,
+    swapDesc: 'Byt vilken form som står still',
+    note: (fixed: string, moving: string) => `${fixed} står still, ${moving} flyttas när du ändrar måtten. Välj punkterna i rutorna – hörn, sidor eller mitten.`,
   },
 
   fillet: {
@@ -502,6 +508,14 @@ export const sv = {
       'Stryk lim, vänd pluggen och pressa ner den i fickan med tving.',
       'När limmet torkat: hyvla eller fräs bort överskottet ner till grundträets yta och slipa.',
     ],
+  },
+
+  about: {
+    title: 'Om desktopCAM',
+    open: 'Version och nyheter',
+    version: (v: string) => `version ${v}`,
+    whatsNew: 'Nyheter',
+    current: 'Din version',
   },
 
   gearDialog: {

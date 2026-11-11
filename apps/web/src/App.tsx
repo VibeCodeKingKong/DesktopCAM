@@ -12,6 +12,7 @@ import { ReliefLibraryDialog } from './components/dialogs/ReliefLibraryDialog';
 import { TextDialog } from './components/dialogs/TextDialog';
 import { GearDialog } from './components/dialogs/GearDialog';
 import { ImageReliefDialog } from './components/dialogs/ImageReliefDialog';
+import { AboutDialog } from './components/dialogs/AboutDialog';
 import { camClient } from './engine/camClient';
 import { useShortcuts } from './hooks/useShortcuts';
 import { useAppStore } from './store/useAppStore';
@@ -72,6 +73,7 @@ export default function App() {
       <TextDialog />
       <GearDialog />
       <ImageReliefDialog />
+      <AboutDialog />
     </div>
   );
 }

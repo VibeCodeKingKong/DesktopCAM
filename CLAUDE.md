@@ -21,3 +21,12 @@ vilket bibliotek som valts och varför, eller varför egen kod behövdes.
   att simulera G-koden (`apps/web/src/cam/simulation.ts`).
 - Gränssnittet finns på svenska och engelska (`apps/web/src/i18n/sv.ts` och
   `en.ts`) – lägg till texter i båda.
+
+## Version och nyheter
+
+Varje uppdatering som ändrar appen ska:
+
+- höja versionen i `package.json` och `apps/web/package.json` (semver: ny
+  funktion = minor, rättning = patch),
+- få en post överst i `apps/web/src/data/changelog.ts` på svenska och
+  engelska – den visas i appen under Om desktopCAM → Nyheter.

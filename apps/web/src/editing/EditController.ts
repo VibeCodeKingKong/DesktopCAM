@@ -23,6 +23,7 @@ import {
 import type { SceneController } from '../components/viewport/SceneController';
 import { getT } from '../i18n';
 import { onContour, setTabPositions, tabContext } from './tabs';
+import { defaultMeasureRef, measure } from '../cam/commands';
 import { allShapes, useAppStore, type EditTool, type NodeRef } from '../store/useAppStore';
 import { useDraft } from './draftStore';
 import { hitShape, shapeGeometry } from './hitTest';
@@ -726,83 +727,28 @@ export class EditController {
       }
     }
 
-    // Måttlinje mellan två markerade former
+    // Måttlinje mellan två markerade former: från punkten på den fasta formen till den rörliga
     if ((s.editTool === 'select' || s.editTool === 'measure') && s.selectedShapeIds.length === 2 && !s.sim.active) {
       const all = allShapes(s.layers);
-      const [a, b] = s.selectedShapeIds.map((id) => all.find((x) => x.id === id));
+      let [a, b] = s.selectedShapeIds.map((id) => all.find((x) => x.id === id));
+      if (s.measureSwapped) [a, b] = [b, a];
       if (a && b) {
-        const ga = shapeGeometry(a), gb = shapeGeometry(b);
-        const ca = { x: (ga.min.x + ga.max.x) / 2, y: (ga.min.y + ga.max.y) / 2 };
-        const cb = { x: (gb.min.x + gb.max.x) / 2, y: (gb.min.y + gb.max.y) / 2 };
+        const m = measure(a, b, s.measureRef ?? defaultMeasureRef(a, b));
         const loc = getT().locale;
         const f = (n: number) => Math.abs(n).toLocaleString(loc, { maximumFractionDigits: 2 });
+        const pa = P(m.from), pb = P(m.to), pc = P({ x: m.to.x, y: m.from.y });
         ctx.save();
         ctx.strokeStyle = accent;
-        ctx.lineWidth = 1;
-        if (s.measureMode === 'center') {
-          const pa = P(ca), pb = P(cb), pc = P({ x: cb.x, y: ca.y });
-          ctx.setLineDash([4, 4]);
-          ctx.globalAlpha = 0.6;
-          ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pc.x, pc.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
-          ctx.globalAlpha = 1;
-          ctx.setLineDash([]);
-          ctx.lineWidth = 1.5;
-          ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
-          for (const q of [pa, pb]) { ctx.beginPath(); ctx.arc(q.x, q.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = accent; ctx.fill(); }
-          ctx.restore();
-          this.label(`${f(Math.hypot(cb.x - ca.x, cb.y - ca.y))} mm`, { x: (pa.x + pb.x) / 2 - 20, y: (pa.y + pb.y) / 2 - 26 });
-          if (Math.abs(cb.x - ca.x) > 0.01 && Math.abs(cb.y - ca.y) > 0.01) {
-            this.label(`X ${f(cb.x - ca.x)}`, { x: (pa.x + pc.x) / 2 - 20, y: pc.y - 4 });
-            this.label(`Y ${f(cb.y - ca.y)}`, { x: pc.x, y: (pc.y + pb.y) / 2 - 13 });
-          }
-        } else {
-          // Mellanrum: streckade linjer mellan kanterna i X och Y.
-          ctx.setLineDash([4, 4]);
-          const ys = Math.max(ga.min.y, gb.min.y), ye = Math.min(ga.max.y, gb.max.y);
-          const y = ys <= ye ? (ys + ye) / 2 : (ca.y + cb.y) / 2;
-          const xs = Math.max(ga.min.x, gb.min.x), xe = Math.min(ga.max.x, gb.max.x);
-          const x = xs <= xe ? (xs + xe) / 2 : (ca.x + cb.x) / 2;
-          const gx = cb.x >= ca.x ? [ga.max.x, gb.min.x] : [gb.max.x, ga.min.x];
-          const gy = cb.y >= ca.y ? [ga.max.y, gb.min.y] : [gb.max.y, ga.min.y];
-          const h0 = P({ x: gx[0], y }), h1 = P({ x: gx[1], y });
-          const v0 = P({ x, y: gy[0] }), v1 = P({ x, y: gy[1] });
-          ctx.beginPath(); ctx.moveTo(h0.x, h0.y); ctx.lineTo(h1.x, h1.y); ctx.moveTo(v0.x, v0.y); ctx.lineTo(v1.x, v1.y); ctx.stroke();
-          ctx.restore();
-          if (gx[1] - gx[0] > 0.01) this.label(`X ${f(gx[1] - gx[0])}`, { x: (h0.x + h1.x) / 2 - 20, y: h0.y - 26 });
-          if (gy[1] - gy[0] > 0.01) this.label(`Y ${f(gy[1] - gy[0])}`, { x: v0.x, y: (v0.y + v1.y) / 2 - 13 });
-        }
-      }
-    }
-
-    // Verktyget Radie: hörnen som kan avrundas
-    if (s.editTool === 'fillet') {
-      const hover = this.cursor ? this.cornerAt(this.cursor, 9 * this.scene.worldPerPixel(this.cursor.x, this.cursor.y)) : null;
-      let budget = 3000;
-      const cur = this.cursor;
-      const m = cur ? 12 * this.scene.worldPerPixel(cur.x, cur.y) : 0;
-      for (const layer of s.layers) {
-        if (!layer.visible) continue;
-        for (const shape of layer.shapes) {
-          // Bara formen under markören, så att former med många hörn inte blir röriga.
-          const g = shapeGeometry(shape);
-          if (!cur || cur.x < g.min.x - m || cur.x > g.max.x + m || cur.y < g.min.y - m || cur.y > g.max.y + m) continue;
-          const verts = cornerVertices(shape);
-          const small = verts.length > 16 ? 2.5 : 4.5;
-          for (const v of verts) {
-            if (budget-- <= 0) break;
-            const q = P(v);
-            const on = hover && hover.shape.id === shape.id && hover.pi === v.pi && hover.vi === v.vi;
-            ctx.lineWidth = 1.5;
-            ctx.strokeStyle = accent;
-            ctx.fillStyle = v.r > 0 ? accent : surface;
-            ctx.beginPath(); ctx.arc(q.x, q.y, on ? 7 : small, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-          }
-        }
-      }
-      if (hover && this.cursor) {
-        const want = useDraft.getState().filletRadius;
-        const loc = getT().locale;
-        this.label(Math.abs(hover.r - want) < 1e-6 ? getT().fillet.clickToRemove : `R ${want.toLocaleString(loc, { maximumFractionDigits: 2 })} mm`, P(hover));
+        ctx.fillStyle = accent;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 4]);
+        // X-mått vågrätt från den fasta punkten, Y-mått lodrätt upp till den rörliga.
+        ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pc.x, pc.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+        ctx.setLineDash([]);
+        for (const q of [pa, pb]) { ctx.beginPath(); ctx.arc(q.x, q.y, 3.5, 0, Math.PI * 2); ctx.fill(); }
+        ctx.restore();
+        if (Math.abs(m.dx) > 0.005) this.label(`X ${f(m.dx)}`, { x: (pa.x + pc.x) / 2 - 24, y: pc.y - 26 });
+        if (Math.abs(m.dy) > 0.005) this.label(`Y ${f(m.dy)}`, { x: pc.x, y: (pc.y + pb.y) / 2 - 13 });
       }
     }
 

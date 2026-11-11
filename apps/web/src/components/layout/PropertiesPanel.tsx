@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine } from 'lucide-react';
 import {
   defaultPocketStrategy,
@@ -42,6 +42,10 @@ import {
   updateText,
   measure,
   setMeasure,
+  measurePreset,
+  defaultMeasureRef,
+  type Anchor,
+  type MeasureRef,
   createReliefPlug,
   showInlayPart,
   updateReliefPlug,
@@ -957,43 +961,88 @@ function TabsEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: Partial<Too
   );
 }
 
+/** 3 × 3-väljare för referenspunkt: hörn, sidornas mitt eller mitten. */
+function AnchorPicker({ value, onChange, label }: { value: Anchor; onChange: (a: Anchor) => void; label: string }) {
+  const t = useT();
+  const cells: Anchor[] = [];
+  for (const y of [1, 0, -1] as const) for (const x of [-1, 0, 1] as const) cells.push({ x, y });
+  return (
+    <div role="radiogroup" aria-label={label} className="grid w-[54px] shrink-0 grid-cols-3 gap-[3px] rounded-md border border-line bg-app p-[3px]">
+      {cells.map((c) => {
+        const on = c.x === value.x && c.y === value.y;
+        return (
+          <button
+            key={`${c.x}${c.y}`}
+            role="radio"
+            aria-checked={on}
+            aria-label={`${label}: ${t.measure.anchorNames[`${c.x}${c.y}` as keyof typeof t.measure.anchorNames]}`}
+            title={t.measure.anchorNames[`${c.x}${c.y}` as keyof typeof t.measure.anchorNames]}
+            onClick={() => onChange(c)}
+            className={`h-3.5 w-3.5 rounded-[3px] ${on ? 'bg-accent' : 'bg-line hover:bg-accent/40'}`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 /** Mått mellan två markerade former. Den först markerade står still, den andra flyttas. */
 function MeasureGroup({ ids }: { ids: string[] }) {
   const t = useT();
   const tm = t.measure;
   const layers = useAppStore((s) => s.layers);
-  const mode = useAppStore((s) => s.measureMode);
-  const setMode = useAppStore((s) => s.setMeasureMode);
-  const [swapped, setSwapped] = useState(false);
+  const stored = useAppStore((s) => s.measureRef);
+  const setRef = useAppStore((s) => s.setMeasureRef);
+  const swapped = useAppStore((s) => s.measureSwapped);
+  const setSwapped = useAppStore((s) => s.setMeasureSwapped);
+  const key = ids.join('|');
+  // Nytt formpar: börja om med förvalet.
+  useEffect(() => {
+    setRef(null);
+    setSwapped(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
   const all = allShapes(layers);
   const first = all.find((x) => x.id === ids[0]);
   const second = all.find((x) => x.id === ids[1]);
   if (!first || !second) return null;
   const [fixed, moving] = swapped ? [second, first] : [first, second];
-  const m = measure(fixed, moving, mode);
+  const ref = stored ?? defaultMeasureRef(fixed, moving);
+  const m = measure(fixed, moving, ref);
   const r2 = (n: number) => Math.round(n * 100) / 100;
+  const presetOf = (r: MeasureRef) =>
+    (['center', 'side', 'edge'] as const).find((p) => JSON.stringify(measurePreset(fixed, moving, p)) === JSON.stringify(r)) ?? 'custom';
+  const preset = presetOf(ref);
   return (
     <Group title={tm.title}>
-      <FieldRow label={tm.reference}>
-        <Segmented
-          label={tm.reference}
-          value={mode}
-          options={[
-            { value: 'center', label: tm.modes.center },
-            { value: 'edge', label: tm.modes.edge },
-          ]}
-          onChange={setMode}
-        />
-      </FieldRow>
-      <NumberField label={tm.dx} unit="mm" step={1} value={r2(m.dx)} onChange={(dx) => setMeasure(m, mode, { dx })} />
-      <NumberField label={tm.dy} unit="mm" step={1} value={r2(m.dy)} onChange={(dy) => setMeasure(m, mode, { dy })} />
-      {mode === 'center' && <NumberField label={tm.dist} unit="mm" step={1} min={0} value={r2(m.dist)} onChange={(dist) => setMeasure(m, mode, { dist })} />}
-      <div className="flex items-start gap-2">
-        <p className="min-w-0 flex-1 text-2xs leading-relaxed text-muted">{tm.note(fixed.name, moving.name)}</p>
-        <button className="btn h-7 shrink-0 px-2 text-2xs" onClick={() => setSwapped((v) => !v)}>
+      <Segmented
+        label={tm.reference}
+        value={preset === 'custom' ? ('custom' as const) : preset}
+        options={[
+          { value: 'side', label: tm.presets.side },
+          { value: 'center', label: tm.presets.center },
+          { value: 'edge', label: tm.presets.edge },
+          ...(preset === 'custom' ? [{ value: 'custom' as const, label: tm.presets.custom }] : []),
+        ]}
+        onChange={(p) => p !== 'custom' && setRef(measurePreset(fixed, moving, p))}
+      />
+      <div className="flex items-start gap-3">
+        <div className="space-y-1">
+          <p className="max-w-[90px] truncate text-2xs text-muted" title={fixed.name}>{tm.from(fixed.name)}</p>
+          <AnchorPicker value={ref.fixed} onChange={(a) => setRef({ ...ref, fixed: a })} label={tm.fromLabel} />
+        </div>
+        <div className="space-y-1">
+          <p className="max-w-[90px] truncate text-2xs text-muted" title={moving.name}>{tm.to(moving.name)}</p>
+          <AnchorPicker value={ref.moving} onChange={(a) => setRef({ ...ref, moving: a })} label={tm.toLabel} />
+        </div>
+        <button className="btn ml-auto h-7 shrink-0 px-2 text-2xs" onClick={() => { setSwapped(!swapped); setRef(null); }} title={tm.swapDesc}>
           <ArrowLeftRight size={12} /> {tm.swap}
         </button>
       </div>
+      <NumberField label={tm.dx} unit="mm" step={1} value={r2(m.dx)} onChange={(dx) => setMeasure(m, { dx })} />
+      <NumberField label={tm.dy} unit="mm" step={1} value={r2(m.dy)} onChange={(dy) => setMeasure(m, { dy })} />
+      <NumberField label={tm.dist} unit="mm" step={1} min={0} value={r2(m.dist)} onChange={(dist) => setMeasure(m, { dist })} />
+      <p className="text-2xs leading-relaxed text-muted">{tm.note(fixed.name, moving.name)}</p>
     </Group>
   );
 }

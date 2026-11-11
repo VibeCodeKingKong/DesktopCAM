@@ -446,12 +446,18 @@ export const en: Dict = {
   measure: {
     title: 'Distance between shapes',
     reference: 'Measure',
-    modes: { center: 'Centre to centre', edge: 'Edge to edge' },
+    presets: { side: 'From side', center: 'Centre–centre', edge: 'Edge–edge', custom: 'Custom points' },
+    from: (n: string) => `From ${n}`,
+    to: (n: string) => `To ${n}`,
+    fromLabel: 'Point on the shape that stays put',
+    toLabel: 'Point on the shape that moves',
+    anchorNames: { '-11': 'Top left corner', '01': 'Top edge', '11': 'Top right corner', '-10': 'Left side', '00': 'Centre', '10': 'Right side', '-1-1': 'Bottom left corner', '0-1': 'Bottom edge', '1-1': 'Bottom right corner' },
     dx: 'Distance X',
     dy: 'Distance Y',
-    dist: 'Centre distance',
+    dist: 'Straight distance',
     swap: 'Swap',
-    note: (fixed: string, moving: string) => `${fixed} stays put, ${moving} moves when you change the values.`,
+    swapDesc: 'Swap which shape stays put',
+    note: (fixed: string, moving: string) => `${fixed} stays put, ${moving} moves when you change the values. Pick the points in the grids – corners, sides or centre.`,
   },
 
   fillet: {
@@ -534,6 +540,14 @@ export const en: Dict = {
       'Apply glue, flip the plug and clamp it into the pocket.',
       'When the glue has dried: plane or mill away the excess down to the base wood and sand.',
     ],
+  },
+
+  about: {
+    title: 'About desktopCAM',
+    open: 'Version and what is new',
+    version: (v: string) => `version ${v}`,
+    whatsNew: 'What is new',
+    current: 'Your version',
   },
 
   gearDialog: {
