@@ -13,6 +13,22 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.13.0',
+    date: '2026-11-11',
+    sv: [
+      'Tipsen anpassas efter maskinen: materialtips för fräs eller laser, och egna tips för lätta fräsar, styva fräsar, svagare och kraftigare lasrar.',
+      'Maskinlistan delas upp i fräsar, lasrar och egna profiler med en linje emellan.',
+      'Rättat: kanterna såg trappstegsformade ut i simuleringen – väggarna kantutjämnas nu. Själva G-koden var redan rätt.',
+      'Bara en knapp för mörkt läge (i sidhuvudet).',
+    ],
+    en: [
+      'Tips follow the machine: material tips for router or laser, and separate tips for light routers, rigid routers, lower- and higher-power lasers.',
+      'The machine list is split into routers, lasers and custom profiles with a line between them.',
+      'Fixed: edges looked stepped in the simulation – walls are now anti-aliased. The G-code itself was already correct.',
+      'Only one dark mode button (in the header).',
+    ],
+  },
+  {
     version: '0.12.0',
     date: '2026-11-11',
     sv: ['Cirkulärt mönster: ange cirkelns diameter eller radie och en startvinkel. Originalet flyttas ut på cirkeln och kopiorna fördelas därifrån.'],

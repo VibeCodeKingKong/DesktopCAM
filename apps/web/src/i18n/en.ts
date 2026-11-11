@@ -601,6 +601,18 @@ export const en: Dict = {
     front: { title: 'Front', desc: 'Looks at the front edge of the material – good for seeing the depth of the toolpaths.' },
   },
 
+  machineTips: {
+    title: (m: string) => `Tips for ${m}`,
+    routerLight: ['Light machine: take shallow passes – at most half the cutter diameter per pass in wood.', 'Conventional milling is calmer than climb milling on this machine.', 'Clamp the material well – vibration gives rough edges.', 'Run the finishing pass at a lower feed for the cleanest edges.'],
+    routerRigid: ['Rigid machine: you can take deeper passes and run faster than the presets.', 'Climb milling in the finishing pass gives the cleanest surface.', 'Test cut in scrap when you change tools.', 'Use dust extraction – high speeds make a lot of chips.'],
+    laserLow: ['Focus the laser carefully – focus decides both cutting and engraving.', 'Cut thin material (up to 3 mm) in several fast passes rather than one slow one.', 'Use air assist for cleaner cuts and less smoke.', 'Wear safety glasses for the right wavelength and never leave the laser unattended.'],
+    laserHigh: ['Powerful laser: lower the power when engraving so the edges do not char.', 'Cut 4–10 mm wood in one or a few passes.', 'Use air assist and good ventilation.', 'Wear safety glasses for the right wavelength and never leave the laser unattended.'],
+    common: ['Simulate before you run – you will see if something goes wrong.'],
+    routerCommon: ['Set Z zero on the top of the material.'],
+    laserCommon: ['Run a test engraving in a corner to find the right power and speed.'],
+  },
+  materialTips: (m: string, laser: boolean) => `Tips for ${m.toLowerCase()} with a ${laser ? 'laser' : 'router'}`,
+
   gearDialog: {
     title: 'New gear',
     teeth: 'Number of teeth',
@@ -872,16 +884,16 @@ export const en: Dict = {
   shapeNames: { rect: 'Rectangle', circle: 'Circle', gear: 'Gear', line: 'Line', curve: 'Curve', text: 'Text', copy: 'copy' },
 
   materials: {
-    pine: { name: 'Pine', tips: ['Resin can clog the cutter – blow it clean between passes.', 'Growth rings burn to different shades when laser engraving.'] },
-    'birch-ply': { name: 'Birch plywood', tips: ['Use a down-cut bit for clean top veneers.', 'The glue layers often need an extra laser pass.'] },
-    mdf: { name: 'MDF', tips: ['Very fine dust – use extraction and a dust mask.', 'Edges turn dark after laser cutting.'] },
-    acrylic: { name: 'Acrylic (cast)', tips: ['A blue diode laser does not cut clear or blue acrylic – choose dark or opaque.', 'A single-flute cutter gives the cleanest cut without melting.'] },
-    leather: { name: 'Leather (veg-tan)', tips: ['Only laser chrome-free (vegetable-tanned) leather.', 'Dampen the surface slightly for even engraving.'] },
-    oak: { name: 'Oak', tips: ['Hard and dense – reduce the feed slightly compared with pine.', 'The tannins in oak can stain steel tools when damp.'] },
-    aluminium: { name: 'Aluminium', tips: ['Use a single-flute cutter, shallow passes (about 0.3 mm) and air or lubricant so chips do not weld on.', 'Diode lasers engrave anodised aluminium well but do not mark bare aluminium.', 'Clamp firmly – aluminium must not vibrate.'] },
-    stainless: { name: 'Stainless steel', tips: ['Steel cannot be milled on hobby routers – use a laser.', 'A diode laser does not mark bare steel. Spray on marking compound (e.g. LMM or CerMark), engrave and wash off the rest.', 'Marking without spray needs a fibre laser.'] },
-    slate: { name: 'Slate', tips: ['The engraving comes out light grey against the dark stone.', 'Wipe off the dust with a damp cloth and oil the surface afterwards.', 'Diode lasers cannot cut stone.'] },
-    cardboard: { name: 'Cardboard', tips: ['Catches fire easily – stay with the machine and use air assist.', 'Corrugated board cuts quickly at low power.'] },
+    pine: { name: "Pine", tips: { router: ["Resin can clog the cutter – blow it clean between passes.", "Soft wood: a two-flute end mill at full feed gives clean edges.", "Cut the finishing pass with the grain for the least tear-out."], laser: ["Growth rings burn to different shades – latewood comes out darkest.", "Resin can flare up: use air assist.", "Mask the surface with tape to avoid smoke stains."] } },
+    'birch-ply': { name: "Birch plywood", tips: { router: ["Use a down-cut or compression bit for clean top veneers.", "The glue layers wear the cutter – expect shorter tool life.", "Tabs hold parts better than an onion skin in plywood."], laser: ["The glue layers often need an extra pass.", "Choose laser plywood with laser-friendly glue.", "Masking tape keeps the surface clean around the cut."] } },
+    mdf: { name: "MDF", tips: { router: ["Very fine dust – use extraction and a dust mask.", "MDF cuts cleanly in every direction and suits reliefs well.", "The edges soak up paint – prime before painting."], laser: ["The edges turn dark after cutting.", "MDF cuts slower than plywood of the same thickness.", "Ventilate well – the glue gives heavy smoke."] } },
+    acrylic: { name: "Acrylic (cast)", tips: { router: ["A single-flute cutter gives the cleanest cut without melting.", "Keep the feed high – if the cutter dwells, the plastic melts.", "Leave the protective film on while milling."], laser: ["A blue diode laser does not cut clear or blue acrylic – choose dark or opaque.", "Cast acrylic engraves frosty white.", "Remove the protective film before engraving."] } },
+    leather: { name: "Leather (veg-tan)", tips: { router: ["Leather is rarely milled – cut it with a laser or a knife instead.", "Hold the leather down with double-sided tape if you do mill it."], laser: ["Only laser chrome-free (vegetable-tanned) leather.", "Dampen the surface slightly for even engraving.", "Lower power and more passes give less charred edges."] } },
+    oak: { name: "Oak", tips: { router: ["Hard and dense – reduce the feed slightly compared with pine.", "The tannins in oak can stain steel tools when damp.", "Oak is excellent for V-carving and inlays with a light wood."], laser: ["Oak engraves dark with high contrast.", "Cutting is slow – thick oak needs several passes."] } },
+    aluminium: { name: "Aluminium", tips: { router: ["Use a single-flute cutter, shallow passes (about 0.3 mm) and air or lubricant so chips do not weld on.", "Clamp firmly – aluminium must not vibrate.", "Needs a rigid machine; on light machines like the MPCNC or 3018 it rarely works well."], laser: ["Diode lasers cannot cut aluminium.", "Anodised aluminium engraves well – the colour is burnt away.", "Bare aluminium does not mark without marking spray."] } },
+    stainless: { name: "Stainless steel", tips: { router: ["Steel cannot be milled on hobby routers – use a laser for marking."], laser: ["A diode laser does not mark bare steel. Spray on marking compound (e.g. LMM or CerMark), engrave and wash off the rest.", "Marking without spray needs a fibre laser."] } },
+    slate: { name: "Slate", tips: { router: ["Slate can be engraved with a V-bit, but the dust is harmful – wear a mask and preferably use water.", "Hold the tile firmly; it cracks easily."], laser: ["The engraving comes out light grey against the dark stone.", "Wipe off the dust with a damp cloth and oil the surface afterwards.", "Diode lasers cannot cut stone."] } },
+    cardboard: { name: "Cardboard", tips: { router: ["Cardboard mills badly – cut it with a laser or a knife instead."], laser: ["Catches fire easily – stay with the machine and use air assist.", "Corrugated board cuts quickly at low power.", "Keep the board flat with magnets or pins."] } },
   },
 
   tools: {

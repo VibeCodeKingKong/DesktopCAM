@@ -452,6 +452,17 @@ export const useMaterialPreset = () => useAppStore((s) => s.materials.find((m) =
 export const useSelectedRelief = () => useAppStore((s) => s.reliefs.find((r) => r.id === s.selectedReliefId) ?? null);
 export const useSelectedToolpath = () => useAppStore((s) => s.toolpaths.find((t) => t.id === s.selectedToolpathId) ?? null);
 
+/**
+ * Maskinklass för tips: lätta fräsar (MPCNC, LowRider, 3018) tål inte samma
+ * skärdata som styva (Shapeoko, LongMill, Onefinity, 4040), och lasrar skiljer
+ * sig mycket mellan 10 W och 20–40 W.
+ */
+export type MachineClass = 'routerLight' | 'routerRigid' | 'laserLow' | 'laserHigh';
+export function machineClass(m: MachineProfile): MachineClass {
+  if (m.kind === 'laser') return (m.laser?.opticalPowerW ?? 0) >= 20 ? 'laserHigh' : 'laserLow';
+  return m.maxFeed.xy >= 3000 || /4040|shapeoko|longmill|onefinity/i.test(m.name) ? 'routerRigid' : 'routerLight';
+}
+
 /** Avancerade inställningar visas bara när nybörjarläget är av. */
 export const useExpert = () => !useAppStore((s) => s.beginnerMode);
 

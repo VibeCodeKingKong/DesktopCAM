@@ -81,6 +81,14 @@ export class StockSimulator {
   readonly burn: Float32Array;
   /** 1 där en flik står kvar (verktyget lyfte över materialet). */
   readonly tabMark: Uint8Array;
+  /**
+   * Kantutjämning: där fräsens kant bara delvis täcker en rutpunkt sparas det
+   * djupaste delvisa snittet och hur stor del av rutan det täckte. Visningen
+   * lägger väggen mellan rutpunkterna i stället för som ett trappsteg.
+   */
+  private partZ: Float32Array;
+  private partC: Float32Array;
+  private display: Float32Array;
   readonly duration: number;
   readonly jobs: SimJob[];
   private moves: Move[];
@@ -103,6 +111,9 @@ export class StockSimulator {
     this.heights = new Float32Array(this.nx * this.ny);
     this.burn = new Float32Array(this.nx * this.ny);
     this.tabMark = new Uint8Array(this.nx * this.ny);
+    this.partZ = new Float32Array(this.nx * this.ny);
+    this.partC = new Float32Array(this.nx * this.ny);
+    this.display = new Float32Array(this.nx * this.ny);
     this.jobs = jobs.map((j) => j.job);
     const all: Move[] = [];
     let t = 0;
@@ -124,6 +135,8 @@ export class StockSimulator {
     this.heights.fill(0);
     this.burn.fill(0);
     this.tabMark.fill(0);
+    this.partZ.fill(0);
+    this.partC.fill(0);
     this.index = 0;
     this.time = 0;
     if (this.moves.length) this.position = { x: this.moves[0].x0, y: this.moves[0].y0, z: this.moves[0].z0 };
@@ -179,34 +192,58 @@ export class StockSimulator {
     const { cell, nx, ny, heights } = this;
     const floor = -this.material.thickness;
     const R = Math.max(tool.radius, cell * 0.5);
-    const i0 = Math.max(0, Math.floor((x - R) / cell)), i1 = Math.min(nx - 1, Math.ceil((x + R) / cell));
-    const j0 = Math.max(0, Math.floor((y - R) / cell)), j1 = Math.min(ny - 1, Math.ceil((y + R) / cell));
+    // Rutor ut till en halv ruta utanför kanten kan vara delvis täckta.
+    const reach = R + cell * 0.5;
+    const i0 = Math.max(0, Math.floor((x - reach) / cell)), i1 = Math.min(nx - 1, Math.ceil((x + reach) / cell));
+    const j0 = Math.max(0, Math.floor((y - reach) / cell)), j1 = Math.min(ny - 1, Math.ceil((y + reach) / cell));
     if (i0 > i1 || j0 > j1) return;
-    const R2 = R * R;
+    const R2 = R * R, reach2 = reach * reach;
     const tanHalf = Math.tan(((tool.angle || 90) * Math.PI) / 360);
     for (let j = j0; j <= j1; j++) {
       const dy = j * cell - y;
       for (let i = i0; i <= i1; i++) {
         const dx = i * cell - x;
         const r2 = dx * dx + dy * dy;
-        if (r2 > R2) continue;
+        if (r2 > reach2) continue;
         const k = j * nx + i;
         if (tool.kind === 'laser') {
+          if (r2 > R2) continue;
           if (job.laserCut) heights[k] = floor;
           else this.burn[k] = Math.min(1, this.burn[k] + power * 0.5);
           continue;
         }
         if (z >= 0) continue;
         const r = Math.sqrt(r2);
+        const rr = Math.min(r, R);
         let zt = z;
-        if (tool.kind === 'ballnose') zt = z + R - Math.sqrt(Math.max(0, R2 - r2));
-        else if (tool.kind === 'vbit') zt = z + r / tanHalf;
-        if (zt < heights[k]) {
-          heights[k] = Math.max(floor, zt);
-          if (job.tabTop !== undefined && Math.abs(heights[k] - job.tabTop) < 0.05) this.tabMark[k] = 1;
+        if (tool.kind === 'ballnose') zt = z + R - Math.sqrt(Math.max(0, R2 - rr * rr));
+        else if (tool.kind === 'vbit') zt = z + rr / tanHalf;
+        zt = Math.max(floor, zt);
+        // Andel av rutan innanför fräsens kant (linjärt över en ruta).
+        const cover = Math.min(1, Math.max(0, 0.5 + (R - r) / cell));
+        if (cover >= 1) {
+          if (zt < heights[k]) {
+            heights[k] = zt;
+            if (job.tabTop !== undefined && Math.abs(zt - job.tabTop) < 0.05) this.tabMark[k] = 1;
+          }
+        } else if (cover > 0) {
+          if (zt < this.partZ[k] - 1e-4) {
+            this.partZ[k] = zt;
+            this.partC[k] = cover;
+          } else if (zt < this.partZ[k] + 1e-4 && cover > this.partC[k]) this.partC[k] = cover;
         }
       }
     }
+  }
+
+  /** Höjderna för visning, med kantutjämnade väggar. */
+  displayHeights(): Float32Array {
+    const { heights, partZ, partC, display } = this;
+    for (let k = 0; k < heights.length; k++) {
+      const h = heights[k];
+      display[k] = partZ[k] < h ? h + (partZ[k] - h) * partC[k] : h;
+    }
+    return display;
   }
 }
 

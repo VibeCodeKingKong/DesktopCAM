@@ -57,7 +57,15 @@ export function SetupTab() {
         />
         <RibbonStack>
           <RibbonField label={t.setup.machine}>
-            <Select value={machine.id} options={machines.map((m) => ({ value: m.id, label: m.name }))} onChange={setMachine} />
+            <Select
+              value={machine.id}
+              groups={[
+                { label: t.machine.machineGroups.router, options: machines.filter((m) => !m.custom && m.kind === 'router').map((m) => ({ value: m.id, label: m.name })) },
+                { label: t.machine.machineGroups.laser, options: machines.filter((m) => !m.custom && m.kind === 'laser').map((m) => ({ value: m.id, label: m.name })) },
+                { label: t.machine.machineGroups.custom, options: machines.filter((m) => m.custom).map((m) => ({ value: m.id, label: m.name })) },
+              ]}
+              onChange={setMachine}
+            />
           </RibbonField>
           <RibbonField label={t.setup.workArea}>
             <p className="text-xs tabular-nums">

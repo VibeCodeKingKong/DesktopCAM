@@ -569,6 +569,18 @@ export const sv = {
     front: { title: 'Framifrån', desc: 'Tittar på materialets framkant – bra för att se djupet på banorna.' },
   },
 
+  machineTips: {
+    title: (m: string) => `Tips för ${m}`,
+    routerLight: ['Lätt maskin: ta grunda pass – högst halva fräsdiametern per pass i trä.', 'Motfräsning är lugnare än medfräsning på den här maskinen.', 'Spänn fast materialet ordentligt – vibrationer ger grova kanter.', 'Kör finpasset med lägre matning för renast kanter.'],
+    routerRigid: ['Styv maskin: du kan ta djupare pass och köra snabbare än förinställt.', 'Medfräsning i finpasset ger renast yta.', 'Provfräs i spillmaterial när du byter verktyg.', 'Använd dammsugning – höga hastigheter ger mycket spån.'],
+    laserLow: ['Fokusera lasern noga – fokus avgör både skärning och gravyr.', 'Skär tunt material (högst 3 mm) i flera snabba pass i stället för ett långsamt.', 'Använd luftassistans för renare snitt och mindre rök.', 'Använd skyddsglasögon för rätt våglängd och lämna aldrig lasern obevakad.'],
+    laserHigh: ['Kraftfull laser: sänk effekten vid gravyr så att kanterna inte bränns.', 'Skär trä på 4–10 mm i ett eller några pass.', 'Använd luftassistans och god ventilation.', 'Använd skyddsglasögon för rätt våglängd och lämna aldrig lasern obevakad.'],
+    common: ['Simulera innan du kör – då ser du om något blir fel.'],
+    routerCommon: ['Sätt Z-nollan på materialets ovansida.'],
+    laserCommon: ['Kör en provgravyr i ett hörn för att hitta rätt effekt och hastighet.'],
+  },
+  materialTips: (m: string, laser: boolean) => `Tips för ${m.toLowerCase()} med ${laser ? 'laser' : 'fräs'}`,
+
   gearDialog: {
     title: 'Nytt kugghjul',
     teeth: 'Antal kuggar',
@@ -840,17 +852,17 @@ export const sv = {
   shapeNames: { rect: 'Rektangel', circle: 'Cirkel', gear: 'Kugghjul', line: 'Linje', curve: 'Kurva', text: 'Text', copy: 'kopia' },
 
   materials: {
-    pine: { name: 'Furu', tips: ['Kåda kan sätta igen fräsen – blås rent mellan passen.', 'Årsringarna bränns olika mörkt vid lasergravyr.'] },
-    'birch-ply': { name: 'Björkplywood', tips: ['Använd nedskärande fräs för rena ytskikt.', 'Limskikten kräver ofta ett extra laserpass.'] },
-    mdf: { name: 'MDF', tips: ['Mycket fint damm – använd dammsugare och andningsskydd.', 'Kanterna blir mörka efter laserskärning.'] },
-    acrylic: { name: 'Akryl (gjuten)', tips: ['En blå diodlaser skär inte genom klar eller blå akryl – välj mörk eller ogenomskinlig.', 'Enskärsfräs ger renast snitt utan att plasten smälter.'] },
-    leather: { name: 'Läder (vegetabiliskt garvat)', tips: ['Använd bara kromfritt (vegetabiliskt garvat) läder i laser.', 'Fukta ytan lätt för jämnare gravyr.'] },
-    oak: { name: 'Ek', tips: ['Hårt och tätt – sänk matningen något jämfört med furu.', 'Garvsyran i ek kan missfärga stålverktyg vid fukt.'] },
-    aluminium: { name: 'Aluminium', tips: ['Fräs med enskärsfräs, grunda pass (cirka 0,3 mm) och luft eller smörjmedel så att spånen inte svetsar fast.', 'Diodlasrar graverar anodiserat aluminium fint men märker inte blank aluminium.', 'Spänn fast ordentligt – aluminium får inte vibrera.'] },
-    stainless: { name: 'Rostfritt stål', tips: ['Stål kan inte fräsas på hobbyfräsar – använd laser.', 'En diodlaser märker inte blankt stål. Spraya på märkspray (t.ex. LMM eller CerMark), gravera och tvätta av resten.', 'För märkning utan spray krävs en fiberlaser.'] },
-    slate: { name: 'Skiffer', tips: ['Gravyren blir ljusgrå mot den mörka stenen.', 'Torka av dammet med en fuktig trasa och olja gärna ytan efteråt.', 'Diodlasrar kan inte skära sten.'] },
-    cardboard: { name: 'Kartong', tips: ['Brinner lätt – stanna vid maskinen och använd luftassistans.', 'Wellpapp skärs snabbt med låg effekt.'] },
-  } as Record<string, { name: string; tips: string[] }>,
+    pine: { name: "Furu", tips: { router: ["Kåda kan sätta igen fräsen – blås rent mellan passen.", "Mjukt trä: en tvåskärs pinnfräs med full matning ger rena kanter.", "Fräs finpasset med fiberriktningen för minst flisor."], laser: ["Årsringarna bränns olika mörkt – sommarveden blir mörkast.", "Kåda kan flamma upp: använd luftassistans.", "Maskera ytan med tejp för att slippa rökfläckar."] } },
+    'birch-ply': { name: "Björkplywood", tips: { router: ["Använd nedskärande fräs eller kompressionsfräs för rena ytskikt.", "Limskikten sliter på fräsen – räkna med kortare livslängd.", "Flikar håller kvar delarna bättre än lökskal i plywood."], laser: ["Limskikten kräver ofta ett extra pass.", "Välj laserplywood med lasertåligt lim.", "Maskeringstejp ger rena ytor runt snittet."] } },
+    mdf: { name: "MDF", tips: { router: ["Mycket fint damm – använd dammsugare och andningsskydd.", "MDF fräses rent åt alla håll och passar bra för reliefer.", "Kanterna suger upp färg – grunda innan du målar."], laser: ["Kanterna blir mörka efter skärning.", "MDF skärs långsammare än plywood av samma tjocklek.", "Ventilera väl – limmet ger kraftig rök."] } },
+    acrylic: { name: "Akryl (gjuten)", tips: { router: ["En enskärsfräs ger renast snitt utan att plasten smälter.", "Håll hög matning – står fräsen still smälter plasten.", "Låt skyddsfilmen sitta kvar medan du fräser."], laser: ["En blå diodlaser skär inte genom klar eller blå akryl – välj mörk eller ogenomskinlig.", "Gjuten akryl blir frostad vid gravyr.", "Ta bort skyddsfilmen innan du graverar."] } },
+    leather: { name: "Läder (vegetabiliskt garvat)", tips: { router: ["Läder fräses sällan – skär hellre med laser eller kniv.", "Fäst lädret med dubbelhäftande tejp om du ändå fräser."], laser: ["Använd bara kromfritt (vegetabiliskt garvat) läder i laser.", "Fukta ytan lätt för jämnare gravyr.", "Lägre effekt och fler pass ger mindre brända kanter."] } },
+    oak: { name: "Ek", tips: { router: ["Hårt och tätt – sänk matningen något jämfört med furu.", "Garvsyran i ek kan missfärga stålverktyg vid fukt.", "Ek passar utmärkt för V-gravyr och inlägg med ljust trä."], laser: ["Ek graveras mörkt och med hög kontrast.", "Skärning går långsamt – tjock ek kräver flera pass."] } },
+    aluminium: { name: "Aluminium", tips: { router: ["Använd enskärsfräs, grunda pass (cirka 0,3 mm) och luft eller smörjning så att spånen inte svetsar fast.", "Spänn fast ordentligt – aluminium får inte vibrera.", "Kräver en styv maskin; på lätta maskiner som MPCNC och 3018 blir det sällan bra."], laser: ["Diodlasrar kan inte skära aluminium.", "Anodiserad aluminium graveras bra – färgen bränns bort.", "Blank aluminium märks inte utan märkspray."] } },
+    stainless: { name: "Rostfritt stål", tips: { router: ["Stål kan inte fräsas på hobbyfräsar – använd laser för märkning."], laser: ["En diodlaser märker inte blankt stål. Spraya på märkspray (t.ex. LMM eller CerMark), gravera och tvätta av resten.", "Märkning utan spray kräver en fiberlaser."] } },
+    slate: { name: "Skiffer", tips: { router: ["Skiffer kan graveras med V-fräs, men dammet är skadligt – använd andningsskydd och gärna vatten.", "Fäst plattan stadigt; den spricker lätt."], laser: ["Gravyren blir ljusgrå mot den mörka stenen.", "Torka av dammet med en fuktig trasa och olja gärna ytan efteråt.", "Diodlasrar kan inte skära sten."] } },
+    cardboard: { name: "Kartong", tips: { router: ["Kartong fräses dåligt – skär hellre med laser eller kniv."], laser: ["Brinner lätt – stanna vid maskinen och använd luftassistans.", "Wellpapp skärs snabbt med låg effekt.", "Håll kartongen plan med magneter eller nålar."] } },
+  } as Record<string, { name: string; tips: { router: string[]; laser: string[] } }>,
 
   tools: {
     'em-3175-2f': 'Pinnfräs 3,175 mm, 2 skär',

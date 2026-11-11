@@ -33,7 +33,7 @@ function showSim() {
 function draw() {
   if (!scene || !sim) return;
   if (sim.version !== drawnVersion) {
-    scene.updateSimulation(sim.heights, sim.burn, sim.nx, sim.ny, sim.material.thickness, sim.tabMark);
+    scene.updateSimulation(sim.displayHeights(), sim.burn, sim.nx, sim.ny, sim.material.thickness, sim.tabMark);
     drawnVersion = sim.version;
   }
   const done = sim.currentTime >= sim.duration;

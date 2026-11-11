@@ -6,7 +6,7 @@ import { uid, type FirmwareFlavor, type MachineProfile, type ToolDefinition, typ
 import { useAppStore, useExpert } from '../../store/useAppStore';
 import { toolName, useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
-import { FieldRow, NumberField, SelectField, Switch } from '../ui/Field';
+import { FieldRow, GroupedOptions, NumberField, SelectField, Switch } from '../ui/Field';
 import { IlluMachine } from '../smartguide/illustrations';
 
 type Step = 'preset' | 'post' | 'tools';
@@ -138,15 +138,7 @@ export function MachineSetupDialog() {
           <label className="block">
             <span className="mb-1 block text-xs text-muted">{t.machine.select}</span>
             <select className="field h-9 cursor-pointer text-sm" value={draft.id} onChange={(e) => pick(e.target.value)}>
-              {groups.map((g) => (
-                <optgroup key={g.label} label={g.label}>
-                  {g.items.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} · {m.workArea.x} × {m.workArea.y} mm
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
+              <GroupedOptions groups={groups.map((g) => ({ label: g.label, options: g.items.map((m) => ({ value: m.id, label: `${m.name} · ${m.workArea.x} × ${m.workArea.y} mm` })) }))} />
             </select>
           </label>
 

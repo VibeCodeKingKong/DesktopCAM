@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode, Fragment } from 'react';
 import { InfoHint } from '../smartguide/InfoHint';
 import type { GuideKey } from '../../i18n';
 
@@ -100,27 +100,60 @@ export function SelectField<T extends string>({ label, value, options, onChange,
   );
 }
 
+/** Grupper med rubrik; mellan grupperna ritas en avskiljande linje. */
+export type SelectGroup<T extends string> = { label: string; options: { value: T; label: string }[] };
+
 export function Select<T extends string>({
   id,
   value,
   options,
+  groups,
   onChange,
   className = '',
 }: {
   id?: string;
   value: T;
-  options: { value: T; label: string }[];
+  options?: { value: T; label: string }[];
+  groups?: SelectGroup<T>[];
   onChange: (v: T) => void;
   className?: string;
 }) {
   return (
     <select id={id} className={`field cursor-pointer pr-6 ${className}`} value={value} onChange={(e) => onChange(e.target.value as T)}>
-      {options.map((o) => (
+      {groups ? <GroupedOptions groups={groups} /> : (options ?? []).map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
         </option>
       ))}
     </select>
+  );
+}
+
+/**
+ * Optgroups med en linje emellan. Linjen är ett inaktivt alternativ, eftersom
+ * <hr> i <select> bara stöds av de nyaste webbläsarna.
+ */
+export function GroupedOptions<T extends string>({ groups, render }: { groups: SelectGroup<T>[]; render?: (o: { value: T; label: string }) => string }) {
+  const shown = groups.filter((g) => g.options.length);
+  return (
+    <>
+      {shown.map((g, i) => (
+        <Fragment key={g.label}>
+          {i > 0 && (
+            <option disabled value="" aria-hidden="true">
+              ──────────────
+            </option>
+          )}
+          <optgroup label={g.label}>
+            {g.options.map((o) => (
+              <option key={o.value} value={o.value}>
+                {render ? render(o) : o.label}
+              </option>
+            ))}
+          </optgroup>
+        </Fragment>
+      ))}
+    </>
   );
 }
 

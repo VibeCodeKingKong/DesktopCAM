@@ -27,7 +27,7 @@ import {
   type ToolpathConfig,
   type VectorShape,
 } from '@desktopcam/core';
-import { allShapes, useAppStore, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
+import { allShapes, machineClass, useAppStore, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
 import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
   centerSelection,
@@ -91,18 +91,28 @@ export function PropertiesPanel() {
 function EmptyState() {
   const t = useT();
   const preset = useMaterialPreset();
-  const tips = t.materials[preset.id]?.tips ?? preset.tips;
+  const machine = useMachine();
+  const laser = machine.kind === 'laser';
+  // Materialets tips för den valda maskintypen, och tips för just den här maskinen.
+  const own = t.materials[preset.id]?.tips;
+  const materialTips = own ? own[laser ? 'laser' : 'router'] : preset.tips;
+  const mt = t.machineTips;
+  const machineTips = [...mt[machineClass(machine)], ...(laser ? mt.laserCommon : mt.routerCommon), ...mt.common];
+  const box = (title: string, tips: string[]) => (
+    <div className="rounded-lg border border-line bg-app p-3">
+      <p className="mb-1.5 font-semibold">{title}</p>
+      <ul className="list-disc space-y-1 pl-4 text-muted">
+        {tips.map((x) => (
+          <li key={x}>{x}</li>
+        ))}
+      </ul>
+    </div>
+  );
   return (
     <div className="space-y-4 p-4 text-xs leading-relaxed">
       <p className="text-muted">{t.props.emptyHint}</p>
-      <div className="rounded-lg border border-line bg-app p-3">
-        <p className="mb-1.5 font-semibold">{t.props.tipsFor(materialName(t, preset.id, preset.name))}</p>
-        <ul className="list-disc space-y-1 pl-4 text-muted">
-          {tips.map((x) => (
-            <li key={x}>{x}</li>
-          ))}
-        </ul>
-      </div>
+      {box(t.materialTips(materialName(t, preset.id, preset.name), laser), materialTips)}
+      {box(mt.title(machine.name), machineTips)}
     </div>
   );
 }

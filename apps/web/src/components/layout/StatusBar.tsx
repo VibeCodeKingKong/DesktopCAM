@@ -1,15 +1,12 @@
 import { Cpu } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
-import { Switch } from '../ui/Field';
 
 export function StatusBar() {
   const t = useT();
   const status = useAppStore((s) => s.status);
   const cursor = useAppStore((s) => s.cursor);
   const engine = useAppStore((s) => s.engine);
-  const theme = useAppStore((s) => s.theme);
-  const setTheme = useAppStore((s) => s.setTheme);
   const fmt = (n: number) => n.toLocaleString(t.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const engineLabel = engine ? (engine.engine === 'wasm' ? `Wasm ${engine.version}` : t.statusbar.engineTs) : t.statusbar.engineStarting;
@@ -28,10 +25,6 @@ export function StatusBar() {
         <Cpu size={12} className={engine?.engine === 'wasm' ? 'text-ok' : 'text-muted'} />
         {engineLabel}
       </span>
-      <label className="flex items-center gap-2">
-        <span className="hidden lg:inline">{t.statusbar.darkMode}</span>
-        <Switch checked={theme === 'dark'} onChange={(v) => setTheme(v ? 'dark' : 'light')} label={t.statusbar.darkMode} />
-      </label>
     </footer>
   );
 }
