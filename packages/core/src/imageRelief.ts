@@ -238,3 +238,144 @@ export function resampleHeights(src: Float32Array, w: number, h: number, nx: num
   }
   return out;
 }
+
+/* ───────── Förbehandling vid import ───────── */
+
+export interface CropRect { x: number; y: number; w: number; h: number }
+
+/** Klipper ut en del av gråskalan. */
+export function cropGray(gray: Uint8Array, w: number, h: number, r: CropRect): { gray: Uint8Array; w: number; h: number } {
+  const x0 = Math.max(0, Math.min(w - 1, Math.round(r.x))), y0 = Math.max(0, Math.min(h - 1, Math.round(r.y)));
+  const cw = Math.max(2, Math.min(w - x0, Math.round(r.w))), ch = Math.max(2, Math.min(h - y0, Math.round(r.h)));
+  const out = new Uint8Array(cw * ch);
+  for (let y = 0; y < ch; y++) out.set(gray.subarray((y0 + y) * w + x0, (y0 + y) * w + x0 + cw), y * cw);
+  return { gray: out, w: cw, h: ch };
+}
+
+/** Max- eller minfilter i en riktning (glidande fönster, O(n)). */
+function slideExtreme(src: Uint8Array, dst: Uint8Array, len: number, stride: number, offset: number, r: number, max: boolean) {
+  const deque = new Int32Array(len);
+  let head = 0, tail = 0;
+  const at = (i: number) => src[offset + i * stride];
+  const better = (a: number, b: number) => (max ? a >= b : a <= b);
+  let next = 0;
+  for (let i = 0; i < len; i++) {
+    const hi = Math.min(len - 1, i + r);
+    while (next <= hi) {
+      while (tail > head && better(at(next), at(deque[tail - 1]))) tail--;
+      deque[tail++] = next++;
+    }
+    while (deque[head] < i - r) head++;
+    dst[offset + i * stride] = at(deque[head]);
+  }
+}
+
+function extremeFilter(gray: Uint8Array, w: number, h: number, r: number, max: boolean): Uint8Array {
+  const tmp = new Uint8Array(gray.length), out = new Uint8Array(gray.length);
+  for (let y = 0; y < h; y++) slideExtreme(gray, tmp, w, 1, y * w, r, max);
+  for (let x = 0; x < w; x++) slideExtreme(tmp, out, h, w, x, r, max);
+  return out;
+}
+
+/**
+ * Tar bort bakgrunden: uppskattar papperets ljus (ojämnt ljus, skuggor,
+ * vinjettering) genom att "sudda bort" det som ritats, och dividerar bort
+ * det. Papperet blir jämnt vitt och strecken behåller sin mörkhet.
+ * Med mörk bakgrund görs samma sak omvänt.
+ */
+export function flattenBackground(gray: Uint8Array, w: number, h: number, lightBackground = true): Uint8Array {
+  const r = Math.max(4, Math.round(Math.max(w, h) / 40));
+  // Stäng över strecken: maxfilter (ljus bakgrund) tar bort mörka streck tunnare än 2r.
+  const closed = extremeFilter(gray, w, h, r, lightBackground);
+  const bg = new Float32Array(closed.length);
+  for (let i = 0; i < bg.length; i++) bg[i] = closed[i];
+  blur(bg, w, h, r);
+  const out = new Uint8Array(gray.length);
+  for (let i = 0; i < gray.length; i++) {
+    const b = Math.max(8, bg[i]);
+    out[i] = lightBackground ? Math.min(255, Math.round((gray[i] / b) * 255)) : Math.max(0, Math.round(255 - ((255 - gray[i]) / Math.max(8, 255 - b)) * 255));
+  }
+  return out;
+}
+
+/** Otsus metod: tröskeln som bäst skiljer två toner (t.ex. bläck och papper). */
+export function otsuThreshold(gray: Uint8Array): number {
+  const hist = new Array(256).fill(0);
+  for (const v of gray) hist[v]++;
+  const total = gray.length;
+  let sum = 0;
+  for (let i = 0; i < 256; i++) sum += i * hist[i];
+  let sumB = 0, wB = 0, best = 0, th = 128;
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t];
+    if (!wB) continue;
+    const wF = total - wB;
+    if (!wF) break;
+    sumB += t * hist[t];
+    const mB = sumB / wB, mF = (sum - sumB) / wF;
+    const between = wB * wF * (mB - mF) ** 2;
+    if (between > best) { best = between; th = t; }
+  }
+  return th;
+}
+
+/**
+ * Svartvit med tröskel. Små fläckar (smuts, papperstruktur) som är mindre än
+ * minArea bildpunkter tas bort, och små hål i strecken fylls.
+ */
+export function toBlackWhite(gray: Uint8Array, w: number, h: number, threshold: number, minArea: number): Uint8Array {
+  const out = new Uint8Array(gray.length);
+  for (let i = 0; i < gray.length; i++) out[i] = gray[i] <= threshold ? 0 : 255;
+  if (minArea <= 1) return out;
+  // Ta bort små sammanhängande ytor av båda färgerna (först fläckar, sedan hål).
+  for (const color of [0, 255]) {
+    const seen = new Uint8Array(out.length);
+    const stack: number[] = [];
+    const comp: number[] = [];
+    for (let s = 0; s < out.length; s++) {
+      if (seen[s] || out[s] !== color) continue;
+      comp.length = 0;
+      stack.push(s);
+      seen[s] = 1;
+      let touchesEdge = false;
+      while (stack.length) {
+        const i = stack.pop()!;
+        comp.push(i);
+        const x = i % w, y = (i - x) / w;
+        if (x === 0 || y === 0 || x === w - 1 || y === h - 1) touchesEdge = true;
+        if (x > 0 && !seen[i - 1] && out[i - 1] === color) { seen[i - 1] = 1; stack.push(i - 1); }
+        if (x < w - 1 && !seen[i + 1] && out[i + 1] === color) { seen[i + 1] = 1; stack.push(i + 1); }
+        if (y > 0 && !seen[i - w] && out[i - w] === color) { seen[i - w] = 1; stack.push(i - w); }
+        if (y < h - 1 && !seen[i + w] && out[i + w] === color) { seen[i + w] = 1; stack.push(i + w); }
+      }
+      // Hål som når kanten är bakgrund, inte hål.
+      if (comp.length < minArea && !(color === 255 && touchesEdge)) for (const i of comp) out[i] = 255 - color;
+    }
+  }
+  return out;
+}
+
+/** Skalar ner gråskala (medelvärde över ytan) så att största sidan blir högst max. */
+export function downscaleGray(gray: Uint8Array, w: number, h: number, max: number): { gray: Uint8Array; w: number; h: number } {
+  const k = Math.min(1, max / Math.max(w, h));
+  if (k >= 1) return { gray, w, h };
+  const nw = Math.max(2, Math.round(w * k)), nh = Math.max(2, Math.round(h * k));
+  const out = new Uint8Array(nw * nh);
+  for (let y = 0; y < nh; y++) {
+    const y0 = Math.floor((y * h) / nh), y1 = Math.max(y0 + 1, Math.floor(((y + 1) * h) / nh));
+    for (let x = 0; x < nw; x++) {
+      const x0 = Math.floor((x * w) / nw), x1 = Math.max(x0 + 1, Math.floor(((x + 1) * w) / nw));
+      let s = 0, n = 0;
+      for (let yy = y0; yy < y1; yy++) for (let xx = x0; xx < x1; xx++) { s += gray[yy * w + xx]; n++; }
+      out[y * nw + x] = Math.round(s / n);
+    }
+  }
+  return { gray: out, w: nw, h: nh };
+}
+
+/** Gråskala som RGBA (för analysen när bilden redan förbehandlats). */
+export function grayToRgba(gray: Uint8Array): Uint8Array {
+  const out = new Uint8Array(gray.length * 4);
+  for (let i = 0; i < gray.length; i++) { out[4 * i] = out[4 * i + 1] = out[4 * i + 2] = gray[i]; out[4 * i + 3] = 255; }
+  return out;
+}
