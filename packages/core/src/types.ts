@@ -261,10 +261,36 @@ export interface ProfileToolpath extends ToolpathBase {
   strategy?: ProfileStrategy;
 }
 
+/** Hur en ficka rensas: mönster, riktning, finpass och nedgång. */
+export interface PocketStrategy {
+  preset: StrategyPreset;
+  /** offset: ringar som följer formen. raster: parallella linjer (zigzag). */
+  pattern: 'offset' | 'raster';
+  /** Rasterlinjernas vinkel i grader (0 = längs X). */
+  rasterAngle: number;
+  /** Riktning för grovpassen (med medurs spindel, M3). */
+  direction: CutDirection;
+  finishPass: boolean;
+  /** Hud som grovpassen lämnar mot väggarna (mm). */
+  wallAllowance: number;
+  /** Hud som grovpassen lämnar mot botten (mm). */
+  floorAllowance: number;
+  finishDirection: CutDirection;
+  /** Matning i finpasset som andel av vanlig matning. */
+  finishFeedFactor: number;
+  /** Nedgång: rakt ner, ramp längs banan eller spiral (helix). */
+  entry: 'plunge' | 'ramp' | 'helix';
+  /** Ramp- och spiralvinkel i grader. */
+  rampAngle: number;
+}
+
 export interface PocketToolpath extends ToolpathBase {
   operation: 'pocket';
   cutDepth: number;
+  /** Äldre fält: mönstret. Används om pocket saknas. */
   strategy: 'offset' | 'raster';
+  /** Strategi (saknas i äldre projekt – då används "balanced"). */
+  pocket?: PocketStrategy;
 }
 
 export interface DrillToolpath extends ToolpathBase {

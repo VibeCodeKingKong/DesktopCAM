@@ -3,6 +3,7 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import {
+  defaultPocketStrategy,
   shapeHasArea,
   type ToolDefinition,
   defaultStrategy,
@@ -269,6 +270,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         toolId: tool.id,
         cutDepth: Math.min(3, s.material.thickness / 2),
         strategy: 'offset',
+        pocket: defaultPocketStrategy('balanced'),
         params: { ...routerParams(tool), stepOver: 0.45 },
       };
       break;

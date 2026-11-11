@@ -8,6 +8,7 @@ import {
   offsetShapes,
   parseGcode,
   pocketGcode,
+  pocketStrategyGcode,
   routerProfileGcode,
   vcarveGcode,
   type CamEngine,
@@ -78,7 +79,9 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
       progress(0.1, request.type === 'routerProfile' ? 'offset' : request.type);
       const gcode =
         request.type === 'pocket'
-          ? pocketGcode(request.job)
+          ? request.job.strategy
+            ? pocketStrategyGcode(request.job)
+            : pocketGcode(request.job)
           : request.type === 'drill'
             ? drillGcode(request.job)
             : request.type === 'vcarve'

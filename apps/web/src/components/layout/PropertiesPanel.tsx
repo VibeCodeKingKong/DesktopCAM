@@ -1,6 +1,10 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight } from 'lucide-react';
 import {
+  defaultPocketStrategy,
+  matchPocketPreset,
+  type PocketStrategy,
+  type PocketToolpath,
   shapeHasArea,
   canFillet,
   setCornerRadius,
@@ -24,7 +28,7 @@ import {
   type VectorShape,
 } from '@desktopcam/core';
 import { allShapes, useAppStore, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
-import { computeToolpath, drillPoints, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
+import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
   centerSelection,
   createLineEngraving,
@@ -468,6 +472,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
               onChange={(pct) => param({ stepOver: pct / 100 })}
             />
           </Group>
+          <PocketStrategyEditor tp={tp} patch={patch} />
           {speedGroup}
         </>
       )}
@@ -735,6 +740,88 @@ function ProfileStrategyEditor({ tp, patch }: { tp: ProfileToolpath; patch: (p: 
           {st.entry === 'ramp' && <NumberField label={t.props.rampAngle} unit="°" step={1} min={1} max={45} value={st.rampAngle} hint="rampEntry" onChange={(rampAngle) => set({ rampAngle })} />}
           <NumberField label={t.props.onionSkin} unit="mm" step={0.1} min={0} max={Math.max(0, tp.cutDepth - 0.1)} value={st.onionSkin} hint="onionSkin" onChange={(onionSkin) => set({ onionSkin })} />
           {!onLine && <p className="text-2xs text-muted">{t.props.spindleNote}</p>}
+        </div>
+      )}
+    </Group>
+  );
+}
+
+function PocketStrategyEditor({ tp, patch }: { tp: PocketToolpath; patch: (p: Partial<ToolpathConfig>) => void }) {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const st = resolvePocket(tp);
+  const fmt = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
+  const presets: StrategyPreset[] = ['fast', 'balanced', 'fine'];
+  const set = (p: Partial<PocketStrategy>) => {
+    const next = { ...st, ...p };
+    patch({ pocket: { ...next, preset: matchPocketPreset(next) }, strategy: next.pattern });
+  };
+  const dirOptions = (['conventional', 'climb'] as CutDirection[]).map((value) => ({ value, label: t.props.directions[value] }));
+  const finishActive = st.finishPass && (st.wallAllowance > 0 || st.floorAllowance > 0);
+
+  return (
+    <Group title={t.props.strategy} hint="pocketStrategy">
+      <Segmented
+        label={t.props.strategy}
+        value={st.preset}
+        options={[...presets, ...(st.preset === 'custom' ? (['custom'] as StrategyPreset[]) : [])].map((value) => ({ value, label: t.props.presets[value] }))}
+        onChange={(preset) => preset !== 'custom' && patch({ pocket: { ...defaultPocketStrategy(preset, st.pattern), rasterAngle: st.rasterAngle } })}
+      />
+      <p className="text-xs leading-relaxed text-muted">{t.props.pocketPresetDesc[st.preset]}</p>
+      <FieldRow label={t.props.pattern} hint="pocketPattern">
+        <Segmented
+          label={t.props.pattern}
+          value={st.pattern}
+          options={(['offset', 'raster'] as const).map((value) => ({ value, label: t.props.patterns[value] }))}
+          onChange={(pattern) => set({ pattern })}
+        />
+      </FieldRow>
+      {st.pattern === 'raster' && (
+        <NumberField label={t.props.rasterAngle} unit="°" step={15} min={-90} max={180} value={st.rasterAngle} hint="pocketPattern" onChange={(rasterAngle) => set({ rasterAngle })} />
+      )}
+      <div className="flex flex-wrap gap-1">
+        <Chip>{t.props.chips.rough(t.props.directions[st.direction])}</Chip>
+        <Chip>{finishActive ? t.props.pocketChips.finish(t.props.directions[st.finishDirection], fmt(st.wallAllowance), fmt(st.floorAllowance)) : t.props.chips.single}</Chip>
+        <Chip>{st.entry === 'helix' ? t.props.pocketChips.helix(st.rampAngle) : st.entry === 'ramp' ? t.props.chips.ramp(st.rampAngle) : t.props.chips.plunge}</Chip>
+      </div>
+
+      <button className="text-left text-xs font-medium text-accent" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        {open ? t.props.hideDetails : t.props.showDetails}
+      </button>
+      {open && (
+        <div className="space-y-2 rounded-lg border border-line p-2.5">
+          <FieldRow label={t.props.roughDirection} hint="cutDirection">
+            <Segmented label={t.props.roughDirection} value={st.direction} options={dirOptions} onChange={(direction) => set({ direction })} />
+          </FieldRow>
+          <FieldRow label={t.props.pocketFinish} hint="profileAllowance">
+            <Switch
+              checked={st.finishPass}
+              onChange={(finishPass) =>
+                set({ finishPass, wallAllowance: finishPass && st.wallAllowance <= 0 ? 0.3 : st.wallAllowance, floorAllowance: finishPass && st.floorAllowance <= 0 ? 0.2 : st.floorAllowance })
+              }
+              label={t.props.pocketFinish}
+            />
+          </FieldRow>
+          {st.finishPass && (
+            <>
+              <NumberField label={t.props.wallAllowance} unit="mm" step={0.05} min={0} max={2} value={st.wallAllowance} hint="profileAllowance" onChange={(wallAllowance) => set({ wallAllowance })} />
+              <NumberField label={t.props.floorAllowance} unit="mm" step={0.05} min={0} max={Math.max(0, tp.cutDepth / 2)} value={st.floorAllowance} hint="profileAllowance" onChange={(floorAllowance) => set({ floorAllowance })} />
+              <FieldRow label={t.props.finishDirection} hint="cutDirection">
+                <Segmented label={t.props.finishDirection} value={st.finishDirection} options={dirOptions} onChange={(finishDirection) => set({ finishDirection })} />
+              </FieldRow>
+              <NumberField label={t.props.finishFeed} unit="%" step={5} min={20} max={150} value={Math.round(st.finishFeedFactor * 100)} onChange={(pct) => set({ finishFeedFactor: pct / 100 })} />
+            </>
+          )}
+          <FieldRow label={t.props.entry} hint="rampEntry">
+            <Segmented
+              label={t.props.entry}
+              value={st.entry}
+              options={(['helix', 'ramp', 'plunge'] as const).map((value) => ({ value, label: t.props.entries[value] }))}
+              onChange={(entry) => set({ entry })}
+            />
+          </FieldRow>
+          {st.entry !== 'plunge' && <NumberField label={t.props.rampAngle} unit="°" step={1} min={1} max={45} value={st.rampAngle} hint="rampEntry" onChange={(rampAngle) => set({ rampAngle })} />}
+          <p className="text-2xs text-muted">{t.props.spindleNote}</p>
         </div>
       )}
     </Group>

@@ -148,7 +148,7 @@ export function tabPositions(groups: PolylineInput[][], tabs: TabSettings, toolD
 
 /* ───────── Bana med båglängd ───────── */
 
-class Track {
+export class Track {
   readonly xs: number[] = [];
   readonly ys: number[] = [];
   /** Kumulativ längd till varje punkt. */
@@ -229,7 +229,7 @@ function reverseLoop(points: number[]) {
  * Konturerna från avståndsfältet har formens insida till vänster. Utsida:
  * detaljen till vänster = medfräsning. Insida: detaljen till höger = motfräsning.
  */
-function orient(loop: number[], side: CutSide, dir: CutDirection) {
+export function orient(loop: number[], side: CutSide, dir: CutDirection) {
   if (side === 'on') return loop;
   const climbAsIs = side === 'outside';
   return (dir === 'climb') === climbAsIs ? loop : reverseLoop(loop);

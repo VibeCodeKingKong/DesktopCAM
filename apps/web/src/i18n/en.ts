@@ -40,6 +40,8 @@ const guides: Record<GuideKey, GuideEntry> = {
   cutDirection: { title: 'Climb or conventional?', body: 'The cutter always spins the same way, so it matters which way it travels around the part.', steps: ['Conventional: calmer on light machines like the MPCNC and 3018. Good for roughing.', 'Climb: cleaner surface and less fuzz. Good for the finishing pass.', 'Does the edge tear or chatter? Switch to conventional.'] },
   rampEntry: { title: 'Ramp or plunge', body: 'With ramping the cutter slides down at an angle along the path instead of drilling straight down. It is gentler on the cutter and leaves no burn marks where it enters.', steps: ['5–10° suits hobby machines.', 'Only choose Plunge with a centre-cutting bit.'] },
   tabs: { title: 'Tabs', body: 'Small bridges of material that hold the part when it is cut free, so it does not come loose, chatter or get thrown.', steps: ['3–4 tabs are enough for most parts.', 'Height about a quarter of the material thickness.', 'Move the tabs away from corners and visible edges.'] },
+  pocketStrategy: { title: 'Pocket strategy', body: 'Decides how the pocket is cleared and how the cutter enters the material. The presets suit most jobs.', steps: ['Fast: everything in one go, fine for hidden pockets.', 'Balanced: finishing passes on walls and floor – most jobs.', 'Fine finish: visible pockets, box bottoms and inlays.'] },
+  pocketPattern: { title: 'Offset or raster', body: 'Offset cuts rings that follow the shape from the inside out – few lifts and an even load. Raster cuts straight lines back and forth and then one lap along the wall.', steps: ['Offset: most pockets, especially round and curvy ones.', 'Raster: large, straight pockets where you want even lines in the floor, e.g. surfacing.', 'Set the raster angle along the grain in wood for the best floor.'] },
   onionSkin: { title: 'Onion skin', body: 'A thin layer left at the bottom so the part stays attached. Break or cut it free afterwards and sand the edge.', steps: ['0.2–0.4 mm in plywood and MDF.', 'Often used instead of tabs on small parts.'] },
   snap: { title: 'Snap to grid', body: 'Points you draw and move land on the nearest grid step. Turn it off for completely free placement.' },
 };
@@ -204,6 +206,23 @@ export const en: Dict = {
   },
 
   props: {
+    pocketPresetDesc: {
+      fast: 'Clears to full depth straight away. Fastest, but walls and floor may show small marks.',
+      balanced: 'Leaves 0.3 mm on the walls and 0.2 mm on the floor, then takes finishing passes. Clean walls, flat floor and accurate size.',
+      fine: 'Leaves more for the finishing passes and runs them slower. Best surface for visible pockets and inlays.',
+      custom: 'Custom settings.',
+    },
+    pattern: 'Pattern',
+    patterns: { offset: 'Offset', raster: 'Raster' },
+    rasterAngle: 'Raster angle',
+    wallAllowance: 'Left on walls',
+    floorAllowance: 'Left on floor',
+    pocketFinish: 'Finishing pass',
+    pocketChips: {
+      pattern: (p: string) => p,
+      finish: (d: string, w: string, f: string) => `Finish: ${d}, wall ${w} / floor ${f} mm`,
+      helix: (a: number) => `Helix ${a}°`,
+    },
     lineOnly: 'Open line (too few points to close)',
     openHint: 'Open line: can be profiled along the line (engraving). Pocket and drilling need a closed shape with an area.',
     cornerRadius: 'Corner radius',
@@ -285,7 +304,7 @@ export const en: Dict = {
     directions: { conventional: 'Conventional', climb: 'Climb' },
     finishFeed: 'Finishing feed',
     entry: 'Entry',
-    entries: { plunge: 'Plunge', ramp: 'Ramp' },
+    entries: { plunge: 'Plunge', ramp: 'Ramp', helix: 'Helix' },
     rampAngle: 'Ramp angle',
     onionSkin: 'Onion skin',
     spindleNote: 'Direction assumes a clockwise spindle (M3), which is the usual setup.',

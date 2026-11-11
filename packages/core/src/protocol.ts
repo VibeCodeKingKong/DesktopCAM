@@ -5,7 +5,7 @@
 import type { ImportFormat, ImportOptions, ImportResult } from './import/types';
 import type { VCarveJob } from './vcarve';
 import type { RouterProfileJob } from './profileStrategy';
-import type { DitherMethod, PostprocessorConfig, ToolKind, ToolpathStats } from './types';
+import type { DitherMethod, PocketStrategy, PostprocessorConfig, ToolKind, ToolpathStats } from './types';
 
 export interface PolylineInput {
   /** Platta koordinater: [x0, y0, x1, y1, …] */
@@ -81,6 +81,8 @@ export interface PocketJob {
   plungeRate: number;
   spindleRpm: number;
   post: PostprocessorConfig;
+  /** Strategi; saknas den rensas fickan konturparallellt utan finpass. */
+  strategy?: PocketStrategy;
 }
 
 export interface DrillJob {

@@ -12,7 +12,7 @@ export type GuideKey =
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
   | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
-  | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin';
+  | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern';
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
@@ -175,6 +175,23 @@ export const sv = {
   },
 
   props: {
+    pocketPresetDesc: {
+      fast: 'Rensar till slutdjupet direkt. Snabbast, men väggar och botten kan få små märken.',
+      balanced: 'Lämnar 0,3 mm mot väggarna och 0,2 mm i botten och tar sedan finpass. Rena väggar, jämn botten och rätt mått.',
+      fine: 'Lämnar mer att ta i finpasset och kör det långsammare. Bästa ytan för synliga fickor och inlägg.',
+      custom: 'Egna inställningar.',
+    },
+    pattern: 'Mönster',
+    patterns: { offset: 'Konturparallell', raster: 'Raster' },
+    rasterAngle: 'Rastervinkel',
+    wallAllowance: 'Kvar mot väggarna',
+    floorAllowance: 'Kvar i botten',
+    pocketFinish: 'Finpass',
+    pocketChips: {
+      pattern: (p: string) => p,
+      finish: (d: string, w: string, f: string) => `Fin: ${d}, vägg ${w} / botten ${f} mm`,
+      helix: (a: number) => `Spiral ${a}°`,
+    },
     lineOnly: 'Öppen linje (för få punkter för att stänga)',
     openHint: 'Öppen linje: kan profileras längs linjen (gravyr). Ficka och borrning kräver en sluten form med yta.',
     cornerRadius: 'Hörnradie',
@@ -256,7 +273,7 @@ export const sv = {
     directions: { conventional: 'Motfräs', climb: 'Medfräs' },
     finishFeed: 'Matning finpass',
     entry: 'Nedgång',
-    entries: { plunge: 'Rakt ner', ramp: 'Ramp' },
+    entries: { plunge: 'Rakt ner', ramp: 'Ramp', helix: 'Spiral' },
     rampAngle: 'Rampvinkel',
     onionSkin: 'Lökskal',
     spindleNote: 'Riktningen förutsätter medurs spindel (M3), vilket är det vanliga.',
@@ -742,6 +759,8 @@ export const sv = {
       cutDirection: { title: 'Medfräs eller motfräs?', body: 'Fräsen roterar alltid åt samma håll, så det spelar roll vilket håll den går runt detaljen.', steps: ['Motfräs: lugnare på klena maskiner som MPCNC och 3018. Bra för grovpass.', 'Medfräs: renare yta och mindre fransar. Bra för finpasset.', 'Slits kanten upp eller vibrerar det? Byt till motfräs.'] },
       rampEntry: { title: 'Ramp eller rakt ner', body: 'Med ramp glider fräsen ner snett längs banan i stället för att borra rakt ner. Det skonar fräsen och ger inga brännmärken där den går ner.', steps: ['5–10° är lagom för hobbymaskiner.', 'Välj Rakt ner bara om du använder en fräs som kan borra (center-cutting).'] },
       tabs: { title: 'Flikar', body: 'Små bryggor av material som håller kvar detaljen när den skärs loss, så att den inte lossnar, vibrerar eller slungas iväg.', steps: ['3–4 flikar räcker för de flesta delar.', 'Höjd ungefär en fjärdedel av materialtjockleken.', 'Flytta flikarna bort från hörn och synliga kanter.'] },
+      pocketStrategy: { title: 'Strategi för fickor', body: 'Bestämmer hur fickan rensas och hur fräsen går ner i materialet. Förinställningarna passar de flesta jobb.', steps: ['Snabb: allt i ett pass, bra för dolda fickor.', 'Balanserad: finpass på väggar och botten – det mesta.', 'Fin yta: synliga fickor, lådbottnar och inlägg.'] },
+      pocketPattern: { title: 'Konturparallell eller raster', body: 'Konturparallell fräser ringar som följer formen, inifrån och ut – få lyft och jämn belastning. Raster fräser raka linjer fram och tillbaka och sedan ett varv längs väggen.', steps: ['Konturparallell: de flesta fickor, särskilt runda och krokiga.', 'Raster: stora, raka fickor där du vill ha jämna spår i botten, t.ex. planfräsning.', 'Ställ rastervinkeln längs med fiberriktningen i trä för finast botten.'] },
       onionSkin: { title: 'Lökskal', body: 'Ett tunt lager som lämnas kvar i botten så att detaljen sitter fast. Bryt eller skär loss den efteråt och slipa kanten.', steps: ['0,2–0,4 mm i plywood och MDF.', 'Används ofta i stället för flikar på små delar.'] },
       snap: { title: 'Fäst mot rutnät', body: 'Punkter du ritar och flyttar hamnar på närmaste steg i rutnätet. Stäng av för helt fri placering.' },
     } satisfies Record<GuideKey, GuideEntry> as Record<GuideKey, GuideEntry>,

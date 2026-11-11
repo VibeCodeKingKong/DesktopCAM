@@ -14,3 +14,4 @@ export * from './camOps';
 export * from './strokeFont';
 export * from './vcarve';
 export * from './profileStrategy';
+export * from './pocketStrategy';

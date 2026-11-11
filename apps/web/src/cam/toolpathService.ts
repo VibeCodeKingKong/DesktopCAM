@@ -1,4 +1,6 @@
 import {
+  defaultPocketStrategy,
+  type PocketStrategy,
   defaultStrategy,
   defaultTabs,
   shapeToPolylines,
@@ -144,6 +146,11 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
 }
 
 /** Strategi och flikar med standardvärden för äldre projekt. */
+/** Fickans strategi; äldre projekt får "balanced" med sitt gamla mönster. */
+export function resolvePocket(tp: Extract<ToolpathConfig, { operation: 'pocket' }>): PocketStrategy {
+  return tp.pocket ?? defaultPocketStrategy('balanced', tp.strategy === 'raster' ? 'raster' : 'offset');
+}
+
 export function resolveProfile(tp: Extract<ToolpathConfig, { operation: 'profile' }>) {
   const thickness = useAppStore.getState().material.thickness;
   const tabs = { ...defaultTabs(tp.cutDepth >= thickness - 1e-6, thickness), ...tp.tabs };
@@ -188,6 +195,7 @@ function buildPocketJob(tp: ToolpathConfig): PocketJob {
     plungeRate: tp.params.plungeRate,
     spindleRpm: tp.params.spindleRpm ?? 18000,
     post: getMachine().postprocessor,
+    strategy: resolvePocket(tp),
   };
 }
 
