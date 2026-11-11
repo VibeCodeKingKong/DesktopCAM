@@ -581,6 +581,19 @@ export const sv = {
   },
   materialTips: (m: string, laser: boolean) => `Tips för ${m.toLowerCase()} med ${laser ? 'laser' : 'fräs'}`,
 
+  toolRules: {
+    notSuitable: 'passar inte',
+    why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'vbit' && op === 'pocket') return 'En V-fräs passar inte för fickor: fickan räknas med fräsens diameter (t.ex. 12,7 mm), men en V-fräs skär bara så brett som djupet gör den – det blir kvar rester mellan varven. Välj en pinnfräs, eller V-gravyr om du vill ha V-formade kanter.';
+      if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'En V-fräs fungerar bara på linjen (gravyr). Vid sidan av linjen räknas förskjutningen med fel bredd. Välj På linjen, eller en pinnfräs.';
+      if (kind === 'drill') return 'En borr kan bara gå rakt ner och inte skära i sidled. Använd den till Borrning, och en pinnfräs här.';
+      if (kind === 'laser') return 'Laserhuvudet kan inte fräsa. Välj en fräsmaskin under Inställning.';
+      if (op === 'vcarve' || op === 'inlay') return 'V-gravyr och inlägg kräver en V-fräs – banan räknas med fräsens vinkel.';
+      if (op === 'laserCut' || op === 'laserRaster') return 'Laserbanor kräver en laser.';
+      return 'Verktyget passar inte för den här banan. Välj ett annat i listan.';
+    },
+  },
+
   gearDialog: {
     title: 'Nytt kugghjul',
     teeth: 'Antal kuggar',

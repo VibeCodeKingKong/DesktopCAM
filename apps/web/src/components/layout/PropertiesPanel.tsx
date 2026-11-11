@@ -28,6 +28,7 @@ import {
   type VectorShape,
 } from '@desktopcam/core';
 import { allShapes, machineClass, useAppStore, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
+import { toolFits } from '../../cam/toolRules';
 import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
   centerSelection,
@@ -455,17 +456,14 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
     }
   };
   const param = (p: Partial<ToolpathConfig['params']>) => patch({ params: { ...tp.params, ...p } });
-  const isLaser = tp.operation === 'laserCut' || tp.operation === 'laserRaster';
-  const toolFilter = (kind: string) =>
-    tp.operation === 'vcarve' || tp.operation === 'inlay'
-      ? kind === 'vbit'
-      : isLaser
-      ? kind === 'laser'
-      : tp.operation === 'relief'
-        ? kind === 'ballnose' || kind === 'endmill' || kind === 'vbit'
-        : tp.operation === 'drill'
-          ? kind === 'drill' || kind === 'endmill'
-          : kind !== 'laser';
+  // Bara verktyg som fungerar för operationen. Ett olämpligt verktyg som redan
+  // är valt (t.ex. från ett äldre projekt) visas markerat, med förklaring nedan.
+  const currentTool = tools.find((x) => x.id === tp.toolId);
+  const toolOk = toolFits(tp, currentTool?.kind);
+  const toolOptions = [
+    ...tools.filter((x) => toolFits(tp, x.kind)).map((x) => ({ value: x.id, label: toolName(t, x.id, x.name) })),
+    ...(currentTool && !toolOk ? [{ value: currentTool.id, label: `${toolName(t, currentTool.id, currentTool.name)} – ${t.toolRules.notSuitable}` }] : []),
+  ];
   const sides: { value: CutSide; label: string }[] = [
     { value: 'outside', label: t.props.sides.outside },
     { value: 'inside', label: t.props.sides.inside },
@@ -498,9 +496,12 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
         <SelectField
           label={t.props.tool}
           value={tp.toolId}
-          options={tools.filter((x) => toolFilter(x.kind)).map((x) => ({ value: x.id, label: toolName(t, x.id, x.name) }))}
+          options={toolOptions}
           onChange={(toolId) => patch({ toolId })}
         />
+        {!toolOk && currentTool && (
+          <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs leading-relaxed text-warn">{t.toolRules.why(tp.operation, currentTool.kind, tp.operation === 'profile' ? tp.side : undefined)}</p>
+        )}
         {(tp.operation === 'profile' || tp.operation === 'laserCut') && (
           <FieldRow label={t.props.side} hint="cutSide">
             <Segmented label={t.props.side} value={tp.side} options={sides} onChange={(side) => patch({ side })} />

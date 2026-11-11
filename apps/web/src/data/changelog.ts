@@ -13,6 +13,12 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.13.1',
+    date: '2026-11-11',
+    sv: ['Rättat: varje bana visar bara verktyg som fungerar för den. Ficka med V-fräs eller borr gav rester mellan varven – V-fräs finns nu bara för V-gravyr, inlägg, 3D-relief och profil på linjen. Ett redan valt olämpligt verktyg markeras och förklaras.'],
+    en: ['Fixed: each toolpath only lists tools that work for it. A pocket with a V-bit or drill left material between the rings – the V-bit is now only offered for V-carving, inlays, 3D relief and profile on the line. An unsuitable tool that is already chosen is marked and explained.'],
+  },
+  {
     version: '0.13.0',
     date: '2026-11-11',
     sv: [

@@ -23,6 +23,7 @@ import { allShapes, getMachine, useAppStore } from '../store/useAppStore';
 import { rasterizeGray } from '../utils/image';
 import { heightmapFor } from './reliefs';
 import { toolReachWarnings } from './toolReach';
+import { toolFits } from './toolRules';
 
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -40,6 +41,14 @@ export async function computeToolpath(id: string): Promise<void> {
   const onProgress = (value: number, message?: string) =>
     useAppStore.getState().setProgress(id, { value, message: message ? (getT().progress[message] ?? message) : undefined });
 
+  // Fel sorts verktyg ger fel bana (t.ex. ficka med V-fräs) – räkna inte alls.
+  const tool = s.tools.find((x) => x.id === tp.toolId);
+  if (!toolFits(tp, tool?.kind)) {
+    const message = tool ? t.toolRules.why(tp.operation, tool.kind, tp.operation === 'profile' ? tp.side : undefined) : t.errors.WRONG_TOOL;
+    s.setError(id, message);
+    s.setStatus(t.status.error(tp.name, message));
+    return;
+  }
   s.setProgress(id, { value: 0, message: t.progress.start });
   s.setStatus(t.status.computing(tp.name));
   try {

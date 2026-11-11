@@ -613,6 +613,19 @@ export const en: Dict = {
   },
   materialTips: (m: string, laser: boolean) => `Tips for ${m.toLowerCase()} with a ${laser ? 'laser' : 'router'}`,
 
+  toolRules: {
+    notSuitable: 'not suitable',
+    why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'vbit' && op === 'pocket') return 'A V-bit does not suit pockets: the pocket is laid out with the cutter diameter (e.g. 12.7 mm), but a V-bit only cuts as wide as the depth makes it – material is left between the rings. Choose an end mill, or V-carve if you want V-shaped edges.';
+      if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'A V-bit only works on the line (engraving). Beside the line the offset is calculated with the wrong width. Choose On line, or an end mill.';
+      if (kind === 'drill') return 'A drill can only go straight down and cannot cut sideways. Use it for Drilling, and an end mill here.';
+      if (kind === 'laser') return 'The laser head cannot mill. Choose a router on the Setup tab.';
+      if (op === 'vcarve' || op === 'inlay') return 'V-carving and inlays need a V-bit – the path is calculated from the cutter angle.';
+      if (op === 'laserCut' || op === 'laserRaster') return 'Laser toolpaths need a laser.';
+      return 'The tool does not suit this toolpath. Choose another in the list.';
+    },
+  },
+
   gearDialog: {
     title: 'New gear',
     teeth: 'Number of teeth',
