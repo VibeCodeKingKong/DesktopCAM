@@ -560,6 +560,11 @@ export const en: Dict = {
     version: (v: string) => `version ${v}`,
     whatsNew: 'What is new',
     current: 'Your version',
+    legalTitle: 'Licences and trademarks',
+    disclaimer: 'desktopCAM is provided as is, without warranty. Always check the G-code – simulate and do a test run – before running it on the machine. You are responsible for the machine, the material and safety, especially with lasers.',
+    trademarks: 'Names of machines, programs and products (e.g. Shapeoko, Creality, xTool, Inkscape, Fusion 360, Estlcam) are trademarks of their owners. They are mentioned only to describe compatibility; desktopCAM is not affiliated with or endorsed by them.',
+    licensesIntro: 'desktopCAM is built on open-source software and fonts (MIT, ISC, BSD, SIL OFL 1.1 and Apache 2.0).',
+    licensesLink: 'Show all licences',
   },
 
   pattern: {
@@ -669,6 +674,7 @@ export const en: Dict = {
     fontFailed: 'The font could not be read.',
     noteFont: 'Outline fonts give closed letters. Choose V-carve for a chiselled-stone look: the depth follows the width of the letter and the corners come out sharp. Pocket and inlay work too.',
     fontMissing: 'The font is not loaded – load the font file again to change the text.',
+    customFontNote: 'Check that the font’s licence allows you to use it for engraving or machining. The font stays in your browser and is not uploaded.',
   },
 
   shapeLib: {

@@ -559,6 +559,11 @@ export const es: Dict = {
     version: (v: string) => `versión ${v}`,
     whatsNew: 'Novedades',
     current: 'Tu versión',
+    legalTitle: 'Licencias y marcas',
+    disclaimer: 'desktopCAM se ofrece tal cual, sin garantía. Comprueba siempre el G-code (simula y haz una prueba) antes de ejecutarlo en la máquina. Eres responsable de la máquina, el material y la seguridad, sobre todo con láser.',
+    trademarks: 'Los nombres de máquinas, programas y productos (p. ej. Shapeoko, Creality, xTool, Inkscape, Fusion 360, Estlcam) son marcas de sus propietarios. Solo se mencionan para describir la compatibilidad; desktopCAM no está afiliado a ellos ni cuenta con su respaldo.',
+    licensesIntro: 'desktopCAM se basa en software y fuentes de código abierto (MIT, ISC, BSD, SIL OFL 1.1 y Apache 2.0).',
+    licensesLink: 'Ver todas las licencias',
   },
 
   pattern: {
@@ -668,6 +673,7 @@ export const es: Dict = {
     fontFailed: 'No se pudo leer la fuente.',
     noteFont: 'Las fuentes de contorno dan letras cerradas. Elige grabado en V para un aspecto de piedra cincelada: la profundidad sigue el ancho de la letra y las esquinas quedan vivas. El vaciado y la incrustación también funcionan.',
     fontMissing: 'La fuente no está cargada: vuelve a cargar el archivo de fuente para cambiar el texto.',
+    customFontNote: 'Comprueba que la licencia de la fuente permite usarla para grabar o mecanizar. La fuente se queda en tu navegador y no se sube.',
   },
 
   shapeLib: {

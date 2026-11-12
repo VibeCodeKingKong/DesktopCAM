@@ -559,6 +559,11 @@ export const fr: Dict = {
     version: (v: string) => `version ${v}`,
     whatsNew: 'Nouveautés',
     current: 'Votre version',
+    legalTitle: 'Licences et marques',
+    disclaimer: 'desktopCAM est fourni en l’état, sans garantie. Vérifiez toujours le G-code – simulez et faites un essai – avant de l’exécuter sur la machine. Vous êtes responsable de la machine, du matériau et de la sécurité, en particulier avec un laser.',
+    trademarks: 'Les noms de machines, logiciels et produits (par ex. Shapeoko, Creality, xTool, Inkscape, Fusion 360, Estlcam) sont des marques de leurs propriétaires. Ils ne sont cités que pour décrire la compatibilité ; desktopCAM n’est ni affilié ni approuvé par eux.',
+    licensesIntro: 'desktopCAM repose sur des logiciels et des polices libres (MIT, ISC, BSD, SIL OFL 1.1 et Apache 2.0).',
+    licensesLink: 'Afficher toutes les licences',
   },
 
   pattern: {
@@ -668,6 +673,7 @@ export const fr: Dict = {
     fontFailed: 'La police n’a pas pu être lue.',
     noteFont: 'Les polices contour donnent des lettres fermées. Choisissez la gravure en V pour un rendu de pierre taillée : la profondeur suit la largeur de la lettre et les angles sont vifs. La poche et l’incrustation fonctionnent aussi.',
     fontMissing: 'La police n’est pas chargée – chargez de nouveau le fichier de police pour modifier le texte.',
+    customFontNote: 'Vérifiez que la licence de la police autorise la gravure ou l’usinage. La police reste dans votre navigateur et n’est pas envoyée.',
   },
 
   shapeLib: {

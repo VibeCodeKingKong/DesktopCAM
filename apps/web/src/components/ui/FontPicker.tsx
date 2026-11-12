@@ -65,12 +65,13 @@ export function FontPicker({ value, onChange }: { value: string; onChange: (font
               </optgroup>
             )}
           </select>
-          <button type="button" className="btn shrink-0 px-2" onClick={() => file.current?.click()} title={d.loadFont} aria-label={d.loadFont}>
+          <button type="button" className="btn shrink-0 px-2" onClick={() => file.current?.click()} title={`${d.loadFont}. ${d.customFontNote}`} aria-label={d.loadFont}>
             <Upload size={13} />
           </button>
           <input ref={file} type="file" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff" className="hidden" onChange={(e) => upload(e.target.files?.[0])} />
         </div>
       </FieldRow>
+      {value.startsWith('custom:') && <p className="text-2xs leading-relaxed text-muted">{d.customFontNote}</p>}
       {loading && <p className="text-2xs text-muted">{d.loadingFont}</p>}
       {error && <p className="text-2xs text-warn">{d.fontFailed}</p>}
     </>

@@ -566,6 +566,11 @@ export const pl: Dict = {
     version: (v: string) => `wersja ${v}`,
     whatsNew: 'Nowości',
     current: 'Twoja wersja',
+    legalTitle: 'Licencje i znaki towarowe',
+    disclaimer: 'desktopCAM jest udostępniany w stanie, w jakim jest, bez gwarancji. Zawsze sprawdzaj G-code – symuluj i wykonaj próbę – zanim uruchomisz go na maszynie. Odpowiadasz za maszynę, materiał i bezpieczeństwo, zwłaszcza przy laserze.',
+    trademarks: 'Nazwy maszyn, programów i produktów (np. Shapeoko, Creality, xTool, Inkscape, Fusion 360, Estlcam) są znakami towarowymi ich właścicieli. Podajemy je tylko, by opisać zgodność; desktopCAM nie jest z nimi powiązany ani przez nie wspierany.',
+    licensesIntro: 'desktopCAM korzysta z oprogramowania i czcionek open source (MIT, ISC, BSD, SIL OFL 1.1 i Apache 2.0).',
+    licensesLink: 'Pokaż wszystkie licencje',
   },
 
   pattern: {
@@ -675,6 +680,7 @@ export const pl: Dict = {
     fontFailed: 'Nie udało się odczytać czcionki.',
     noteFont: 'Czcionki konturowe dają zamknięte litery. Wybierz grawerowanie V dla efektu kutego kamienia: głębokość zależy od szerokości litery, a narożniki są ostre. Kieszeń i intarsja też działają.',
     fontMissing: 'Czcionka nie jest wczytana – wczytaj ponownie plik czcionki, aby zmienić tekst.',
+    customFontNote: 'Sprawdź, czy licencja czcionki pozwala używać jej do grawerowania lub frezowania. Czcionka zostaje w przeglądarce i nie jest wysyłana.',
   },
 
   shapeLib: {

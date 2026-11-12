@@ -36,7 +36,7 @@ export function AboutDialog() {
           <span className="font-semibold">desktopCAM</span> <span className="tabular-nums text-muted">{t.about.version(APP_VERSION)}</span>
         </p>
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{t.about.whatsNew}</h3>
-        <ol className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
+        <ol className="max-h-[45vh] space-y-4 overflow-y-auto pr-1">
           {CHANGELOG.map((e) => (
             <li key={e.version}>
               <p className="mb-1 flex items-baseline gap-2 text-sm">
@@ -52,6 +52,17 @@ export function AboutDialog() {
             </li>
           ))}
         </ol>
+        <section className="space-y-1.5 border-t border-line pt-3 text-2xs leading-relaxed text-muted">
+          <h3 className="text-xs font-semibold uppercase tracking-wide">{t.about.legalTitle}</h3>
+          <p>{t.about.disclaimer}</p>
+          <p>{t.about.trademarks}</p>
+          <p>
+            {t.about.licensesIntro}{' '}
+            <a href="/licenses.txt" target="_blank" rel="noopener" className="text-accent underline">
+              {t.about.licensesLink}
+            </a>
+          </p>
+        </section>
       </div>
     </Dialog>
   );

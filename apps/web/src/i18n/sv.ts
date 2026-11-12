@@ -529,6 +529,11 @@ export const sv = {
     version: (v: string) => `version ${v}`,
     whatsNew: 'Nyheter',
     current: 'Din version',
+    legalTitle: 'Licenser och varumärken',
+    disclaimer: 'desktopCAM tillhandahålls i befintligt skick, utan garantier. Kontrollera alltid G-koden – simulera och provkör – innan den körs på maskinen. Du ansvarar själv för maskinen, materialet och säkerheten, särskilt vid laser.',
+    trademarks: 'Namn på maskiner, program och produkter (t.ex. Shapeoko, Creality, xTool, Inkscape, Fusion 360, Estlcam) är varumärken som tillhör sina ägare. De nämns bara för att beskriva kompatibilitet; desktopCAM är inte knutet till eller godkänt av dem.',
+    licensesIntro: 'desktopCAM bygger på programvara och typsnitt med öppen källkod (MIT, ISC, BSD, SIL OFL 1.1 och Apache 2.0).',
+    licensesLink: 'Visa alla licenser',
   },
 
   pattern: {
@@ -638,6 +643,7 @@ export const sv = {
     fontFailed: 'Typsnittet kunde inte läsas.',
     noteFont: 'Konturtypsnitt ger slutna bokstäver. Välj V-gravyr för huggen sten-känsla: djupet följer bokstavens bredd och hörnen blir skarpa. Ficka och inlägg fungerar också.',
     fontMissing: 'Typsnittet är inte inläst – läs in typsnittsfilen igen för att ändra texten.',
+    customFontNote: 'Kontrollera att typsnittets licens tillåter att du använder det för gravyr eller fräsning. Typsnittet stannar i din webbläsare och laddas inte upp.',
   },
 
   shapeLib: {

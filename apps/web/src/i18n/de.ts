@@ -559,6 +559,11 @@ export const de: Dict = {
     version: (v: string) => `Version ${v}`,
     whatsNew: 'Neuigkeiten',
     current: 'Ihre Version',
+    legalTitle: 'Lizenzen und Marken',
+    disclaimer: 'desktopCAM wird ohne Gewähr bereitgestellt, wie es ist. Prüfen Sie den G-Code immer – simulieren und testen –, bevor er auf der Maschine läuft. Sie sind selbst für Maschine, Material und Sicherheit verantwortlich, besonders beim Laser.',
+    trademarks: 'Namen von Maschinen, Programmen und Produkten (z. B. Shapeoko, Creality, xTool, Inkscape, Fusion 360, Estlcam) sind Marken ihrer Inhaber. Sie werden nur zur Beschreibung der Kompatibilität genannt; desktopCAM ist weder mit ihnen verbunden noch von ihnen unterstützt.',
+    licensesIntro: 'desktopCAM baut auf Open-Source-Software und -Schriften auf (MIT, ISC, BSD, SIL OFL 1.1 und Apache 2.0).',
+    licensesLink: 'Alle Lizenzen anzeigen',
   },
 
   pattern: {
@@ -668,6 +673,7 @@ export const de: Dict = {
     fontFailed: 'Die Schrift konnte nicht gelesen werden.',
     noteFont: 'Konturschriften ergeben geschlossene Buchstaben. Für den Look gemeißelten Steins V-Gravur wählen: Die Tiefe folgt der Buchstabenbreite und die Ecken werden scharf. Tasche und Intarsie funktionieren auch.',
     fontMissing: 'Die Schrift ist nicht geladen – die Schriftdatei erneut laden, um den Text zu ändern.',
+    customFontNote: 'Prüfen Sie, ob die Lizenz der Schrift die Nutzung zum Gravieren oder Fräsen erlaubt. Die Schrift bleibt in Ihrem Browser und wird nicht hochgeladen.',
   },
 
   shapeLib: {

@@ -16,6 +16,40 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.16.1',
+    date: '2026-11-12',
+    text: {
+      sv: [
+        'Licenser och varumärken under Om desktopCAM: friskrivning, varumärkesinformation och en fil med alla licenser för programvara och typsnitt från tredje part (skapas automatiskt vid varje bygge).',
+        'Påminnelse om typsnittslicens när du läser in ett eget typsnitt.',
+      ],
+      en: [
+        'Licences and trademarks under About desktopCAM: disclaimer, trademark notice and a file with all licences for third-party software and fonts (generated automatically on every build).',
+        'A reminder about the font licence when you load your own font.',
+      ],
+      fr: [
+        'Licences et marques dans À propos de desktopCAM : avertissement, mention des marques et un fichier avec toutes les licences des logiciels et polices tiers (généré automatiquement à chaque build).',
+        'Un rappel sur la licence de la police lorsque vous chargez votre propre police.',
+      ],
+      de: [
+        'Lizenzen und Marken unter Über desktopCAM: Haftungsausschluss, Markenhinweis und eine Datei mit allen Lizenzen für Software und Schriften von Dritten (bei jedem Build automatisch erzeugt).',
+        'Ein Hinweis zur Schriftlizenz, wenn Sie eine eigene Schrift laden.',
+      ],
+      es: [
+        'Licencias y marcas en Acerca de desktopCAM: aviso legal, información de marcas y un archivo con todas las licencias del software y las fuentes de terceros (generado automáticamente en cada compilación).',
+        'Un recordatorio sobre la licencia al cargar tu propia fuente.',
+      ],
+      pl: [
+        'Licencje i znaki towarowe w O desktopCAM: zastrzeżenie, informacja o znakach towarowych i plik ze wszystkimi licencjami oprogramowania i czcionek innych firm (tworzony automatycznie przy każdej kompilacji).',
+        'Przypomnienie o licencji czcionki przy wczytywaniu własnej czcionki.',
+      ],
+      uk: [
+        'Ліцензії та торговельні марки в розділі Про desktopCAM: застереження, інформація про марки й файл з усіма ліцензіями сторонніх програм і шрифтів (створюється автоматично під час кожного збирання).',
+        'Нагадування про ліцензію шрифту, коли ви завантажуєте власний шрифт.',
+      ],
+    },
+  },
+  {
     version: '0.16.0',
     date: '2026-11-11',
     text: {
