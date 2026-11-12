@@ -136,6 +136,88 @@
     "tips": []
   },
   {
+    "id": "mild-steel",
+    "name": "Stål (konstruktionsstål)",
+    "category": "metal",
+    "color": "#6e7277",
+    "defaultThickness": 3,
+    "router": null,
+    "laser": {
+      "canCut": false,
+      "cutSpeed": 0,
+      "cutPowerPct": 0,
+      "cutPasses": 0,
+      "engraveSpeed": 1000,
+      "engravePowerPct": 100
+    },
+    "plasma": [
+      {
+        "thickness": 1,
+        "amps": 25,
+        "feedRate": 7600,
+        "kerf": 0.9,
+        "pierceDelay": 0,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 2,
+        "amps": 35,
+        "feedRate": 6400,
+        "kerf": 1.1,
+        "pierceDelay": 0.1,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 3,
+        "amps": 45,
+        "feedRate": 5200,
+        "kerf": 1.5,
+        "pierceDelay": 0.2,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 6,
+        "amps": 45,
+        "feedRate": 2600,
+        "kerf": 1.6,
+        "pierceDelay": 0.5,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 10,
+        "amps": 45,
+        "feedRate": 1300,
+        "kerf": 1.8,
+        "pierceDelay": 0.8,
+        "pierceHeight": 4.5,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 12,
+        "amps": 45,
+        "feedRate": 900,
+        "kerf": 1.9,
+        "pierceDelay": 1.0,
+        "pierceHeight": 5.0,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 16,
+        "amps": 45,
+        "feedRate": 500,
+        "kerf": 2.0,
+        "pierceDelay": 1.4,
+        "pierceHeight": 5.0,
+        "cutHeight": 1.5
+      }
+    ],
+    "tips": []
+  },
+  {
     "id": "aluminium",
     "name": "Aluminium",
     "category": "metal",
@@ -155,7 +237,63 @@
       "engraveSpeed": 3000,
       "engravePowerPct": 60
     },
-    "tips": []
+    "tips": [],
+    "plasma": [
+      {
+        "thickness": 1,
+        "amps": 25,
+        "feedRate": 8000,
+        "kerf": 1.0,
+        "pierceDelay": 0,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 2,
+        "amps": 35,
+        "feedRate": 7000,
+        "kerf": 1.2,
+        "pierceDelay": 0.1,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 3,
+        "amps": 45,
+        "feedRate": 6000,
+        "kerf": 1.6,
+        "pierceDelay": 0.2,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 6,
+        "amps": 45,
+        "feedRate": 3000,
+        "kerf": 1.8,
+        "pierceDelay": 0.4,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 10,
+        "amps": 45,
+        "feedRate": 1500,
+        "kerf": 2.0,
+        "pierceDelay": 0.6,
+        "pierceHeight": 4.5,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 12,
+        "amps": 45,
+        "feedRate": 1000,
+        "kerf": 2.1,
+        "pierceDelay": 0.8,
+        "pierceHeight": 5.0,
+        "cutHeight": 1.5
+      }
+    ]
   },
   {
     "id": "stainless",
@@ -172,7 +310,72 @@
       "engraveSpeed": 1000,
       "engravePowerPct": 100
     },
-    "tips": []
+    "tips": [],
+    "plasma": [
+      {
+        "thickness": 1,
+        "amps": 25,
+        "feedRate": 6460,
+        "kerf": 0.9,
+        "pierceDelay": 0,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 2,
+        "amps": 35,
+        "feedRate": 5440,
+        "kerf": 1.1,
+        "pierceDelay": 0.1,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 3,
+        "amps": 45,
+        "feedRate": 4420,
+        "kerf": 1.5,
+        "pierceDelay": 0.2,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 6,
+        "amps": 45,
+        "feedRate": 2210,
+        "kerf": 1.6,
+        "pierceDelay": 0.5,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 10,
+        "amps": 45,
+        "feedRate": 1100,
+        "kerf": 1.8,
+        "pierceDelay": 0.8,
+        "pierceHeight": 4.5,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 12,
+        "amps": 45,
+        "feedRate": 760,
+        "kerf": 1.9,
+        "pierceDelay": 1.0,
+        "pierceHeight": 5.0,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 16,
+        "amps": 45,
+        "feedRate": 420,
+        "kerf": 2.0,
+        "pierceDelay": 1.4,
+        "pierceHeight": 5.0,
+        "cutHeight": 1.5
+      }
+    ]
   },
   {
     "id": "slate",

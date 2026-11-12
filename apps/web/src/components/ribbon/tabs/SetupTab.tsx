@@ -1,7 +1,7 @@
 import { Settings2, Wrench, Zap } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
-import { useAppStore, useMachine } from '../../../store/useAppStore';
+import { toolFitsMachine, useAppStore, useMachine } from '../../../store/useAppStore';
 import { Select } from '../../ui/Field';
 import { IlluMachine, IlluToolLibrary } from '../../smartguide/illustrations';
 import { materialName, toolName, useT } from '../../../i18n';
@@ -62,6 +62,7 @@ export function SetupTab() {
               groups={[
                 { label: t.machine.machineGroups.router, options: machines.filter((m) => !m.custom && m.kind === 'router').map((m) => ({ value: m.id, label: m.name })) },
                 { label: t.machine.machineGroups.laser, options: machines.filter((m) => !m.custom && m.kind === 'laser').map((m) => ({ value: m.id, label: m.name })) },
+                { label: t.machine.machineGroups.plasma, options: machines.filter((m) => !m.custom && m.kind === 'plasma').map((m) => ({ value: m.id, label: m.name })) },
                 { label: t.machine.machineGroups.custom, options: machines.filter((m) => m.custom).map((m) => ({ value: m.id, label: m.name })) },
               ]}
               onChange={setMachine}
@@ -110,7 +111,7 @@ export function SetupTab() {
           <RibbonField label={t.setup.activeTool}>
             <Select
               value={activeToolId}
-              options={tools.filter((x) => (isLaser ? x.kind === 'laser' : x.kind !== 'laser')).map((x) => ({ value: x.id, label: toolName(t, x.id, x.name) }))}
+              options={tools.filter((x) => toolFitsMachine(x.kind, machine.kind)).map((x) => ({ value: x.id, label: toolName(t, x.id, x.name) }))}
               onChange={setActiveTool}
             />
           </RibbonField>

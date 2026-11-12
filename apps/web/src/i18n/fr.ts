@@ -44,6 +44,17 @@ const guides: Record<GuideKey, GuideEntry> = {
   reliefInlay: { title: 'Incrustation de relief', body: 'Le bouchon est l’inverse du relief : inversé et en miroir. Retourné, il s’emboîte dans la poche avec un fin jeu de colle. Autour du relief, la planche du bouchon est fraisée pour ne pas toucher le bois de base.', steps: ['Un jeu de 0,1–0,3 mm suffit avec de la colle à bois.', 'Un dégagement de 1 mm éloigne la planche du bois de base hors du relief.', 'Usinez les deux pièces avec la même fraise boule pour le meilleur ajustement.'] },
   onionSkin: { title: 'Peau d’oignon', body: 'Une fine couche laissée au fond pour que la pièce reste attachée. Cassez-la ou coupez-la ensuite et poncez le bord.', steps: ['0,2–0,4 mm dans le contreplaqué et le MDF.', 'Souvent utilisée à la place des attaches sur les petites pièces.'] },
   snap: { title: 'Aimanter à la grille', body: 'Les points dessinés et déplacés se placent sur le pas de grille le plus proche. Désactivez pour un placement entièrement libre.' },
+  plasmaAmps: { title: 'Courant', body: 'Le courant se règle sur le générateur plasma – il n’est écrit dans le G-code que comme rappel. Plus de courant coupe plus épais mais élargit la saignée.', steps: ['Suivez la table de coupe de votre torche pour la buse utilisée.', 'Buse fine : 25–45 A pour une tôle jusqu’à environ 4 mm.'] },
+  plasmaKerf: { title: 'Saignée', body: 'L’arc plasma brûle une bande de 1 à 2 mm. desktopCAM décale le parcours d’une demi-saignée dans la chute pour que la pièce ait la bonne cote.', steps: ['Découpez une pièce d’essai de 50 × 50 mm et mesurez-la.', 'Saignée = valeur actuelle + (50 − cote mesurée).'] },
+  pierceHeight: { title: 'Hauteur de perçage', body: 'La torche s’allume plus haut que la hauteur de coupe pour que le métal projeté pendant le perçage n’atteigne pas la buse.', steps: ['Souvent 1,5 à 2 × la hauteur de coupe.', 'Une tôle épaisse demande une hauteur de perçage plus grande.'] },
+  pierceDelay: { title: 'Temporisation de perçage', body: 'Le temps pendant lequel la torche reste immobile après l’allumage, pour que l’arc traverse la tôle.', steps: ['Tôle fine : 0–0,2 s.', 'Trop court : l’arc ne traverse pas et des scories giclent.', 'Trop long : le trou de perçage s’agrandit.'] },
+  cutHeight: { title: 'Hauteur de coupe', body: 'La distance entre la buse et la tôle pendant la coupe. La bonne hauteur donne des bords droits et des consommables durables.', steps: ['En général 1,5 mm à 45 A à l’air.', 'Trop haut donne un chanfrein, trop bas use la buse.'] },
+  plasmaIhs: { title: 'Palpage de hauteur (IHS)', body: 'Avant chaque perçage, la torche descend jusqu’à toucher la tôle (G38.2). La hauteur reste juste même si la tôle est voilée ou se déforme à la chaleur.', steps: ['Nécessite une tête flottante ou un palpage ohmique.', 'Course du contacteur : distance parcourue entre le contact et le déclenchement.'] },
+  plasmaLead: { title: 'Entrée et sortie', body: 'Le perçage laisse un cratère et des scories. Avec une entrée, il se fait dans la chute et la torche glisse ensuite sur le contour ; la sortie ramène dans la chute.', steps: ['Un arc donne la transition la plus propre – idéal pour les contours.', 'Une ligne convient bien dans les trous.', 'Une entrée à peu près aussi longue que l’épaisseur, au moins 3 mm.'] },
+  plasmaOvercut: { title: 'Surcoupe', body: 'La torche dépasse un peu le point de départ avant de quitter le contour, pour que celui-ci se ferme entièrement.', steps: ['0,5–1 mm suffit généralement.'] },
+  holeSlowdown: { title: 'Plus lent dans les petits trous', body: 'Dans les petits trous, l’arc ne suit pas à pleine vitesse – le trou devient conique et ovale. Une avance réduite donne un trou plus rond.', steps: ['Les trous de moins de 2,5 × l’épaisseur environ sont petits.', '50–70 % de l’avance normale est un bon départ.'] },
+  plasmaThc: { title: 'THC dans les petits trous', body: 'Le contrôle de hauteur (THC) suit la tension d’arc. Dans les petits trous et les angles, la tension change quand la vitesse baisse et la torche peut plonger. Il y est donc coupé.', steps: ['Nécessite les codes THC de la machine dans Post-processeur.'] },
+  plasmaDirection: { title: 'Sens de coupe', body: 'Le gaz plasma tourbillonne : un bord de coupe est droit, l’autre légèrement chanfreiné. Avec une torche normale (rotation horaire), le bord droit est à droite du sens de déplacement.', steps: ['Pièce à droite : contours en sens horaire, trous en sens antihoraire.', 'Ne changez que si votre torche tourne en sens antihoraire.'] },
 };
 
 export const fr: Dict = {
@@ -114,6 +125,7 @@ export const fr: Dict = {
     camera: 'Caméra',
     gcode: 'G-code',
     post: 'Post-processeur',
+    plasma: 'Plasma',
   },
 
   buttons: {
@@ -140,6 +152,7 @@ export const fr: Dict = {
     text: { label: 'Texte', title: 'Texte', desc: 'Touchez là où le texte doit commencer. Le texte utilise une police de gravure à trait unique.' },
     importVector: { label: 'SVG / DXF', title: 'Importer des vecteurs', desc: 'Importe des dessins d’Inkscape, Illustrator, Fusion 360 ou LibreCAD. Vous pouvez aussi déposer le fichier sur la vue 3D.' },
     shapeLibrary: { label: 'Formes', title: 'Bibliothèque de formes', desc: 'Cadres, bannières, ornements et motifs prêts à l’emploi. Ajoutez un motif puis choisissez l’usinage : poche, gravure en V, contour, incrustation ou gravure de lignes.' },
+    plasmaCut: { label: 'Plasma', title: 'Découpe plasma', desc: 'Découpe des pièces dans la tôle à la torche plasma : compensation de saignée, entrée et sortie dans la chute, temporisation de perçage et trous avant le contour.' },
     reliefLibrary: { label: 'Reliefs', title: 'Bibliothèque de reliefs', desc: 'Motifs 3D prêts à placer sur le matériau et à usiner avec une fraise boule.' },
     remove: { label: 'Supprimer', title: 'Supprimer', desc: 'Supprime les formes sélectionnées, ou le nœud sélectionné en mode nœuds.' },
     duplicate: { label: 'Dupliquer', title: 'Dupliquer', desc: 'Copie les formes sélectionnées, légèrement décalées vers le bas à droite.' },
@@ -168,6 +181,7 @@ export const fr: Dict = {
   reasons: {
     needsRouter: 'Nécessite une fraiseuse. Changez de machine dans Configuration.',
     needsLaser: 'Nécessite un laser. Changez de machine dans Configuration.',
+    needsPlasma: 'Nécessite une découpeuse plasma. Changez de machine dans Configuration.',
     vcarveSoon: 'La gravure en V nécessite un calcul d’axe médian qui arrive dans la prochaine version.',
     needsRelief: 'Ajoutez un relief depuis la bibliothèque de reliefs dans Dessin.',
     needsResult: 'Créez d’abord un parcours.',
@@ -300,6 +314,7 @@ export const fr: Dict = {
     holeCount: (n: number) => `${n} trous trouvés`,
     cannotCut: 'Un laser à diode ne peut pas couper ce matériau. Utilisez le parcours pour marquer ou choisissez Gravure de lignes.',
     notForRouter: 'Ce matériau ne convient pas à une fraiseuse de loisir. Changez de matériau ou utilisez un laser.',
+    notForPlasma: 'Ce matériau ne conduit pas l’électricité et ne peut pas être découpé au plasma. Choisissez acier, inox ou aluminium.',
     strategy: 'Stratégie',
     presets: { fast: 'Rapide', balanced: 'Équilibré', fine: 'Finition fine', custom: 'Personnalisé' },
     presetDesc: {
@@ -624,12 +639,16 @@ export const fr: Dict = {
     common: ['Simulez avant de lancer – vous verrez si quelque chose cloche.'],
     routerCommon: ['Faites le zéro Z sur le dessus du matériau.'],
     laserCommon: ['Faites une gravure test dans un coin pour trouver la bonne puissance et vitesse.'],
+    plasma: ['Placez la pince de masse près de la zone de coupe – une mauvaise masse donne un arc instable.', 'Découpez d’abord les trous et contours intérieurs, le contour extérieur en dernier pour que la pièce ne bascule pas.', 'Changez buse et électrode quand la coupe devient oblique ou large – des pièces usées donnent un chanfrein.', 'Faites une coupe d’essai et mesurez – ajustez la saignée jusqu’à ce que les cotes soient justes.'],
+    plasmaCommon: ['Portez des lunettes de soudage (teinte 5–8), des gants et ventilez bien – les fumées métalliques sont dangereuses.', 'Gardez un extincteur à portée et rien d’inflammable sous ou autour de la table.'],
   },
-  materialTips: (m: string, laser: boolean) => `Conseils pour ${m.toLowerCase()} avec ${laser ? 'un laser' : 'une fraiseuse'}`,
+  materialTips: (m: string, kind: string) => `Conseils pour ${m.toLowerCase()} avec ${kind === 'laser' ? 'un laser' : kind === 'plasma' ? 'un plasma' : 'une fraiseuse'}`,
 
   toolRules: {
     notSuitable: 'inadapté',
     why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'plasma' && op !== 'plasmaCut') return 'Une torche plasma ne peut que découper la tôle le long d’un contour. Choisissez une fraise ici, ou passez à une découpeuse plasma.';
+      if (op === 'plasmaCut' && kind !== 'plasma') return 'La découpe plasma nécessite une torche plasma.';
       if (kind === 'vbit' && op === 'pocket') return 'Une fraise en V ne convient pas aux poches : la poche est calculée avec le diamètre de la fraise (par ex. 12,7 mm), mais une fraise en V ne coupe que la largeur que permet la profondeur – il reste de la matière entre les anneaux. Choisissez une fraise droite, ou la gravure en V pour des bords en V.';
       if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'Une fraise en V ne fonctionne que sur la ligne (gravure). À côté de la ligne, le décalage est calculé avec la mauvaise largeur. Choisissez Sur la ligne, ou une fraise droite.';
       if (kind === 'drill') return 'Un foret ne peut que descendre droit et ne coupe pas latéralement. Utilisez-le pour le Perçage, et une fraise droite ici.';
@@ -728,6 +747,38 @@ export const fr: Dict = {
     },
   },
 
+  plasma: {
+    cutting: 'Plasma',
+    amps: 'Courant',
+    ampsTooHigh: (max: number) => `Supérieur aux ${max} A du générateur.`,
+    chart: (t: string, amps: number, feed: number, kerf: string, delay: string) => `Table de coupe pour ${t} mm : ${amps} A, ${feed} mm/min, saignée ${kerf} mm, perçage ${delay} s.`,
+    useChart: 'Utiliser les valeurs de la table',
+    pierce: 'Perçage',
+    pierceHeight: 'Hauteur de perçage',
+    pierceDelay: 'Temporisation de perçage',
+    cutHeight: 'Hauteur de coupe',
+    ihs: 'Palpage de hauteur (IHS)',
+    switchOffset: 'Course du contacteur',
+    plungeRate: 'Descente à la hauteur de coupe',
+    noZ: 'La machine n’a pas d’axe Z : réglez la hauteur de torche à la main sur la hauteur de coupe.',
+    leadsTitle: 'Entrée et sortie',
+    leadIn: 'Entrée',
+    leadOut: 'Sortie',
+    leads: { arc: 'Arc', line: 'Ligne', none: 'Aucune' },
+    radius: 'Rayon',
+    length: 'Longueur',
+    overcut: 'Surcoupe',
+    holes: 'Trous',
+    holeSlowdown: 'Plus lent dans les petits trous',
+    holeDiameter: 'Petits trous sous',
+    holeFeed: 'Avance dans les petits trous',
+    thcOff: 'THC coupé dans les petits trous',
+    thcNoCodes: 'Aucun code THC n’est défini (Configuration machine → Post-processeur), donc rien n’est écrit.',
+    orderNote: 'Les trous et contours intérieurs sont découpés d’abord, le contour extérieur en dernier.',
+    partRight: 'Pièce à droite',
+    partLeft: 'Pièce à gauche',
+  },
+
   status: {
     ready: 'Prêt',
     newProject: 'Nouveau projet créé',
@@ -737,6 +788,9 @@ export const fr: Dict = {
     notImplemented: (f: string) => `${f} n’est pas encore disponible`,
     needRouter: (op: string) => `${op} nécessite une fraiseuse – changez de machine dans Configuration`,
     needLaser: (op: string) => `${op} nécessite un laser – changez de machine dans Configuration`,
+    needPlasma: (op: string) => `${op} nécessite une découpeuse plasma – changez de machine dans Configuration`,
+    needsPlasmaTool: 'La découpe plasma nécessite une torche plasma dans la bibliothèque d’outils',
+    notForPlasma: (m: string) => `${m} ne conduit pas l’électricité et ne peut pas être découpé au plasma – choisissez acier, inox ou aluminium`,
     drawFirst: 'Dessinez ou importez d’abord une forme',
     textNeedsOutline: 'Le texte est à trait unique – seules les lettres fermées comme O seraient usinées. Sélectionnez le texte et choisissez Style : Contour dans Propriétés.',
     needClosed: 'Sélectionnez au moins une forme fermée',
@@ -887,6 +941,12 @@ export const fr: Dict = {
     next: (s: string) => `Suivant : ${s}`,
     kindRouter: 'Fraiseuse CNC',
     kindLaser: 'Gravure et découpe laser',
+    kindPlasma: 'Découpe plasma',
+    plasmaZ: 'Axe Z motorisé',
+    plasmaIhs: 'Palpage de hauteur (IHS)',
+    plasmaAmps: 'Courant max',
+    plasmaCodes: { torchOn: 'Allumer la torche', torchOff: 'Éteindre la torche', thcOn: 'THC actif', thcOff: 'THC inactif' },
+    plasmaCodesHint: 'Les codes sont écrits dans le G-code. Laissez THC vide si le contrôleur gère lui-même la hauteur.',
     workArea: (x: number, y: number) => `Zone de travail ${x} × ${y} mm`,
     controller: (c: string) => `Contrôleur : ${c}`,
     configTitle: 'Réglages de la machine sélectionnée',
@@ -914,9 +974,9 @@ export const fr: Dict = {
     addTool: 'Nouvel outil',
     newToolName: 'Nouvel outil',
     editTool: 'Modifier l’outil',
-    toolKinds: { endmill: 'Fraise droite', ballnose: 'Fraise boule', vbit: 'Fraise en V', drill: 'Foret', laser: 'Laser' },
+    toolKinds: { endmill: 'Fraise droite', ballnose: 'Fraise boule', vbit: 'Fraise en V', drill: 'Foret', laser: 'Laser', plasma: 'Torche plasma' },
     select: 'Choisir la machine',
-    machineGroups: { router: 'Fraiseuses', laser: 'Lasers', custom: 'Profils personnalisés' },
+    machineGroups: { router: 'Fraiseuses', laser: 'Lasers', plasma: 'Découpeuses plasma', custom: 'Profils personnalisés' },
     deleteProfile: 'Supprimer le profil',
     builtInNote: 'Machine prédéfinie. Pour la modifier et garder votre variante, touchez Nouveau profil.',
     customNote: 'Profil personnalisé. Il est enregistré avec le projet.',
@@ -937,6 +997,9 @@ export const fr: Dict = {
       'sculpfun-s30-pro-max': 'Laser à diode de 20 W avec assistance d’air. La zone de travail s’entend avec fins de course montés.',
       'ortur-lm3': 'Laser à diode rapide de 10 W.',
       'generic-grbl-laser': 'Point de départ pour un laser absent de la liste. Vérifiez la plage S ($30).',
+      'langmuir-crossfire-pro': 'Table plasma 61 × 122 cm avec axe Z motorisé. Activez le palpage si la machine a une tête flottante.',
+      'langmuir-crossfire': 'Table plasma 61 × 61 cm sans axe Z – la hauteur de torche se règle à la main.',
+      'generic-grbl-plasma': 'Point de départ pour votre propre table plasma GRBL avec tête flottante (palpage par G38.2).',
     },
   },
 
@@ -965,6 +1028,7 @@ export const fr: Dict = {
     laserRaster: 'Gravure photo',
     relief: 'Relief',
     inlay: 'Incrustation',
+    plasmaCut: 'Découpe plasma',
   },
   inlayParts: { pocket: 'poche', plug: 'bouchon' },
   lineEngrave: 'Gravure de lignes',
@@ -972,16 +1036,17 @@ export const fr: Dict = {
   shapeNames: { rect: 'Rectangle', circle: 'Cercle', gear: 'Engrenage', line: 'Ligne', curve: 'Courbe', text: 'Texte', copy: 'copie' },
 
   materials: {
-    pine: { name: 'Pin', tips: { router: ['La résine peut encrasser la fraise – soufflez-la entre les passes.', 'Bois tendre : une fraise droite deux dents à pleine avance donne des bords nets.', 'Faites la finition dans le sens du fil pour limiter les arrachements.'], laser: ['Les cernes brûlent en teintes différentes – le bois d’été ressort le plus foncé.', 'La résine peut s’enflammer : utilisez l’assistance d’air.', 'Masquez la surface au ruban pour éviter les traces de fumée.'] } },
-    'birch-ply': { name: 'Contreplaqué de bouleau', tips: { router: ['Utilisez une fraise à coupe descendante ou à compression pour des plis extérieurs nets.', 'Les couches de colle usent la fraise – attendez-vous à une durée de vie plus courte.', 'Les attaches tiennent mieux les pièces qu’une peau d’oignon dans le contreplaqué.'], laser: ['Les couches de colle demandent souvent une passe de plus.', 'Choisissez un contreplaqué laser avec une colle adaptée.', 'Le ruban de masquage garde la surface propre autour de la coupe.'] } },
-    mdf: { name: 'MDF', tips: { router: ['Poussière très fine – utilisez une aspiration et un masque.', 'Le MDF s’usine proprement dans toutes les directions et convient bien aux reliefs.', 'Les chants absorbent la peinture – appliquez un apprêt avant de peindre.'], laser: ['Les bords foncent après la découpe.', 'Le MDF se coupe plus lentement que le contreplaqué de même épaisseur.', 'Aérez bien – la colle dégage une fumée épaisse.'] } },
-    acrylic: { name: 'Acrylique (coulé)', tips: { router: ['Une fraise une dent donne la coupe la plus propre sans fondre.', 'Gardez une avance élevée – si la fraise s’attarde, le plastique fond.', 'Laissez le film protecteur pendant l’usinage.'], laser: ['Un laser à diode bleu ne coupe pas l’acrylique transparent ou bleu – choisissez-le foncé ou opaque.', 'L’acrylique coulé se grave en blanc givré.', 'Retirez le film protecteur avant de graver.'] } },
-    leather: { name: 'Cuir (tannage végétal)', tips: { router: ['Le cuir se fraise rarement – coupez-le plutôt au laser ou au couteau.', 'Si vous le fraisez, maintenez le cuir avec de l’adhésif double face.'], laser: ['Ne passez au laser que du cuir sans chrome (tannage végétal).', 'Humidifiez légèrement la surface pour une gravure régulière.', 'Moins de puissance et plus de passes donnent des bords moins carbonisés.'] } },
-    oak: { name: 'Chêne', tips: { router: ['Dur et dense – réduisez un peu l’avance par rapport au pin.', 'Les tanins du chêne peuvent tacher les outils en acier quand il est humide.', 'Le chêne est excellent pour la gravure en V et les incrustations en bois clair.'], laser: ['Le chêne se grave foncé avec un fort contraste.', 'La découpe est lente – le chêne épais demande plusieurs passes.'] } },
-    aluminium: { name: 'Aluminium', tips: { router: ['Utilisez une fraise une dent, des passes faibles (environ 0,3 mm) et de l’air ou du lubrifiant pour que les copeaux ne collent pas.', 'Bridez fermement – l’aluminium ne doit pas vibrer.', 'Demande une machine rigide ; sur des machines légères comme MPCNC ou 3018, ça marche rarement bien.'], laser: ['Les lasers à diode ne coupent pas l’aluminium.', 'L’aluminium anodisé se grave bien – la couleur est brûlée.', 'L’aluminium nu ne marque pas sans spray de marquage.'] } },
-    stainless: { name: 'Acier inoxydable', tips: { router: ['L’acier ne s’usine pas sur une fraiseuse de loisir – utilisez un laser pour le marquage.'], laser: ['Un laser à diode ne marque pas l’acier nu. Pulvérisez un produit de marquage (par ex. LMM ou CerMark), gravez puis rincez le reste.', 'Marquer sans spray nécessite un laser fibre.'] } },
-    slate: { name: 'Ardoise', tips: { router: ['L’ardoise se grave à la fraise en V, mais la poussière est nocive – portez un masque et travaillez de préférence à l’eau.', 'Maintenez bien le carreau ; il se fend facilement.'], laser: ['La gravure ressort gris clair sur la pierre foncée.', 'Essuyez la poussière avec un chiffon humide puis huilez la surface.', 'Les lasers à diode ne coupent pas la pierre.'] } },
-    cardboard: { name: 'Carton', tips: { router: ['Le carton s’usine mal – coupez-le plutôt au laser ou au couteau.'], laser: ['Prend feu facilement – restez près de la machine et utilisez l’assistance d’air.', 'Le carton ondulé se coupe vite à faible puissance.', 'Maintenez le carton à plat avec des aimants ou des épingles.'] } },
+    pine: { name: 'Pin', tips: { router: ['La résine peut encrasser la fraise – soufflez-la entre les passes.', 'Bois tendre : une fraise droite deux dents à pleine avance donne des bords nets.', 'Faites la finition dans le sens du fil pour limiter les arrachements.'], laser: ['Les cernes brûlent en teintes différentes – le bois d’été ressort le plus foncé.', 'La résine peut s’enflammer : utilisez l’assistance d’air.', 'Masquez la surface au ruban pour éviter les traces de fumée.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    'birch-ply': { name: 'Contreplaqué de bouleau', tips: { router: ['Utilisez une fraise à coupe descendante ou à compression pour des plis extérieurs nets.', 'Les couches de colle usent la fraise – attendez-vous à une durée de vie plus courte.', 'Les attaches tiennent mieux les pièces qu’une peau d’oignon dans le contreplaqué.'], laser: ['Les couches de colle demandent souvent une passe de plus.', 'Choisissez un contreplaqué laser avec une colle adaptée.', 'Le ruban de masquage garde la surface propre autour de la coupe.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    mdf: { name: 'MDF', tips: { router: ['Poussière très fine – utilisez une aspiration et un masque.', 'Le MDF s’usine proprement dans toutes les directions et convient bien aux reliefs.', 'Les chants absorbent la peinture – appliquez un apprêt avant de peindre.'], laser: ['Les bords foncent après la découpe.', 'Le MDF se coupe plus lentement que le contreplaqué de même épaisseur.', 'Aérez bien – la colle dégage une fumée épaisse.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    acrylic: { name: 'Acrylique (coulé)', tips: { router: ['Une fraise une dent donne la coupe la plus propre sans fondre.', 'Gardez une avance élevée – si la fraise s’attarde, le plastique fond.', 'Laissez le film protecteur pendant l’usinage.'], laser: ['Un laser à diode bleu ne coupe pas l’acrylique transparent ou bleu – choisissez-le foncé ou opaque.', 'L’acrylique coulé se grave en blanc givré.', 'Retirez le film protecteur avant de graver.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    leather: { name: 'Cuir (tannage végétal)', tips: { router: ['Le cuir se fraise rarement – coupez-le plutôt au laser ou au couteau.', 'Si vous le fraisez, maintenez le cuir avec de l’adhésif double face.'], laser: ['Ne passez au laser que du cuir sans chrome (tannage végétal).', 'Humidifiez légèrement la surface pour une gravure régulière.', 'Moins de puissance et plus de passes donnent des bords moins carbonisés.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    oak: { name: 'Chêne', tips: { router: ['Dur et dense – réduisez un peu l’avance par rapport au pin.', 'Les tanins du chêne peuvent tacher les outils en acier quand il est humide.', 'Le chêne est excellent pour la gravure en V et les incrustations en bois clair.'], laser: ['Le chêne se grave foncé avec un fort contraste.', 'La découpe est lente – le chêne épais demande plusieurs passes.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    'mild-steel': { name: 'Acier (acier de construction)', tips: { router: ['L’acier ne s’usine pas sur une fraiseuse de loisir – découpez-le au plasma.'], laser: ['Un laser à diode ne marque pas l’acier nu sans spray de marquage.'], plasma: ['La bonne vitesse donne une gerbe d’étincelles régulière, légèrement inclinée vers l’arrière, et presque pas de scories.', 'Perles de scories dessous : trop lent. Scories difficiles à enlever : trop rapide.', 'Tôle épaisse : une entrée au moins aussi longue que l’épaisseur.'] } },
+    aluminium: { name: 'Aluminium', tips: { router: ['Utilisez une fraise une dent, des passes faibles (environ 0,3 mm) et de l’air ou du lubrifiant pour que les copeaux ne collent pas.', 'Bridez fermement – l’aluminium ne doit pas vibrer.', 'Demande une machine rigide ; sur des machines légères comme MPCNC ou 3018, ça marche rarement bien.'], laser: ['Les lasers à diode ne coupent pas l’aluminium.', 'L’aluminium anodisé se grave bien – la couleur est brûlée.', 'L’aluminium nu ne marque pas sans spray de marquage.'], plasma: ['L’aluminium se coupe plus vite que l’acier mais laisse plus de scories dessous.', 'Nettoyez oxyde et graisse à l’endroit de la pince de masse.'] } },
+    stainless: { name: 'Acier inoxydable', tips: { router: ['L’acier ne s’usine pas sur une fraiseuse de loisir – utilisez un laser pour le marquage.'], laser: ['Un laser à diode ne marque pas l’acier nu. Pulvérisez un produit de marquage (par ex. LMM ou CerMark), gravez puis rincez le reste.', 'Marquer sans spray nécessite un laser fibre.'], plasma: ['L’inox se coupe un peu plus lentement que l’acier et se colore près de la coupe.', 'À l’air, le bord de coupe noircit – meulez si la surface doit être brillante.'] } },
+    slate: { name: 'Ardoise', tips: { router: ['L’ardoise se grave à la fraise en V, mais la poussière est nocive – portez un masque et travaillez de préférence à l’eau.', 'Maintenez bien le carreau ; il se fend facilement.'], laser: ['La gravure ressort gris clair sur la pierre foncée.', 'Essuyez la poussière avec un chiffon humide puis huilez la surface.', 'Les lasers à diode ne coupent pas la pierre.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
+    cardboard: { name: 'Carton', tips: { router: ['Le carton s’usine mal – coupez-le plutôt au laser ou au couteau.'], laser: ['Prend feu facilement – restez près de la machine et utilisez l’assistance d’air.', 'Le carton ondulé se coupe vite à faible puissance.', 'Maintenez le carton à plat avec des aimants ou des épingles.'], plasma: ['Ne peut pas être découpé au plasma – le plasma nécessite un matériau conducteur.'] } },
   },
 
   tools: {
@@ -993,6 +1058,8 @@ export const fr: Dict = {
     'drill-3': 'Foret 3 mm',
     'em-3175-1f-alu': 'Fraise une dent 3,175 mm (aluminium)',
     'laser-diode': 'Laser à diode (point focalisé)',
+    'plasma-45-std': 'Torche plasma 45 A (buse standard)',
+    'plasma-45-fine': 'Torche plasma 45 A (buse fine)',
   },
 
   guides: {

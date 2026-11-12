@@ -13,7 +13,7 @@ export function ReliefLibraryDialog() {
   const t = useT();
   const open = useAppStore((s) => s.dialog === 'reliefLibrary');
   const material = useAppStore((s) => s.material);
-  const isLaser = useAppStore((s) => s.machines.find((m) => m.id === s.machineId)?.kind === 'laser');
+  const isLaser = useAppStore((s) => s.machines.find((m) => m.id === s.machineId)?.kind !== 'router');
   const [category, setCategory] = useState<ReliefCategory | 'all'>('all');
   const [selectedId, setSelectedId] = useState(RELIEF_LIBRARY[0].id);
   const [width, setWidth] = useState(60);

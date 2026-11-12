@@ -42,6 +42,10 @@ export function parseGcode(src: string): GcodePreview {
     let ny = y;
     let nz = z;
     let moved = false;
+    // G92 sätter om koordinaterna (t.ex. efter höjdavkänning) – ingen rörelse.
+    if (/\bG92\b/i.test(line)) continue;
+    let dwell = false;
+    let probe = false;
     WORD.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = WORD.exec(line))) {
@@ -50,6 +54,11 @@ export function parseGcode(src: string): GcodePreview {
       switch (letter) {
         case 'G':
           if (value === 0 || value === 1) mode = value;
+          else if (value === 4) dwell = true;
+          else if (value >= 38 && value < 39) probe = true;
+          break;
+        case 'P':
+          if (dwell) seconds += value;
           break;
         case 'X': nx = value; moved = true; break;
         case 'Y': ny = value; moved = true; break;
@@ -57,7 +66,7 @@ export function parseGcode(src: string): GcodePreview {
         case 'F': feed = value > 0 ? value : feed; break;
       }
     }
-    if (!moved) continue;
+    if (!moved || probe) continue;
     const len = Math.hypot(nx - x, ny - y, nz - z);
     if (len > 0) {
       if (mode === 0) {

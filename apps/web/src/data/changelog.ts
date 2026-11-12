@@ -16,6 +16,54 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.17.0',
+    date: '2026-11-12',
+    text: {
+      sv: [
+        'Plasmaskärning: ny maskintyp med CrossFire, CrossFire PRO och egen GRBL-plasma, plasmabrännare i verktygsbiblioteket och en ny bana för plasmaskärning.',
+        'Strålkompensation, inlöp och utlöp (båge eller linje) i spillet, överskärning, genomstickningshöjd och väntetid, skärhöjd och höjdavkänning (IHS) med G38.2.',
+        'Hål skärs före ytterkonturen och långsammare när de är små, och höjdregleringen (THC) kan stängas av i små hål.',
+        'Skärtabeller för stål, rostfritt och aluminium fyller i ström, matning, snittbredd och väntetid efter plåtens tjocklek. Simuleringen visar plasmasnittet.',
+      ],
+      en: [
+        'Plasma cutting: a new machine type with CrossFire, CrossFire PRO and a custom GRBL plasma, plasma torches in the tool library and a new plasma cutting toolpath.',
+        'Kerf compensation, lead-in and lead-out (arc or line) in the scrap, overcut, pierce height and delay, cut height and height sensing (IHS) with G38.2.',
+        'Holes are cut before the outline and slower when they are small, and torch height control (THC) can be turned off in small holes.',
+        'Cut charts for steel, stainless and aluminium fill in current, feed, kerf and pierce delay from the plate thickness. The simulation shows the plasma cut.',
+      ],
+      fr: [
+        'Découpe plasma : nouveau type de machine avec CrossFire, CrossFire PRO et plasma GRBL personnalisé, torches plasma dans la bibliothèque d’outils et nouveau parcours de découpe plasma.',
+        'Compensation de saignée, entrée et sortie (arc ou ligne) dans la chute, surcoupe, hauteur et temporisation de perçage, hauteur de coupe et palpage (IHS) par G38.2.',
+        'Les trous sont découpés avant le contour et plus lentement quand ils sont petits ; le THC peut être coupé dans les petits trous.',
+        'Tables de coupe pour l’acier, l’inox et l’aluminium : courant, avance, saignée et temporisation selon l’épaisseur. La simulation montre la coupe plasma.',
+      ],
+      de: [
+        'Plasmaschneiden: neuer Maschinentyp mit CrossFire, CrossFire PRO und eigenem GRBL-Plasma, Plasmabrenner in der Werkzeugbibliothek und eine neue Bahn für das Plasmaschneiden.',
+        'Schnittspaltkorrektur, An- und Abfahrt (Bogen oder Linie) im Verschnitt, Überschnitt, Einstechhöhe und -verzögerung, Schneidhöhe und Höhenabtastung (IHS) mit G38.2.',
+        'Löcher werden vor der Außenkontur geschnitten und langsamer, wenn sie klein sind; die Höhenregelung (THC) lässt sich in kleinen Löchern abschalten.',
+        'Schneidtabellen für Stahl, Edelstahl und Aluminium setzen Strom, Vorschub, Schnittspalt und Einstechverzögerung nach Blechdicke. Die Simulation zeigt den Plasmaschnitt.',
+      ],
+      es: [
+        'Corte por plasma: nuevo tipo de máquina con CrossFire, CrossFire PRO y plasma GRBL propio, antorchas de plasma en la biblioteca de herramientas y una nueva trayectoria de corte por plasma.',
+        'Compensación de sangría, entrada y salida (arco o línea) en el retal, sobrecorte, altura y retardo de perforación, altura de corte y detección de altura (IHS) con G38.2.',
+        'Los agujeros se cortan antes que el contorno y más despacio cuando son pequeños, y el control de altura (THC) se puede desactivar en ellos.',
+        'Tablas de corte para acero, inoxidable y aluminio: corriente, avance, sangría y retardo según el grosor de la chapa. La simulación muestra el corte por plasma.',
+      ],
+      pl: [
+        'Cięcie plazmą: nowy typ maszyny z CrossFire, CrossFire PRO i własną plazmą GRBL, palniki plazmowe w bibliotece narzędzi i nowa ścieżka cięcia plazmą.',
+        'Kompensacja szczeliny, wejście i wyjście (łuk lub linia) w odpadzie, przecięcie, wysokość i opóźnienie przebicia, wysokość cięcia i wyczuwanie wysokości (IHS) przez G38.2.',
+        'Otwory są cięte przed konturem zewnętrznym i wolniej, gdy są małe, a regulację wysokości (THC) można w nich wyłączyć.',
+        'Tabele cięcia dla stali, stali nierdzewnej i aluminium ustawiają prąd, posuw, szczelinę i opóźnienie przebicia według grubości blachy. Symulacja pokazuje cięcie plazmą.',
+      ],
+      uk: [
+        'Плазмове різання: новий тип верстата з CrossFire, CrossFire PRO і власною плазмою GRBL, плазмові різаки в бібліотеці інструментів і нова траєкторія плазмового різання.',
+        'Компенсація різу, вхід і вихід (дуга чи лінія) у відході, перекриття, висота й затримка пробивання, висота різання та визначення висоти (IHS) через G38.2.',
+        'Отвори ріжуться перед зовнішнім контуром і повільніше, коли вони малі, а регулювання висоти (THC) у них можна вимкнути.',
+        'Таблиці різання для сталі, нержавійки й алюмінію задають струм, подачу, ширину різу й затримку пробивання за товщиною листа. Симуляція показує плазмовий різ.',
+      ],
+    },
+  },
+  {
     version: '0.16.1',
     date: '2026-11-12',
     text: {

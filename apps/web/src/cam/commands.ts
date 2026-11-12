@@ -4,6 +4,9 @@
  */
 import {
   patternTransforms,
+  defaultPlasmaSettings,
+  plasmaChartAt,
+  type MachineKind,
   type PatternConfig,
   type ReliefInstance,
   plugGeometry,
@@ -42,6 +45,8 @@ import machinesJson from '../data/machines.json';
 import { materialName } from '../i18n';
 
 export const isLaserOperation = (op: OperationType) => op === 'laserCut' || op === 'laserRaster';
+/** Vilken sorts maskin en operation kräver. */
+export const machineKindFor = (op: OperationType): MachineKind => (isLaserOperation(op) ? 'laser' : op === 'plasmaCut' ? 'plasma' : 'router');
 export const isImplemented = (_op: OperationType) => true;
 
 const status = (msg: string) => useAppStore.getState().setStatus(msg);
@@ -195,8 +200,9 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
     status(t.status.notImplemented(opName));
     return null;
   }
-  if (isLaserOperation(operation) !== (machine.kind === 'laser')) {
-    status(machine.kind === 'laser' ? t.status.needRouter(opName) : t.status.needLaser(opName));
+  const needed = machineKindFor(operation);
+  if (needed !== machine.kind) {
+    status(needed === 'router' ? t.status.needRouter(opName) : needed === 'laser' ? t.status.needLaser(opName) : t.status.needPlasma(opName));
     return null;
   }
   if (operation === 'relief' && !s.reliefs.length) {
@@ -227,7 +233,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const routerTool = (prefer: string[]) => {
     const active = s.tools.find((x) => x.id === s.activeToolId);
     if (active && prefer.includes(active.kind)) return active;
-    return s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser')!;
+    return s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma')!;
   };
   const routerParams = (tool: ReturnType<typeof routerTool>) => ({
     ...tool.defaults,
@@ -333,6 +339,33 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
       };
       break;
     }
+    case 'plasmaCut': {
+      const tool = s.tools.find((x) => x.id === s.activeToolId && x.kind === 'plasma') ?? s.tools.find((x) => x.kind === 'plasma');
+      if (!tool) {
+        status(t.status.needsPlasmaTool);
+        return null;
+      }
+      // Riktvärden ur materialets skärtabell för den aktuella tjockleken.
+      const chart = plasmaChartAt(preset.plasma, s.material.thickness);
+      const settings = defaultPlasmaSettings();
+      if (chart) Object.assign(settings, { pierceDelay: chart.pierceDelay, pierceHeight: chart.pierceHeight, cutHeight: chart.cutHeight });
+      settings.ihs = machine.plasma?.ihs ?? settings.ihs;
+      // Inlöp ungefär lika långt som materialet är tjockt, minst 3 mm.
+      settings.leadInLength = Math.max(3, Math.min(8, Math.round(s.material.thickness)));
+      settings.holeDiameter = Math.max(15, Math.round(s.material.thickness * 2.5));
+      tp = {
+        ...base,
+        operation,
+        name: `${n}. ${opName}`,
+        toolId: tool.id,
+        side: sel.some(shapeHasArea) ? 'outside' : 'on',
+        kerf: chart?.kerf ?? tool.diameter,
+        amps: Math.min(chart?.amps ?? 45, machine.plasma?.maxAmps ?? 999),
+        plasma: settings,
+        params: { ...tool.defaults, feedRate: chart?.feedRate ?? tool.defaults.feedRate },
+      };
+      break;
+    }
     case 'laserRaster':
     default: {
       const tool = s.tools.find((x) => x.kind === 'laser')!;
@@ -360,6 +393,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const matName = materialName(t, preset.id, preset.name);
   if (operation === 'laserCut' && preset.laser.canCut === false && tp.operation === 'laserCut' && tp.side !== 'on') status(t.status.cannotCut(matName));
   else if (machine.kind === 'router' && !preset.router) status(t.status.notForRouter(matName));
+  else if (machine.kind === 'plasma' && !preset.plasma) status(t.status.notForPlasma(matName));
   return id;
 }
 
@@ -370,7 +404,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
 export function createInlay(): void {
   const s = useAppStore.getState();
   const t = getT();
-  if (getMachine().kind === 'laser') {
+  if (getMachine().kind !== 'router') {
     status(t.status.needRouter(t.operations.inlay));
     return;
   }

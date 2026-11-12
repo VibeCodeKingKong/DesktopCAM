@@ -23,6 +23,8 @@ export function allowedToolKinds(tp: ToolpathConfig): ToolKind[] {
     case 'laserCut':
     case 'laserRaster':
       return ['laser'];
+    case 'plasmaCut':
+      return ['plasma'];
   }
 }
 

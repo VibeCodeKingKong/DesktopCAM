@@ -44,6 +44,17 @@ const guides: Record<GuideKey, GuideEntry> = {
   reliefInlay: { title: 'Incrustación de relieve', body: 'El tapón es lo contrario del relieve: invertido y reflejado. Dado la vuelta, encaja en el vaciado con una fina holgura para cola. Alrededor del relieve se rebaja la tabla del tapón para que no toque la madera base.', steps: ['Una holgura de 0,1–0,3 mm basta con cola de carpintero.', 'Un despeje de 1 mm mantiene la tabla separada de la madera base fuera del relieve.', 'Mecaniza ambas piezas con la misma fresa de bola para el mejor ajuste.'] },
   onionSkin: { title: 'Piel de cebolla', body: 'Una capa fina que se deja en el fondo para que la pieza siga sujeta. Rómpela o córtala después y lija el borde.', steps: ['0,2–0,4 mm en contrachapado y MDF.', 'Se usa a menudo en lugar de pestañas en piezas pequeñas.'] },
   snap: { title: 'Ajustar a la cuadrícula', body: 'Los puntos que dibujas y mueves caen en el paso de cuadrícula más cercano. Desactívalo para colocarlos con total libertad.' },
+  plasmaAmps: { title: 'Corriente', body: 'La corriente se ajusta en la fuente de plasma; en el G-code solo figura como recordatorio. Más corriente corta chapa más gruesa pero da una sangría más ancha.', steps: ['Sigue la tabla de corte de tu antorcha para la boquilla que uses.', 'Boquilla fina: 25–45 A para chapa de hasta unos 4 mm.'] },
+  plasmaKerf: { title: 'Sangría (kerf)', body: 'El arco de plasma quema una franja de 1–2 mm. desktopCAM desplaza la trayectoria media sangría hacia el retal para que la pieza tenga la medida correcta.', steps: ['Corta una pieza de prueba de 50 × 50 mm y mídela.', 'Sangría = valor actual + (50 − medida obtenida).'] },
+  pierceHeight: { title: 'Altura de perforación', body: 'La antorcha se enciende más alta que la altura de corte para que el metal fundido que salta al perforar no golpee la boquilla.', steps: ['A menudo 1,5–2 × la altura de corte.', 'La chapa gruesa necesita más altura de perforación.'] },
+  pierceDelay: { title: 'Retardo de perforación', body: 'Cuánto tiempo se queda quieta la antorcha tras encenderse antes de moverse, para que el arco atraviese la chapa.', steps: ['Chapa fina: 0–0,2 s.', 'Demasiado corto: el arco no atraviesa y salpica escoria.', 'Demasiado largo: el agujero de perforación crece.'] },
+  cutHeight: { title: 'Altura de corte', body: 'La distancia entre la boquilla y la chapa durante el corte. La altura correcta da bordes rectos y consumibles duraderos.', steps: ['Normalmente 1,5 mm a 45 A con aire.', 'Demasiado alta da bisel; demasiado baja desgasta la boquilla.'] },
+  plasmaIhs: { title: 'Detección de altura (IHS)', body: 'Antes de cada perforación la antorcha baja hasta tocar la chapa (G38.2). Así la altura es correcta aunque la chapa esté alabeada o se curve por el calor.', steps: ['Necesita cabezal flotante o detección óhmica.', 'Recorrido del interruptor: cuánto se mueve el cabezal desde el contacto hasta que salta el interruptor.'] },
+  plasmaLead: { title: 'Entrada y salida', body: 'La perforación deja un cráter y escoria. Con entrada se hace en el retal y la antorcha entra luego en el contorno; la salida vuelve al retal.', steps: ['Un arco da la transición más limpia: mejor para contornos exteriores.', 'Una línea funciona bien en agujeros.', 'Entrada más o menos tan larga como el grosor de la chapa, al menos 3 mm.'] },
+  plasmaOvercut: { title: 'Sobrecorte', body: 'La antorcha sigue un poco más allá del punto de inicio antes de salir del contorno, para que este se cierre por completo.', steps: ['Suele bastar con 0,5–1 mm.'] },
+  holeSlowdown: { title: 'Más lento en agujeros pequeños', body: 'En agujeros pequeños el arco no sigue a plena velocidad: el agujero sale cónico y ovalado. Con menos avance queda más redondo.', steps: ['Los agujeros menores de unas 2,5 × el grosor se consideran pequeños.', 'El 50–70 % del avance normal es un buen comienzo.'] },
+  plasmaThc: { title: 'THC en agujeros pequeños', body: 'El control de altura (THC) sigue la tensión del arco. En agujeros pequeños y esquinas la tensión cambia al bajar la velocidad y la antorcha puede hundirse. Por eso se desactiva ahí.', steps: ['Necesita los códigos THC de la máquina en Posprocesador.'] },
+  plasmaDirection: { title: 'Sentido de corte', body: 'El gas de plasma gira, así que un borde del corte queda recto y el otro algo biselado. Con una antorcha normal (giro horario) el borde recto queda a la derecha del sentido de avance.', steps: ['Pieza a la derecha: contornos en sentido horario, agujeros antihorario.', 'Cámbialo solo si tu antorcha gira en sentido antihorario.'] },
 };
 
 export const es: Dict = {
@@ -114,6 +125,7 @@ export const es: Dict = {
     camera: 'Cámara',
     gcode: 'G-code',
     post: 'Posprocesador',
+    plasma: 'Plasma',
   },
 
   buttons: {
@@ -140,6 +152,7 @@ export const es: Dict = {
     text: { label: 'Texto', title: 'Texto', desc: 'Toca donde debe empezar el texto. El texto usa una fuente de grabado de un solo trazo.' },
     importVector: { label: 'SVG / DXF', title: 'Importar vectores', desc: 'Trae dibujos de Inkscape, Illustrator, Fusion 360 o LibreCAD. También puedes soltar el archivo en la vista 3D.' },
     shapeLibrary: { label: 'Formas', title: 'Biblioteca de formas', desc: 'Marcos, banderolas, ornamentos y patrones listos. Añade un motivo y elige cómo mecanizarlo: vaciado, grabado en V, perfil, incrustación o grabado de líneas.' },
+    plasmaCut: { label: 'Plasma', title: 'Corte por plasma', desc: 'Corta piezas de chapa con antorcha de plasma: compensación de sangría, entrada y salida en el retal, retardo de perforación y agujeros antes del contorno.' },
     reliefLibrary: { label: 'Relieves', title: 'Biblioteca de relieves', desc: 'Motivos 3D listos para colocar en el material y mecanizar con fresa de bola.' },
     remove: { label: 'Eliminar', title: 'Eliminar', desc: 'Elimina las formas seleccionadas, o el nodo seleccionado en modo nodos.' },
     duplicate: { label: 'Duplicar', title: 'Duplicar', desc: 'Copia las formas seleccionadas, un poco desplazadas hacia abajo a la derecha.' },
@@ -168,6 +181,7 @@ export const es: Dict = {
   reasons: {
     needsRouter: 'Necesita una fresadora. Cambia de máquina en Configuración.',
     needsLaser: 'Necesita un láser. Cambia de máquina en Configuración.',
+    needsPlasma: 'Necesita una cortadora de plasma. Cambia de máquina en Configuración.',
     vcarveSoon: 'El grabado en V necesita un cálculo de eje medial que llegará en la próxima versión.',
     needsRelief: 'Añade un relieve de la biblioteca de relieves en Diseño.',
     needsResult: 'Crea primero una trayectoria.',
@@ -300,6 +314,7 @@ export const es: Dict = {
     holeCount: (n: number) => `${n} agujeros encontrados`,
     cannotCut: 'Un láser de diodo no puede cortar este material. Usa la trayectoria para marcar o elige Grabado de líneas.',
     notForRouter: 'Este material no es adecuado para una fresadora de aficionado. Cambia de material o usa un láser.',
+    notForPlasma: 'Este material no conduce la electricidad y no se puede cortar con plasma. Elige acero, inoxidable o aluminio.',
     strategy: 'Estrategia',
     presets: { fast: 'Rápido', balanced: 'Equilibrado', fine: 'Acabado fino', custom: 'Propio' },
     presetDesc: {
@@ -624,12 +639,16 @@ export const es: Dict = {
     common: ['Simula antes de ejecutar: verás si algo va mal.'],
     routerCommon: ['Pon el cero Z en la cara superior del material.'],
     laserCommon: ['Haz un grabado de prueba en una esquina para encontrar la potencia y velocidad adecuadas.'],
+    plasma: ['Coloca la pinza de masa cerca de la zona de corte: una mala masa da un arco inestable.', 'Corta primero agujeros y contornos interiores y el contorno exterior al final para que la pieza no se incline.', 'Cambia boquilla y electrodo cuando el corte salga inclinado o ancho: las piezas gastadas dan bisel.', 'Haz un corte de prueba y mide: ajusta la sangría hasta que las medidas cuadren.'],
+    plasmaCommon: ['Usa gafas de soldar (tono 5–8), guantes y buena ventilación: los humos metálicos son peligrosos.', 'Ten un extintor cerca y nada inflamable debajo o alrededor de la mesa.'],
   },
-  materialTips: (m: string, laser: boolean) => `Consejos para ${m.toLowerCase()} con ${laser ? 'láser' : 'fresadora'}`,
+  materialTips: (m: string, kind: string) => `Consejos para ${m.toLowerCase()} con ${kind === 'laser' ? 'láser' : kind === 'plasma' ? 'plasma' : 'fresadora'}`,
 
   toolRules: {
     notSuitable: 'no adecuada',
     why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'plasma' && op !== 'plasmaCut') return 'Una antorcha de plasma solo puede cortar chapa a lo largo de un contorno. Elige una fresa aquí o cambia a una cortadora de plasma.';
+      if (op === 'plasmaCut' && kind !== 'plasma') return 'El corte por plasma necesita una antorcha de plasma.';
       if (kind === 'vbit' && op === 'pocket') return 'Una fresa en V no sirve para vaciados: el vaciado se calcula con el diámetro de la fresa (p. ej. 12,7 mm), pero una fresa en V solo corta tan ancho como permite la profundidad, y queda material entre los anillos. Elige una fresa plana, o grabado en V si quieres bordes en V.';
       if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'Una fresa en V solo funciona sobre la línea (grabado). Fuera de la línea, el desplazamiento se calcula con un ancho incorrecto. Elige Sobre la línea, o una fresa plana.';
       if (kind === 'drill') return 'Una broca solo puede bajar en vertical y no corta de lado. Úsala para Taladrado, y aquí una fresa plana.';
@@ -728,6 +747,38 @@ export const es: Dict = {
     },
   },
 
+  plasma: {
+    cutting: 'Plasma',
+    amps: 'Corriente',
+    ampsTooHigh: (max: number) => `Más que los ${max} A de la fuente.`,
+    chart: (t: string, amps: number, feed: number, kerf: string, delay: string) => `Tabla de corte para ${t} mm: ${amps} A, ${feed} mm/min, sangría ${kerf} mm, perforación ${delay} s.`,
+    useChart: 'Usar los valores de la tabla',
+    pierce: 'Perforación',
+    pierceHeight: 'Altura de perforación',
+    pierceDelay: 'Retardo de perforación',
+    cutHeight: 'Altura de corte',
+    ihs: 'Detección de altura (IHS)',
+    switchOffset: 'Recorrido del interruptor',
+    plungeRate: 'Bajada a la altura de corte',
+    noZ: 'La máquina no tiene eje Z: ajusta a mano la antorcha a la altura de corte.',
+    leadsTitle: 'Entrada y salida',
+    leadIn: 'Entrada',
+    leadOut: 'Salida',
+    leads: { arc: 'Arco', line: 'Línea', none: 'Ninguna' },
+    radius: 'Radio',
+    length: 'Longitud',
+    overcut: 'Sobrecorte',
+    holes: 'Agujeros',
+    holeSlowdown: 'Más lento en agujeros pequeños',
+    holeDiameter: 'Agujeros pequeños bajo',
+    holeFeed: 'Avance en agujeros pequeños',
+    thcOff: 'THC desactivado en agujeros pequeños',
+    thcNoCodes: 'La máquina no tiene códigos THC (Configuración de máquina → Posprocesador), así que no se escribe nada.',
+    orderNote: 'Los agujeros y contornos interiores se cortan primero y el contorno exterior al final.',
+    partRight: 'Pieza a la derecha',
+    partLeft: 'Pieza a la izquierda',
+  },
+
   status: {
     ready: 'Listo',
     newProject: 'Nuevo proyecto creado',
@@ -737,6 +788,9 @@ export const es: Dict = {
     notImplemented: (f: string) => `${f} aún no está disponible`,
     needRouter: (op: string) => `${op} necesita una fresadora: cambia de máquina en Configuración`,
     needLaser: (op: string) => `${op} necesita un láser: cambia de máquina en Configuración`,
+    needPlasma: (op: string) => `${op} necesita una cortadora de plasma: cambia de máquina en Configuración`,
+    needsPlasmaTool: 'El corte por plasma necesita una antorcha de plasma en la biblioteca de herramientas',
+    notForPlasma: (m: string) => `${m} no conduce la electricidad y no se puede cortar con plasma: elige acero, inoxidable o aluminio`,
     drawFirst: 'Dibuja o importa primero una forma',
     textNeedsOutline: 'El texto es de un solo trazo: solo se cortarían letras cerradas como la O. Selecciona el texto y elige Estilo: Contorno en Propiedades.',
     needClosed: 'Selecciona al menos una forma cerrada',
@@ -887,6 +941,12 @@ export const es: Dict = {
     next: (s: string) => `Siguiente: ${s}`,
     kindRouter: 'Fresadora CNC',
     kindLaser: 'Grabado y corte láser',
+    kindPlasma: 'Corte por plasma',
+    plasmaZ: 'Eje Z motorizado',
+    plasmaIhs: 'Detección de altura (IHS)',
+    plasmaAmps: 'Corriente máx.',
+    plasmaCodes: { torchOn: 'Encender antorcha', torchOff: 'Apagar antorcha', thcOn: 'THC activado', thcOff: 'THC desactivado' },
+    plasmaCodesHint: 'Los códigos se escriben en el G-code. Deja THC vacío si el controlador gestiona la altura por sí mismo.',
     workArea: (x: number, y: number) => `Área de trabajo ${x} × ${y} mm`,
     controller: (c: string) => `Controlador: ${c}`,
     configTitle: 'Ajustes de la máquina seleccionada',
@@ -914,9 +974,9 @@ export const es: Dict = {
     addTool: 'Nueva herramienta',
     newToolName: 'Nueva herramienta',
     editTool: 'Editar herramienta',
-    toolKinds: { endmill: 'Fresa plana', ballnose: 'Fresa de bola', vbit: 'Fresa en V', drill: 'Broca', laser: 'Láser' },
+    toolKinds: { endmill: 'Fresa plana', ballnose: 'Fresa de bola', vbit: 'Fresa en V', drill: 'Broca', laser: 'Láser', plasma: 'Antorcha de plasma' },
     select: 'Elegir máquina',
-    machineGroups: { router: 'Fresadoras', laser: 'Láseres', custom: 'Perfiles propios' },
+    machineGroups: { router: 'Fresadoras', laser: 'Láseres', plasma: 'Cortadoras de plasma', custom: 'Perfiles propios' },
     deleteProfile: 'Eliminar perfil',
     builtInNote: 'Máquina predefinida. Para cambiarla y guardar tu propia variante, toca Nuevo perfil.',
     customNote: 'Perfil propio. Se guarda con el proyecto.',
@@ -937,6 +997,9 @@ export const es: Dict = {
       'sculpfun-s30-pro-max': 'Láser de diodo de 20 W con asistencia de aire. El área de trabajo vale con los finales de carrera montados.',
       'ortur-lm3': 'Láser de diodo rápido de 10 W.',
       'generic-grbl-laser': 'Punto de partida para un láser que no está en la lista. Comprueba el rango S ($30).',
+      'langmuir-crossfire-pro': 'Mesa de plasma de 61 × 122 cm con eje Z motorizado. Activa la detección de altura si la máquina tiene cabezal flotante.',
+      'langmuir-crossfire': 'Mesa de plasma de 61 × 61 cm sin eje Z: la altura de la antorcha se ajusta a mano.',
+      'generic-grbl-plasma': 'Punto de partida para tu propia mesa de plasma con GRBL y cabezal flotante (detección de altura con G38.2).',
     },
   },
 
@@ -965,6 +1028,7 @@ export const es: Dict = {
     laserRaster: 'Grabado de foto',
     relief: 'Relieve',
     inlay: 'Incrustación',
+    plasmaCut: 'Corte por plasma',
   },
   inlayParts: { pocket: 'vaciado', plug: 'tapón' },
   lineEngrave: 'Grabado de líneas',
@@ -972,16 +1036,17 @@ export const es: Dict = {
   shapeNames: { rect: 'Rectángulo', circle: 'Círculo', gear: 'Engranaje', line: 'Línea', curve: 'Curva', text: 'Texto', copy: 'copia' },
 
   materials: {
-    pine: { name: 'Pino', tips: { router: ['La resina puede embotar la fresa: sóplala entre pasadas.', 'Madera blanda: una fresa plana de dos filos a pleno avance deja bordes limpios.', 'Haz el acabado a favor de la veta para el menor astillado.'], laser: ['Los anillos de crecimiento se queman en tonos distintos: la madera tardía sale más oscura.', 'La resina puede inflamarse: usa asistencia de aire.', 'Cubre la superficie con cinta para evitar manchas de humo.'] } },
-    'birch-ply': { name: 'Contrachapado de abedul', tips: { router: ['Usa una fresa de corte descendente o de compresión para chapas exteriores limpias.', 'Las capas de cola desgastan la fresa: cuenta con una vida útil menor.', 'Las pestañas sujetan mejor las piezas que la piel de cebolla en contrachapado.'], laser: ['Las capas de cola suelen necesitar una pasada más.', 'Elige contrachapado para láser con cola apta.', 'La cinta de carrocero mantiene limpia la superficie alrededor del corte.'] } },
-    mdf: { name: 'MDF', tips: { router: ['Polvo muy fino: usa aspiración y mascarilla.', 'El MDF se mecaniza limpio en cualquier dirección y va bien para relieves.', 'Los cantos absorben la pintura: aplica imprimación antes de pintar.'], laser: ['Los bordes se oscurecen tras el corte.', 'El MDF corta más despacio que el contrachapado del mismo grosor.', 'Ventila bien: la cola desprende mucho humo.'] } },
-    acrylic: { name: 'Acrílico (colado)', tips: { router: ['Una fresa de un filo da el corte más limpio sin fundir.', 'Mantén un avance alto: si la fresa se detiene, el plástico se funde.', 'Deja la película protectora durante el fresado.'], laser: ['Un láser de diodo azul no corta acrílico transparente ni azul: elige oscuro u opaco.', 'El acrílico colado se graba en blanco esmerilado.', 'Quita la película protectora antes de grabar.'] } },
-    leather: { name: 'Cuero (curtido vegetal)', tips: { router: ['El cuero rara vez se fresa: córtalo mejor con láser o cuchilla.', 'Si lo fresas, sujeta el cuero con cinta de doble cara.'], laser: ['Usa el láser solo en cuero sin cromo (curtido vegetal).', 'Humedece ligeramente la superficie para un grabado uniforme.', 'Menos potencia y más pasadas dan bordes menos carbonizados.'] } },
-    oak: { name: 'Roble', tips: { router: ['Duro y denso: baja un poco el avance respecto al pino.', 'Los taninos del roble pueden manchar las herramientas de acero con humedad.', 'El roble es excelente para grabado en V e incrustaciones con una madera clara.'], laser: ['El roble se graba oscuro y con mucho contraste.', 'El corte es lento: el roble grueso necesita varias pasadas.'] } },
-    aluminium: { name: 'Aluminio', tips: { router: ['Usa una fresa de un filo, pasadas poco profundas (unos 0,3 mm) y aire o lubricante para que la viruta no se suelde.', 'Sujeta con firmeza: el aluminio no debe vibrar.', 'Necesita una máquina rígida; en máquinas ligeras como MPCNC o 3018 rara vez funciona bien.'], laser: ['Los láseres de diodo no cortan aluminio.', 'El aluminio anodizado se graba bien: se quema el color.', 'El aluminio desnudo no se marca sin spray de marcado.'] } },
-    stainless: { name: 'Acero inoxidable', tips: { router: ['El acero no se puede fresar en fresadoras de aficionado: usa un láser para marcar.'], laser: ['Un láser de diodo no marca el acero desnudo. Pulveriza un compuesto de marcado (p. ej. LMM o CerMark), graba y lava el resto.', 'Marcar sin spray requiere un láser de fibra.'] } },
-    slate: { name: 'Pizarra', tips: { router: ['La pizarra se puede grabar con fresa en V, pero el polvo es nocivo: usa mascarilla y, a ser posible, agua.', 'Sujeta bien la baldosa; se agrieta con facilidad.'], laser: ['El grabado sale gris claro sobre la piedra oscura.', 'Limpia el polvo con un paño húmedo y aceita la superficie después.', 'Los láseres de diodo no cortan piedra.'] } },
-    cardboard: { name: 'Cartón', tips: { router: ['El cartón se fresa mal: córtalo mejor con láser o cuchilla.'], laser: ['Se prende fácilmente: quédate junto a la máquina y usa asistencia de aire.', 'El cartón ondulado se corta rápido a baja potencia.', 'Mantén el cartón plano con imanes o alfileres.'] } },
+    pine: { name: 'Pino', tips: { router: ['La resina puede embotar la fresa: sóplala entre pasadas.', 'Madera blanda: una fresa plana de dos filos a pleno avance deja bordes limpios.', 'Haz el acabado a favor de la veta para el menor astillado.'], laser: ['Los anillos de crecimiento se queman en tonos distintos: la madera tardía sale más oscura.', 'La resina puede inflamarse: usa asistencia de aire.', 'Cubre la superficie con cinta para evitar manchas de humo.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    'birch-ply': { name: 'Contrachapado de abedul', tips: { router: ['Usa una fresa de corte descendente o de compresión para chapas exteriores limpias.', 'Las capas de cola desgastan la fresa: cuenta con una vida útil menor.', 'Las pestañas sujetan mejor las piezas que la piel de cebolla en contrachapado.'], laser: ['Las capas de cola suelen necesitar una pasada más.', 'Elige contrachapado para láser con cola apta.', 'La cinta de carrocero mantiene limpia la superficie alrededor del corte.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    mdf: { name: 'MDF', tips: { router: ['Polvo muy fino: usa aspiración y mascarilla.', 'El MDF se mecaniza limpio en cualquier dirección y va bien para relieves.', 'Los cantos absorben la pintura: aplica imprimación antes de pintar.'], laser: ['Los bordes se oscurecen tras el corte.', 'El MDF corta más despacio que el contrachapado del mismo grosor.', 'Ventila bien: la cola desprende mucho humo.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    acrylic: { name: 'Acrílico (colado)', tips: { router: ['Una fresa de un filo da el corte más limpio sin fundir.', 'Mantén un avance alto: si la fresa se detiene, el plástico se funde.', 'Deja la película protectora durante el fresado.'], laser: ['Un láser de diodo azul no corta acrílico transparente ni azul: elige oscuro u opaco.', 'El acrílico colado se graba en blanco esmerilado.', 'Quita la película protectora antes de grabar.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    leather: { name: 'Cuero (curtido vegetal)', tips: { router: ['El cuero rara vez se fresa: córtalo mejor con láser o cuchilla.', 'Si lo fresas, sujeta el cuero con cinta de doble cara.'], laser: ['Usa el láser solo en cuero sin cromo (curtido vegetal).', 'Humedece ligeramente la superficie para un grabado uniforme.', 'Menos potencia y más pasadas dan bordes menos carbonizados.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    oak: { name: 'Roble', tips: { router: ['Duro y denso: baja un poco el avance respecto al pino.', 'Los taninos del roble pueden manchar las herramientas de acero con humedad.', 'El roble es excelente para grabado en V e incrustaciones con una madera clara.'], laser: ['El roble se graba oscuro y con mucho contraste.', 'El corte es lento: el roble grueso necesita varias pasadas.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    'mild-steel': { name: 'Acero (acero estructural)', tips: { router: ['El acero no se puede fresar en fresadoras de aficionado: córtalo con plasma.'], laser: ['Un láser de diodo no marca el acero desnudo sin spray de marcado.'], plasma: ['La velocidad correcta da un chorro de chispas uniforme, algo inclinado hacia atrás, y casi nada de escoria.', 'Perlas de escoria debajo: demasiado lento. Escoria difícil de quitar: demasiado rápido.', 'Chapa gruesa: una entrada al menos tan larga como el grosor.'] } },
+    aluminium: { name: 'Aluminio', tips: { router: ['Usa una fresa de un filo, pasadas poco profundas (unos 0,3 mm) y aire o lubricante para que la viruta no se suelde.', 'Sujeta con firmeza: el aluminio no debe vibrar.', 'Necesita una máquina rígida; en máquinas ligeras como MPCNC o 3018 rara vez funciona bien.'], laser: ['Los láseres de diodo no cortan aluminio.', 'El aluminio anodizado se graba bien: se quema el color.', 'El aluminio desnudo no se marca sin spray de marcado.'], plasma: ['El aluminio se corta más rápido que el acero pero deja más escoria debajo.', 'Limpia óxido y grasa donde va la pinza de masa.'] } },
+    stainless: { name: 'Acero inoxidable', tips: { router: ['El acero no se puede fresar en fresadoras de aficionado: usa un láser para marcar.'], laser: ['Un láser de diodo no marca el acero desnudo. Pulveriza un compuesto de marcado (p. ej. LMM o CerMark), graba y lava el resto.', 'Marcar sin spray requiere un láser de fibra.'], plasma: ['El inoxidable se corta algo más despacio que el acero y se decolora cerca del corte.', 'Con aire el borde de corte se oscurece: lija si la superficie debe quedar brillante.'] } },
+    slate: { name: 'Pizarra', tips: { router: ['La pizarra se puede grabar con fresa en V, pero el polvo es nocivo: usa mascarilla y, a ser posible, agua.', 'Sujeta bien la baldosa; se agrieta con facilidad.'], laser: ['El grabado sale gris claro sobre la piedra oscura.', 'Limpia el polvo con un paño húmedo y aceita la superficie después.', 'Los láseres de diodo no cortan piedra.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
+    cardboard: { name: 'Cartón', tips: { router: ['El cartón se fresa mal: córtalo mejor con láser o cuchilla.'], laser: ['Se prende fácilmente: quédate junto a la máquina y usa asistencia de aire.', 'El cartón ondulado se corta rápido a baja potencia.', 'Mantén el cartón plano con imanes o alfileres.'], plasma: ['No se puede cortar con plasma: el plasma necesita un material conductor.'] } },
   },
 
   tools: {
@@ -993,6 +1058,8 @@ export const es: Dict = {
     'drill-3': 'Broca 3 mm',
     'em-3175-1f-alu': 'Fresa de un filo 3,175 mm (aluminio)',
     'laser-diode': 'Láser de diodo (punto enfocado)',
+    'plasma-45-std': 'Antorcha de plasma 45 A (boquilla estándar)',
+    'plasma-45-fine': 'Antorcha de plasma 45 A (boquilla fina)',
   },
 
   guides: {

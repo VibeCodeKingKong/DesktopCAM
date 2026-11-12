@@ -3,6 +3,7 @@
  * Kommunikation: WorkerInbound in, WorkerOutbound ut (se @desktopcam/core/protocol).
  */
 import {
+  plasmaGcode,
   drillGcode,
   importVectorFile,
   offsetShapes,
@@ -68,6 +69,14 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
       progress(0.1, 'relief');
       const gcode = engine.reliefGcode(request.job);
       progress(0.75, 'preview');
+      const preview = parseGcode(gcode);
+      const result: ToolpathPayload = { gcode, preview };
+      return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
+    }
+    case 'plasma': {
+      progress(0.1, 'offset');
+      const gcode = plasmaGcode(request.job);
+      progress(0.8, 'preview');
       const preview = parseGcode(gcode);
       const result: ToolpathPayload = { gcode, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };

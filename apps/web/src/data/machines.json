@@ -562,5 +562,131 @@
       "safeZ": 0,
       "laserDynamicPower": true
     }
+  },
+  {
+    "id": "langmuir-crossfire-pro",
+    "name": "Langmuir Systems CrossFire PRO",
+    "manufacturer": "Langmuir Systems",
+    "model": "CrossFire PRO",
+    "kind": "plasma",
+    "workArea": {
+      "x": 610,
+      "y": 1220,
+      "z": 75
+    },
+    "maxFeed": {
+      "xy": 7600,
+      "z": 1500
+    },
+    "homing": "none",
+    "plasma": {
+      "zAxis": true,
+      "ihs": false,
+      "maxAmps": 45
+    },
+    "postprocessor": {
+      "id": "crossfire-pro",
+      "name": "FireControl (plasma)",
+      "flavor": "grbl",
+      "header": [
+        "G17",
+        "G94"
+      ],
+      "footer": [
+        "G0 X0 Y0",
+        "M2"
+      ],
+      "decimals": 3,
+      "safeZ": 15,
+      "laserDynamicPower": false,
+      "torchOn": "M3",
+      "torchOff": "M5",
+      "thcOn": "",
+      "thcOff": ""
+    }
+  },
+  {
+    "id": "langmuir-crossfire",
+    "name": "Langmuir Systems CrossFire",
+    "manufacturer": "Langmuir Systems",
+    "model": "CrossFire",
+    "kind": "plasma",
+    "workArea": {
+      "x": 610,
+      "y": 610,
+      "z": 0
+    },
+    "maxFeed": {
+      "xy": 7600,
+      "z": 0
+    },
+    "homing": "none",
+    "plasma": {
+      "zAxis": false,
+      "ihs": false,
+      "maxAmps": 45
+    },
+    "postprocessor": {
+      "id": "crossfire",
+      "name": "FireControl (plasma, utan Z)",
+      "flavor": "grbl",
+      "header": [
+        "G17",
+        "G94"
+      ],
+      "footer": [
+        "G0 X0 Y0",
+        "M2"
+      ],
+      "decimals": 3,
+      "safeZ": 0,
+      "laserDynamicPower": false,
+      "torchOn": "M3",
+      "torchOff": "M5",
+      "thcOn": "",
+      "thcOff": ""
+    }
+  },
+  {
+    "id": "generic-grbl-plasma",
+    "name": "Egen GRBL-plasma",
+    "manufacturer": "—",
+    "model": "Generisk GRBL 1.1 med flytande huvud",
+    "kind": "plasma",
+    "workArea": {
+      "x": 1250,
+      "y": 1250,
+      "z": 80
+    },
+    "maxFeed": {
+      "xy": 10000,
+      "z": 1500
+    },
+    "homing": "xyz",
+    "plasma": {
+      "zAxis": true,
+      "ihs": true,
+      "maxAmps": 60
+    },
+    "postprocessor": {
+      "id": "grbl-plasma",
+      "name": "GRBL (plasma)",
+      "flavor": "grbl",
+      "header": [
+        "G17",
+        "G94"
+      ],
+      "footer": [
+        "G0 X0 Y0",
+        "M2"
+      ],
+      "decimals": 3,
+      "safeZ": 15,
+      "laserDynamicPower": false,
+      "torchOn": "M3 S1000",
+      "torchOff": "M5",
+      "thcOn": "",
+      "thcOff": ""
+    }
   }
 ]

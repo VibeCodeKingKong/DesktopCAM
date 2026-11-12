@@ -205,9 +205,13 @@ const without = <T,>(rec: Record<string, T>, key: string): Record<string, T> => 
   return next;
 };
 
+/** Laser och plasma har egna verktyg; fräsen tar allt annat. */
+export const toolFitsMachine = (tool: ToolDefinition['kind'], machine: MachineProfile['kind']) =>
+  machine === 'laser' ? tool === 'laser' : machine === 'plasma' ? tool === 'plasma' : tool !== 'laser' && tool !== 'plasma';
+
 /** Behåll aktivt verktyg om det passar maskinen, annars välj första som passar. */
 const toolFor = (tools: ToolDefinition[], current: string, kind: MachineProfile['kind']) => {
-  const fits = (t: ToolDefinition) => (kind === 'laser' ? t.kind === 'laser' : t.kind !== 'laser');
+  const fits = (t: ToolDefinition) => toolFitsMachine(t.kind, kind);
   const cur = tools.find((t) => t.id === current);
   return cur && fits(cur) ? cur.id : (tools.find(fits)?.id ?? current);
 };
@@ -507,9 +511,10 @@ export const useSelectedToolpath = () => useAppStore((s) => s.toolpaths.find((t)
  * skärdata som styva (Shapeoko, LongMill, Onefinity, 4040), och lasrar skiljer
  * sig mycket mellan 10 W och 20–40 W.
  */
-export type MachineClass = 'routerLight' | 'routerRigid' | 'laserLow' | 'laserHigh';
+export type MachineClass = 'routerLight' | 'routerRigid' | 'laserLow' | 'laserHigh' | 'plasma';
 export function machineClass(m: MachineProfile): MachineClass {
   if (m.kind === 'laser') return (m.laser?.opticalPowerW ?? 0) >= 20 ? 'laserHigh' : 'laserLow';
+  if (m.kind === 'plasma') return 'plasma';
   return m.maxFeed.xy >= 3000 || /4040|shapeoko|longmill|onefinity/i.test(m.name) ? 'routerRigid' : 'routerLight';
 }
 

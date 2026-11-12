@@ -29,6 +29,7 @@ import {
   TriangleAlert,
   Type,
   Slash,
+  Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ToolpathConfig } from '@desktopcam/core';
@@ -55,6 +56,7 @@ const OP_ICONS: Record<OperationType, LucideIcon> = {
   laserRaster: ImagePlus,
   relief: Mountain,
   inlay: Combine,
+  plasmaCut: Zap,
 };
 
 function Section({
@@ -204,7 +206,7 @@ export function ProjectTree() {
     <SidePanel id="tree" side="left" title={t.tree.title}>
       <div className="space-y-0.5 p-1.5">
         <Section icon={Folder} label={projectName || t.common.untitledProject} />
-        <Section icon={machine.kind === 'laser' ? Flame : Cog} label={machine.name} />
+        <Section icon={machine.kind === 'laser' ? Flame : machine.kind === 'plasma' ? Zap : Cog} label={machine.name} />
         <div className="flex h-7 items-center gap-1.5 px-1.5 text-xs">
           <span className="w-[13px]" />
           <span className="h-3.5 w-3.5 rounded-sm border border-black/10" style={{ background: preset.color }} />

@@ -12,7 +12,7 @@ import type { ToolpathResult } from '../store/useAppStore';
 const RAPID_RATE = 3000; // mm/min, samma antagande som tidsuppskattningen
 const WORD = /([A-Za-z])\s*([-+]?(?:\d+\.?\d*|\.\d+))/g;
 
-export type SimToolShape = { kind: 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser'; radius: number; angle: number };
+export type SimToolShape = { kind: 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma'; radius: number; angle: number };
 
 interface Move {
   /** Startpunkt och slutpunkt. */
@@ -36,21 +36,29 @@ export interface SimJob {
 }
 
 /** Tolkar G-koden till rörelser med tider (sekunder i maskintid). */
-function parseMoves(gcode: string, job: number, startTime: number, sMax: number, laser: boolean): { moves: Move[]; end: number } {
+/**
+ * laser/plasma: strålen eller ljusbågen skär bara när den är tänd (M3/M4 … M5).
+ * Plasma kräver inget S-värde. G4 (väntetid) räknas in i tiden, G92 och
+ * höjdavkänning (G38) flyttar inte verktyget i simuleringen.
+ */
+function parseMoves(gcode: string, job: number, startTime: number, sMax: number, laser: boolean, plasma = false): { moves: Move[]; end: number } {
   const moves: Move[] = [];
-  let x = 0, y = 0, z = 5, mode = 0, feed = 1000, s = 0, on = !laser;
+  const beam = laser || plasma;
+  let x = 0, y = 0, z = 5, mode = 0, feed = 1000, s = 0, on = !beam;
   let t = startTime;
   for (const raw of gcode.split('\n')) {
     const line = raw.replace(/\(.*?\)/g, '').split(';')[0].trim();
     if (!line) continue;
-    let nx = x, ny = y, nz = z, moved = false;
+    if (/\bG(92|38(\.\d)?)\b/i.test(line)) continue;
+    let nx = x, ny = y, nz = z, moved = false, dwell = false;
     WORD.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = WORD.exec(line))) {
       const v = parseFloat(m[2]);
       switch (m[1].toUpperCase()) {
-        case 'G': if (v === 0 || v === 1) mode = v; break;
-        case 'M': if (v === 3 || v === 4) on = true; else if (v === 5) on = !laser; break;
+        case 'G': if (v === 0 || v === 1) mode = v; else if (v === 4) dwell = true; break;
+        case 'P': if (dwell) t += v; break;
+        case 'M': if (v === 3 || v === 4) on = true; else if (v === 5) on = !beam; break;
         case 'X': nx = v; moved = true; break;
         case 'Y': ny = v; moved = true; break;
         case 'Z': nz = v; moved = true; break;
@@ -61,7 +69,7 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
     if (!moved) continue;
     const len = Math.hypot(nx - x, ny - y, nz - z);
     if (len > 0) {
-      const cut = mode === 1 && (!laser || (on && s > 0));
+      const cut = mode === 1 && (plasma ? on : !laser || (on && s > 0));
       const dt = (len / (mode === 0 ? RAPID_RATE : feed)) * 60;
       moves.push({ x0: x, y0: y, z0: z, x1: nx, y1: ny, z1: nz, cut, power: laser ? Math.min(1, s / sMax) : 0, t0: t, t1: t + dt, job });
       t += dt;
@@ -118,7 +126,7 @@ export class StockSimulator {
     const all: Move[] = [];
     let t = 0;
     jobs.forEach((j, i) => {
-      const r = parseMoves(j.gcode, i, t, sMax, j.job.tool.kind === 'laser');
+      const r = parseMoves(j.gcode, i, t, sMax, j.job.tool.kind === 'laser', j.job.tool.kind === 'plasma');
       all.push(...r.moves);
       t = r.end;
     });
@@ -206,7 +214,7 @@ export class StockSimulator {
         const r2 = dx * dx + dy * dy;
         if (r2 > reach2) continue;
         const k = j * nx + i;
-        if (tool.kind === 'laser') {
+        if (tool.kind === 'laser' || tool.kind === 'plasma') {
           if (r2 > R2) continue;
           if (job.laserCut) heights[k] = floor;
           else this.burn[k] = Math.min(1, this.burn[k] + power * 0.5);
@@ -261,16 +269,19 @@ export function buildSimulator(
     if (!tp.visible || !res) continue;
     const tool = tools.find((t) => t.id === tp.toolId);
     const laser = tp.operation === 'laserCut' || tp.operation === 'laserRaster';
-    const shape: SimToolShape = laser
-      ? { kind: 'laser', radius: Math.max(0.05, (tp.operation === 'laserCut' ? tp.kerf : tp.lineIntervalMm) / 2), angle: 0 }
-      : { kind: tool?.kind ?? 'endmill', radius: (tool?.diameter ?? 3) / 2, angle: tool?.angle ?? 90 };
+    const shape: SimToolShape =
+      tp.operation === 'plasmaCut'
+        ? { kind: 'plasma', radius: Math.max(0.1, tp.kerf / 2), angle: 0 }
+        : laser
+          ? { kind: 'laser', radius: Math.max(0.05, (tp.operation === 'laserCut' ? tp.kerf : tp.lineIntervalMm) / 2), angle: 0 }
+          : { kind: (tool?.kind ?? 'endmill') as SimToolShape['kind'], radius: (tool?.diameter ?? 3) / 2, angle: tool?.angle ?? 90 };
     let tabTop: number | undefined;
     if (tp.operation === 'profile' && tp.side !== 'on' && tp.tabs?.enabled) {
       const finalDepth = Math.max(0, tp.cutDepth - Math.max(0, tp.strategy?.onionSkin ?? 0));
       const top = -(finalDepth - Math.min(tp.tabs.height, finalDepth));
       if (top < -0.05) tabTop = top;
     }
-    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut', tabTop }, gcode: res.gcode });
+    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut', tabTop }, gcode: res.gcode });
   }
   if (!jobs.length) return null;
   return new StockSimulator(material, jobs, sMax);

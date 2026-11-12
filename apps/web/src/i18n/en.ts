@@ -45,6 +45,17 @@ const guides: Record<GuideKey, GuideEntry> = {
   reliefInlay: { title: 'Relief inlay', body: 'The plug is the opposite of the relief: inverted and mirrored. Flipped over, it fits into the pocket with a thin glue gap. Around the relief the plug board is milled away so it does not touch the base wood.', steps: ['A glue gap of 0.1–0.3 mm is enough with wood glue.', 'A clearance of 1 mm keeps the board clear of the base wood outside the relief.', 'Cut both parts with the same ball nose for the best fit.'] },
   onionSkin: { title: 'Onion skin', body: 'A thin layer left at the bottom so the part stays attached. Break or cut it free afterwards and sand the edge.', steps: ['0.2–0.4 mm in plywood and MDF.', 'Often used instead of tabs on small parts.'] },
   snap: { title: 'Snap to grid', body: 'Points you draw and move land on the nearest grid step. Turn it off for completely free placement.' },
+  plasmaAmps: { title: 'Current', body: 'The current is set on the plasma power source – it is only written as a reminder in the G-code. More current cuts thicker plate but gives a wider kerf.', steps: ['Follow the torch’s cut chart for the nozzle you use.', 'Fine-cut nozzle: 25–45 A for sheet up to about 4 mm.'] },
+  plasmaKerf: { title: 'Kerf', body: 'The plasma arc burns away a strip 1–2 mm wide. desktopCAM moves the path half a kerf out into the scrap so the part gets the right size.', steps: ['Cut a 50 × 50 mm test piece and measure it.', 'Kerf = current value + (50 − measured size).'] },
+  pierceHeight: { title: 'Pierce height', body: 'The torch fires higher than the cut height so the molten metal blown up during the pierce does not hit the nozzle.', steps: ['Often 1.5–2 × the cut height.', 'Thick plate needs a higher pierce height.'] },
+  pierceDelay: { title: 'Pierce delay', body: 'How long the torch stays still after firing before it starts moving, so the arc can burn through the plate.', steps: ['Thin sheet: 0–0.2 s.', 'Too short: the arc does not get through and dross sprays.', 'Too long: the pierce hole gets large.'] },
+  cutHeight: { title: 'Cut height', body: 'The distance between the nozzle and the plate while cutting. The right height gives square edges and long consumable life.', steps: ['Usually 1.5 mm for 45 A with air.', 'Too high gives bevelled edges, too low wears the nozzle.'] },
+  plasmaIhs: { title: 'Height sensing (IHS)', body: 'Before every pierce the torch moves down until it touches the plate (G38.2). The height stays right even if the plate is warped or bends from the heat.', steps: ['Needs a floating head or ohmic sensing.', 'Switch offset: how far the head travels from contact until the switch trips.'] },
+  plasmaLead: { title: 'Lead-in and lead-out', body: 'The pierce leaves a crater and some dross. With a lead-in it happens in the scrap and the torch then glides onto the contour; the lead-out leads back into the scrap.', steps: ['An arc gives the cleanest transition – best for outlines.', 'A line works well in holes.', 'Make the lead-in about as long as the plate is thick, at least 3 mm.'] },
+  plasmaOvercut: { title: 'Overcut', body: 'The torch carries on a little past the start point before leaving the contour, so the contour closes completely and no small bridge holds the part.', steps: ['0.5–1 mm is usually enough.'] },
+  holeSlowdown: { title: 'Slower in small holes', body: 'In small holes the arc cannot keep up at full speed – the hole becomes tapered and oval. A lower feed gives a rounder hole.', steps: ['Holes smaller than about 2.5 × the plate thickness count as small.', '50–70 % of the normal feed is a good start.'] },
+  plasmaThc: { title: 'THC in small holes', body: 'Torch height control (THC) follows the arc voltage. In small holes and corners the voltage changes when the speed drops, which can make the torch dive. So it is turned off there.', steps: ['Needs the machine’s THC codes to be set under Post-processor.'] },
+  plasmaDirection: { title: 'Cut direction', body: 'The plasma gas swirls, so one side of the cut is square and the other slightly bevelled. With a normal torch (clockwise swirl) the square side is on the right of the direction of travel.', steps: ['Part on the right: outlines clockwise, holes anticlockwise.', 'Only change it if your torch swirls anticlockwise.'] },
 };
 
 export const en: Dict = {
@@ -115,6 +126,7 @@ export const en: Dict = {
     camera: 'Camera',
     gcode: 'G-code',
     post: 'Post-processor',
+    plasma: 'Plasma',
   },
 
   buttons: {
@@ -141,6 +153,7 @@ export const en: Dict = {
     text: { label: 'Text', title: 'Text', desc: 'Tap where the text should start. Text uses a single-line engraving font.' },
     importVector: { label: 'SVG / DXF', title: 'Import vectors', desc: 'Brings in drawings from Inkscape, Illustrator, Fusion 360 or LibreCAD. You can also drop the file on the 3D view.' },
     shapeLibrary: { label: 'Shape library', title: 'Shape library', desc: 'Ready-made frames, banners, ornaments and patterns. Add a motif, then choose how to machine it: pocket, V-carve, profile, inlay or line engraving.' },
+    plasmaCut: { label: 'Plasma', title: 'Plasma cutting', desc: 'Cuts parts out of sheet metal with a plasma torch: kerf compensation, lead-in and lead-out in the scrap, pierce delay and holes before the outline.' },
     reliefLibrary: { label: 'Relief library', title: 'Relief library', desc: 'Ready-made 3D motifs to place on the material and cut with a ball nose cutter.' },
     remove: { label: 'Delete', title: 'Delete', desc: 'Deletes the selected shapes, or the selected node in node mode.' },
     duplicate: { label: 'Duplicate', title: 'Duplicate', desc: 'Copies the selected shapes, offset slightly down and to the right.' },
@@ -169,6 +182,7 @@ export const en: Dict = {
   reasons: {
     needsRouter: 'Needs a router. Change machine under Setup.',
     needsLaser: 'Needs a laser. Change machine under Setup.',
+    needsPlasma: 'Needs a plasma cutter. Change machine under Setup.',
     vcarveSoon: 'V-carving needs a medial axis calculation that is coming in the next version.',
     needsRelief: 'Add a relief from the relief library under Design.',
     needsResult: 'Create a toolpath first.',
@@ -301,6 +315,7 @@ export const en: Dict = {
     holeCount: (n: number) => `${n} holes found`,
     cannotCut: 'A diode laser cannot cut through this material. Use the toolpath for marking or choose Line engraving.',
     notForRouter: 'This material is not suited to a hobby router. Change material or use a laser.',
+    notForPlasma: 'This material does not conduct electricity and cannot be plasma cut. Choose steel, stainless or aluminium.',
     strategy: 'Strategy',
     presets: { fast: 'Fast', balanced: 'Balanced', fine: 'Fine finish', custom: 'Custom' },
     presetDesc: {
@@ -625,12 +640,16 @@ export const en: Dict = {
     common: ['Simulate before you run – you will see if something goes wrong.'],
     routerCommon: ['Set Z zero on the top of the material.'],
     laserCommon: ['Run a test engraving in a corner to find the right power and speed.'],
+    plasma: ['Clamp the ground lead close to the cutting area – a poor ground gives an unstable arc.', 'Cut holes and inner contours first and the outline last so the part does not tip.', 'Replace the nozzle and electrode when the cut gets slanted or wide – worn parts cause bevel.', 'Make a test cut and measure the part – adjust the kerf until the dimensions are right.'],
+    plasmaCommon: ['Wear welding glasses (shade 5–8), gloves and use good ventilation – metal fumes are hazardous.', 'Keep a fire extinguisher close and nothing flammable under or around the table.'],
   },
-  materialTips: (m: string, laser: boolean) => `Tips for ${m.toLowerCase()} with a ${laser ? 'laser' : 'router'}`,
+  materialTips: (m: string, kind: string) => `Tips for ${m.toLowerCase()} with a ${kind === 'laser' ? 'laser' : kind === 'plasma' ? 'plasma cutter' : 'router'}`,
 
   toolRules: {
     notSuitable: 'not suitable',
     why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'plasma' && op !== 'plasmaCut') return 'A plasma torch can only cut through sheet along a contour. Choose a cutter here, or change to a plasma cutter.';
+      if (op === 'plasmaCut' && kind !== 'plasma') return 'Plasma cutting needs a plasma torch.';
       if (kind === 'vbit' && op === 'pocket') return 'A V-bit does not suit pockets: the pocket is laid out with the cutter diameter (e.g. 12.7 mm), but a V-bit only cuts as wide as the depth makes it – material is left between the rings. Choose an end mill, or V-carve if you want V-shaped edges.';
       if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'A V-bit only works on the line (engraving). Beside the line the offset is calculated with the wrong width. Choose On line, or an end mill.';
       if (kind === 'drill') return 'A drill can only go straight down and cannot cut sideways. Use it for Drilling, and an end mill here.';
@@ -729,6 +748,38 @@ export const en: Dict = {
     },
   },
 
+  plasma: {
+    cutting: 'Plasma',
+    amps: 'Current',
+    ampsTooHigh: (max: number) => `Higher than the power source’s ${max} A.`,
+    chart: (t: string, amps: number, feed: number, kerf: string, delay: string) => `Cut chart for ${t} mm: ${amps} A, ${feed} mm/min, kerf ${kerf} mm, pierce ${delay} s.`,
+    useChart: 'Use the chart values',
+    pierce: 'Piercing',
+    pierceHeight: 'Pierce height',
+    pierceDelay: 'Pierce delay',
+    cutHeight: 'Cut height',
+    ihs: 'Height sensing (IHS)',
+    switchOffset: 'Switch offset',
+    plungeRate: 'Feed down to cut height',
+    noZ: 'The machine has no Z axis: set the torch height to the cut height by hand.',
+    leadsTitle: 'Lead-in and lead-out',
+    leadIn: 'Lead-in',
+    leadOut: 'Lead-out',
+    leads: { arc: 'Arc', line: 'Line', none: 'None' },
+    radius: 'Radius',
+    length: 'Length',
+    overcut: 'Overcut',
+    holes: 'Holes',
+    holeSlowdown: 'Slower in small holes',
+    holeDiameter: 'Small holes below',
+    holeFeed: 'Feed in small holes',
+    thcOff: 'THC off in small holes',
+    thcNoCodes: 'The machine has no THC codes set (Machine setup → Post-processor), so nothing is written.',
+    orderNote: 'Holes and inner contours are cut first, the outline last.',
+    partRight: 'Part on the right',
+    partLeft: 'Part on the left',
+  },
+
   status: {
     ready: 'Ready',
     newProject: 'New project created',
@@ -738,6 +789,9 @@ export const en: Dict = {
     notImplemented: (f: string) => `${f} is not available yet`,
     needRouter: (op: string) => `${op} needs a router – change machine under Setup`,
     needLaser: (op: string) => `${op} needs a laser – change machine under Setup`,
+    needPlasma: (op: string) => `${op} needs a plasma cutter – change machine under Setup`,
+    needsPlasmaTool: 'Plasma cutting needs a plasma torch in the tool library',
+    notForPlasma: (m: string) => `${m} does not conduct electricity and cannot be plasma cut – choose steel, stainless or aluminium`,
     drawFirst: 'Draw or import a shape first',
     textNeedsOutline: 'The text is single-line – only closed letters such as O would be cut. Select the text and choose Style: Outline in Properties.',
     needClosed: 'Select at least one closed shape',
@@ -888,6 +942,12 @@ export const en: Dict = {
     next: (s: string) => `Next: ${s}`,
     kindRouter: 'CNC router',
     kindLaser: 'Laser engraving and cutting',
+    kindPlasma: 'Plasma cutting',
+    plasmaZ: 'Motorised Z axis',
+    plasmaIhs: 'Height sensing (IHS)',
+    plasmaAmps: 'Max current',
+    plasmaCodes: { torchOn: 'Torch on', torchOff: 'Torch off', thcOn: 'THC on', thcOff: 'THC off' },
+    plasmaCodesHint: 'The codes are written into the G-code. Leave THC empty if the machine’s controller handles height control itself.',
     workArea: (x: number, y: number) => `Work area ${x} × ${y} mm`,
     controller: (c: string) => `Controller: ${c}`,
     configTitle: 'Settings for the selected machine',
@@ -915,9 +975,9 @@ export const en: Dict = {
     addTool: 'New tool',
     newToolName: 'New tool',
     editTool: 'Edit tool',
-    toolKinds: { endmill: 'End mill', ballnose: 'Ball nose', vbit: 'V-bit', drill: 'Drill', laser: 'Laser' },
+    toolKinds: { endmill: 'End mill', ballnose: 'Ball nose', vbit: 'V-bit', drill: 'Drill', laser: 'Laser', plasma: 'Plasma torch' },
     select: 'Choose machine',
-    machineGroups: { router: 'Routers', laser: 'Lasers', custom: 'Custom profiles' },
+    machineGroups: { router: 'Routers', laser: 'Lasers', plasma: 'Plasma cutters', custom: 'Custom profiles' },
     deleteProfile: 'Delete profile',
     builtInNote: 'Preset machine. To change it and keep your own variant, tap New profile.',
     customNote: 'Custom profile. It is saved with the project.',
@@ -938,6 +998,9 @@ export const en: Dict = {
       'sculpfun-s30-pro-max': 'Diode laser with 20 W and air assist. Work area applies with limit switches fitted.',
       'ortur-lm3': 'Fast diode laser with 10 W.',
       'generic-grbl-laser': 'Starting point for a laser not in the list. Check the S range ($30).',
+      'langmuir-crossfire-pro': 'Benchtop plasma table 61 × 122 cm with a motorised Z axis. Turn on height sensing if the machine has a floating head.',
+      'langmuir-crossfire': 'Benchtop plasma table 61 × 61 cm without a Z axis – the torch height is set by hand.',
+      'generic-grbl-plasma': 'Starting point for your own plasma table with GRBL and a floating head (height sensing with G38.2).',
     },
   },
 
@@ -966,6 +1029,7 @@ export const en: Dict = {
     laserRaster: 'Photo engraving',
     relief: 'Relief',
     inlay: 'Inlay',
+    plasmaCut: 'Plasma cut',
   },
   inlayParts: { pocket: 'pocket', plug: 'plug' },
   lineEngrave: 'Line engraving',
@@ -973,16 +1037,17 @@ export const en: Dict = {
   shapeNames: { rect: 'Rectangle', circle: 'Circle', gear: 'Gear', line: 'Line', curve: 'Curve', text: 'Text', copy: 'copy' },
 
   materials: {
-    pine: { name: "Pine", tips: { router: ["Resin can clog the cutter – blow it clean between passes.", "Soft wood: a two-flute end mill at full feed gives clean edges.", "Cut the finishing pass with the grain for the least tear-out."], laser: ["Growth rings burn to different shades – latewood comes out darkest.", "Resin can flare up: use air assist.", "Mask the surface with tape to avoid smoke stains."] } },
-    'birch-ply': { name: "Birch plywood", tips: { router: ["Use a down-cut or compression bit for clean top veneers.", "The glue layers wear the cutter – expect shorter tool life.", "Tabs hold parts better than an onion skin in plywood."], laser: ["The glue layers often need an extra pass.", "Choose laser plywood with laser-friendly glue.", "Masking tape keeps the surface clean around the cut."] } },
-    mdf: { name: "MDF", tips: { router: ["Very fine dust – use extraction and a dust mask.", "MDF cuts cleanly in every direction and suits reliefs well.", "The edges soak up paint – prime before painting."], laser: ["The edges turn dark after cutting.", "MDF cuts slower than plywood of the same thickness.", "Ventilate well – the glue gives heavy smoke."] } },
-    acrylic: { name: "Acrylic (cast)", tips: { router: ["A single-flute cutter gives the cleanest cut without melting.", "Keep the feed high – if the cutter dwells, the plastic melts.", "Leave the protective film on while milling."], laser: ["A blue diode laser does not cut clear or blue acrylic – choose dark or opaque.", "Cast acrylic engraves frosty white.", "Remove the protective film before engraving."] } },
-    leather: { name: "Leather (veg-tan)", tips: { router: ["Leather is rarely milled – cut it with a laser or a knife instead.", "Hold the leather down with double-sided tape if you do mill it."], laser: ["Only laser chrome-free (vegetable-tanned) leather.", "Dampen the surface slightly for even engraving.", "Lower power and more passes give less charred edges."] } },
-    oak: { name: "Oak", tips: { router: ["Hard and dense – reduce the feed slightly compared with pine.", "The tannins in oak can stain steel tools when damp.", "Oak is excellent for V-carving and inlays with a light wood."], laser: ["Oak engraves dark with high contrast.", "Cutting is slow – thick oak needs several passes."] } },
-    aluminium: { name: "Aluminium", tips: { router: ["Use a single-flute cutter, shallow passes (about 0.3 mm) and air or lubricant so chips do not weld on.", "Clamp firmly – aluminium must not vibrate.", "Needs a rigid machine; on light machines like the MPCNC or 3018 it rarely works well."], laser: ["Diode lasers cannot cut aluminium.", "Anodised aluminium engraves well – the colour is burnt away.", "Bare aluminium does not mark without marking spray."] } },
-    stainless: { name: "Stainless steel", tips: { router: ["Steel cannot be milled on hobby routers – use a laser for marking."], laser: ["A diode laser does not mark bare steel. Spray on marking compound (e.g. LMM or CerMark), engrave and wash off the rest.", "Marking without spray needs a fibre laser."] } },
-    slate: { name: "Slate", tips: { router: ["Slate can be engraved with a V-bit, but the dust is harmful – wear a mask and preferably use water.", "Hold the tile firmly; it cracks easily."], laser: ["The engraving comes out light grey against the dark stone.", "Wipe off the dust with a damp cloth and oil the surface afterwards.", "Diode lasers cannot cut stone."] } },
-    cardboard: { name: "Cardboard", tips: { router: ["Cardboard mills badly – cut it with a laser or a knife instead."], laser: ["Catches fire easily – stay with the machine and use air assist.", "Corrugated board cuts quickly at low power.", "Keep the board flat with magnets or pins."] } },
+    pine: { name: "Pine", tips: { router: ["Resin can clog the cutter – blow it clean between passes.", "Soft wood: a two-flute end mill at full feed gives clean edges.", "Cut the finishing pass with the grain for the least tear-out."], laser: ["Growth rings burn to different shades – latewood comes out darkest.", "Resin can flare up: use air assist.", "Mask the surface with tape to avoid smoke stains."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    'birch-ply': { name: "Birch plywood", tips: { router: ["Use a down-cut or compression bit for clean top veneers.", "The glue layers wear the cutter – expect shorter tool life.", "Tabs hold parts better than an onion skin in plywood."], laser: ["The glue layers often need an extra pass.", "Choose laser plywood with laser-friendly glue.", "Masking tape keeps the surface clean around the cut."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    mdf: { name: "MDF", tips: { router: ["Very fine dust – use extraction and a dust mask.", "MDF cuts cleanly in every direction and suits reliefs well.", "The edges soak up paint – prime before painting."], laser: ["The edges turn dark after cutting.", "MDF cuts slower than plywood of the same thickness.", "Ventilate well – the glue gives heavy smoke."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    acrylic: { name: "Acrylic (cast)", tips: { router: ["A single-flute cutter gives the cleanest cut without melting.", "Keep the feed high – if the cutter dwells, the plastic melts.", "Leave the protective film on while milling."], laser: ["A blue diode laser does not cut clear or blue acrylic – choose dark or opaque.", "Cast acrylic engraves frosty white.", "Remove the protective film before engraving."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    leather: { name: "Leather (veg-tan)", tips: { router: ["Leather is rarely milled – cut it with a laser or a knife instead.", "Hold the leather down with double-sided tape if you do mill it."], laser: ["Only laser chrome-free (vegetable-tanned) leather.", "Dampen the surface slightly for even engraving.", "Lower power and more passes give less charred edges."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    oak: { name: "Oak", tips: { router: ["Hard and dense – reduce the feed slightly compared with pine.", "The tannins in oak can stain steel tools when damp.", "Oak is excellent for V-carving and inlays with a light wood."], laser: ["Oak engraves dark with high contrast.", "Cutting is slow – thick oak needs several passes."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    'mild-steel': { name: 'Steel (mild steel)', tips: { router: ['Steel cannot be milled on hobby routers – cut it with plasma.'], laser: ['A diode laser does not mark bare steel without marking spray.'], plasma: ['The right speed gives an even spark stream trailing slightly back and almost no dross.', 'Beads of dross underneath: too slow. Dross that is hard to remove: too fast.', 'Thick plate: keep the lead-in at least as long as the plate is thick.'] } },
+    aluminium: { name: "Aluminium", tips: { router: ["Use a single-flute cutter, shallow passes (about 0.3 mm) and air or lubricant so chips do not weld on.", "Clamp firmly – aluminium must not vibrate.", "Needs a rigid machine; on light machines like the MPCNC or 3018 it rarely works well."], laser: ["Diode lasers cannot cut aluminium.", "Anodised aluminium engraves well – the colour is burnt away.", "Bare aluminium does not mark without marking spray."], plasma: ['Aluminium cuts faster than steel but leaves more dross on the underside.', 'Clean oxide and grease off where the ground clamp goes.'] } },
+    stainless: { name: "Stainless steel", tips: { router: ["Steel cannot be milled on hobby routers – use a laser for marking."], laser: ["A diode laser does not mark bare steel. Spray on marking compound (e.g. LMM or CerMark), engrave and wash off the rest.", "Marking without spray needs a fibre laser."], plasma: ['Stainless cuts slightly slower than steel and discolours near the cut.', 'With air the cut edge turns dark – grind it if the surface must be bright.'] } },
+    slate: { name: "Slate", tips: { router: ["Slate can be engraved with a V-bit, but the dust is harmful – wear a mask and preferably use water.", "Hold the tile firmly; it cracks easily."], laser: ["The engraving comes out light grey against the dark stone.", "Wipe off the dust with a damp cloth and oil the surface afterwards.", "Diode lasers cannot cut stone."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
+    cardboard: { name: "Cardboard", tips: { router: ["Cardboard mills badly – cut it with a laser or a knife instead."], laser: ["Catches fire easily – stay with the machine and use air assist.", "Corrugated board cuts quickly at low power.", "Keep the board flat with magnets or pins."], plasma: ['Cannot be plasma cut – plasma needs a material that conducts electricity.'] } },
   },
 
   tools: {
@@ -994,6 +1059,8 @@ export const en: Dict = {
     'drill-3': 'Drill 3 mm',
     'em-3175-1f-alu': 'Single-flute 3.175 mm (aluminium)',
     'laser-diode': 'Diode laser (focused dot)',
+    'plasma-45-std': 'Plasma torch 45 A (standard nozzle)',
+    'plasma-45-fine': 'Plasma torch 45 A (fine-cut nozzle)',
   },
 
   guides: {

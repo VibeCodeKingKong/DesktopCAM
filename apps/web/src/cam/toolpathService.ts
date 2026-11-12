@@ -12,6 +12,7 @@ import {
   type PocketJob,
   type PolylineInput,
   type ProfileJob,
+  type PlasmaJob,
   type RasterJob,
   type ReliefJob,
   type ToolpathConfig,
@@ -75,6 +76,9 @@ export async function computeToolpath(id: string): Promise<void> {
         break;
       case 'laserCut':
         payload = await camClient.request({ type: 'profile', job: buildProfileJob(tp) }, { onProgress });
+        break;
+      case 'plasmaCut':
+        payload = await camClient.request({ type: 'plasma', job: buildPlasmaJob(tp) }, { onProgress });
         break;
       default:
         throw new Error('NOT_IMPLEMENTED');
@@ -152,6 +156,27 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
     };
   }
   throw new Error('NOT_IMPLEMENTED');
+}
+
+function buildPlasmaJob(tp: ToolpathConfig): PlasmaJob {
+  if (tp.operation !== 'plasmaCut') throw new Error('NOT_IMPLEMENTED');
+  const s = useAppStore.getState();
+  const machine = getMachine();
+  return {
+    groups: groupsOf(shapesOf(tp)),
+    side: tp.side,
+    kerf: tp.kerf,
+    feedRate: tp.params.feedRate,
+    plungeRate: tp.params.plungeRate || 1000,
+    settings: tp.plasma,
+    zAxis: machine.plasma?.zAxis ?? true,
+    thickness: s.material.thickness,
+    post: {
+      ...machine.postprocessor,
+      // Strömstyrkan ställs in på aggregatet – skriv den i filen som påminnelse.
+      header: [`; Plasma: ${tp.amps} A, kerf ${tp.kerf} mm`, ...machine.postprocessor.header],
+    },
+  };
 }
 
 /** Strategi och flikar med standardvärden för äldre projekt. */

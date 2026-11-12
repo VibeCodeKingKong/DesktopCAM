@@ -167,7 +167,7 @@ export const IlluExport = () => (
   </Frame>
 );
 
-export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' }) => (
+export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' | 'plasma' }) => (
   <svg viewBox="0 0 120 80" className="h-full w-full" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M14 62 34 46h72L86 62z" className="fill-wood/50 stroke-wood" />
     <path d="M14 62v6h72v-6M106 46v6l-20 16" className="stroke-muted" strokeWidth="1.5" />
@@ -178,6 +178,13 @@ export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' }) 
       <g>
         <rect x="56" y="24" width="10" height="16" rx="2" className="fill-surface stroke-ink/70" strokeWidth="1.5" />
         <path d="M61 40v8" className="stroke-ink" strokeWidth="2" />
+      </g>
+    ) : kind === 'plasma' ? (
+      <g>
+        {/* Brännare med munstycke och ljusbåge ner i plåten */}
+        <rect x="57" y="22" width="8" height="18" rx="2" className="fill-surface stroke-ink/70" strokeWidth="1.5" />
+        <path d="M58 40h6l-1.5 5h-3z" className="fill-ink/70" />
+        <path d="M61 45l-1.5 3 2.5 1.5-1.5 3" className="stroke-accent anim-blink" strokeWidth="1.6" />
       </g>
     ) : (
       <g>
@@ -555,5 +562,19 @@ export const IlluShapeLibrary = () => (
     <rect x="30" y="18" width="100" height="44" rx="6" className="stroke-ink/60" strokeWidth="1.5" />
     <rect x="36" y="24" width="88" height="32" rx="3" className="stroke-ink/60" strokeWidth="1.5" />
     <path d="M52 34h56v14H52zM52 37l-10 0 4 4.5-4 4.5h10M108 37h10l-4 4.5 4 4.5h-10" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+  </Frame>
+);
+
+/** Plasmaskärning: inlöp i spillet, sedan runt konturen med strålkompensation. */
+export const IlluPlasma = () => (
+  <Frame>
+    <rect x="16" y="10" width="128" height="60" rx="3" className="fill-muted/25 stroke-muted" strokeWidth="1" />
+    <rect x="50" y="24" width="60" height="32" rx="2" className="stroke-ink/60" strokeWidth="1.5" />
+    <path d="M38 40a8 8 0 0 1 8-8" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+    <rect x="46" y="20" width="68" height="40" rx="4" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+    <g className="anim-blink">
+      <circle cx="38" cy="40" r="3" fill="currentColor" />
+      <circle cx="38" cy="40" r="6" stroke="currentColor" strokeWidth="1" opacity=".5" />
+    </g>
   </Frame>
 );

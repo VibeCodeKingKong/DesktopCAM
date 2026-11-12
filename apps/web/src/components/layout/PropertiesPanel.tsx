@@ -1,7 +1,7 @@
 import { FontPicker } from '../ui/FontPicker';
 import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine } from 'lucide-react';
+import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
 import {
   defaultPocketStrategy,
   matchPocketPreset,
@@ -21,6 +21,9 @@ import {
   type CutSide,
   type DitherMethod,
   type InlayToolpath,
+  type PlasmaCutToolpath,
+  type PlasmaSettings,
+  plasmaChartAt,
   type ProfileStrategy,
   type ProfileToolpath,
   type ReliefInstance,
@@ -98,9 +101,9 @@ function EmptyState() {
   const laser = machine.kind === 'laser';
   // Materialets tips för den valda maskintypen, och tips för just den här maskinen.
   const own = t.materials[preset.id]?.tips;
-  const materialTips = own ? own[laser ? 'laser' : 'router'] : preset.tips;
+  const materialTips = own ? own[machine.kind] : preset.tips;
   const mt = t.machineTips;
-  const machineTips = [...mt[machineClass(machine)], ...(laser ? mt.laserCommon : mt.routerCommon), ...mt.common];
+  const machineTips = [...mt[machineClass(machine)], ...(laser ? mt.laserCommon : machine.kind === 'plasma' ? mt.plasmaCommon : mt.routerCommon), ...mt.common];
   const box = (title: string, tips: string[]) => (
     <div className="rounded-lg border border-line bg-app p-3">
       <p className="mb-1.5 font-semibold">{title}</p>
@@ -114,7 +117,7 @@ function EmptyState() {
   return (
     <div className="space-y-4 p-4 text-xs leading-relaxed">
       <p className="text-muted">{t.props.emptyHint}</p>
-      {box(t.materialTips(materialName(t, preset.id, preset.name), laser), materialTips)}
+      {box(t.materialTips(materialName(t, preset.id, preset.name), machine.kind), materialTips)}
       {box(mt.title(machine.name), machineTips)}
     </div>
   );
@@ -147,6 +150,7 @@ function ShapeEditor() {
   };
   const r2 = (n: number) => Math.round(n * 100) / 100;
   const isLaser = machine.kind === 'laser';
+  const machineKind = machine.kind;
   const anyClosed = shapes.some(shapeHasArea);
 
   return (
@@ -325,9 +329,13 @@ function ShapeEditor() {
       </Group>
 
       <Group title={t.props.machining}>
-        <p className="text-2xs text-muted">{anyClosed || isLaser ? t.props.operationsHint : t.props.openHint}</p>
+        <p className="text-2xs text-muted">{anyClosed || machineKind !== 'router' ? t.props.operationsHint : t.props.openHint}</p>
         <div className="grid grid-cols-2 gap-2">
-          {isLaser ? (
+          {machineKind === 'plasma' ? (
+            <button className="btn col-span-2" onClick={() => createToolpath('plasmaCut')}>
+              <Zap size={13} className="text-accent" /> {t.operations.plasmaCut}
+            </button>
+          ) : isLaser ? (
             <>
               <button className="btn" onClick={() => createToolpath('laserCut')}>
                 <Scissors size={13} className="text-laser" /> {t.buttons.laserCut.label.replace('\u00ad', '')}
@@ -362,7 +370,7 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
   const update = useAppStore((s) => s.updateRelief);
   const remove = useAppStore((s) => s.removeRelief);
   const material = useAppStore((s) => s.material);
-  const isLaser = useMachine().kind === 'laser';
+  const isLaser = useMachine().kind !== 'router';
   const patch = (p: Partial<ReliefInstance>) => {
     useAppStore.getState().checkpoint();
     update(relief.id, p);
@@ -493,7 +501,9 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
       ? t.props.cannotCut
       : machineKind === 'router' && !preset.router
         ? t.props.notForRouter
-        : null;
+        : machineKind === 'plasma' && !preset.plasma
+          ? t.props.notForPlasma
+          : null;
   const holes = tp.operation === 'drill' ? drillPoints(allShapes(layers).filter((s) => tp.shapeIds.includes(s.id))).length : 0;
   const speedGroup = (
     <Group title={t.props.speed}>
@@ -518,7 +528,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
         {!toolOk && currentTool && (
           <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs leading-relaxed text-warn">{t.toolRules.why(tp.operation, currentTool.kind, tp.operation === 'profile' ? tp.side : undefined)}</p>
         )}
-        {(tp.operation === 'profile' || tp.operation === 'laserCut') && (
+        {(tp.operation === 'profile' || tp.operation === 'laserCut' || tp.operation === 'plasmaCut') && (
           <FieldRow label={t.props.side} hint="cutSide">
             <Segmented label={t.props.side} value={tp.side} options={sides} onChange={(side) => patch({ side })} />
           </FieldRow>
@@ -635,6 +645,8 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
         </Group>
       )}
 
+      {tp.operation === 'plasmaCut' && <PlasmaEditor tp={tp} patch={patch} param={param} />}
+
       {tp.operation === 'laserRaster' && (
         <>
           <Group title={t.props.image}>
@@ -685,6 +697,120 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
         </div>
       </Group>
     </div>
+  );
+}
+
+/* ───────── Plasma ───────── */
+
+function PlasmaEditor({
+  tp,
+  patch,
+  param,
+}: {
+  tp: PlasmaCutToolpath;
+  patch: (p: Partial<ToolpathConfig>) => void;
+  param: (p: Partial<ToolpathConfig['params']>) => void;
+}) {
+  const t = useT();
+  const pl = t.plasma;
+  const expert = useExpert();
+  const machine = useMachine();
+  const preset = useMaterialPreset();
+  const thickness = useAppStore((s) => s.material.thickness);
+  const zAxis = machine.plasma?.zAxis ?? true;
+  const s = tp.plasma;
+  const set = (p: Partial<PlasmaSettings>) => patch({ plasma: { ...s, ...p } } as Partial<ToolpathConfig>);
+  const chart = plasmaChartAt(preset.plasma, thickness);
+  const maxAmps = machine.plasma?.maxAmps ?? 999;
+  const leads = (value: PlasmaSettings['leadIn']) => ({ value, label: pl.leads[value] });
+  const applyChart = () => {
+    if (!chart) return;
+    patch({ kerf: chart.kerf, amps: Math.min(chart.amps, maxAmps), plasma: { ...s, pierceDelay: chart.pierceDelay, pierceHeight: chart.pierceHeight, cutHeight: chart.cutHeight } } as Partial<ToolpathConfig>);
+    param({ feedRate: chart.feedRate });
+  };
+
+  return (
+    <>
+      <Group title={pl.cutting}>
+        <NumberField label={pl.amps} unit="A" step={5} min={10} value={tp.amps} hint="plasmaAmps" onChange={(amps) => patch({ amps: Math.round(amps) } as Partial<ToolpathConfig>)} />
+        {tp.amps > maxAmps && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{pl.ampsTooHigh(maxAmps)}</p>}
+        <NumberField label={t.props.feed} unit="mm/min" step={100} min={1} value={tp.params.feedRate} hint="feedRate" onChange={(feedRate) => param({ feedRate })} />
+        {tp.side !== 'on' && <NumberField label={t.props.kerf} unit="mm" step={0.05} min={0} max={5} value={tp.kerf} hint="plasmaKerf" onChange={(kerf) => patch({ kerf } as Partial<ToolpathConfig>)} />}
+        {chart ? (
+          <div className="space-y-1.5 rounded-md bg-app px-2 py-1.5 text-2xs leading-relaxed text-muted">
+            <p>{pl.chart(thickness.toLocaleString(t.locale), chart.amps, chart.feedRate, chart.kerf.toLocaleString(t.locale), chart.pierceDelay.toLocaleString(t.locale))}</p>
+            <button className="btn h-6 px-2 text-2xs" onClick={applyChart}>
+              {pl.useChart}
+            </button>
+          </div>
+        ) : null}
+      </Group>
+
+      <Group title={pl.pierce}>
+        {zAxis && <NumberField label={pl.pierceHeight} unit="mm" step={0.1} min={0} value={s.pierceHeight} hint="pierceHeight" onChange={(pierceHeight) => set({ pierceHeight })} />}
+        <NumberField label={pl.pierceDelay} unit="s" step={0.1} min={0} max={10} value={s.pierceDelay} hint="pierceDelay" onChange={(pierceDelay) => set({ pierceDelay })} />
+        {zAxis && <NumberField label={pl.cutHeight} unit="mm" step={0.1} min={0} value={s.cutHeight} hint="cutHeight" onChange={(cutHeight) => set({ cutHeight })} />}
+        {zAxis && (
+          <FieldRow label={pl.ihs} hint="plasmaIhs">
+            <Switch checked={s.ihs} onChange={(ihs) => set({ ihs })} label={pl.ihs} />
+          </FieldRow>
+        )}
+        {zAxis && s.ihs && expert && <NumberField label={pl.switchOffset} unit="mm" step={0.1} min={0} value={s.ihsSwitchOffset} hint="plasmaIhs" onChange={(ihsSwitchOffset) => set({ ihsSwitchOffset })} />}
+        {zAxis && expert && <NumberField label={pl.plungeRate} unit="mm/min" step={100} min={1} value={tp.params.plungeRate || 1000} onChange={(plungeRate) => param({ plungeRate })} />}
+        {!zAxis && <p className="text-2xs leading-relaxed text-muted">{pl.noZ}</p>}
+      </Group>
+
+      {tp.side !== 'on' && (
+        <Group title={pl.leadsTitle}>
+          <FieldRow label={pl.leadIn} hint="plasmaLead">
+            <Segmented label={pl.leadIn} value={s.leadIn} options={[leads('arc'), leads('line'), leads('none')]} onChange={(leadIn) => set({ leadIn })} />
+          </FieldRow>
+          {s.leadIn !== 'none' && <NumberField label={s.leadIn === 'arc' ? pl.radius : pl.length} unit="mm" step={0.5} min={0.5} value={s.leadInLength} hint="plasmaLead" onChange={(leadInLength) => set({ leadInLength })} />}
+          <FieldRow label={pl.leadOut} hint="plasmaLead">
+            <Segmented label={pl.leadOut} value={s.leadOut} options={[leads('arc'), leads('line'), leads('none')]} onChange={(leadOut) => set({ leadOut })} />
+          </FieldRow>
+          {s.leadOut !== 'none' && <NumberField label={s.leadOut === 'arc' ? pl.radius : pl.length} unit="mm" step={0.5} min={0.5} value={s.leadOutLength} hint="plasmaLead" onChange={(leadOutLength) => set({ leadOutLength })} />}
+          {expert && <NumberField label={pl.overcut} unit="mm" step={0.1} min={0} max={10} value={s.overcut} hint="plasmaOvercut" onChange={(overcut) => set({ overcut })} />}
+        </Group>
+      )}
+
+      {tp.side !== 'on' && (
+        <Group title={pl.holes}>
+          <FieldRow label={pl.holeSlowdown} hint="holeSlowdown">
+            <Switch checked={s.holeSlowdown} onChange={(holeSlowdown) => set({ holeSlowdown })} label={pl.holeSlowdown} />
+          </FieldRow>
+          {s.holeSlowdown && (
+            <>
+              <NumberField label={pl.holeDiameter} unit="mm" step={1} min={1} value={s.holeDiameter} hint="holeSlowdown" onChange={(holeDiameter) => set({ holeDiameter })} />
+              <NumberField label={pl.holeFeed} unit="%" step={5} min={10} max={100} value={s.holeFeedPct} hint="holeSlowdown" onChange={(holeFeedPct) => set({ holeFeedPct })} />
+            </>
+          )}
+          {expert && (
+            <FieldRow label={pl.thcOff} hint="plasmaThc">
+              <Switch checked={s.thcOffInHoles} onChange={(thcOffInHoles) => set({ thcOffInHoles })} label={pl.thcOff} />
+            </FieldRow>
+          )}
+          {expert && s.thcOffInHoles && !machine.postprocessor.thcOff && <p className="text-2xs leading-relaxed text-muted">{pl.thcNoCodes}</p>}
+          <p className="text-2xs leading-relaxed text-muted">{pl.orderNote}</p>
+        </Group>
+      )}
+
+      {expert && tp.side !== 'on' && (
+        <Group title={t.props.direction}>
+          <FieldRow label={t.props.direction} hint="plasmaDirection">
+            <Segmented
+              label={t.props.direction}
+              value={s.partOnRight ? 'right' : 'left'}
+              options={[
+                { value: 'right', label: pl.partRight },
+                { value: 'left', label: pl.partLeft },
+              ]}
+              onChange={(v) => set({ partOnRight: v === 'right' })}
+            />
+          </FieldRow>
+        </Group>
+      )}
+    </>
   );
 }
 

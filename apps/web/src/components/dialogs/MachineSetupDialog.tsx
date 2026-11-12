@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ToolIcon } from '../ui/ToolIcon';
 import { cuttingLength } from '../../cam/toolReach';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { uid, type FirmwareFlavor, type MachineProfile, type ToolDefinition, type ToolKind } from '@desktopcam/core';
-import { useAppStore, useExpert } from '../../store/useAppStore';
+import { uid, type FirmwareFlavor, type MachineKind, type MachineProfile, type ToolDefinition, type ToolKind } from '@desktopcam/core';
+import { toolFitsMachine, useAppStore, useExpert } from '../../store/useAppStore';
 import { toolName, useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 import { FieldRow, GroupedOptions, NumberField, SelectField, Switch } from '../ui/Field';
@@ -67,6 +67,7 @@ export function MachineSetupDialog() {
   const groups: { label: string; items: MachineProfile[] }[] = [
     { label: t.machine.machineGroups.router, items: machines.filter((m) => !m.custom && m.kind === 'router') },
     { label: t.machine.machineGroups.laser, items: machines.filter((m) => !m.custom && m.kind === 'laser') },
+    { label: t.machine.machineGroups.plasma, items: machines.filter((m) => !m.custom && m.kind === 'plasma') },
     { label: t.machine.machineGroups.custom, items: machines.filter((m) => m.custom) },
   ].filter((g) => g.items.length);
 
@@ -148,7 +149,7 @@ export function MachineSetupDialog() {
             </div>
             <div className="min-w-0 flex-1 space-y-0.5 text-xs">
               <p className="text-sm font-semibold leading-snug">{draft.name}</p>
-              <p className="text-muted">{draft.kind === 'laser' ? t.machine.kindLaser : t.machine.kindRouter}</p>
+              <p className="text-muted">{draft.kind === 'laser' ? t.machine.kindLaser : draft.kind === 'plasma' ? t.machine.kindPlasma : t.machine.kindRouter}</p>
               <p>{t.machine.workArea(draft.workArea.x, draft.workArea.y)}</p>
               <p className="text-muted">{t.machine.controller(draft.postprocessor.flavor === 'grbl' ? 'GRBL' : 'Marlin')}</p>
               {t.machine.info[draft.id] && <p className="pt-1 leading-relaxed text-muted">{t.machine.info[draft.id]}</p>}
@@ -196,6 +197,19 @@ export function MachineSetupDialog() {
                 ]}
                 onChange={(homing) => set({ homing })}
               />
+              {draft.plasma && (
+                <>
+                  <FieldRow label={t.machine.plasmaZ}>
+                    <Switch checked={draft.plasma.zAxis} onChange={(zAxis) => set({ plasma: { ...draft.plasma!, zAxis, ihs: zAxis && draft.plasma!.ihs } })} label={t.machine.plasmaZ} />
+                  </FieldRow>
+                  {draft.plasma.zAxis && (
+                    <FieldRow label={t.machine.plasmaIhs} hint="plasmaIhs">
+                      <Switch checked={draft.plasma.ihs} onChange={(ihs) => set({ plasma: { ...draft.plasma!, ihs } })} label={t.machine.plasmaIhs} />
+                    </FieldRow>
+                  )}
+                  <NumberField label={t.machine.plasmaAmps} unit="A" step={5} min={10} value={draft.plasma.maxAmps} onChange={(maxAmps) => set({ plasma: { ...draft.plasma!, maxAmps } })} />
+                </>
+              )}
               {draft.laser && <NumberField label={t.machine.sMax} value={draft.laser.sMax} min={1} onChange={(sMax) => set({ laser: { ...draft.laser!, sMax } })} />}
             </div>
           </section>
@@ -206,7 +220,17 @@ export function MachineSetupDialog() {
         <div className="grid gap-5 p-4 sm:grid-cols-2 sm:p-5">
           <div className="space-y-2.5">
             <NumberField label={t.machine.decimals} value={draft.postprocessor.decimals} min={0} max={6} onChange={(decimals) => setPost({ decimals: Math.round(decimals) })} />
-            {draft.kind === 'router' && <NumberField label={t.machine.safeZ} unit="mm" value={draft.postprocessor.safeZ} min={0} hint="safeZ" onChange={(safeZ) => setPost({ safeZ })} />}
+            {draft.kind === 'plasma' && (
+              <>
+                {(['torchOn', 'torchOff', 'thcOn', 'thcOff'] as const).map((key) => (
+                  <FieldRow key={key} label={t.machine.plasmaCodes[key]}>
+                    <input className="field font-mono" value={draft.postprocessor[key] ?? ''} placeholder={key === 'torchOn' ? 'M3 S1000' : key === 'torchOff' ? 'M5' : '–'} onChange={(e) => setPost({ [key]: e.target.value })} spellCheck={false} />
+                  </FieldRow>
+                ))}
+                <p className="text-2xs leading-relaxed text-muted">{t.machine.plasmaCodesHint}</p>
+              </>
+            )}
+            {draft.kind !== 'laser' && <NumberField label={t.machine.safeZ} unit="mm" value={draft.postprocessor.safeZ} min={0} hint="safeZ" onChange={(safeZ) => setPost({ safeZ })} />}
             {draft.kind === 'laser' && (
               <FieldRow label={t.machine.dynamicPower}>
                 <Switch checked={draft.postprocessor.laserDynamicPower} onChange={(laserDynamicPower) => setPost({ laserDynamicPower })} label={t.machine.dynamicPower} />
@@ -230,27 +254,31 @@ export function MachineSetupDialog() {
         </div>
       )}
 
-      {step === 'tools' && <ToolLibrary laser={draft.kind === 'laser'} />}
+      {step === 'tools' && <ToolLibrary kind={draft.kind} />}
     </Dialog>
   );
 }
 
 /** Verktygsbiblioteket: lista + formulär för att ändra eller lägga till. */
-function ToolLibrary({ laser }: { laser: boolean }) {
+function ToolLibrary({ kind }: { kind: MachineKind }) {
+  const laser = kind === 'laser';
+  const plasma = kind === 'plasma';
+  /** Fräsverktyg har skär, längder och spindel – laser och plasma inte. */
+  const router = kind === 'router';
   const t = useT();
   const tools = useAppStore((s) => s.tools);
   const saveTool = useAppStore((s) => s.saveTool);
   const removeTool = useAppStore((s) => s.removeTool);
   const [editing, setEditing] = useState<ToolDefinition | null>(null);
-  const list = tools.filter((x) => (laser ? x.kind === 'laser' : x.kind !== 'laser'));
-  const kinds: ToolKind[] = laser ? ['laser'] : ['endmill', 'ballnose', 'vbit', 'drill'];
+  const list = tools.filter((x) => toolFitsMachine(x.kind, kind));
+  const kinds: ToolKind[] = laser ? ['laser'] : plasma ? ['plasma'] : ['endmill', 'ballnose', 'vbit', 'drill'];
   const beginner = useAppStore((s) => s.beginnerMode);
   const num = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
   const toolDims = (x: ToolDefinition) => {
     const parts = [`Ø ${num(x.diameter)}`];
     const cut = cuttingLength(x);
-    if (x.kind !== 'laser' && cut) parts.push(`${t.machine.cutShort} ${num(cut)}`);
-    if (x.kind !== 'laser' && x.stickout && !beginner) parts.push(`${t.machine.stickoutShort} ${num(x.stickout)}`);
+    if (router && cut) parts.push(`${t.machine.cutShort} ${num(cut)}`);
+    if (router && x.stickout && !beginner) parts.push(`${t.machine.stickoutShort} ${num(x.stickout)}`);
     return `${parts.join(' · ')} mm`;
   };
 
@@ -259,11 +287,13 @@ function ToolLibrary({ laser }: { laser: boolean }) {
       id: uid('tool'),
       name: t.machine.newToolName,
       kind: kinds[0],
-      diameter: laser ? 0.1 : 3.175,
+      diameter: laser ? 0.1 : plasma ? 1.5 : 3.175,
       units: 'mm',
       defaults: laser
         ? { feedRate: 600, plungeRate: 0, stepDown: 0, stepOver: 1, laserPowerPct: 100, passes: 1 }
-        : { feedRate: 900, plungeRate: 250, spindleRpm: 18000, stepDown: 1.5, stepOver: 0.4 },
+        : plasma
+          ? { feedRate: 2500, plungeRate: 1000, stepDown: 0, stepOver: 1 }
+          : { feedRate: 900, plungeRate: 250, spindleRpm: 18000, stepDown: 1.5, stepOver: 0.4 },
     });
 
   const set = (p: Partial<ToolDefinition>) => setEditing((e) => (e ? { ...e, ...p } : e));
@@ -279,7 +309,7 @@ function ToolLibrary({ laser }: { laser: boolean }) {
               <th className="px-3 py-2 font-medium">{t.machine.tool}</th>
               <th className="px-3 py-2 font-medium">{t.machine.type}</th>
               <th className="px-3 py-2 font-medium">{t.machine.dimensions}</th>
-              {!laser && <th className="px-3 py-2 text-right font-medium">{t.machine.flutes}</th>}
+              {router && <th className="px-3 py-2 text-right font-medium">{t.machine.flutes}</th>}
               <th className="px-3 py-2 text-right font-medium">{t.machine.feed}</th>
               <th className="w-16 px-2 py-2" />
             </tr>
@@ -296,7 +326,7 @@ function ToolLibrary({ laser }: { laser: boolean }) {
                   {x.angle ? ` ${x.angle}°` : ''}
                 </td>
                 <td className="px-3 py-2 tabular-nums text-muted">{toolDims(x)}</td>
-                {!laser && <td className="px-3 py-2 text-right tabular-nums">{x.flutes ?? '–'}</td>}
+                {router && <td className="px-3 py-2 text-right tabular-nums">{x.flutes ?? '–'}</td>}
                 <td className="px-3 py-2 text-right tabular-nums">{x.defaults.feedRate}</td>
                 <td className="px-2 py-1 text-right">
                   <button className="rounded p-1.5 text-muted hover:bg-app hover:text-ink" onClick={() => setEditing(structuredClone({ ...x, name: toolName(t, x.id, x.name) }))} aria-label={t.machine.editTool}>
@@ -325,11 +355,11 @@ function ToolLibrary({ laser }: { laser: boolean }) {
               <input className="field" value={editing.name} onChange={(e) => set({ name: e.target.value })} />
             </FieldRow>
             <SelectField label={t.machine.type} value={editing.kind} options={kinds.map((k) => ({ value: k, label: t.machine.toolKinds[k] }))} onChange={(kind) => set({ kind })} />
-            <NumberField label={t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
+            <NumberField label={plasma ? t.props.kerf : t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
             {editing.kind === 'vbit' && <NumberField label={t.machine.angle} unit="°" step={5} min={10} max={170} value={editing.angle ?? 90} onChange={(angle) => set({ angle })} />}
-            {!laser && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}
+            {router && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}
             <NumberField label={t.machine.feed} unit="mm/min" step={50} min={1} value={editing.defaults.feedRate} onChange={(feedRate) => setDef({ feedRate })} />
-            {!laser && (
+            {router && (
               <>
                 <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={editing.defaults.plungeRate} onChange={(plungeRate) => setDef({ plungeRate })} />
                 <NumberField label={t.machine.stepDown} unit="mm" step={0.1} min={0.05} value={editing.defaults.stepDown} onChange={(stepDown) => setDef({ stepDown })} />
@@ -338,7 +368,7 @@ function ToolLibrary({ laser }: { laser: boolean }) {
             )}
             {laser && <NumberField label={t.props.power} unit="%" step={5} min={0} max={100} value={editing.defaults.laserPowerPct ?? 100} onChange={(laserPowerPct) => setDef({ laserPowerPct })} />}
           </div>
-          {!laser && !beginner && (
+          {router && !beginner && (
             <div className="space-y-2.5 border-t border-line pt-3">
               <h4 className="text-xs font-semibold">{t.machine.advanced}</h4>
               <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">

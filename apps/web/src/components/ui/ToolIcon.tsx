@@ -13,6 +13,21 @@ export function ToolIcon({ tool, size = 40, dimensions = false }: { tool: ToolDe
   const W = dimensions ? 90 : 40;
   const cx = dimensions ? 34 : 20;
 
+  if (tool.kind === 'plasma') {
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} width={(size * W) / H} height={size} aria-hidden="true">
+        <rect x={cx - 9} y={4} width={18} height={50} rx={4} className="fill-ink/70" />
+        <path d={`M${cx - 9} 54 h18 l-3 14 h-12 z`} className="fill-ink/50" />
+        <path d={`M${cx - 5} 68 h10 l-2 8 h-6 z`} className="fill-ink/80" />
+        <path d={`M${cx} 76 l-3 6 4 3 -3 7`} className="stroke-accent" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {dimensions && (
+          <text x={cx + 12} y={92} className="fill-muted text-[7px]">
+            {(+tool.diameter.toFixed(2)).toLocaleString(t.locale)}
+          </text>
+        )}
+      </svg>
+    );
+  }
   if (tool.kind === 'laser') {
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width={(size * W) / H} height={size} aria-hidden="true">

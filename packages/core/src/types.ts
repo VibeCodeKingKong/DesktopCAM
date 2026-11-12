@@ -4,7 +4,7 @@
  */
 
 export type Units = 'mm' | 'inch';
-export type MachineKind = 'router' | 'laser';
+export type MachineKind = 'router' | 'laser' | 'plasma';
 export type FirmwareFlavor = 'grbl' | 'marlin';
 
 export interface Vec2 {
@@ -32,6 +32,12 @@ export interface PostprocessorConfig {
   safeZ: number;
   /** Laser: M4 (dynamisk effekt, rekommenderas för GRBL) i stället för M3. */
   laserDynamicPower: boolean;
+  /** Plasma: tänd och släck brännaren (standard "M3 S1000" och "M5"). */
+  torchOn?: string;
+  torchOff?: string;
+  /** Plasma: slå på och av höjdregleringen (THC). Tomt = maskinen sköter den själv. */
+  thcOn?: string;
+  thcOff?: string;
 }
 
 export interface MachineProfile {
@@ -46,6 +52,8 @@ export interface MachineProfile {
   homing: 'none' | 'xy' | 'xyz';
   spindle?: { minRpm: number; maxRpm: number; controllable: boolean };
   laser?: { opticalPowerW: number; sMax: number };
+  /** Plasmaskärare: motoriserad Z-axel, höjdavkänning och aggregatets största ström. */
+  plasma?: { zAxis: boolean; ihs: boolean; maxAmps: number };
   postprocessor: PostprocessorConfig;
   /** Användarens egen profil (sparas med projektet). */
   custom?: boolean;
@@ -53,7 +61,7 @@ export interface MachineProfile {
 
 /* ───────────────────────── Verktyg ───────────────────────── */
 
-export type ToolKind = 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser';
+export type ToolKind = 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma';
 
 export interface CuttingParams {
   feedRate: number;
@@ -112,7 +120,23 @@ export interface MaterialPreset {
     engraveSpeed: number;
     engravePowerPct: number;
   };
+  /**
+   * Plasma: riktvärden per tjocklek (interpoleras). Saknas = materialet leder
+   * inte ström och kan inte plasmaskäras.
+   */
+  plasma?: PlasmaCutChartRow[];
   tips: string[];
+}
+
+/** En rad i en skärtabell för plasma. */
+export interface PlasmaCutChartRow {
+  thickness: number;
+  amps: number;
+  feedRate: number;
+  kerf: number;
+  pierceDelay: number;
+  pierceHeight: number;
+  cutHeight: number;
 }
 
 export interface MaterialSetup {
@@ -189,6 +213,7 @@ export interface VectorLayer {
 /* ───────────────────────── Reliefer (3D) ───────────────────────── */
 
 import type { ImageReliefSource } from './imageRelief';
+import type { PlasmaSettings } from './plasma';
 
 export type ReliefCategory = 'geometric' | 'pattern' | 'nature';
 
@@ -263,7 +288,7 @@ export function plugGeometry(p: ReliefPlug) {
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */
 
-export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief';
+export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut';
 export type CutSide = 'outside' | 'inside' | 'on';
 export type DitherMethod = 'floyd-steinberg' | 'ordered' | 'threshold';
 
@@ -386,6 +411,16 @@ export interface LaserCutToolpath extends ToolpathBase {
   passes: number;
 }
 
+export interface PlasmaCutToolpath extends ToolpathBase {
+  operation: 'plasmaCut';
+  side: CutSide;
+  /** Snittbredd (mm) – banan flyttas en halv snittbredd. */
+  kerf: number;
+  /** Strömstyrka (A) – ställs in på aggregatet, skrivs som kommentar. */
+  amps: number;
+  plasma: PlasmaSettings;
+}
+
 export interface LaserRasterToolpath extends ToolpathBase {
   operation: 'laserRaster';
   imageId: string;
@@ -414,6 +449,7 @@ export type ToolpathConfig =
   | DrillToolpath
   | VCarveToolpath
   | LaserCutToolpath
+  | PlasmaCutToolpath
   | LaserRasterToolpath;
 
 export interface ToolpathStats {

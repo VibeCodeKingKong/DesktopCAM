@@ -51,6 +51,17 @@ const guides: Record<GuideKey, GuideEntry> = {
   reliefInlay: { title: 'Intarsja reliefu', body: 'Wkładka jest odwrotnością reliefu: odwrócona i lustrzana. Po odwróceniu pasuje do kieszeni z cienką szczeliną na klej. Wokół reliefu deska wkładki jest odfrezowana, aby nie dotykała drewna bazowego.', steps: ['Szczelina 0,1–0,3 mm wystarczy przy kleju do drewna.', 'Odstęp 1 mm trzyma deskę z dala od drewna bazowego poza reliefem.', 'Frezuj obie części tym samym frezem kulowym dla najlepszego pasowania.'] },
   onionSkin: { title: 'Cienka warstwa (onion skin)', body: 'Cienka warstwa zostawiona na dnie, aby detal pozostał przymocowany. Potem ją wyłam lub odetnij i zeszlifuj krawędź.', steps: ['0,2–0,4 mm w sklejce i MDF.', 'Często stosowana zamiast mostków przy małych detalach.'] },
   snap: { title: 'Przyciągaj do siatki', body: 'Rysowane i przesuwane punkty trafiają na najbliższy krok siatki. Wyłącz, aby umieszczać zupełnie swobodnie.' },
+  plasmaAmps: { title: 'Prąd', body: 'Prąd ustawia się na źródle plazmy – w G-code jest tylko przypomnieniem. Większy prąd tnie grubszą blachę, ale daje szerszą szczelinę.', steps: ['Korzystaj z tabeli cięcia palnika dla używanej dyszy.', 'Dysza precyzyjna: 25–45 A dla blachy do ok. 4 mm.'] },
+  plasmaKerf: { title: 'Szczelina cięcia (kerf)', body: 'Łuk plazmy wypala pasek szerokości 1–2 mm. desktopCAM przesuwa ścieżkę o pół szczeliny w odpad, aby detal miał właściwy wymiar.', steps: ['Wytnij próbkę 50 × 50 mm i zmierz ją.', 'Szczelina = obecna wartość + (50 − zmierzony wymiar).'] },
+  pierceHeight: { title: 'Wysokość przebicia', body: 'Palnik zapala się wyżej niż wysokość cięcia, aby metal wyrzucany podczas przebicia nie trafił w dyszę.', steps: ['Często 1,5–2 × wysokość cięcia.', 'Gruba blacha wymaga większej wysokości przebicia.'] },
+  pierceDelay: { title: 'Opóźnienie przebicia', body: 'Jak długo palnik stoi po zapaleniu, zanim ruszy, aby łuk przepalił blachę.', steps: ['Cienka blacha: 0–0,2 s.', 'Za krótko: łuk nie przechodzi i pryska żużel.', 'Za długo: otwór przebicia się powiększa.'] },
+  cutHeight: { title: 'Wysokość cięcia', body: 'Odległość między dyszą a blachą podczas cięcia. Właściwa wysokość daje proste krawędzie i długą żywotność części eksploatacyjnych.', steps: ['Zwykle 1,5 mm przy 45 A na powietrzu.', 'Za wysoko daje skos, za nisko zużywa dyszę.'] },
+  plasmaIhs: { title: 'Wyczuwanie wysokości (IHS)', body: 'Przed każdym przebiciem palnik zjeżdża, aż dotknie blachy (G38.2). Wysokość jest właściwa nawet przy krzywej lub wyginającej się od ciepła blasze.', steps: ['Wymaga pływającej głowicy lub wyczuwania omowego.', 'Skok czujnika: ile głowica przejeżdża od kontaktu do zadziałania czujnika.'] },
+  plasmaLead: { title: 'Wejście i wyjście', body: 'Przebicie zostawia krater i żużel. Z wejściem odbywa się w odpadzie, a palnik potem wjeżdża na kontur; wyjście prowadzi z powrotem w odpad.', steps: ['Łuk daje najczystsze przejście – najlepszy dla konturów zewnętrznych.', 'Linia dobrze sprawdza się w otworach.', 'Wejście mniej więcej tak długie, jak grubość blachy, co najmniej 3 mm.'] },
+  plasmaOvercut: { title: 'Przecięcie', body: 'Palnik jedzie kawałek za punkt startowy, zanim opuści kontur, aby kontur zamknął się całkowicie.', steps: ['Zwykle wystarcza 0,5–1 mm.'] },
+  holeSlowdown: { title: 'Wolniej w małych otworach', body: 'W małych otworach łuk nie nadąża przy pełnej prędkości – otwór wychodzi stożkowy i owalny. Mniejszy posuw daje okrąglejszy otwór.', steps: ['Otwory mniejsze niż ok. 2,5 × grubość blachy uznaje się za małe.', '50–70 % normalnego posuwu to dobry start.'] },
+  plasmaThc: { title: 'THC w małych otworach', body: 'Regulacja wysokości (THC) śledzi napięcie łuku. W małych otworach i narożnikach napięcie zmienia się przy zwalnianiu i palnik może zanurkować. Dlatego jest tam wyłączana.', steps: ['Wymaga kodów THC maszyny w Postprocesorze.'] },
+  plasmaDirection: { title: 'Kierunek cięcia', body: 'Gaz plazmowy wiruje, więc jedna krawędź cięcia jest prosta, a druga lekko skośna. Przy zwykłym palniku (wir w prawo) prosta krawędź jest po prawej stronie kierunku ruchu.', steps: ['Detal po prawej: kontury zewnętrzne zgodnie z ruchem wskazówek zegara, otwory przeciwnie.', 'Zmień tylko, jeśli palnik wiruje w lewo.'] },
 };
 
 export const pl: Dict = {
@@ -121,6 +132,7 @@ export const pl: Dict = {
     camera: 'Kamera',
     gcode: 'G-code',
     post: 'Postprocesor',
+    plasma: 'Plazma',
   },
 
   buttons: {
@@ -147,6 +159,7 @@ export const pl: Dict = {
     text: { label: 'Tekst', title: 'Tekst', desc: 'Dotknij miejsca, gdzie ma zaczynać się tekst. Tekst używa jednoliniowej czcionki grawerskiej.' },
     importVector: { label: 'SVG / DXF', title: 'Importuj wektory', desc: 'Wczytuje rysunki z Inkscape, Illustratora, Fusion 360 lub LibreCAD. Plik można też upuścić na widok 3D.' },
     shapeLibrary: { label: 'Kształty', title: 'Biblioteka kształtów', desc: 'Gotowe ramki, banery, ornamenty i wzory. Dodaj motyw, a potem wybierz obróbkę: kieszeń, grawer V, kontur, intarsję lub grawer linii.' },
+    plasmaCut: { label: 'Plazma', title: 'Cięcie plazmą', desc: 'Wycina detale z blachy palnikiem plazmowym: kompensacja szczeliny, wejście i wyjście w odpadzie, opóźnienie przebicia i otwory przed konturem zewnętrznym.' },
     reliefLibrary: { label: 'Reliefy', title: 'Biblioteka reliefów', desc: 'Gotowe motywy 3D do umieszczenia na materiale i frezowania frezem kulowym.' },
     remove: { label: 'Usuń', title: 'Usuń', desc: 'Usuwa zaznaczone kształty lub zaznaczony węzeł w trybie węzłów.' },
     duplicate: { label: 'Powiel', title: 'Powiel', desc: 'Kopiuje zaznaczone kształty, lekko przesunięte w prawo w dół.' },
@@ -175,6 +188,7 @@ export const pl: Dict = {
   reasons: {
     needsRouter: 'Wymaga frezarki. Zmień maszynę w Ustawieniach.',
     needsLaser: 'Wymaga lasera. Zmień maszynę w Ustawieniach.',
+    needsPlasma: 'Wymaga przecinarki plazmowej. Zmień maszynę w Ustawieniach.',
     vcarveSoon: 'Grawerowanie V wymaga obliczenia osi środkowej, które pojawi się w następnej wersji.',
     needsRelief: 'Dodaj relief z biblioteki reliefów w zakładce Projektowanie.',
     needsResult: 'Najpierw utwórz ścieżkę.',
@@ -307,6 +321,7 @@ export const pl: Dict = {
     holeCount: (n: number) => `Znaleziono ${n} ${plural(n, 'otwór', 'otwory', 'otworów')}`,
     cannotCut: 'Laser diodowy nie przetnie tego materiału. Użyj ścieżki do znakowania lub wybierz Grawerowanie linii.',
     notForRouter: 'Ten materiał nie nadaje się do frezarki hobbystycznej. Zmień materiał lub użyj lasera.',
+    notForPlasma: 'Ten materiał nie przewodzi prądu i nie można go ciąć plazmą. Wybierz stal, stal nierdzewną lub aluminium.',
     strategy: 'Strategia',
     presets: { fast: 'Szybko', balanced: 'Zrównoważona', fine: 'Dokładne wykończenie', custom: 'Własna' },
     presetDesc: {
@@ -631,12 +646,16 @@ export const pl: Dict = {
     common: ['Symuluj przed uruchomieniem – zobaczysz, jeśli coś pójdzie nie tak.'],
     routerCommon: ['Ustaw zero Z na górze materiału.'],
     laserCommon: ['Zrób próbny grawer w rogu, aby znaleźć właściwą moc i prędkość.'],
+    plasma: ['Podłącz zacisk masy blisko obszaru cięcia – słaba masa daje niestabilny łuk.', 'Najpierw tnij otwory i kontury wewnętrzne, kontur zewnętrzny na końcu, żeby detal się nie przechylił.', 'Wymień dyszę i elektrodę, gdy cięcie staje się krzywe lub szerokie – zużyte części dają skos.', 'Zrób cięcie próbne i zmierz detal – koryguj szczelinę, aż wymiary się zgodzą.'],
+    plasmaCommon: ['Noś okulary spawalnicze (stopień 5–8), rękawice i zadbaj o wentylację – dymy metali są szkodliwe.', 'Trzymaj gaśnicę w pobliżu i nic palnego pod stołem ani obok niego.'],
   },
-  materialTips: (m: string, laser: boolean) => `Wskazówki: ${m.toLowerCase()} – ${laser ? 'laser' : 'frezarka'}`,
+  materialTips: (m: string, kind: string) => `Wskazówki: ${m.toLowerCase()} – ${kind === 'laser' ? 'laser' : kind === 'plasma' ? 'plazma' : 'frezarka'}`,
 
   toolRules: {
     notSuitable: 'nieodpowiednie',
     why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'plasma' && op !== 'plasmaCut') return 'Palnik plazmowy może tylko przecinać blachę wzdłuż konturu. Wybierz tu frez albo zmień maszynę na przecinarkę plazmową.';
+      if (op === 'plasmaCut' && kind !== 'plasma') return 'Cięcie plazmą wymaga palnika plazmowego.';
       if (kind === 'vbit' && op === 'pocket') return 'Frez V nie nadaje się do kieszeni: kieszeń jest wyznaczana średnicą frezu (np. 12,7 mm), a frez V tnie tylko tak szeroko, jak pozwala głębokość – między pierścieniami zostaje materiał. Wybierz frez walcowy lub grawerowanie V, jeśli chcesz krawędzi w kształcie V.';
       if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'Frez V działa tylko na linii (grawer). Obok linii przesunięcie jest liczone z niewłaściwą szerokością. Wybierz Na linii lub frez walcowy.';
       if (kind === 'drill') return 'Wiertło może iść tylko pionowo w dół i nie tnie bokiem. Użyj go do Wiercenia, a tutaj frezu walcowego.';
@@ -735,6 +754,38 @@ export const pl: Dict = {
     },
   },
 
+  plasma: {
+    cutting: 'Plazma',
+    amps: 'Prąd',
+    ampsTooHigh: (max: number) => `Więcej niż ${max} A źródła.`,
+    chart: (t: string, amps: number, feed: number, kerf: string, delay: string) => `Tabela cięcia dla ${t} mm: ${amps} A, ${feed} mm/min, szczelina ${kerf} mm, przebicie ${delay} s.`,
+    useChart: 'Użyj wartości z tabeli',
+    pierce: 'Przebicie',
+    pierceHeight: 'Wysokość przebicia',
+    pierceDelay: 'Opóźnienie przebicia',
+    cutHeight: 'Wysokość cięcia',
+    ihs: 'Wyczuwanie wysokości (IHS)',
+    switchOffset: 'Skok czujnika',
+    plungeRate: 'Zjazd na wysokość cięcia',
+    noZ: 'Maszyna nie ma osi Z: ustaw ręcznie palnik na wysokość cięcia.',
+    leadsTitle: 'Wejście i wyjście',
+    leadIn: 'Wejście',
+    leadOut: 'Wyjście',
+    leads: { arc: 'Łuk', line: 'Linia', none: 'Brak' },
+    radius: 'Promień',
+    length: 'Długość',
+    overcut: 'Przecięcie',
+    holes: 'Otwory',
+    holeSlowdown: 'Wolniej w małych otworach',
+    holeDiameter: 'Małe otwory poniżej',
+    holeFeed: 'Posuw w małych otworach',
+    thcOff: 'THC wył. w małych otworach',
+    thcNoCodes: 'Maszyna nie ma ustawionych kodów THC (Ustawienia maszyny → Postprocesor), więc nic nie jest zapisywane.',
+    orderNote: 'Otwory i kontury wewnętrzne są cięte najpierw, kontur zewnętrzny na końcu.',
+    partRight: 'Detal po prawej',
+    partLeft: 'Detal po lewej',
+  },
+
   status: {
     ready: 'Gotowe',
     newProject: 'Utworzono nowy projekt',
@@ -744,6 +795,9 @@ export const pl: Dict = {
     notImplemented: (f: string) => `${f} nie jest jeszcze dostępne`,
     needRouter: (op: string) => `${op} wymaga frezarki – zmień maszynę w Ustawieniach`,
     needLaser: (op: string) => `${op} wymaga lasera – zmień maszynę w Ustawieniach`,
+    needPlasma: (op: string) => `${op} wymaga przecinarki plazmowej – zmień maszynę w Ustawieniach`,
+    needsPlasmaTool: 'Cięcie plazmą wymaga palnika plazmowego w bibliotece narzędzi',
+    notForPlasma: (m: string) => `${m} nie przewodzi prądu i nie można go ciąć plazmą – wybierz stal, stal nierdzewną lub aluminium`,
     drawFirst: 'Najpierw narysuj lub zaimportuj kształt',
     textNeedsOutline: 'Tekst jest jednoliniowy – frezowane byłyby tylko zamknięte litery, np. O. Zaznacz tekst i wybierz Styl: Kontur we Właściwościach.',
     needClosed: 'Zaznacz co najmniej jeden zamknięty kształt',
@@ -894,6 +948,12 @@ export const pl: Dict = {
     next: (s: string) => `Dalej: ${s}`,
     kindRouter: 'Frezarka CNC',
     kindLaser: 'Grawerowanie i cięcie laserem',
+    kindPlasma: 'Cięcie plazmą',
+    plasmaZ: 'Napędzana oś Z',
+    plasmaIhs: 'Wyczuwanie wysokości (IHS)',
+    plasmaAmps: 'Maks. prąd',
+    plasmaCodes: { torchOn: 'Zapal palnik', torchOff: 'Zgaś palnik', thcOn: 'THC wł.', thcOff: 'THC wył.' },
+    plasmaCodesHint: 'Kody są zapisywane w G-code. Zostaw THC puste, jeśli sterownik maszyny sam reguluje wysokość.',
     workArea: (x: number, y: number) => `Obszar roboczy ${x} × ${y} mm`,
     controller: (c: string) => `Sterownik: ${c}`,
     configTitle: 'Ustawienia wybranej maszyny',
@@ -921,9 +981,9 @@ export const pl: Dict = {
     addTool: 'Nowe narzędzie',
     newToolName: 'Nowe narzędzie',
     editTool: 'Edytuj narzędzie',
-    toolKinds: { endmill: 'Frez walcowy', ballnose: 'Frez kulowy', vbit: 'Frez V', drill: 'Wiertło', laser: 'Laser' },
+    toolKinds: { endmill: 'Frez walcowy', ballnose: 'Frez kulowy', vbit: 'Frez V', drill: 'Wiertło', laser: 'Laser', plasma: 'Palnik plazmowy' },
     select: 'Wybierz maszynę',
-    machineGroups: { router: 'Frezarki', laser: 'Lasery', custom: 'Własne profile' },
+    machineGroups: { router: 'Frezarki', laser: 'Lasery', plasma: 'Przecinarki plazmowe', custom: 'Własne profile' },
     deleteProfile: 'Usuń profil',
     builtInNote: 'Gotowa maszyna. Aby ją zmienić i zachować własny wariant, dotknij Nowy profil.',
     customNote: 'Własny profil. Jest zapisywany razem z projektem.',
@@ -944,6 +1004,9 @@ export const pl: Dict = {
       'sculpfun-s30-pro-max': 'Laser diodowy 20 W z nadmuchem. Obszar roboczy dotyczy wersji z krańcówkami.',
       'ortur-lm3': 'Szybki laser diodowy 10 W.',
       'generic-grbl-laser': 'Punkt wyjścia dla lasera spoza listy. Sprawdź zakres S ($30).',
+      'langmuir-crossfire-pro': 'Stół plazmowy 61 × 122 cm z napędzaną osią Z. Włącz wyczuwanie wysokości, jeśli maszyna ma pływającą głowicę.',
+      'langmuir-crossfire': 'Stół plazmowy 61 × 61 cm bez osi Z – wysokość palnika ustawia się ręcznie.',
+      'generic-grbl-plasma': 'Punkt wyjścia dla własnego stołu plazmowego z GRBL i pływającą głowicą (wyczuwanie wysokości przez G38.2).',
     },
   },
 
@@ -972,6 +1035,7 @@ export const pl: Dict = {
     laserRaster: 'Grawer zdjęcia',
     relief: 'Relief',
     inlay: 'Intarsja',
+    plasmaCut: 'Cięcie plazmą',
   },
   inlayParts: { pocket: 'kieszeń', plug: 'wkładka' },
   lineEngrave: 'Grawerowanie linii',
@@ -979,16 +1043,17 @@ export const pl: Dict = {
   shapeNames: { rect: 'Prostokąt', circle: 'Okrąg', gear: 'Koło zębate', line: 'Linia', curve: 'Krzywa', text: 'Tekst', copy: 'kopia' },
 
   materials: {
-    pine: { name: 'Sosna', tips: { router: ['Żywica może zaklejać frez – przedmuchuj go między przejściami.', 'Miękkie drewno: frez walcowy dwuostrzowy na pełnym posuwie daje czyste krawędzie.', 'Wykończenie prowadź wzdłuż włókien, aby było najmniej wyrwań.'], laser: ['Słoje wypalają się w różnych odcieniach – drewno późne wychodzi najciemniej.', 'Żywica może się zapalić: używaj nadmuchu.', 'Zaklej powierzchnię taśmą, aby uniknąć plam z dymu.'] } },
-    'birch-ply': { name: 'Sklejka brzozowa', tips: { router: ['Użyj frezu ze spiralą w dół lub kompresyjnego dla czystych fornirów zewnętrznych.', 'Warstwy kleju tępią frez – licz się z krótszą żywotnością.', 'Mostki trzymają detale w sklejce lepiej niż cienka warstwa.'], laser: ['Warstwy kleju często wymagają dodatkowego przejścia.', 'Wybieraj sklejkę laserową z klejem przyjaznym laserowi.', 'Taśma maskująca utrzymuje powierzchnię wokół cięcia w czystości.'] } },
-    mdf: { name: 'MDF', tips: { router: ['Bardzo drobny pył – używaj odciągu i maski.', 'MDF frezuje się czysto w każdym kierunku i dobrze nadaje się do reliefów.', 'Krawędzie chłoną farbę – zagruntuj przed malowaniem.'], laser: ['Krawędzie ciemnieją po cięciu.', 'MDF tnie się wolniej niż sklejka tej samej grubości.', 'Dobrze wietrz – klej daje gęsty dym.'] } },
-    acrylic: { name: 'Akryl (lany)', tips: { router: ['Frez jednoostrzowy daje najczystsze cięcie bez topienia.', 'Utrzymuj wysoki posuw – gdy frez stoi w miejscu, plastik się topi.', 'Nie zdejmuj folii ochronnej podczas frezowania.'], laser: ['Niebieski laser diodowy nie tnie przezroczystego ani niebieskiego akrylu – wybierz ciemny lub nieprzezroczysty.', 'Akryl lany graweruje się na matową biel.', 'Zdejmij folię ochronną przed grawerowaniem.'] } },
-    leather: { name: 'Skóra (garbowana roślinnie)', tips: { router: ['Skórę rzadko się frezuje – lepiej tnij ją laserem lub nożem.', 'Jeśli ją frezujesz, przyklej skórę taśmą dwustronną.'], laser: ['Laseruj tylko skórę bez chromu (garbowaną roślinnie).', 'Lekko zwilż powierzchnię dla równego graweru.', 'Mniejsza moc i więcej przejść dają mniej zwęglone krawędzie.'] } },
-    oak: { name: 'Dąb', tips: { router: ['Twardy i gęsty – zmniejsz nieco posuw w porównaniu z sosną.', 'Garbniki dębu mogą barwić stalowe narzędzia przy wilgoci.', 'Dąb świetnie nadaje się do grawerowania V i intarsji z jasnym drewnem.'], laser: ['Dąb graweruje się ciemno z dużym kontrastem.', 'Cięcie jest wolne – gruby dąb wymaga kilku przejść.'] } },
-    aluminium: { name: 'Aluminium', tips: { router: ['Użyj frezu jednoostrzowego, płytkich przejść (ok. 0,3 mm) oraz powietrza lub smaru, aby wióry się nie przyspawały.', 'Mocuj solidnie – aluminium nie może drgać.', 'Wymaga sztywnej maszyny; na lekkich maszynach jak MPCNC czy 3018 rzadko wychodzi dobrze.'], laser: ['Lasery diodowe nie tną aluminium.', 'Aluminium anodowane dobrze się graweruje – kolor zostaje wypalony.', 'Gołe aluminium nie znakuje się bez sprayu do znakowania.'] } },
-    stainless: { name: 'Stal nierdzewna', tips: { router: ['Stali nie da się frezować na frezarkach hobbystycznych – do znakowania użyj lasera.'], laser: ['Laser diodowy nie znakuje gołej stali. Natryśnij preparat do znakowania (np. LMM lub CerMark), graweruj i zmyj resztę.', 'Znakowanie bez sprayu wymaga lasera światłowodowego.'] } },
-    slate: { name: 'Łupek', tips: { router: ['Łupek można grawerować frezem V, ale pył jest szkodliwy – noś maskę i najlepiej pracuj na mokro.', 'Mocno trzymaj płytkę; łatwo pęka.'], laser: ['Grawer wychodzi jasnoszary na ciemnym kamieniu.', 'Zetrzyj pył wilgotną szmatką i natłuść powierzchnię olejem.', 'Lasery diodowe nie tną kamienia.'] } },
-    cardboard: { name: 'Tektura', tips: { router: ['Tektura słabo się frezuje – lepiej tnij ją laserem lub nożem.'], laser: ['Łatwo się zapala – zostań przy maszynie i używaj nadmuchu.', 'Tektura falista tnie się szybko przy małej mocy.', 'Trzymaj tekturę płasko magnesami lub szpilkami.'] } },
+    pine: { name: 'Sosna', tips: { router: ['Żywica może zaklejać frez – przedmuchuj go między przejściami.', 'Miękkie drewno: frez walcowy dwuostrzowy na pełnym posuwie daje czyste krawędzie.', 'Wykończenie prowadź wzdłuż włókien, aby było najmniej wyrwań.'], laser: ['Słoje wypalają się w różnych odcieniach – drewno późne wychodzi najciemniej.', 'Żywica może się zapalić: używaj nadmuchu.', 'Zaklej powierzchnię taśmą, aby uniknąć plam z dymu.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    'birch-ply': { name: 'Sklejka brzozowa', tips: { router: ['Użyj frezu ze spiralą w dół lub kompresyjnego dla czystych fornirów zewnętrznych.', 'Warstwy kleju tępią frez – licz się z krótszą żywotnością.', 'Mostki trzymają detale w sklejce lepiej niż cienka warstwa.'], laser: ['Warstwy kleju często wymagają dodatkowego przejścia.', 'Wybieraj sklejkę laserową z klejem przyjaznym laserowi.', 'Taśma maskująca utrzymuje powierzchnię wokół cięcia w czystości.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    mdf: { name: 'MDF', tips: { router: ['Bardzo drobny pył – używaj odciągu i maski.', 'MDF frezuje się czysto w każdym kierunku i dobrze nadaje się do reliefów.', 'Krawędzie chłoną farbę – zagruntuj przed malowaniem.'], laser: ['Krawędzie ciemnieją po cięciu.', 'MDF tnie się wolniej niż sklejka tej samej grubości.', 'Dobrze wietrz – klej daje gęsty dym.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    acrylic: { name: 'Akryl (lany)', tips: { router: ['Frez jednoostrzowy daje najczystsze cięcie bez topienia.', 'Utrzymuj wysoki posuw – gdy frez stoi w miejscu, plastik się topi.', 'Nie zdejmuj folii ochronnej podczas frezowania.'], laser: ['Niebieski laser diodowy nie tnie przezroczystego ani niebieskiego akrylu – wybierz ciemny lub nieprzezroczysty.', 'Akryl lany graweruje się na matową biel.', 'Zdejmij folię ochronną przed grawerowaniem.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    leather: { name: 'Skóra (garbowana roślinnie)', tips: { router: ['Skórę rzadko się frezuje – lepiej tnij ją laserem lub nożem.', 'Jeśli ją frezujesz, przyklej skórę taśmą dwustronną.'], laser: ['Laseruj tylko skórę bez chromu (garbowaną roślinnie).', 'Lekko zwilż powierzchnię dla równego graweru.', 'Mniejsza moc i więcej przejść dają mniej zwęglone krawędzie.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    oak: { name: 'Dąb', tips: { router: ['Twardy i gęsty – zmniejsz nieco posuw w porównaniu z sosną.', 'Garbniki dębu mogą barwić stalowe narzędzia przy wilgoci.', 'Dąb świetnie nadaje się do grawerowania V i intarsji z jasnym drewnem.'], laser: ['Dąb graweruje się ciemno z dużym kontrastem.', 'Cięcie jest wolne – gruby dąb wymaga kilku przejść.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    'mild-steel': { name: 'Stal (konstrukcyjna)', tips: { router: ['Stali nie da się frezować na frezarkach hobbystycznych – tnij ją plazmą.'], laser: ['Laser diodowy nie znakuje gołej stali bez sprayu do znakowania.'], plasma: ['Właściwa prędkość daje równy snop iskier lekko odchylony do tyłu i prawie bez żużla.', 'Kulki żużla od spodu: za wolno. Żużel trudny do usunięcia: za szybko.', 'Gruba blacha: wejście co najmniej tak długie, jak grubość blachy.'] } },
+    aluminium: { name: 'Aluminium', tips: { router: ['Użyj frezu jednoostrzowego, płytkich przejść (ok. 0,3 mm) oraz powietrza lub smaru, aby wióry się nie przyspawały.', 'Mocuj solidnie – aluminium nie może drgać.', 'Wymaga sztywnej maszyny; na lekkich maszynach jak MPCNC czy 3018 rzadko wychodzi dobrze.'], laser: ['Lasery diodowe nie tną aluminium.', 'Aluminium anodowane dobrze się graweruje – kolor zostaje wypalony.', 'Gołe aluminium nie znakuje się bez sprayu do znakowania.'], plasma: ['Aluminium tnie się szybciej niż stal, ale zostawia więcej żużla od spodu.', 'Oczyść tlenki i tłuszcz w miejscu zacisku masy.'] } },
+    stainless: { name: 'Stal nierdzewna', tips: { router: ['Stali nie da się frezować na frezarkach hobbystycznych – do znakowania użyj lasera.'], laser: ['Laser diodowy nie znakuje gołej stali. Natryśnij preparat do znakowania (np. LMM lub CerMark), graweruj i zmyj resztę.', 'Znakowanie bez sprayu wymaga lasera światłowodowego.'], plasma: ['Stal nierdzewna tnie się nieco wolniej niż stal i przebarwia się przy cięciu.', 'Przy powietrzu krawędź ciemnieje – szlifuj, jeśli powierzchnia ma być błyszcząca.'] } },
+    slate: { name: 'Łupek', tips: { router: ['Łupek można grawerować frezem V, ale pył jest szkodliwy – noś maskę i najlepiej pracuj na mokro.', 'Mocno trzymaj płytkę; łatwo pęka.'], laser: ['Grawer wychodzi jasnoszary na ciemnym kamieniu.', 'Zetrzyj pył wilgotną szmatką i natłuść powierzchnię olejem.', 'Lasery diodowe nie tną kamienia.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
+    cardboard: { name: 'Tektura', tips: { router: ['Tektura słabo się frezuje – lepiej tnij ją laserem lub nożem.'], laser: ['Łatwo się zapala – zostań przy maszynie i używaj nadmuchu.', 'Tektura falista tnie się szybko przy małej mocy.', 'Trzymaj tekturę płasko magnesami lub szpilkami.'], plasma: ['Nie można ciąć plazmą – plazma wymaga materiału przewodzącego prąd.'] } },
   },
 
   tools: {
@@ -1000,6 +1065,8 @@ export const pl: Dict = {
     'drill-3': 'Wiertło 3 mm',
     'em-3175-1f-alu': 'Frez jednoostrzowy 3,175 mm (aluminium)',
     'laser-diode': 'Laser diodowy (skupiona plamka)',
+    'plasma-45-std': 'Palnik plazmowy 45 A (dysza standardowa)',
+    'plasma-45-fine': 'Palnik plazmowy 45 A (dysza precyzyjna)',
   },
 
   guides: {

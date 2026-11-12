@@ -150,5 +150,33 @@
       "passes": 2
     },
     "notes": "Kerf ≈ 0,1–0,2 mm beroende på fokus och material."
+  },
+  {
+    "id": "plasma-45-std",
+    "name": "Plasmabrännare 45 A (standardmunstycke)",
+    "kind": "plasma",
+    "diameter": 1.5,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 2500,
+      "plungeRate": 1000,
+      "stepDown": 0,
+      "stepOver": 1
+    },
+    "notes": "Snittbredd ≈ 1,3–1,8 mm vid 40–45 A."
+  },
+  {
+    "id": "plasma-45-fine",
+    "name": "Plasmabrännare 45 A (finmunstycke)",
+    "kind": "plasma",
+    "diameter": 0.9,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 5000,
+      "plungeRate": 1000,
+      "stepDown": 0,
+      "stepOver": 1
+    },
+    "notes": "För tunn plåt upp till ca 4 mm, 25–45 A. Smalare snitt och mindre fasning."
   }
 ]

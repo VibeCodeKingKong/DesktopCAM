@@ -44,6 +44,17 @@ const guides: Record<GuideKey, GuideEntry> = {
   reliefInlay: { title: 'Relief-Intarsie', body: 'Der Einleger ist das Gegenstück zum Relief: invertiert und gespiegelt. Umgedreht passt er mit einem dünnen Leimspalt in die Tasche. Um das Relief herum wird das Einlegerbrett weggefräst, damit es das Grundholz nicht berührt.', steps: ['Ein Leimspalt von 0,1–0,3 mm reicht mit Holzleim.', 'Ein Freiraum von 1 mm hält das Brett außerhalb des Reliefs vom Grundholz fern.', 'Beide Teile mit demselben Kugelfräser fräsen für die beste Passung.'] },
   onionSkin: { title: 'Restmaterial (Zwiebelhaut)', body: 'Eine dünne Schicht bleibt am Boden stehen, damit das Teil befestigt bleibt. Danach ausbrechen oder freischneiden und die Kante schleifen.', steps: ['0,2–0,4 mm in Sperrholz und MDF.', 'Wird bei kleinen Teilen oft statt Haltestegen verwendet.'] },
   snap: { title: 'Am Raster fangen', body: 'Punkte, die Sie zeichnen und verschieben, landen auf dem nächsten Rasterschritt. Ausschalten für völlig freie Platzierung.' },
+  plasmaAmps: { title: 'Strom', body: 'Der Strom wird an der Plasmaquelle eingestellt – im G-Code steht er nur als Erinnerung. Mehr Strom schneidet dickeres Blech, gibt aber einen breiteren Schnittspalt.', steps: ['Der Schneidtabelle des Brenners für die verwendete Düse folgen.', 'Feinschnittdüse: 25–45 A für Blech bis etwa 4 mm.'] },
+  plasmaKerf: { title: 'Schnittspalt (Kerf)', body: 'Der Plasmabogen brennt einen 1–2 mm breiten Streifen weg. desktopCAM verschiebt die Bahn um einen halben Schnittspalt in den Verschnitt, damit das Teil maßhaltig wird.', steps: ['Ein Probestück 50 × 50 mm schneiden und messen.', 'Schnittspalt = aktueller Wert + (50 − gemessenes Maß).'] },
+  pierceHeight: { title: 'Einstechhöhe', body: 'Der Brenner zündet höher als die Schneidhöhe, damit das beim Einstechen hochspritzende Metall die Düse nicht trifft.', steps: ['Oft 1,5–2 × die Schneidhöhe.', 'Dickes Blech braucht eine größere Einstechhöhe.'] },
+  pierceDelay: { title: 'Einstechverzögerung', body: 'Wie lange der Brenner nach dem Zünden stillsteht, bevor er losfährt, damit der Bogen das Blech durchbrennt.', steps: ['Dünnes Blech: 0–0,2 s.', 'Zu kurz: der Bogen kommt nicht durch und Schlacke spritzt.', 'Zu lang: das Einstechloch wird groß.'] },
+  cutHeight: { title: 'Schneidhöhe', body: 'Der Abstand zwischen Düse und Blech beim Schneiden. Die richtige Höhe gibt gerade Schnittkanten und lange Standzeit der Verschleißteile.', steps: ['Meist 1,5 mm bei 45 A mit Luft.', 'Zu hoch gibt Fasen, zu niedrig verschleißt die Düse.'] },
+  plasmaIhs: { title: 'Höhenabtastung (IHS)', body: 'Vor jedem Einstechen fährt der Brenner nach unten, bis er das Blech berührt (G38.2). So stimmt die Höhe auch bei verzogenem oder sich durch Wärme wölbendem Blech.', steps: ['Braucht einen schwimmenden Kopf oder ohmsche Abtastung.', 'Schalterweg: wie weit der Kopf vom Kontakt bis zum Schalten fährt.'] },
+  plasmaLead: { title: 'An- und Abfahrt', body: 'Das Einstechen hinterlässt einen Krater und Schlacke. Mit Anfahrt geschieht es im Verschnitt und der Brenner gleitet dann auf die Kontur; die Abfahrt führt wieder in den Verschnitt.', steps: ['Ein Bogen gibt den saubersten Übergang – am besten für Außenkonturen.', 'Eine Linie funktioniert gut in Löchern.', 'Anfahrt etwa so lang wie die Blechdicke, mindestens 3 mm.'] },
+  plasmaOvercut: { title: 'Überschnitt', body: 'Der Brenner fährt ein Stück über den Startpunkt hinaus, bevor er die Kontur verlässt, damit sich die Kontur vollständig schließt.', steps: ['0,5–1 mm reichen meist.'] },
+  holeSlowdown: { title: 'Langsamer in kleinen Löchern', body: 'In kleinen Löchern kommt der Bogen bei voller Geschwindigkeit nicht mit – das Loch wird konisch und oval. Mit weniger Vorschub wird es runder.', steps: ['Löcher kleiner als etwa 2,5 × die Blechdicke gelten als klein.', '50–70 % des normalen Vorschubs sind ein guter Start.'] },
+  plasmaThc: { title: 'THC in kleinen Löchern', body: 'Die Höhenregelung (THC) folgt der Bogenspannung. In kleinen Löchern und Ecken ändert sich die Spannung, wenn die Geschwindigkeit sinkt, und der Brenner kann abtauchen. Deshalb wird sie dort abgeschaltet.', steps: ['Braucht die THC-Codes der Maschine unter Postprozessor.'] },
+  plasmaDirection: { title: 'Schneidrichtung', body: 'Das Plasmagas verwirbelt, daher ist eine Schnittkante gerade und die andere leicht schräg. Bei einem normalen Brenner (Drall im Uhrzeigersinn) liegt die gerade Kante rechts der Fahrtrichtung.', steps: ['Teil rechts: Außenkonturen im Uhrzeigersinn, Löcher gegen den Uhrzeigersinn.', 'Nur ändern, wenn der Brenner gegen den Uhrzeigersinn verwirbelt.'] },
 };
 
 export const de: Dict = {
@@ -114,6 +125,7 @@ export const de: Dict = {
     camera: 'Kamera',
     gcode: 'G-Code',
     post: 'Postprozessor',
+    plasma: 'Plasma',
   },
 
   buttons: {
@@ -140,6 +152,7 @@ export const de: Dict = {
     text: { label: 'Text', title: 'Text', desc: 'Dort tippen, wo der Text beginnen soll. Text verwendet eine einlinige Gravurschrift.' },
     importVector: { label: 'SVG / DXF', title: 'Vektoren importieren', desc: 'Holt Zeichnungen aus Inkscape, Illustrator, Fusion 360 oder LibreCAD. Die Datei kann auch auf die 3D-Ansicht gezogen werden.' },
     shapeLibrary: { label: 'Formen', title: 'Formenbibliothek', desc: 'Fertige Rahmen, Banner, Ornamente und Muster. Ein Motiv einfügen und dann die Bearbeitung wählen: Tasche, V-Gravur, Kontur, Intarsie oder Liniengravur.' },
+    plasmaCut: { label: 'Plasma', title: 'Plasmaschneiden', desc: 'Schneidet Teile mit dem Plasmabrenner aus Blech: Schnittspaltkorrektur, An- und Abfahrt im Verschnitt, Einstechverzögerung und Löcher vor der Außenkontur.' },
     reliefLibrary: { label: 'Reliefbibliothek', title: 'Reliefbibliothek', desc: 'Fertige 3D-Motive, die auf das Material gesetzt und mit einem Kugelfräser gefräst werden.' },
     remove: { label: 'Löschen', title: 'Löschen', desc: 'Löscht die ausgewählten Formen oder im Knotenmodus den ausgewählten Knoten.' },
     duplicate: { label: 'Duplizieren', title: 'Duplizieren', desc: 'Kopiert die ausgewählten Formen, leicht nach rechts unten versetzt.' },
@@ -168,6 +181,7 @@ export const de: Dict = {
   reasons: {
     needsRouter: 'Braucht eine Fräse. Maschine unter Einrichtung wechseln.',
     needsLaser: 'Braucht einen Laser. Maschine unter Einrichtung wechseln.',
+    needsPlasma: 'Braucht einen Plasmaschneider. Maschine unter Einrichtung wechseln.',
     vcarveSoon: 'Die V-Gravur braucht eine Mittelachsenberechnung, die in der nächsten Version kommt.',
     needsRelief: 'Ein Relief aus der Reliefbibliothek unter Design hinzufügen.',
     needsResult: 'Zuerst eine Werkzeugbahn erstellen.',
@@ -300,6 +314,7 @@ export const de: Dict = {
     holeCount: (n: number) => `${n} Löcher gefunden`,
     cannotCut: 'Ein Diodenlaser kann dieses Material nicht durchschneiden. Die Bahn zum Markieren nutzen oder Liniengravur wählen.',
     notForRouter: 'Dieses Material eignet sich nicht für eine Hobbyfräse. Material wechseln oder einen Laser verwenden.',
+    notForPlasma: 'Dieses Material leitet keinen Strom und kann nicht plasmageschnitten werden. Stahl, Edelstahl oder Aluminium wählen.',
     strategy: 'Strategie',
     presets: { fast: 'Schnell', balanced: 'Ausgewogen', fine: 'Feines Finish', custom: 'Eigene' },
     presetDesc: {
@@ -624,12 +639,16 @@ export const de: Dict = {
     common: ['Vor dem Start simulieren – Sie sehen, wenn etwas schiefgeht.'],
     routerCommon: ['Z-Null auf die Oberseite des Materials setzen.'],
     laserCommon: ['Eine Testgravur in einer Ecke machen, um die richtige Leistung und Geschwindigkeit zu finden.'],
+    plasma: ['Die Masseklemme nah am Schneidbereich anbringen – schlechte Masse gibt einen unruhigen Lichtbogen.', 'Löcher und Innenkonturen zuerst schneiden, die Außenkontur zuletzt, damit das Teil nicht kippt.', 'Düse und Elektrode wechseln, wenn der Schnitt schräg oder breit wird – verschlissene Teile geben eine Fase.', 'Einen Probeschnitt machen und messen – den Schnittspalt anpassen, bis die Maße stimmen.'],
+    plasmaCommon: ['Schweißschutzbrille (Schutzstufe 5–8), Handschuhe und gute Belüftung verwenden – Metalldämpfe sind gefährlich.', 'Einen Feuerlöscher bereithalten und nichts Brennbares unter oder neben dem Tisch.'],
   },
-  materialTips: (m: string, laser: boolean) => `Tipps für ${m} mit ${laser ? 'Laser' : 'Fräse'}`,
+  materialTips: (m: string, kind: string) => `Tipps für ${m} mit ${kind === 'laser' ? 'Laser' : kind === 'plasma' ? 'Plasma' : 'Fräse'}`,
 
   toolRules: {
     notSuitable: 'ungeeignet',
     why: (op: string, kind: string, side?: string): string => {
+      if (kind === 'plasma' && op !== 'plasmaCut') return 'Ein Plasmabrenner kann Blech nur entlang einer Kontur durchschneiden. Hier einen Fräser wählen oder zu einem Plasmaschneider wechseln.';
+      if (op === 'plasmaCut' && kind !== 'plasma') return 'Plasmaschneiden braucht einen Plasmabrenner.';
       if (kind === 'vbit' && op === 'pocket') return 'Ein V-Fräser eignet sich nicht für Taschen: Die Tasche wird mit dem Fräserdurchmesser angelegt (z. B. 12,7 mm), aber ein V-Fräser schneidet nur so breit, wie die Tiefe es zulässt – zwischen den Ringen bleibt Material stehen. Einen Schaftfräser wählen, oder V-Gravur für V-förmige Kanten.';
       if (kind === 'vbit' && op === 'profile') return side === 'on' ? '' : 'Ein V-Fräser funktioniert nur auf der Linie (Gravur). Neben der Linie wird der Versatz mit der falschen Breite berechnet. Auf der Linie oder einen Schaftfräser wählen.';
       if (kind === 'drill') return 'Ein Bohrer kann nur senkrecht nach unten und nicht seitlich schneiden. Ihn für Bohren verwenden und hier einen Schaftfräser.';
@@ -728,6 +747,38 @@ export const de: Dict = {
     },
   },
 
+  plasma: {
+    cutting: 'Plasma',
+    amps: 'Strom',
+    ampsTooHigh: (max: number) => `Höher als die ${max} A der Stromquelle.`,
+    chart: (t: string, amps: number, feed: number, kerf: string, delay: string) => `Schneidtabelle für ${t} mm: ${amps} A, ${feed} mm/min, Schnittspalt ${kerf} mm, Einstechen ${delay} s.`,
+    useChart: 'Tabellenwerte übernehmen',
+    pierce: 'Einstechen',
+    pierceHeight: 'Einstechhöhe',
+    pierceDelay: 'Einstechverzögerung',
+    cutHeight: 'Schneidhöhe',
+    ihs: 'Höhenabtastung (IHS)',
+    switchOffset: 'Schalterweg',
+    plungeRate: 'Vorschub auf Schneidhöhe',
+    noZ: 'Die Maschine hat keine Z-Achse: die Brennerhöhe von Hand auf die Schneidhöhe einstellen.',
+    leadsTitle: 'An- und Abfahrt',
+    leadIn: 'Anfahrt',
+    leadOut: 'Abfahrt',
+    leads: { arc: 'Bogen', line: 'Linie', none: 'Keine' },
+    radius: 'Radius',
+    length: 'Länge',
+    overcut: 'Überschnitt',
+    holes: 'Löcher',
+    holeSlowdown: 'Langsamer in kleinen Löchern',
+    holeDiameter: 'Kleine Löcher unter',
+    holeFeed: 'Vorschub in kleinen Löchern',
+    thcOff: 'THC in kleinen Löchern aus',
+    thcNoCodes: 'Für die Maschine sind keine THC-Codes eingestellt (Maschineneinrichtung → Postprozessor), daher wird nichts ausgegeben.',
+    orderNote: 'Löcher und Innenkonturen werden zuerst geschnitten, die Außenkontur zuletzt.',
+    partRight: 'Teil rechts',
+    partLeft: 'Teil links',
+  },
+
   status: {
     ready: 'Bereit',
     newProject: 'Neues Projekt erstellt',
@@ -737,6 +788,9 @@ export const de: Dict = {
     notImplemented: (f: string) => `${f} ist noch nicht verfügbar`,
     needRouter: (op: string) => `${op} braucht eine Fräse – Maschine unter Einrichtung wechseln`,
     needLaser: (op: string) => `${op} braucht einen Laser – Maschine unter Einrichtung wechseln`,
+    needPlasma: (op: string) => `${op} braucht einen Plasmaschneider – Maschine unter Einrichtung wechseln`,
+    needsPlasmaTool: 'Plasmaschneiden braucht einen Plasmabrenner in der Werkzeugbibliothek',
+    notForPlasma: (m: string) => `${m} leitet keinen Strom und kann nicht plasmageschnitten werden – Stahl, Edelstahl oder Aluminium wählen`,
     drawFirst: 'Zuerst eine Form zeichnen oder importieren',
     textNeedsOutline: 'Der Text ist einlinig – nur geschlossene Buchstaben wie O würden gefräst. Den Text auswählen und unter Eigenschaften Stil: Kontur wählen.',
     needClosed: 'Mindestens eine geschlossene Form auswählen',
@@ -887,6 +941,12 @@ export const de: Dict = {
     next: (s: string) => `Weiter: ${s}`,
     kindRouter: 'CNC-Fräse',
     kindLaser: 'Lasergravur und -schnitt',
+    kindPlasma: 'Plasmaschneiden',
+    plasmaZ: 'Motorisierte Z-Achse',
+    plasmaIhs: 'Höhenabtastung (IHS)',
+    plasmaAmps: 'Max. Strom',
+    plasmaCodes: { torchOn: 'Brenner an', torchOff: 'Brenner aus', thcOn: 'THC an', thcOff: 'THC aus' },
+    plasmaCodesHint: 'Die Codes werden in den G-Code geschrieben. THC leer lassen, wenn die Steuerung die Höhenregelung selbst übernimmt.',
     workArea: (x: number, y: number) => `Arbeitsbereich ${x} × ${y} mm`,
     controller: (c: string) => `Steuerung: ${c}`,
     configTitle: 'Einstellungen der gewählten Maschine',
@@ -914,9 +974,9 @@ export const de: Dict = {
     addTool: 'Neues Werkzeug',
     newToolName: 'Neues Werkzeug',
     editTool: 'Werkzeug bearbeiten',
-    toolKinds: { endmill: 'Schaftfräser', ballnose: 'Kugelfräser', vbit: 'V-Fräser', drill: 'Bohrer', laser: 'Laser' },
+    toolKinds: { endmill: 'Schaftfräser', ballnose: 'Kugelfräser', vbit: 'V-Fräser', drill: 'Bohrer', laser: 'Laser', plasma: 'Plasmabrenner' },
     select: 'Maschine wählen',
-    machineGroups: { router: 'Fräsen', laser: 'Laser', custom: 'Eigene Profile' },
+    machineGroups: { router: 'Fräsen', laser: 'Laser', plasma: 'Plasmaschneider', custom: 'Eigene Profile' },
     deleteProfile: 'Profil löschen',
     builtInNote: 'Vordefinierte Maschine. Um sie zu ändern und eine eigene Variante zu behalten, auf Neues Profil tippen.',
     customNote: 'Eigenes Profil. Es wird mit dem Projekt gespeichert.',
@@ -937,6 +997,9 @@ export const de: Dict = {
       'sculpfun-s30-pro-max': 'Diodenlaser mit 20 W und Air Assist. Der Arbeitsbereich gilt mit montierten Endschaltern.',
       'ortur-lm3': 'Schneller Diodenlaser mit 10 W.',
       'generic-grbl-laser': 'Ausgangspunkt für einen Laser, der nicht in der Liste steht. Den S-Bereich ($30) prüfen.',
+      'langmuir-crossfire-pro': 'Tisch-Plasmaschneider 61 × 122 cm mit motorisierter Z-Achse. Höhenabtastung einschalten, wenn die Maschine einen schwimmenden Kopf hat.',
+      'langmuir-crossfire': 'Tisch-Plasmaschneider 61 × 61 cm ohne Z-Achse – die Brennerhöhe wird von Hand eingestellt.',
+      'generic-grbl-plasma': 'Ausgangspunkt für einen eigenen Plasmatisch mit GRBL und schwimmendem Kopf (Höhenabtastung mit G38.2).',
     },
   },
 
@@ -965,6 +1028,7 @@ export const de: Dict = {
     laserRaster: 'Fotogravur',
     relief: 'Relief',
     inlay: 'Intarsie',
+    plasmaCut: 'Plasmaschnitt',
   },
   inlayParts: { pocket: 'Tasche', plug: 'Einleger' },
   lineEngrave: 'Liniengravur',
@@ -972,16 +1036,17 @@ export const de: Dict = {
   shapeNames: { rect: 'Rechteck', circle: 'Kreis', gear: 'Zahnrad', line: 'Linie', curve: 'Kurve', text: 'Text', copy: 'Kopie' },
 
   materials: {
-    pine: { name: 'Kiefer', tips: { router: ['Harz kann den Fräser zusetzen – zwischen den Durchgängen sauber blasen.', 'Weiches Holz: Ein zweischneidiger Schaftfräser bei vollem Vorschub ergibt saubere Kanten.', 'Den Schlichtgang mit der Faser fräsen für den geringsten Ausriss.'], laser: ['Jahresringe brennen in unterschiedlichen Tönen – das Spätholz wird am dunkelsten.', 'Harz kann aufflammen: Air Assist verwenden.', 'Die Oberfläche mit Klebeband abdecken, um Rauchflecken zu vermeiden.'] } },
-    'birch-ply': { name: 'Birkensperrholz', tips: { router: ['Einen Abwärts- oder Kompressionsfräser für saubere Deckfurniere verwenden.', 'Die Leimschichten verschleißen den Fräser – mit kürzerer Standzeit rechnen.', 'Haltestege halten Teile in Sperrholz besser als Restmaterial.'], laser: ['Die Leimschichten brauchen oft einen zusätzlichen Durchgang.', 'Lasersperrholz mit laserfreundlichem Leim wählen.', 'Abdeckband hält die Oberfläche um den Schnitt sauber.'] } },
-    mdf: { name: 'MDF', tips: { router: ['Sehr feiner Staub – Absaugung und Staubmaske verwenden.', 'MDF lässt sich in jeder Richtung sauber fräsen und eignet sich gut für Reliefs.', 'Die Kanten saugen Farbe auf – vor dem Lackieren grundieren.'], laser: ['Die Kanten werden nach dem Schneiden dunkel.', 'MDF schneidet langsamer als Sperrholz gleicher Stärke.', 'Gut lüften – der Leim erzeugt starken Rauch.'] } },
-    acrylic: { name: 'Acryl (gegossen)', tips: { router: ['Ein einschneidiger Fräser ergibt den saubersten Schnitt ohne Schmelzen.', 'Den Vorschub hoch halten – verweilt der Fräser, schmilzt der Kunststoff.', 'Die Schutzfolie beim Fräsen drauflassen.'], laser: ['Ein blauer Diodenlaser schneidet kein klares oder blaues Acryl – dunkles oder opakes wählen.', 'Gegossenes Acryl graviert milchig weiß.', 'Die Schutzfolie vor dem Gravieren entfernen.'] } },
-    leather: { name: 'Leder (pflanzlich gegerbt)', tips: { router: ['Leder wird selten gefräst – lieber mit Laser oder Messer schneiden.', 'Beim Fräsen das Leder mit doppelseitigem Klebeband fixieren.'], laser: ['Nur chromfreies (pflanzlich gegerbtes) Leder lasern.', 'Die Oberfläche leicht anfeuchten für eine gleichmäßige Gravur.', 'Weniger Leistung und mehr Durchgänge ergeben weniger verkohlte Kanten.'] } },
-    oak: { name: 'Eiche', tips: { router: ['Hart und dicht – den Vorschub gegenüber Kiefer etwas verringern.', 'Die Gerbstoffe der Eiche können Stahlwerkzeuge bei Feuchtigkeit verfärben.', 'Eiche eignet sich hervorragend für V-Gravur und Intarsien mit hellem Holz.'], laser: ['Eiche graviert dunkel mit hohem Kontrast.', 'Schneiden geht langsam – dicke Eiche braucht mehrere Durchgänge.'] } },
-    aluminium: { name: 'Aluminium', tips: { router: ['Einen einschneidigen Fräser, flache Durchgänge (etwa 0,3 mm) und Luft oder Schmiermittel verwenden, damit Späne nicht anschweißen.', 'Fest spannen – Aluminium darf nicht vibrieren.', 'Braucht eine steife Maschine; auf leichten Maschinen wie MPCNC oder 3018 klappt es selten gut.'], laser: ['Diodenlaser können kein Aluminium schneiden.', 'Eloxiertes Aluminium graviert gut – die Farbe wird weggebrannt.', 'Blankes Aluminium markiert nicht ohne Markierungsspray.'] } },
-    stainless: { name: 'Edelstahl', tips: { router: ['Stahl lässt sich auf Hobbyfräsen nicht fräsen – zum Markieren einen Laser verwenden.'], laser: ['Ein Diodenlaser markiert blanken Stahl nicht. Markierungsmittel (z. B. LMM oder CerMark) aufsprühen, gravieren und den Rest abwaschen.', 'Markieren ohne Spray braucht einen Faserlaser.'] } },
-    slate: { name: 'Schiefer', tips: { router: ['Schiefer lässt sich mit einem V-Fräser gravieren, aber der Staub ist schädlich – Maske tragen und am besten mit Wasser arbeiten.', 'Die Platte fest halten; sie bricht leicht.'], laser: ['Die Gravur wird hellgrau auf dem dunklen Stein.', 'Den Staub mit einem feuchten Tuch abwischen und die Oberfläche danach ölen.', 'Diodenlaser können keinen Stein schneiden.'] } },
-    cardboard: { name: 'Karton', tips: { router: ['Karton lässt sich schlecht fräsen – lieber mit Laser oder Messer schneiden.'], laser: ['Fängt leicht Feuer – bei der Maschine bleiben und Air Assist verwenden.', 'Wellpappe schneidet schnell mit wenig Leistung.', 'Den Karton mit Magneten oder Nadeln flach halten.'] } },
+    pine: { name: 'Kiefer', tips: { router: ['Harz kann den Fräser zusetzen – zwischen den Durchgängen sauber blasen.', 'Weiches Holz: Ein zweischneidiger Schaftfräser bei vollem Vorschub ergibt saubere Kanten.', 'Den Schlichtgang mit der Faser fräsen für den geringsten Ausriss.'], laser: ['Jahresringe brennen in unterschiedlichen Tönen – das Spätholz wird am dunkelsten.', 'Harz kann aufflammen: Air Assist verwenden.', 'Die Oberfläche mit Klebeband abdecken, um Rauchflecken zu vermeiden.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    'birch-ply': { name: 'Birkensperrholz', tips: { router: ['Einen Abwärts- oder Kompressionsfräser für saubere Deckfurniere verwenden.', 'Die Leimschichten verschleißen den Fräser – mit kürzerer Standzeit rechnen.', 'Haltestege halten Teile in Sperrholz besser als Restmaterial.'], laser: ['Die Leimschichten brauchen oft einen zusätzlichen Durchgang.', 'Lasersperrholz mit laserfreundlichem Leim wählen.', 'Abdeckband hält die Oberfläche um den Schnitt sauber.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    mdf: { name: 'MDF', tips: { router: ['Sehr feiner Staub – Absaugung und Staubmaske verwenden.', 'MDF lässt sich in jeder Richtung sauber fräsen und eignet sich gut für Reliefs.', 'Die Kanten saugen Farbe auf – vor dem Lackieren grundieren.'], laser: ['Die Kanten werden nach dem Schneiden dunkel.', 'MDF schneidet langsamer als Sperrholz gleicher Stärke.', 'Gut lüften – der Leim erzeugt starken Rauch.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    acrylic: { name: 'Acryl (gegossen)', tips: { router: ['Ein einschneidiger Fräser ergibt den saubersten Schnitt ohne Schmelzen.', 'Den Vorschub hoch halten – verweilt der Fräser, schmilzt der Kunststoff.', 'Die Schutzfolie beim Fräsen drauflassen.'], laser: ['Ein blauer Diodenlaser schneidet kein klares oder blaues Acryl – dunkles oder opakes wählen.', 'Gegossenes Acryl graviert milchig weiß.', 'Die Schutzfolie vor dem Gravieren entfernen.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    leather: { name: 'Leder (pflanzlich gegerbt)', tips: { router: ['Leder wird selten gefräst – lieber mit Laser oder Messer schneiden.', 'Beim Fräsen das Leder mit doppelseitigem Klebeband fixieren.'], laser: ['Nur chromfreies (pflanzlich gegerbtes) Leder lasern.', 'Die Oberfläche leicht anfeuchten für eine gleichmäßige Gravur.', 'Weniger Leistung und mehr Durchgänge ergeben weniger verkohlte Kanten.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    oak: { name: 'Eiche', tips: { router: ['Hart und dicht – den Vorschub gegenüber Kiefer etwas verringern.', 'Die Gerbstoffe der Eiche können Stahlwerkzeuge bei Feuchtigkeit verfärben.', 'Eiche eignet sich hervorragend für V-Gravur und Intarsien mit hellem Holz.'], laser: ['Eiche graviert dunkel mit hohem Kontrast.', 'Schneiden geht langsam – dicke Eiche braucht mehrere Durchgänge.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    'mild-steel': { name: 'Stahl (Baustahl)', tips: { router: ['Stahl lässt sich auf Hobbyfräsen nicht fräsen – mit Plasma schneiden.'], laser: ['Ein Diodenlaser markiert blanken Stahl nicht ohne Markierungsspray.'], plasma: ['Die richtige Geschwindigkeit gibt einen gleichmäßigen, leicht nach hinten geneigten Funkenstrahl und kaum Schlacke.', 'Schlackeperlen an der Unterseite: zu langsam. Schwer lösbare Schlacke: zu schnell.', 'Dickes Blech: die Anfahrt mindestens so lang wie die Blechdicke.'] } },
+    aluminium: { name: 'Aluminium', tips: { router: ['Einen einschneidigen Fräser, flache Durchgänge (etwa 0,3 mm) und Luft oder Schmiermittel verwenden, damit Späne nicht anschweißen.', 'Fest spannen – Aluminium darf nicht vibrieren.', 'Braucht eine steife Maschine; auf leichten Maschinen wie MPCNC oder 3018 klappt es selten gut.'], laser: ['Diodenlaser können kein Aluminium schneiden.', 'Eloxiertes Aluminium graviert gut – die Farbe wird weggebrannt.', 'Blankes Aluminium markiert nicht ohne Markierungsspray.'], plasma: ['Aluminium schneidet schneller als Stahl, hinterlässt aber mehr Schlacke an der Unterseite.', 'Oxid und Fett an der Stelle der Masseklemme entfernen.'] } },
+    stainless: { name: 'Edelstahl', tips: { router: ['Stahl lässt sich auf Hobbyfräsen nicht fräsen – zum Markieren einen Laser verwenden.'], laser: ['Ein Diodenlaser markiert blanken Stahl nicht. Markierungsmittel (z. B. LMM oder CerMark) aufsprühen, gravieren und den Rest abwaschen.', 'Markieren ohne Spray braucht einen Faserlaser.'], plasma: ['Edelstahl schneidet etwas langsamer als Stahl und verfärbt sich nahe am Schnitt.', 'Mit Luft wird die Schnittkante dunkel – schleifen, wenn die Oberfläche blank sein soll.'] } },
+    slate: { name: 'Schiefer', tips: { router: ['Schiefer lässt sich mit einem V-Fräser gravieren, aber der Staub ist schädlich – Maske tragen und am besten mit Wasser arbeiten.', 'Die Platte fest halten; sie bricht leicht.'], laser: ['Die Gravur wird hellgrau auf dem dunklen Stein.', 'Den Staub mit einem feuchten Tuch abwischen und die Oberfläche danach ölen.', 'Diodenlaser können keinen Stein schneiden.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
+    cardboard: { name: 'Karton', tips: { router: ['Karton lässt sich schlecht fräsen – lieber mit Laser oder Messer schneiden.'], laser: ['Fängt leicht Feuer – bei der Maschine bleiben und Air Assist verwenden.', 'Wellpappe schneidet schnell mit wenig Leistung.', 'Den Karton mit Magneten oder Nadeln flach halten.'], plasma: ['Kann nicht plasmageschnitten werden – Plasma braucht ein leitfähiges Material.'] } },
   },
 
   tools: {
@@ -993,6 +1058,8 @@ export const de: Dict = {
     'drill-3': 'Bohrer 3 mm',
     'em-3175-1f-alu': 'Einschneider 3,175 mm (Aluminium)',
     'laser-diode': 'Diodenlaser (fokussierter Punkt)',
+    'plasma-45-std': 'Plasmabrenner 45 A (Standarddüse)',
+    'plasma-45-fine': 'Plasmabrenner 45 A (Feinschnittdüse)',
   },
 
   guides: {
