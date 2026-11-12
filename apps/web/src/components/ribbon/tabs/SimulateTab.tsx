@@ -1,11 +1,11 @@
-import { Box, Eye, EyeOff, Maximize, MoveRight, PanelBottom, Pause, Play, SkipForward, Square, X } from 'lucide-react';
+import { Box, Eye, EyeOff, Maximize, MoveRight, Focus, PanelBottom, Pause, Play, SkipForward, Square, X } from 'lucide-react';
 import { playPause, showFinalResult, stopSimulation } from '../../../cam/simController';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonGroup } from '../RibbonGroup';
 import { useAppStore } from '../../../store/useAppStore';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluRapids, IlluResult, IlluShowToolpaths, IlluSimulate, IlluStock, IlluStop, IlluViewFit, IlluViewIso, IlluViewTop } from '../../smartguide/illustrations';
+import { IlluRapids, IlluResult, IlluShowToolpaths, IlluSimulate, IlluStock, IlluStop, IlluViewFit, IlluViewFitStock, IlluViewIso, IlluViewTop } from '../../smartguide/illustrations';
 
 export function SimulateTab() {
   const t = useT();
@@ -29,6 +29,7 @@ export function SimulateTab() {
       <RibbonGroup label={t.groups.camera}>
         <RibbonButton icon={Square} label={b.viewTop.label} onClick={() => cmd('top')} tooltip={tip(b.viewTop, { illustration: <IlluViewTop />,  shortcut: '1' })} />
         <RibbonButton icon={Box} label={b.viewIso.label} onClick={() => cmd('iso')} tooltip={tip(b.viewIso, { illustration: <IlluViewIso />,  shortcut: '2' })} />
+        <RibbonButton icon={Focus} label={b.viewFitStock.label} onClick={() => cmd('fitStock')} tooltip={tip(b.viewFitStock, { illustration: <IlluViewFitStock />, shortcut: 'S' })} />
         <RibbonButton icon={Maximize} label={b.viewFit.label} onClick={() => cmd('fit')} tooltip={tip(b.viewFit, { illustration: <IlluViewFit />,  shortcut: 'F' })} />
       </RibbonGroup>
     </>

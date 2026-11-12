@@ -578,3 +578,12 @@ export const IlluPlasma = () => (
     </g>
   </Frame>
 );
+
+/** Zooma till arbetsstycket: ramen dras ihop runt materialet. */
+export const IlluViewFitStock = () => (
+  <Frame>
+    <rect x="22" y="14" width="116" height="52" rx="2" className="stroke-muted" strokeWidth="1" strokeDasharray="3 3" />
+    <rect x="58" y="28" width="44" height="24" rx="2" className="fill-wood/50 stroke-ink/60" strokeWidth="1.2" />
+    <path d="M52 32v-10h10M108 32v-10h-10M52 48v10h10M108 48v10h-10" stroke="currentColor" strokeWidth="2" className="anim-pop" />
+  </Frame>
+);

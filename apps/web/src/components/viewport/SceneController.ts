@@ -71,6 +71,10 @@ export class SceneController {
   private frame = 0;
   private theme: SceneTheme = SCENE_THEMES.light;
   private bed = { x: 300, y: 300, floor: -18 };
+  /** Materialets storlek, för att kunna zooma till arbetsstycket. */
+  private stockSize = { x: 300, y: 200 };
+  /** Vad Uppifrån/Iso/Framifrån ramar in: arbetsstycket eller hela arbetsytan. */
+  private framing: 'stock' | 'bed' = 'stock';
 
   onCursor?: (p: Vec3 | null) => void;
   /** Anropas efter varje renderad bild – används av ritlagret. */
@@ -141,6 +145,7 @@ export class SceneController {
    * syns infrästa; annars ritas en vanlig låda.
    */
   setStock(width: number, height: number, thickness: number, color: string, visible: boolean, surface?: StockSurface | null) {
+    this.stockSize = { x: width, y: height };
     disposeChildren(this.stockGroup);
     if (!visible) return;
     const geo = new THREE.BoxGeometry(width, height, thickness);
@@ -338,11 +343,14 @@ export class SceneController {
   }
 
   command(kind: ViewCommand) {
-    const { x, y } = this.bed;
+    if (kind === 'fit') this.framing = 'bed';
+    if (kind === 'fitStock') this.framing = 'stock';
+    const { x, y } = this.framing === 'stock' ? this.stockSize : this.bed;
     const center = new THREE.Vector3(x / 2, y / 2, 0);
-    const span = Math.max(x, y);
-    const fov = THREE.MathUtils.degToRad(this.camera.fov);
-    const dist = (span * 0.62) / Math.tan(fov / 2);
+    // Avstånd så att rutan ryms både på höjden och bredden (även stående mobil).
+    const tanV = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2);
+    const margin = this.framing === 'stock' ? 0.68 : 0.62;
+    const dist = Math.max((Math.max(x, y) * margin) / tanV, (x * margin) / (tanV * Math.max(0.2, this.camera.aspect)));
     const offset = this.camera.position.clone().sub(this.controls.target);
 
     switch (kind) {
@@ -354,6 +362,7 @@ export class SceneController {
         break;
       case 'iso':
       case 'fit':
+      case 'fitStock':
         this.camera.position.copy(center).add(new THREE.Vector3(-0.45, -0.95, 0.75).normalize().multiplyScalar(dist));
         break;
       case 'zoomIn':

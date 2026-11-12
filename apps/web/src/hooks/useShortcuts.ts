@@ -66,6 +66,7 @@ export function useShortcuts() {
       switch (key) {
         case 'p': createToolpath('profile'); break;
         case 'f': s.sendViewCommand('fit'); break;
+        case 's': s.sendViewCommand('fitStock'); break;
         case '1': s.sendViewCommand('top'); break;
         case '2': s.sendViewCommand('iso'); break;
         case '3': s.sendViewCommand('front'); break;

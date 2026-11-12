@@ -16,6 +16,40 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.18.0',
+    date: '2026-11-12',
+    text: {
+      sv: [
+        'Två knappar för vyn: Arbetsstycke zoomar in på materialet (S) och Arbetsyta visar hela maskinens arbetsyta (F). Inramningen passar nu även en stående mobilskärm.',
+        'Rättat: laser- och plasmasnitt såg hackiga ut i simuleringen – snittkanterna kantutjämnas nu som vid fräsning. Själva G-koden var redan jämn.',
+      ],
+      en: [
+        'Two view buttons: Workpiece zooms in on the material (S) and Work area shows the machine’s whole work area (F). The framing now also fits a phone held upright.',
+        'Fixed: laser and plasma cuts looked jagged in the simulation – the cut edges are now anti-aliased as for milling. The G-code itself was already smooth.',
+      ],
+      fr: [
+        'Deux boutons de vue : Pièce zoome sur le matériau (S) et Zone de travail montre toute la zone de la machine (F). Le cadrage convient aussi à un téléphone en portrait.',
+        'Corrigé : les découpes laser et plasma paraissaient crénelées dans la simulation – les bords sont maintenant lissés comme pour le fraisage. Le G-code lui-même était déjà lisse.',
+      ],
+      de: [
+        'Zwei Ansichtsknöpfe: Werkstück zoomt auf das Material (S), Arbeitsbereich zeigt den ganzen Arbeitsbereich der Maschine (F). Der Ausschnitt passt jetzt auch auf ein Handy im Hochformat.',
+        'Behoben: Laser- und Plasmaschnitte sahen in der Simulation gezackt aus – die Schnittkanten werden jetzt wie beim Fräsen geglättet. Der G-Code selbst war bereits glatt.',
+      ],
+      es: [
+        'Dos botones de vista: Pieza acerca la vista al material (S) y Área de trabajo muestra toda el área de la máquina (F). El encuadre ahora también sirve para un móvil en vertical.',
+        'Corregido: los cortes láser y plasma se veían dentados en la simulación; ahora los bordes se suavizan como en el fresado. El G-code ya era suave.',
+      ],
+      pl: [
+        'Dwa przyciski widoku: Materiał przybliża do materiału (S), a Obszar roboczy pokazuje cały obszar maszyny (F). Kadr pasuje teraz też do telefonu w pionie.',
+        'Poprawiono: cięcia laserem i plazmą wyglądały w symulacji na poszarpane – krawędzie są teraz wygładzane jak przy frezowaniu. Sam G-code był już gładki.',
+      ],
+      uk: [
+        'Дві кнопки виду: Заготовка наближає до матеріалу (S), а Робоче поле показує все поле верстата (F). Кадрування тепер пасує й до телефона у вертикальному положенні.',
+        'Виправлено: лазерні та плазмові різи в симуляції виглядали зубчастими – краї різу тепер згладжуються, як при фрезеруванні. Сам G-код уже був гладким.',
+      ],
+    },
+  },
+  {
     version: '0.17.0',
     date: '2026-11-12',
     text: {

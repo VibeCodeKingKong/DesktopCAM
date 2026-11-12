@@ -21,7 +21,7 @@ import { initialLanguage, type Language } from '../i18n/initial';
 import type { MeasureRef } from '../cam/commands';
 
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
-export type ViewCommand = 'fit' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
+export type ViewCommand = 'fit' | 'fitStock' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
 export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary';
 export type MobilePanel = 'tree' | 'props' | null;

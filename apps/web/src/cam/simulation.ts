@@ -113,7 +113,10 @@ export class StockSimulator {
     sMax: number,
   ) {
     const { width, height } = material;
-    this.cell = Math.max(0.2, Math.max(width, height) / 700);
+    // Laser- och plasmasnitt är bara 0,1–2 mm breda: finare rutnät, annars
+    // blir snittet bara några rutor brett och kanten ser hackig ut.
+    const narrow = jobs.some((j) => j.job.laserCut);
+    this.cell = narrow ? Math.max(0.12, Math.max(width, height) / 1000) : Math.max(0.2, Math.max(width, height) / 700);
     this.nx = Math.max(2, Math.round(width / this.cell) + 1);
     this.ny = Math.max(2, Math.round(height / this.cell) + 1);
     this.heights = new Float32Array(this.nx * this.ny);
@@ -215,9 +218,18 @@ export class StockSimulator {
         if (r2 > reach2) continue;
         const k = j * nx + i;
         if (tool.kind === 'laser' || tool.kind === 'plasma') {
-          if (r2 > R2) continue;
-          if (job.laserCut) heights[k] = floor;
-          else this.burn[k] = Math.min(1, this.burn[k] + power * 0.5);
+          if (!job.laserCut) {
+            if (r2 <= R2) this.burn[k] = Math.min(1, this.burn[k] + power * 0.5);
+            continue;
+          }
+          // Genomskärning: samma kantutjämning som fräsens väggar, annars
+          // blir snittkanten trappstegad i rutnätet.
+          const cover = Math.min(1, Math.max(0, 0.5 + (R - Math.sqrt(r2)) / cell));
+          if (cover >= 1) heights[k] = floor;
+          else if (cover > 0 && floor < this.partZ[k] + 1e-4 && (floor < this.partZ[k] - 1e-4 || cover > this.partC[k])) {
+            this.partZ[k] = floor;
+            this.partC[k] = cover;
+          }
           continue;
         }
         if (z >= 0) continue;
