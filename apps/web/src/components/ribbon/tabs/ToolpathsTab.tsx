@@ -1,11 +1,11 @@
-import { Zap, CircleDot, Combine, Flame, ImagePlus, Layers, Mountain, Scissors, Square, Triangle } from 'lucide-react';
+import { Zap, CircleDot, Rows3, Combine, Flame, ImagePlus, Layers, Mountain, Scissors, Square, Triangle } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonGroup } from '../RibbonGroup';
 import { useAppStore, useMachine } from '../../../store/useAppStore';
 import { createInlay, createLineEngraving, createToolpath, importPhotoForEngraving } from '../../../cam/commands';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluDither, IlluDrill, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPlasma, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
+import { IlluDither, IlluDrill, IlluFacing, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPlasma, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
 
 export function ToolpathsTab() {
   const t = useT();
@@ -26,6 +26,7 @@ export function ToolpathsTab() {
         <RibbonButton icon={Layers} label={b.pocket.label} disabled={notRouter} onClick={() => createToolpath('pocket')} tooltip={tip(b.pocket, { illustration: <IlluPocket />, disabledReason: needsRouter })} />
         <RibbonButton icon={CircleDot} label={b.drill.label} disabled={notRouter} onClick={() => createToolpath('drill')} tooltip={tip(b.drill, { illustration: <IlluDrill />, disabledReason: needsRouter })} />
         <RibbonButton icon={Triangle} label={b.vcarve.label} disabled={notRouter} onClick={() => createToolpath('vcarve')} tooltip={tip(b.vcarve, { illustration: <IlluVCarve />, disabledReason: needsRouter })} />
+        <RibbonButton icon={Rows3} label={b.facing.label} disabled={notRouter} onClick={() => createToolpath('facing')} tooltip={tip(b.facing, { illustration: <IlluFacing />, disabledReason: needsRouter })} />
         <RibbonButton icon={Combine} label={b.inlay.label} disabled={notRouter} onClick={createInlay} tooltip={tip(b.inlay, { illustration: <IlluInlay />, disabledReason: needsRouter })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.threeD}>

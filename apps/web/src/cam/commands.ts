@@ -215,7 +215,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const shapes = allShapes(s.layers);
   const sel = s.selectedShapeIds.length ? shapes.filter((x) => s.selectedShapeIds.includes(x.id)) : shapes;
   const shapeIds = sel.map((x) => x.id);
-  if (!shapeIds.length && operation !== 'laserRaster' && operation !== 'relief') {
+  if (!shapeIds.length && operation !== 'laserRaster' && operation !== 'relief' && operation !== 'facing') {
     status(t.status.drawFirst);
     return null;
   }
@@ -241,6 +241,29 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   let tp: ToolpathConfig;
 
   switch (operation) {
+    case 'facing': {
+      // Grövsta pinnfräsen (planfräsen), om inte en grov pinnfräs redan är vald.
+      const active = s.tools.find((x) => x.id === s.activeToolId);
+      const biggest = s.tools.filter((x) => x.kind === 'endmill').sort((a, b) => b.diameter - a.diameter)[0];
+      const tool = active?.kind === 'endmill' && active.diameter >= 10 ? active : (biggest ?? routerTool(['endmill']));
+      const params = routerParams(tool);
+      // Bara valda former begränsar ytan – annars planas hela ämnet.
+      const area = s.selectedShapeIds.length ? 'shapes' : 'stock';
+      tp = {
+        ...base,
+        shapeIds: area === 'shapes' ? shapeIds : [],
+        operation,
+        name: `${n}. ${opName}`,
+        toolId: tool.id,
+        area,
+        depth: 0.5,
+        pattern: 'zigzag',
+        direction: 'x',
+        overhang: 2,
+        params: { ...params, stepOver: tool.diameter >= 15 ? 0.75 : 0.6 },
+      };
+      break;
+    }
     case 'relief': {
       const relief = s.reliefs.find((x) => x.id === s.selectedReliefId) ?? s.reliefs[s.reliefs.length - 1];
       const tool = routerTool(['ballnose', 'endmill']);
@@ -422,7 +445,7 @@ export function retoolPatch(tp: ToolpathConfig, toolId: string): Partial<Toolpat
   if (tp.operation === 'drill') {
     return { toolId, params, peckDepth: tool.kind === 'drill' ? p.stepDown : tp.peckDepth, depth: +(s.material.thickness + drillTipLength(tool) + 0.3).toFixed(1) } as Partial<ToolpathConfig>;
   }
-  if (tp.operation === 'profile' || tp.operation === 'pocket' || tp.operation === 'relief') params.stepDown = p.stepDown;
+  if (tp.operation === 'profile' || tp.operation === 'pocket' || tp.operation === 'relief' || tp.operation === 'facing') params.stepDown = p.stepDown;
   return { toolId, params } as Partial<ToolpathConfig>;
 }
 

@@ -3,7 +3,7 @@
  * G-koden skrivs här. Körs i workern.
  */
 import { formatNumber } from './gcode';
-import type { PolylineInput, PocketJob, DrillJob } from './protocol';
+import type { PolylineInput, PocketJob, DrillJob, FacingJob } from './protocol';
 import { buildDistanceField, isolines } from './sdf';
 import { depthPasses } from './referenceEngine';
 
@@ -67,6 +67,51 @@ export function drillGcode(job: DrillJob): string {
       out.push(i < pecks.length - 1 ? 'G0 Z0.5' : `G0 Z${f(p.safeZ)}`);
     });
   }
+  out.push('M5', ...p.footer);
+  return out.join('\n') + '\n';
+}
+
+/**
+ * Planfräsning: parallella rader över ytan. Raderna börjar och slutar med
+ * verktyget helt utanför ytan (radie + överhäng), så att nedgången sker i
+ * luften och kanterna blir rena. Yttersta raderna har verktygets mitt på
+ * ytans kant, så att hela ytan täcks.
+ */
+export function facingGcode(job: FacingJob): string {
+  const p = job.post;
+  const f = (n: number) => formatNumber(n, p.decimals);
+  const r = job.toolDiameter / 2;
+  if (!(r > 0) || !(job.depth > 0)) throw new Error('NO_SHAPES');
+  const alongX = job.direction === 'x';
+  // a = längs raderna, b = tvärs raderna.
+  const [a0, a1, b0, b1] = alongX ? [job.x0, job.x1, job.y0, job.y1] : [job.y0, job.y1, job.x0, job.x1];
+  if (!(a1 > a0) || !(b1 > b0)) throw new Error('NO_SHAPES');
+  const step = Math.max(0.05, job.toolDiameter * Math.min(0.95, Math.max(0.05, job.stepOver)));
+  const n = Math.max(1, Math.ceil((b1 - b0) / step - 1e-9));
+  const rows = Array.from({ length: n + 1 }, (_, i) => b0 + ((b1 - b0) * i) / n);
+  const start = a0 - r - Math.max(0, job.overhang);
+  const end = a1 + r + Math.max(0, job.overhang);
+  const xy = (a: number, b: number) => (alongX ? `X${f(a)} Y${f(b)}` : `X${f(b)} Y${f(a)}`);
+
+  const out: string[] = ['; desktopCAM facing', ...p.header, 'G21', 'G90', `M3 S${Math.round(job.spindleRpm)}`, `G0 Z${f(p.safeZ)}`];
+  const passes = depthPasses(job.depth, job.stepDown);
+  passes.forEach((depth, k) => {
+    // Returen i enkelriktat läge går 1 mm över förra passets nivå (ännu ej planad yta).
+    const lift = Math.min(p.safeZ, -(k > 0 ? passes[k - 1] : 0) + 1);
+    out.push(`G0 ${xy(start, rows[0])}`, `G1 Z${f(-depth)} F${f(job.plungeRate)}`);
+    rows.forEach((b, i) => {
+      if (job.pattern === 'zigzag') {
+        const forward = i % 2 === 0;
+        // Byte av rad sker utanför ytan, på djupet.
+        if (i > 0) out.push(`G1 ${xy(forward ? start : end, b)}`);
+        out.push(`G1 ${xy(forward ? end : start, b)}${i === 0 ? ` F${f(job.feedRate)}` : ''}`);
+      } else {
+        if (i > 0) out.push(`G0 Z${f(lift)}`, `G0 ${xy(start, b)}`, `G1 Z${f(-depth)} F${f(job.plungeRate)}`);
+        out.push(`G1 ${xy(end, b)} F${f(job.feedRate)}`);
+      }
+    });
+    out.push(`G0 Z${f(p.safeZ)}`);
+  });
   out.push('M5', ...p.footer);
   return out.join('\n') + '\n';
 }

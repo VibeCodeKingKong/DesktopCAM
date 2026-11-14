@@ -11,7 +11,7 @@ export type GuideEntry = { title: string; body: string; steps?: string[] };
 export type GuideKey =
   | 'cutDepth' | 'stepDown' | 'stepOver' | 'feedRate' | 'plungeRate' | 'spindleRpm' | 'cutSide'
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
-  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'snap'
+  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
   | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay'
   | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection' | 'plasmaCorner' | 'gcodeArcs';
@@ -122,6 +122,7 @@ export const sv = {
     profile: { label: 'Profil', title: 'Profilbana', desc: 'Skär längs formens kontur – på utsidan för att skära ut en detalj, på insidan för hål.' },
     pocket: { label: 'Ficka', title: 'Ficka', desc: 'Fräser bort allt material innanför formen till ett jämnt djup. Öar och hål lämnas kvar.' },
     drill: { label: 'Borrning', title: 'Borrning', desc: 'Borrar hål i mitten av markerade cirklar, med hackborrning för djupa hål.' },
+    facing: { label: "Planfräs", title: "Planfräsning", desc: "Jämnar ämnets ovansida eller offerbordet med grunda, breda pass. Utan markering planas hela ämnet; med markerade former bara deras yta." },
     vcarve: { label: 'V-gravyr', title: 'V-gravyr', desc: 'En V-fräs går djupare där formen är bred – ger skarpa hörn och skyltlik text. Breda partier får plan botten.' },
     inlay: { label: 'Inlägg', title: 'V-inlägg (inlay)', desc: 'Skapar en ficka i grundträet och en spegelvänd plugg i ett kontrastträ som limmas ner i fickan och planas av. Kräver en V-fräs.' },
     laserCut: { label: 'Laser­skärning', title: 'Laserskärning', desc: 'Skär längs konturen med kerf-kompensation så att måtten blir exakta.' },
@@ -272,6 +273,16 @@ export const sv = {
     allowance: 'Lämna material',
     drillDepth: 'Borrdjup',
     peck: 'Hackdjup',
+    facing: "Planfräsning",
+    facingArea: "Yta",
+    facingStock: "Hela ämnet",
+    facingShapes: "Valda former",
+    facingSelectShapes: "Markera formerna som ska planas och skapa banan igen.",
+    facingDepth: "Djup att ta bort",
+    facingPattern: "Mönster",
+    facingZigzag: "Sicksack",
+    facingOneway: "Enkelriktat",
+    facingOverhang: "Överhäng vid kanten",
     holeCount: (n: number) => `${n} hål hittade`,
     cannotCut: 'En diodlaser kan inte skära igenom det här materialet. Använd banan för att märka eller välj Linjegravyr.',
     notForRouter: 'Det här materialet passar inte för en hobbyfräs. Byt material eller använd en laser.',
@@ -1036,6 +1047,7 @@ export const sv = {
     relief: 'Relief',
     inlay: 'Inlägg',
     plasmaCut: 'Plasmaskärning',
+    facing: "Planfräsning",
   } satisfies Record<OperationType, string>,
   inlayParts: { pocket: 'ficka', plug: 'plugg' },
   lineEngrave: 'Linjegravyr',
@@ -1115,6 +1127,10 @@ export const sv = {
       importJoin: { title: 'Sammanfoga segment', body: 'Många CAD-program sparar varje linje och båge för sig. desktopCAM kopplar ihop ändar som möts till slutna konturer så att du kan skära ut dem.' },
       peck: { title: "Hackdjup", body: "Hur djupt borren går ner per hack innan den lyfts upp ur hålet för att tömma ut spånen. Sedan går den ner igen, lite djupare för varje gång, tills hålet är klart. Utan hack packas spånen i hålet, borren blir varm och kan fastna eller brytas.", steps: ["Trä och MDF: 2–3 × borrdiametern per hack.", "Akryl: ca 1 × diametern, så att plasten inte smälter.", "Aluminium: ca 0,5 × diametern, gärna med smörjmedel.", "Hackdjup lika med hela borrdjupet = borra i ett svep."] },
       pointAngle: { title: "Spetsvinkel", body: "Vinkeln mellan borrspetsens två eggar. Den avgör hur lång spetsen är – desktopCAM lägger till spetsens längd när ett hål ska gå igenom materialet, så att hålet får full diameter även på undersidan.", steps: ["118° är standard för vanliga HSS-borrar i trä, plast och stål.", "135° är flackare, centrerar bättre och används i hårdare material och för hårdmetallborrar.", "Spetsen är kortare ju större vinkeln är: vid 118° ungefär 0,3 × diametern."] },
+      facingArea: { title: "Yta att plana", body: "Hela ämnet planar materialets hela ovansida (eller offerbordet om ämnet är lika stort som bordet). Med valda former planas bara rektangeln som omsluter dem.", steps: ["Offerbord: ställ in ämnets storlek som bordets yta och välj Hela ämnet.", "En del av en skiva: rita en rektangel, markera den och välj Valda former."] },
+      facingDepth: { title: "Djup att ta bort", body: "Hur mycket som fräses bort från ovansidan totalt. Z = 0 är ytan före planingen – nollställ Z igen efteråt om andra banor ska mätas från den nya ytan.", steps: ["Offerbord: 0,3–0,5 mm räcker oftast.", "Skevt eller sågat trä: mät den lägsta punkten och ta bort ner till den.", "Djupare än ett pass delas upp i flera pass med Djup per pass."] },
+      facingPattern: { title: "Mönster", body: "Sicksack fräser fram och tillbaka och är snabbast. Enkelriktat fräser åt samma håll varje rad och lyfter mellan raderna – det ger samma spånbildning hela vägen och en jämnare yta.", steps: ["Offerbord och grovplaning: Sicksack.", "Synlig yta i fint trä: Enkelriktat."] },
+      facingOverhang: { title: "Överhäng vid kanten", body: "Hur långt fräsens kant går förbi ytan i radernas ändar. Fräsen går ner utanför materialet och lämnar rena kanter utan märken.", steps: ["2 mm räcker normalt.", "Se till att det finns plats för fräsen utanför ämnet – klämmor får inte stå där."] },
       inlay: { title: 'Så gör du ett inlägg', body: 'Ett V-inlägg består av två delar som fräses med samma V-fräs: en ficka i grundträet och en spegelvänd plugg i ett trä med annan färg.', steps: ['Fräs fickan i grundträet.', 'Fräs pluggen i inläggsträet med samma nollpunkt.', 'Stryk lim i fickan, vänd pluggen och pressa ner den med tving.', 'När limmet torkat: såga eller hyvla bort överskottet och slipa plant.'] },
       inlayPocketDepth: { title: 'Fickdjup', body: 'Fickans största djup. Breda partier får plan botten här, smala partier blir V-formade.', steps: ['5–6 mm är ett bra startvärde.', 'Fickdjupet ska vara större än pluggens startdjup.'] },
       startDepth: { title: 'Startdjup', body: 'Hur långt ner i fickan pluggen sjunker innan väggarna möts. Skillnaden mot fickdjupet blir limspalt under pluggen.', steps: ['Ungefär halva fickdjupet ger gott om plats för lim.'] },

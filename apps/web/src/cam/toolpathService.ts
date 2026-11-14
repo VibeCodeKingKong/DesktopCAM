@@ -9,6 +9,7 @@ import {
   transformShape,
   type VCarveJob,
   type DrillJob,
+  type FacingJob,
   type PocketJob,
   type PolylineInput,
   type ProfileJob,
@@ -66,6 +67,9 @@ export async function computeToolpath(id: string): Promise<void> {
         break;
       case 'drill':
         payload = await camClient.request({ type: 'drill', job: buildDrillJob(tp) }, { onProgress });
+        break;
+      case 'facing':
+        payload = await camClient.request({ type: 'facing', job: buildFacingJob(tp) }, { onProgress });
         break;
       case 'vcarve':
       case 'inlay':
@@ -263,6 +267,36 @@ function buildDrillJob(tp: ToolpathConfig): DrillJob {
   };
 }
 
+/** Ytan som planfräsningen täcker: hela ämnet eller de valda formernas omslutande rektangel. */
+export function facingArea(tp: Extract<ToolpathConfig, { operation: 'facing' }>) {
+  const m = useAppStore.getState().material;
+  if (tp.area === 'shapes') {
+    const b = shapesBounds(shapesOf(tp));
+    if (b) return { x0: b.min.x, y0: b.min.y, x1: b.max.x, y1: b.max.y };
+  }
+  return { x0: 0, y0: 0, x1: m.width, y1: m.height };
+}
+
+function buildFacingJob(tp: ToolpathConfig): FacingJob {
+  if (tp.operation !== 'facing') throw new Error('NOT_IMPLEMENTED');
+  const s = useAppStore.getState();
+  const tool = s.tools.find((t) => t.id === tp.toolId);
+  return {
+    ...facingArea(tp),
+    toolDiameter: tool?.diameter ?? 6,
+    stepOver: tp.params.stepOver,
+    depth: tp.depth,
+    stepDown: tp.params.stepDown,
+    feedRate: tp.params.feedRate,
+    plungeRate: tp.params.plungeRate,
+    spindleRpm: tp.params.spindleRpm ?? 12000,
+    pattern: tp.pattern,
+    direction: tp.direction,
+    overhang: tp.overhang,
+    post: getMachine().postprocessor,
+  };
+}
+
 /** Spegelvänder former runt deras gemensamma mitt (för inläggets plugg). */
 export function mirrorInPlace(shapes: VectorShape[]): VectorShape[] {
   const b = shapesBounds(shapes);
@@ -372,7 +406,7 @@ export function watchForChanges() {
     const global = s.tools !== prev.tools || s.machineId !== prev.machineId || s.material.thickness !== prev.material.thickness;
     for (const tp of s.toolpaths) {
       const configChanged = prevTp.get(tp.id) !== tp && prevTp.has(tp.id) && !s.progress[tp.id];
-      const reliefChanged = tp.operation === 'relief' && s.reliefs !== prev.reliefs;
+      const reliefChanged = (tp.operation === 'relief' && s.reliefs !== prev.reliefs) || (tp.operation === 'facing' && tp.area === 'stock' && s.material !== prev.material);
       if (global || configChanged || reliefChanged || tp.shapeIds.some((id) => changedShapes.has(id))) scheduleCompute(tp.id, 400);
     }
   });

@@ -16,6 +16,40 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.22.0',
+    date: '2026-11-14',
+    text: {
+      sv: [
+        "Ny operation: Planfräsning. Jämnar ämnets ovansida eller offerbordet i grunda, breda pass – välj hela ämnet eller markerade formers yta, djup, sidstegning, riktning och sicksack eller enkelriktat.",
+        "Planfräsningen väljer automatiskt den grövsta pinnfräsen (t.ex. planfräsen 22 mm) och går ner utanför materialet för rena kanter.",
+      ],
+      en: [
+        "New operation: Facing. Levels the top of the stock or the spoilboard in shallow, wide passes – choose the whole stock or the area of selected shapes, depth, stepover, direction and zigzag or one way.",
+        "Facing automatically picks the largest end mill (e.g. the 22 mm surfacing bit) and plunges outside the material for clean edges.",
+      ],
+      fr: [
+        "Nouvelle opération : Surfaçage. Met à niveau le dessus de la pièce ou le martyr en passes faibles et larges – choisissez toute la pièce ou la zone des formes sélectionnées, profondeur, pas latéral, direction et zigzag ou sens unique.",
+        "Le surfaçage choisit automatiquement la plus grosse fraise (p. ex. la fraise à surfacer 22 mm) et plonge hors du matériau pour des bords nets.",
+      ],
+      de: [
+        "Neue Operation: Planfräsen. Ebnet die Oberseite des Werkstücks oder die Opferplatte in flachen, breiten Bahnen – ganzes Werkstück oder Fläche ausgewählter Formen, Tiefe, Bahnüberlappung, Richtung sowie Zickzack oder einseitig.",
+        "Planfräsen wählt automatisch den größten Schaftfräser (z. B. den 22-mm-Planfräser) und taucht außerhalb des Materials ein, für saubere Kanten.",
+      ],
+      es: [
+        "Nueva operación: Planeado. Nivela la cara superior de la pieza o el tablero de sacrificio con pasadas finas y anchas: elija toda la pieza o el área de las formas seleccionadas, profundidad, paso lateral, dirección y zigzag o un sentido.",
+        "El planeado elige automáticamente la fresa más grande (p. ej. la de planear de 22 mm) y baja fuera del material para dejar bordes limpios.",
+      ],
+      pl: [
+        "Nowa operacja: Planowanie. Wyrównuje górę materiału lub stół ofiarny płytkimi, szerokimi przejściami – wybierz cały materiał lub obszar zaznaczonych kształtów, głębokość, krok boczny, kierunek oraz zygzak lub jednokierunkowo.",
+        "Planowanie samo wybiera największy frez walcowy (np. frez do planowania 22 mm) i zagłębia się poza materiałem dla czystych krawędzi.",
+      ],
+      uk: [
+        "Нова операція: фрезерування площини. Вирівнює верх заготовки або жертовний стіл неглибокими широкими проходами – виберіть усю заготовку або площу виділених фігур, глибину, боковий крок, напрямок і зигзаг або в один бік.",
+        "Операція сама вибирає найбільшу кінцеву фрезу (напр. фрезу для площини 22 мм) і заглиблюється поза матеріалом для чистих країв.",
+      ],
+    },
+  },
+  {
     version: '0.21.1',
     date: '2026-11-14',
     text: {

@@ -95,6 +95,26 @@ export interface DrillJob {
   post: PostprocessorConfig;
 }
 
+export interface FacingJob {
+  /** Ytan som ska planas (mm). */
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  toolDiameter: number;
+  /** Sidstegning som andel av diametern. */
+  stepOver: number;
+  depth: number;
+  stepDown: number;
+  feedRate: number;
+  plungeRate: number;
+  spindleRpm: number;
+  pattern: 'zigzag' | 'oneway';
+  direction: 'x' | 'y';
+  overhang: number;
+  post: PostprocessorConfig;
+}
+
 export type CamRequest =
   | { type: 'ping' }
   | { type: 'profile'; job: ProfileJob }
@@ -102,6 +122,7 @@ export type CamRequest =
   | { type: 'relief'; job: ReliefJob }
   | { type: 'pocket'; job: PocketJob }
   | { type: 'drill'; job: DrillJob }
+  | { type: 'facing'; job: FacingJob }
   | { type: 'vcarve'; job: VCarveJob }
   | { type: 'routerProfile'; job: RouterProfileJob }
   | { type: 'plasma'; job: PlasmaJob }
@@ -139,6 +160,7 @@ export interface CamResponseMap {
   relief: ToolpathPayload;
   pocket: ToolpathPayload;
   drill: ToolpathPayload;
+  facing: ToolpathPayload;
   vcarve: ToolpathPayload;
   routerProfile: ToolpathPayload;
   plasma: ToolpathPayload;

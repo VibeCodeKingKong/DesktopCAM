@@ -640,3 +640,11 @@ export const IlluPointAngle = () => {
     </svg>
   );
 };
+
+/** Planfräsning: rader fram och tillbaka över hela ämnet. */
+export const IlluFacing = () => (
+  <Frame>
+    <Board />
+    <path d="M8 18H152V30H8V42H152V54H8V66H152" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+  </Frame>
+);

@@ -305,7 +305,7 @@ export function plugGeometry(p: ReliefPlug) {
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */
 
-export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut';
+export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing';
 export type CutSide = 'outside' | 'inside' | 'on';
 export type DitherMethod = 'floyd-steinberg' | 'ordered' | 'threshold';
 
@@ -458,7 +458,23 @@ export interface ReliefToolpath extends ToolpathBase {
   allowance: number;
 }
 
+/** Planfräsning: jämnar ämnets ovansida (eller offerbordet) i grunda pass. */
+export interface FacingToolpath extends ToolpathBase {
+  operation: 'facing';
+  /** Hela ämnet eller de valda formernas omslutande rektangel. */
+  area: 'stock' | 'shapes';
+  /** Hur mycket som tas bort från ovansidan totalt (mm). */
+  depth: number;
+  /** zigzag: fram och tillbaka. oneway: samma riktning varje rad (jämnare yta). */
+  pattern: 'zigzag' | 'oneway';
+  /** Radernas riktning. */
+  direction: 'x' | 'y';
+  /** Hur långt verktygets kant går förbi ytan i radernas ändar (mm). */
+  overhang: number;
+}
+
 export type ToolpathConfig =
+  | FacingToolpath
   | InlayToolpath
   | ReliefToolpath
   | ProfileToolpath

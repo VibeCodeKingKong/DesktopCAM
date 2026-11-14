@@ -14,6 +14,7 @@ import {
   Flame,
   Folder,
   GripVertical,
+  Rows3,
   Plus,
   ImagePlus,
   Layers,
@@ -57,6 +58,7 @@ const OP_ICONS: Record<OperationType, LucideIcon> = {
   relief: Mountain,
   inlay: Combine,
   plasmaCut: Zap,
+  facing: Rows3,
 };
 
 function Section({

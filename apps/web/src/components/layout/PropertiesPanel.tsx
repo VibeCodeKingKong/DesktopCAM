@@ -602,6 +602,61 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
         </>
       )}
 
+      {tp.operation === 'facing' && (
+        <>
+          <Group title={t.props.facing}>
+            <FieldRow label={t.props.facingArea} hint="facingArea">
+              <Segmented
+                label={t.props.facingArea}
+                value={tp.area}
+                options={[
+                  { value: 'stock', label: t.props.facingStock },
+                  { value: 'shapes', label: t.props.facingShapes },
+                ]}
+                onChange={(area) => patch(area === 'shapes' ? { area, shapeIds: tp.shapeIds.length ? tp.shapeIds : useAppStore.getState().selectedShapeIds } : { area })}
+              />
+            </FieldRow>
+            {tp.area === 'shapes' && !tp.shapeIds.length && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.facingSelectShapes}</p>}
+            <NumberField label={t.props.facingDepth} unit="mm" step={0.1} min={0.05} value={tp.depth} hint="facingDepth" onChange={(depth) => patch({ depth })} />
+            <NumberField label={t.props.stepDown} unit="mm" step={0.1} min={0.05} value={tp.params.stepDown} hint="stepDown" onChange={(stepDown) => param({ stepDown })} />
+            <NumberField
+              label={t.props.stepOver}
+              unit="%"
+              step={5}
+              min={10}
+              max={90}
+              value={Math.round(tp.params.stepOver * 100)}
+              hint="stepOver"
+              onChange={(pct) => param({ stepOver: pct / 100 })}
+            />
+            <FieldRow label={t.props.direction}>
+              <Segmented
+                label={t.props.direction}
+                value={tp.direction}
+                options={[
+                  { value: 'x', label: t.props.alongX },
+                  { value: 'y', label: t.props.alongY },
+                ]}
+                onChange={(direction) => patch({ direction })}
+              />
+            </FieldRow>
+            <FieldRow label={t.props.facingPattern} hint="facingPattern">
+              <Segmented
+                label={t.props.facingPattern}
+                value={tp.pattern}
+                options={[
+                  { value: 'zigzag', label: t.props.facingZigzag },
+                  { value: 'oneway', label: t.props.facingOneway },
+                ]}
+                onChange={(pattern) => patch({ pattern })}
+              />
+            </FieldRow>
+            {expert && <NumberField label={t.props.facingOverhang} unit="mm" step={0.5} min={0} max={50} value={tp.overhang} hint="facingOverhang" onChange={(overhang) => patch({ overhang })} />}
+          </Group>
+          {speedGroup}
+        </>
+      )}
+
       {tp.operation === 'relief' && (
         <>
           <Group title={t.props.threeD}>
