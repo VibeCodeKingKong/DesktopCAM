@@ -602,6 +602,25 @@ export const de: Dict = {
     licensesLink: 'Alle Lizenzen anzeigen',
   },
 
+  feedback: {
+    title: "Feedback senden",
+    open: "Feedback senden",
+    intro: "Erzählen Sie, was gut funktioniert, was stört oder was fehlt. Die Nachricht geht direkt an den Entwickler.",
+    kind: "Art",
+    kinds: {"idea": "Idee", "bug": "Fehler", "other": "Sonstiges"},
+    message: "Nachricht",
+    placeholder: {"idea": "Was würde desktopCAM für Sie besser machen?", "bug": "Was ist passiert, und was haben Sie kurz davor gemacht? Welche Maschine und welches Material?", "other": "Schreiben Sie Ihre Nachricht hier."},
+    replyTo: "Ihre E-Mail (optional)",
+    replyHint: "Ausfüllen, wenn Sie eine Antwort möchten",
+    includeInfo: "Version, Sprache, Maschine und Browser anhängen",
+    send: "Senden",
+    sending: "Wird gesendet…",
+    sent: "Danke! Ihr Feedback wurde gesendet.",
+    error: "Senden fehlgeschlagen. Prüfen Sie die Internetverbindung und versuchen Sie es erneut.",
+    notConfigured: "Feedback ist in dieser Version noch nicht aktiviert.",
+    privacy: "Die Nachricht wird über den Dienst Web3Forms gesendet. Ihre E-Mail-Adresse wird nur für eine Antwort verwendet.",
+  },
+
   pattern: {
     title: 'Muster',
     kind: 'Art',

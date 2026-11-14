@@ -16,6 +16,33 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.23.0',
+    date: '2026-11-14',
+    text: {
+      sv: [
+        "Skicka feedback direkt från appen – knappen med pratbubblan uppe till höger eller i Om desktopCAM. Välj idé, fel eller övrigt, och ange e-post om du vill ha svar.",
+      ],
+      en: [
+        "Send feedback straight from the app – the speech-bubble button at the top right or in About desktopCAM. Choose idea, bug or other, and enter your email if you want a reply.",
+      ],
+      fr: [
+        "Envoyez un avis directement depuis l’application – le bouton bulle en haut à droite ou dans À propos de desktopCAM. Choisissez idée, bogue ou autre, et indiquez votre e-mail si vous souhaitez une réponse.",
+      ],
+      de: [
+        "Feedback direkt aus der App senden – über die Sprechblase oben rechts oder in Über desktopCAM. Idee, Fehler oder Sonstiges wählen und bei Wunsch eine E-Mail für die Antwort angeben.",
+      ],
+      es: [
+        "Envíe comentarios directamente desde la aplicación: el botón del bocadillo arriba a la derecha o en Acerca de desktopCAM. Elija idea, error u otro, e indique su correo si quiere respuesta.",
+      ],
+      pl: [
+        "Wysyłaj opinie prosto z aplikacji – przycisk z dymkiem w prawym górnym rogu lub w O desktopCAM. Wybierz pomysł, błąd lub inne i podaj e-mail, jeśli chcesz odpowiedź.",
+      ],
+      uk: [
+        "Надсилайте відгуки прямо з програми – кнопка з хмаркою вгорі праворуч або в «Про desktopCAM». Виберіть ідею, помилку чи інше та вкажіть e-mail, якщо хочете відповідь.",
+      ],
+    },
+  },
+  {
     version: '0.22.0',
     date: '2026-11-14',
     text: {

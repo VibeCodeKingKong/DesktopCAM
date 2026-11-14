@@ -609,6 +609,25 @@ export const pl: Dict = {
     licensesLink: 'Pokaż wszystkie licencje',
   },
 
+  feedback: {
+    title: "Wyślij opinię",
+    open: "Wyślij opinię",
+    intro: "Napisz, co działa dobrze, co przeszkadza lub czego brakuje. Wiadomość trafia bezpośrednio do autora.",
+    kind: "Rodzaj",
+    kinds: {"idea": "Pomysł", "bug": "Błąd", "other": "Inne"},
+    message: "Wiadomość",
+    placeholder: {"idea": "Co sprawiłoby, że desktopCAM byłby dla Ciebie lepszy?", "bug": "Co się stało i co robiłeś tuż przedtem? Jaka maszyna i materiał?", "other": "Wpisz tutaj swoją wiadomość."},
+    replyTo: "Twój e-mail (opcjonalnie)",
+    replyHint: "Wypełnij, jeśli chcesz odpowiedź",
+    includeInfo: "Dołącz wersję, język, maszynę i przeglądarkę",
+    send: "Wyślij",
+    sending: "Wysyłanie…",
+    sent: "Dziękujemy! Opinia została wysłana.",
+    error: "Nie udało się wysłać. Sprawdź połączenie z internetem i spróbuj ponownie.",
+    notConfigured: "Opinie nie są jeszcze włączone w tej wersji.",
+    privacy: "Wiadomość jest wysyłana przez usługę Web3Forms. Twój e-mail służy tylko do odpowiedzi.",
+  },
+
   pattern: {
     title: 'Szyk',
     kind: 'Rodzaj',

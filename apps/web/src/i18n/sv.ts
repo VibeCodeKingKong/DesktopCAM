@@ -555,6 +555,25 @@ export const sv = {
     licensesLink: 'Visa alla licenser',
   },
 
+  feedback: {
+    title: "Skicka feedback",
+    open: "Skicka feedback",
+    intro: "Berätta vad som fungerar bra, vad som krånglar eller vad du saknar. Meddelandet går direkt till utvecklaren.",
+    kind: "Typ",
+    kinds: {"idea": "Idé", "bug": "Fel", "other": "Övrigt"},
+    message: "Meddelande",
+    placeholder: {"idea": "Vad skulle göra desktopCAM bättre för dig?", "bug": "Vad hände, och vad gjorde du precis innan? Vilken maskin och vilket material?", "other": "Skriv ditt meddelande här."},
+    replyTo: "Din e-post (valfritt)",
+    replyHint: "Fyll i om du vill ha svar",
+    includeInfo: "Bifoga version, språk, maskin och webbläsare",
+    send: "Skicka",
+    sending: "Skickar…",
+    sent: "Tack! Din feedback har skickats.",
+    error: "Det gick inte att skicka. Kontrollera internetanslutningen och försök igen.",
+    notConfigured: "Feedback är inte aktiverad i den här versionen ännu.",
+    privacy: "Meddelandet skickas via tjänsten Web3Forms. Din e-postadress används bara för att kunna svara dig.",
+  },
+
   pattern: {
     title: 'Mönster',
     kind: 'Typ',

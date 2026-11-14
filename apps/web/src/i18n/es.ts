@@ -602,6 +602,25 @@ export const es: Dict = {
     licensesLink: 'Ver todas las licencias',
   },
 
+  feedback: {
+    title: "Enviar comentarios",
+    open: "Enviar comentarios",
+    intro: "Cuéntenos qué funciona bien, qué molesta o qué echa en falta. El mensaje llega directamente al desarrollador.",
+    kind: "Tipo",
+    kinds: {"idea": "Idea", "bug": "Error", "other": "Otro"},
+    message: "Mensaje",
+    placeholder: {"idea": "¿Qué haría desktopCAM mejor para usted?", "bug": "¿Qué pasó y qué hizo justo antes? ¿Qué máquina y material?", "other": "Escriba su mensaje aquí."},
+    replyTo: "Su correo (opcional)",
+    replyHint: "Rellénelo si quiere respuesta",
+    includeInfo: "Adjuntar versión, idioma, máquina y navegador",
+    send: "Enviar",
+    sending: "Enviando…",
+    sent: "¡Gracias! Sus comentarios se han enviado.",
+    error: "No se pudo enviar. Compruebe la conexión a Internet e inténtelo de nuevo.",
+    notConfigured: "Los comentarios aún no están activados en esta versión.",
+    privacy: "El mensaje se envía mediante el servicio Web3Forms. Su correo solo se usa para responderle.",
+  },
+
   pattern: {
     title: 'Patrón',
     kind: 'Tipo',

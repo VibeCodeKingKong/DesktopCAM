@@ -15,6 +15,7 @@ import { TextDialog } from './components/dialogs/TextDialog';
 import { GearDialog } from './components/dialogs/GearDialog';
 import { ImageReliefDialog } from './components/dialogs/ImageReliefDialog';
 import { AboutDialog } from './components/dialogs/AboutDialog';
+import { FeedbackDialog } from './components/dialogs/FeedbackDialog';
 import { PatternDialog } from './components/dialogs/PatternDialog';
 import { camClient } from './engine/camClient';
 import { useShortcuts } from './hooks/useShortcuts';
@@ -80,6 +81,7 @@ export default function App() {
       <GearDialog />
       <ImageReliefDialog />
       <AboutDialog />
+      <FeedbackDialog />
       <PatternDialog />
     </div>
   );

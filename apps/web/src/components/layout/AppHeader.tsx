@@ -1,4 +1,4 @@
-import { CircleHelp, GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
+import { CircleHelp, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
@@ -64,6 +64,9 @@ export function AppHeader() {
         </span>
         {machine.name}
       </p>
+      <button className={iconBtn} onClick={() => openDialog('feedback')} aria-label={t.feedback.open} title={t.feedback.open}>
+        <MessageSquarePlus size={16} />
+      </button>
       <button className={iconBtn} onClick={() => startTour()} aria-label={t.tour.open} title={t.tour.open} data-tour="help">
         <CircleHelp size={16} />
       </button>

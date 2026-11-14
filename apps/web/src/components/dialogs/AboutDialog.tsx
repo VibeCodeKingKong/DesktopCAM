@@ -52,6 +52,9 @@ export function AboutDialog() {
             </li>
           ))}
         </ol>
+        <button className="btn w-full" onClick={() => useAppStore.getState().openDialog('feedback')}>
+          {t.feedback.open}
+        </button>
         <section className="space-y-1.5 border-t border-line pt-3 text-2xs leading-relaxed text-muted">
           <h3 className="text-xs font-semibold uppercase tracking-wide">{t.about.legalTitle}</h3>
           <p>{t.about.disclaimer}</p>

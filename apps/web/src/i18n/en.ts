@@ -603,6 +603,25 @@ export const en: Dict = {
     licensesLink: 'Show all licences',
   },
 
+  feedback: {
+    title: "Send feedback",
+    open: "Send feedback",
+    intro: "Tell us what works well, what gets in the way or what you are missing. The message goes straight to the developer.",
+    kind: "Type",
+    kinds: {"idea": "Idea", "bug": "Bug", "other": "Other"},
+    message: "Message",
+    placeholder: {"idea": "What would make desktopCAM better for you?", "bug": "What happened, and what did you do just before? Which machine and material?", "other": "Write your message here."},
+    replyTo: "Your email (optional)",
+    replyHint: "Fill in if you want a reply",
+    includeInfo: "Attach version, language, machine and browser",
+    send: "Send",
+    sending: "Sending…",
+    sent: "Thank you! Your feedback has been sent.",
+    error: "Could not send. Check your internet connection and try again.",
+    notConfigured: "Feedback is not enabled in this version yet.",
+    privacy: "The message is sent via the Web3Forms service. Your email address is only used to reply to you.",
+  },
+
   pattern: {
     title: 'Pattern',
     kind: 'Type',

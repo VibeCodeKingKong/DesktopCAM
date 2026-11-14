@@ -602,6 +602,25 @@ export const fr: Dict = {
     licensesLink: 'Afficher toutes les licences',
   },
 
+  feedback: {
+    title: "Envoyer un avis",
+    open: "Envoyer un avis",
+    intro: "Dites-nous ce qui fonctionne bien, ce qui gêne ou ce qui manque. Le message va directement au développeur.",
+    kind: "Type",
+    kinds: {"idea": "Idée", "bug": "Bogue", "other": "Autre"},
+    message: "Message",
+    placeholder: {"idea": "Qu’est-ce qui rendrait desktopCAM meilleur pour vous ?", "bug": "Que s’est-il passé, et qu’avez-vous fait juste avant ? Quelle machine et quel matériau ?", "other": "Écrivez votre message ici."},
+    replyTo: "Votre e-mail (facultatif)",
+    replyHint: "À remplir si vous souhaitez une réponse",
+    includeInfo: "Joindre la version, la langue, la machine et le navigateur",
+    send: "Envoyer",
+    sending: "Envoi…",
+    sent: "Merci ! Votre avis a été envoyé.",
+    error: "Échec de l’envoi. Vérifiez votre connexion Internet et réessayez.",
+    notConfigured: "Les avis ne sont pas encore activés dans cette version.",
+    privacy: "Le message est envoyé via le service Web3Forms. Votre adresse e-mail ne sert qu’à vous répondre.",
+  },
+
   pattern: {
     title: 'Motif',
     kind: 'Type',
