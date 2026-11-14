@@ -91,6 +91,7 @@ export const pl: Dict = {
     locked: 'Zablokowane',
     free: 'Swobodne',
     untitledProject: 'Projekt bez nazwy',
+    exampleProject: 'Projekt przykładowy',
     layer: (n: number) => `Warstwa ${n}`,
     mm,
   },

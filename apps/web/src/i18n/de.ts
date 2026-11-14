@@ -84,6 +84,7 @@ export const de: Dict = {
     locked: 'Gesperrt',
     free: 'Frei',
     untitledProject: 'Unbenanntes Projekt',
+    exampleProject: 'Beispielprojekt',
     layer: (n: number) => `Ebene ${n}`,
     mm,
   },

@@ -84,6 +84,7 @@ export const es: Dict = {
     locked: 'Bloqueado',
     free: 'Libre',
     untitledProject: 'Proyecto sin título',
+    exampleProject: 'Proyecto de ejemplo',
     layer: (n: number) => `Capa ${n}`,
     mm,
   },

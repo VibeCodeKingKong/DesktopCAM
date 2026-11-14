@@ -37,6 +37,7 @@ export const sv = {
     locked: 'Låst',
     free: 'Fri',
     untitledProject: 'Namnlöst projekt',
+    exampleProject: 'Exempelprojekt',
     layer: (n: number) => `Lager ${n}`,
     mm,
   },

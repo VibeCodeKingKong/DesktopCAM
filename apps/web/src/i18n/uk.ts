@@ -91,6 +91,7 @@ export const uk: Dict = {
     locked: 'Заблоковано',
     free: 'Вільно',
     untitledProject: 'Проєкт без назви',
+    exampleProject: 'Приклад проєкту',
     layer: (n: number) => `Шар ${n}`,
     mm,
   },
