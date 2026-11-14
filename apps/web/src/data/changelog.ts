@@ -16,6 +16,47 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.21.1',
+    date: '2026-11-14',
+    text: {
+      sv: [
+        "Redigera verktyg öppnas direkt under verktyget i listan, så att du slipper leta längst ned.",
+        "Längderna (skärlängd, total längd och utstick) går nu att ändra även i nybörjarläget – för borrar och alla fräsar.",
+        "Nya ?-förklaringar med animerade bilder till Hackdjup och Spetsvinkel.",
+      ],
+      en: [
+        "Edit tool now opens right below the tool in the list, so you no longer have to look at the bottom.",
+        "The lengths (cutting length, overall length and stickout) can now be changed in beginner mode too – for drills and all cutters.",
+        "New ? explanations with animated pictures for Peck depth and Point angle.",
+      ],
+      fr: [
+        "Modifier l’outil s’ouvre maintenant juste sous l’outil dans la liste, plus besoin de chercher en bas.",
+        "Les longueurs (longueur de coupe, longueur totale et dépassement) se modifient maintenant aussi en mode débutant – pour les forets et toutes les fraises.",
+        "Nouvelles explications ? avec images animées pour Débourrage et Angle de pointe.",
+      ],
+      de: [
+        "Werkzeug bearbeiten öffnet sich jetzt direkt unter dem Werkzeug in der Liste, statt ganz unten.",
+        "Die Längen (Schneidenlänge, Gesamtlänge und Auskraglänge) lassen sich jetzt auch im Einsteigermodus ändern – für Bohrer und alle Fräser.",
+        "Neue ?-Erklärungen mit animierten Bildern zu Zustelltiefe und Spitzenwinkel.",
+      ],
+      es: [
+        "Editar herramienta se abre ahora justo debajo de la herramienta en la lista, sin tener que buscar al final.",
+        "Las longitudes (longitud de corte, longitud total y voladizo) se pueden cambiar también en modo principiante, para brocas y todas las fresas.",
+        "Nuevas explicaciones ? con imágenes animadas para Profundidad de picoteo y Ángulo de punta.",
+      ],
+      pl: [
+        "Edycja narzędzia otwiera się teraz tuż pod narzędziem na liście, zamiast na samym dole.",
+        "Długości (długość skrawająca, całkowita i wysięg) można teraz zmieniać także w trybie początkującym – dla wierteł i wszystkich frezów.",
+        "Nowe objaśnienia ? z animowanymi obrazkami dla Głębokości kroku i Kąta wierzchołkowego.",
+      ],
+      uk: [
+        "Редагування інструмента тепер відкривається одразу під інструментом у списку, а не в самому низу.",
+        "Довжини (робоча, загальна та виліт) тепер можна змінювати й у режимі початківця – для свердел і всіх фрез.",
+        "Нові пояснення ? з анімованими зображеннями для «Крок свердління» та «Кут при вершині».",
+      ],
+    },
+  },
+  {
     version: '0.21.0',
     date: '2026-11-14',
     text: {

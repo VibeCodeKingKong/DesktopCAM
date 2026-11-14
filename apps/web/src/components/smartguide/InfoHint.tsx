@@ -5,6 +5,10 @@ import { materialName, useT, type GuideKey } from '../../i18n';
 import { effectiveMaterial } from '@desktopcam/core';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { placeFloating, type FloatingPosition } from './position';
+import { IlluPeck, IlluPointAngle } from './illustrations';
+
+/** Bilder till de guider som har en. */
+const ILLUSTRATIONS: Partial<Record<GuideKey, () => JSX.Element>> = { peck: IlluPeck, pointAngle: IlluPointAngle };
 
 const WIDTH = 320;
 
@@ -25,6 +29,7 @@ export function InfoHint({ topic }: { topic: GuideKey }) {
   const t = useT();
   const guide = t.guides.items[topic];
   const recommend = t.guides.recommend[topic];
+  const Illu = ILLUSTRATIONS[topic];
 
   useLayoutEffect(() => {
     if (!open || !btnRef.current || !popRef.current) return;
@@ -83,6 +88,11 @@ export function InfoHint({ topic }: { topic: GuideKey }) {
                 <X size={14} />
               </button>
             </div>
+            {Illu && (
+              <div className="my-2 flex justify-center rounded-md bg-app py-2 text-accent">
+                <Illu />
+              </div>
+            )}
             <p className="text-xs leading-relaxed text-muted">{guide.body}</p>
             {guide.steps && (
               <ol className="mt-3 space-y-1.5">

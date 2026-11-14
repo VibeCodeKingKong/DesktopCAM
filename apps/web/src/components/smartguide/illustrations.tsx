@@ -587,3 +587,56 @@ export const IlluViewFitStock = () => (
     <path d="M52 32v-10h10M108 32v-10h-10M52 48v10h10M108 48v10h-10" stroke="currentColor" strokeWidth="2" className="anim-pop" />
   </Frame>
 );
+
+/** Pickborrning: borren går ner en bit, lyfts ur hålet och går djupare nästa gång. */
+export const IlluPeck = () => {
+  const keyTimes = '0;0.15;0.3;0.5;0.65;0.85;1';
+  return (
+    <svg viewBox="0 0 160 80" width="240" height="120" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="20" y="34" width="120" height="42" className="fill-wood/40 stroke-wood" strokeWidth="1" />
+      <rect x="74" y="34" width="12" height="40" className="fill-surface stroke-ink/30" strokeWidth="1" strokeDasharray="2 2" />
+      {/* Nivåerna för varje pick. */}
+      {[48, 60, 72].map((y, i) => (
+        <g key={y}>
+          <path d={`M90 ${y}h18`} stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" opacity=".6" />
+          <text x="112" y={y + 3} className="fill-muted" fontSize="8">{i + 1}</text>
+        </g>
+      ))}
+      <path d="M62 34v14M59 34h6M59 48h6" stroke="currentColor" strokeWidth="1.2" />
+      <g>
+        <rect x="77" y="2" width="6" height="12" className="fill-ink/30" />
+        <path d="M74 14h12v15l-6 3.5-6-3.5z" fill="currentColor" opacity=".85" />
+        <path d="M74 18l12 4M74 24l12 4" className="stroke-surface" strokeWidth="1" />
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 16;0 0;0 28;0 0;0 40;0 0" keyTimes={keyTimes} dur="4.5s" repeatCount="indefinite" />
+      </g>
+    </svg>
+  );
+};
+
+/** Borrspetsens vinkel: 118° är standard, 135° är flackare och för hårdare material. */
+export const IlluPointAngle = () => {
+  const tip = (cx: number, deg: number) => {
+    const r = 15;
+    const len = r / Math.tan(((deg / 2) * Math.PI) / 180);
+    const y0 = 44;
+    const ty = y0 + len;
+    const n = Math.hypot(r, len);
+    const ax = (-r / n) * 13, ay = (-len / n) * 13;
+    return (
+      <g key={deg}>
+        <rect x={cx - 4} y="2" width="8" height="10" className="fill-ink/30" />
+        <path d={`M${cx - r} 12h${2 * r}v${y0 - 12}L${cx} ${ty}L${cx - r} ${y0}z`} className="fill-ink/15 stroke-ink/50" strokeWidth="1" />
+        <path d={`M${cx - r} 20l${2 * r} 8M${cx - r} 32l${2 * r} 8`} className="stroke-ink/30" strokeWidth="1" />
+        <path d={`M${cx} ${ty}L${cx + ax} ${ty + ay}A13 13 0 0 1 ${cx - ax} ${ty + ay}z`} fill="currentColor" opacity=".35" />
+        <path d={`M${cx + ax} ${ty + ay}A13 13 0 0 1 ${cx - ax} ${ty + ay}`} stroke="currentColor" strokeWidth="2" />
+        <text x={cx} y="76" textAnchor="middle" className="fill-muted" fontSize="10" fontWeight="600">{deg}°</text>
+      </g>
+    );
+  };
+  return (
+    <svg viewBox="0 0 160 80" width="240" height="120" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {tip(45, 118)}
+      {tip(115, 135)}
+    </svg>
+  );
+};

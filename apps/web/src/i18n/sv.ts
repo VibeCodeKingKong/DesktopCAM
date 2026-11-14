@@ -11,7 +11,7 @@ export type GuideEntry = { title: string; body: string; steps?: string[] };
 export type GuideKey =
   | 'cutDepth' | 'stepDown' | 'stepOver' | 'feedRate' | 'plungeRate' | 'spindleRpm' | 'cutSide'
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
-  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'snap'
+  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
   | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay'
   | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection' | 'plasmaCorner' | 'gcodeArcs';
@@ -902,7 +902,7 @@ export const sv = {
     flutes: 'Antal skär',
     cutShort: 'skär',
     stickoutShort: 'utstick',
-    advanced: 'Avancerat – längder',
+    lengths: 'Längder',
     fluteLength: 'Skärlängd',
     shankDiameter: 'Skaftdiameter',
     overallLength: 'Total längd',
@@ -920,7 +920,7 @@ export const sv = {
     plasmaAmps: 'Max ström',
     plasmaCodes: { torchOn: 'Tänd brännaren', torchOff: 'Släck brännaren', thcOn: 'THC på', thcOff: 'THC av' },
     plasmaCodesHint: 'Koderna skrivs in i G-koden. Lämna THC tomt om maskinens styrning sköter höjdregleringen själv.',
-    pointAngle: 'Spetsvinkel (borr)',
+    pointAngle: 'Spetsvinkel',
     favorite: "Markera som favorit – visas överst i verktygslistan",
     unfavorite: "Ta bort favoritmarkering",
     toolTipsTitle: "Vilket verktyg till vilket material?",
@@ -1113,7 +1113,8 @@ export const sv = {
       allowance: { title: 'Lämna material', body: 'Grovbearbetningen stannar så här långt ovanför den färdiga ytan. Finishbanan tar sedan bort resten jämnt.' },
       importUnits: { title: 'Enheter vid import', body: 'SVG och DXF anger inte alltid sin enhet. Kontrollera att storleken stämmer med det du ritade.', steps: ['Inkscape och moderna program: 96 px per tum.', 'Äldre Illustrator-filer: 72 px per tum.', 'DXF utan enhet som ser 25 gånger för liten ut: välj tum.'] },
       importJoin: { title: 'Sammanfoga segment', body: 'Många CAD-program sparar varje linje och båge för sig. desktopCAM kopplar ihop ändar som möts till slutna konturer så att du kan skära ut dem.' },
-      peck: { title: 'Pickborrning', body: 'Borren går ner en bit i taget och lyfts upp ur hålet emellan så att spånen kommer ut.', steps: ['Trä: 2–3 × borrdiametern per pick.', 'Akryl: ca 1 × diametern, så att plasten inte smälter.', 'Aluminium: ca 0,5 × diametern, gärna med smörjmedel.', 'Ange hela borrdjupet för att borra i ett svep.'] },
+      peck: { title: "Hackdjup", body: "Hur djupt borren går ner per hack innan den lyfts upp ur hålet för att tömma ut spånen. Sedan går den ner igen, lite djupare för varje gång, tills hålet är klart. Utan hack packas spånen i hålet, borren blir varm och kan fastna eller brytas.", steps: ["Trä och MDF: 2–3 × borrdiametern per hack.", "Akryl: ca 1 × diametern, så att plasten inte smälter.", "Aluminium: ca 0,5 × diametern, gärna med smörjmedel.", "Hackdjup lika med hela borrdjupet = borra i ett svep."] },
+      pointAngle: { title: "Spetsvinkel", body: "Vinkeln mellan borrspetsens två eggar. Den avgör hur lång spetsen är – desktopCAM lägger till spetsens längd när ett hål ska gå igenom materialet, så att hålet får full diameter även på undersidan.", steps: ["118° är standard för vanliga HSS-borrar i trä, plast och stål.", "135° är flackare, centrerar bättre och används i hårdare material och för hårdmetallborrar.", "Spetsen är kortare ju större vinkeln är: vid 118° ungefär 0,3 × diametern."] },
       inlay: { title: 'Så gör du ett inlägg', body: 'Ett V-inlägg består av två delar som fräses med samma V-fräs: en ficka i grundträet och en spegelvänd plugg i ett trä med annan färg.', steps: ['Fräs fickan i grundträet.', 'Fräs pluggen i inläggsträet med samma nollpunkt.', 'Stryk lim i fickan, vänd pluggen och pressa ner den med tving.', 'När limmet torkat: såga eller hyvla bort överskottet och slipa plant.'] },
       inlayPocketDepth: { title: 'Fickdjup', body: 'Fickans största djup. Breda partier får plan botten här, smala partier blir V-formade.', steps: ['5–6 mm är ett bra startvärde.', 'Fickdjupet ska vara större än pluggens startdjup.'] },
       startDepth: { title: 'Startdjup', body: 'Hur långt ner i fickan pluggen sjunker innan väggarna möts. Skillnaden mot fickdjupet blir limspalt under pluggen.', steps: ['Ungefär halva fickdjupet ger gott om plats för lim.'] },

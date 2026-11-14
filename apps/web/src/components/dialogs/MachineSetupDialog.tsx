@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { ToolIcon } from '../ui/ToolIcon';
 import { cuttingLength } from '../../cam/toolReach';
 import { GripVertical, Lightbulb, Pencil, Plus, Star, Trash2 } from 'lucide-react';
@@ -343,6 +343,13 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
   };
   const [editing, setEditing] = useState<ToolDefinition | null>(null);
   const list = tools.filter((x) => toolFitsMachine(x.kind, kind));
+  /** Ett befintligt verktyg redigeras direkt under sin rad, ett nytt under listan. */
+  const inList = !!editing && list.some((x) => x.id === editing.id);
+  const editorRef = useRef<HTMLElement>(null);
+  const editingId = editing?.id;
+  useEffect(() => {
+    if (editingId) editorRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [editingId]);
   const kinds: ToolKind[] = laser ? ['laser'] : plasma ? ['plasma'] : ['endmill', 'ballnose', 'vbit', 'drill'];
   const beginner = useAppStore((s) => s.beginnerMode);
   const num = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
@@ -371,6 +378,66 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
   const set = (p: Partial<ToolDefinition>) => setEditing((e) => (e ? { ...e, ...p } : e));
   const setDef = (p: Partial<ToolDefinition['defaults']>) => setEditing((e) => (e ? { ...e, defaults: { ...e.defaults, ...p } } : e));
 
+  const editor = editing && (
+        <section ref={editorRef} className="space-y-2.5 rounded-lg border border-line bg-app/60 p-4">
+          <h3 className="text-sm font-semibold">{t.machine.editTool}</h3>
+          <div className="flex gap-4">
+          <div className="hidden shrink-0 self-start rounded-lg bg-surface px-2 py-3 sm:block">
+            <ToolIcon tool={editing} size={150} dimensions />
+          </div>
+          <div className="min-w-0 flex-1 space-y-2.5">
+          <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+            <FieldRow label={t.common.name}>
+              <input className="field" value={editing.name} onChange={(e) => set({ name: e.target.value })} />
+            </FieldRow>
+            <SelectField label={t.machine.type} value={editing.kind} options={kinds.map((k) => ({ value: k, label: t.machine.toolKinds[k] }))} onChange={(kind) => set({ kind })} />
+            <NumberField label={plasma ? t.props.kerf : t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
+            {editing.kind === 'vbit' && <NumberField label={t.machine.angle} unit="°" step={5} min={10} max={170} value={editing.angle ?? 90} onChange={(angle) => set({ angle })} />}
+            {editing.kind === 'drill' && <NumberField label={t.machine.pointAngle} hint="pointAngle" unit="°" step={1} min={60} max={180} value={editing.angle ?? 118} onChange={(angle) => set({ angle })} />}
+            {router && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}
+            {editing.kind !== 'drill' && <NumberField label={t.machine.feed} unit="mm/min" step={50} min={1} value={editing.defaults.feedRate} onChange={(feedRate) => setDef({ feedRate })} />}
+            {router && (
+              <>
+                <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={editing.defaults.plungeRate} onChange={(plungeRate) => setDef({ plungeRate })} />
+                <NumberField label={editing.kind === 'drill' ? t.props.peck : t.machine.stepDown} hint={editing.kind === 'drill' ? 'peck' : 'stepDown'} unit="mm" step={0.1} min={0.05} value={editing.defaults.stepDown} onChange={(stepDown) => setDef({ stepDown })} />
+                {!beginner && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={editing.defaults.spindleRpm ?? 18000} onChange={(spindleRpm) => setDef({ spindleRpm })} />}
+              </>
+            )}
+            {laser && <NumberField label={t.props.power} unit="%" step={5} min={0} max={100} value={editing.defaults.laserPowerPct ?? 100} onChange={(laserPowerPct) => setDef({ laserPowerPct })} />}
+          </div>
+          {router && (
+            <div className="space-y-2.5 border-t border-line pt-3">
+              <h4 className="text-xs font-semibold">{t.machine.lengths}</h4>
+              <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+                <NumberField label={t.machine.fluteLength} unit="mm" step={0.5} min={0} value={editing.fluteLength ?? +(cuttingLength(editing) ?? 0).toFixed(2)} onChange={(fluteLength) => set({ fluteLength })} />
+                {!beginner && <NumberField label={t.machine.shankDiameter} unit="mm" step={0.1} min={0} value={editing.shankDiameter ?? editing.diameter} onChange={(shankDiameter) => set({ shankDiameter })} />}
+                <NumberField label={t.machine.overallLength} unit="mm" step={1} min={0} value={editing.overallLength ?? 0} onChange={(overallLength) => set({ overallLength: overallLength || undefined })} />
+                <NumberField label={t.machine.stickout} unit="mm" step={1} min={0} value={editing.stickout ?? 0} onChange={(stickout) => set({ stickout: stickout || undefined })} />
+              </div>
+              <p className="text-2xs leading-relaxed text-muted">{t.machine.lengthNote}</p>
+            </div>
+          )}
+          </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button className="btn" onClick={() => setEditing(null)}>
+              {t.common.cancel}
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                saveTool(editing);
+                // Användarens namn ersätter det översatta standardnamnet.
+                useAppStore.getState().setStatus(t.status.toolSaved(editing.name));
+                setEditing(null);
+              }}
+            >
+              {t.common.apply}
+            </button>
+          </div>
+        </section>
+  );
+
   return (
     <div className="space-y-4 p-4 sm:p-5">
       <div className="overflow-x-auto rounded-lg border border-line">
@@ -393,7 +460,8 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
           <SortableContext items={list.map((x) => x.id)} strategy={verticalListSortingStrategy}>
           <tbody>
             {list.map((x) => (
-              <SortableToolRow key={x.id} id={x.id} className={`border-t border-line ${editing?.id === x.id ? 'bg-accent/5' : ''}`}>
+              <Fragment key={x.id}>
+              <SortableToolRow id={x.id} className={`border-t border-line ${editing?.id === x.id ? 'bg-accent/5' : ''}`}>
                 {(handle) => (
                 <>
                 <td className="px-1 py-1">{handle}</td>
@@ -432,6 +500,14 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
                 </>
                 )}
               </SortableToolRow>
+              {editing?.id === x.id && (
+                <tr>
+                  <td colSpan={router ? 9 : 8} className="bg-accent/5 px-2 pb-2">
+                    {editor}
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
           </SortableContext>
@@ -439,69 +515,13 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
         </table>
       </div>
 
-      {editing ? (
-        <section className="space-y-2.5 rounded-lg border border-line bg-app/60 p-4">
-          <h3 className="text-sm font-semibold">{t.machine.editTool}</h3>
-          <div className="flex gap-4">
-          <div className="hidden shrink-0 self-start rounded-lg bg-surface px-2 py-3 sm:block">
-            <ToolIcon tool={editing} size={150} dimensions />
-          </div>
-          <div className="min-w-0 flex-1 space-y-2.5">
-          <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-            <FieldRow label={t.common.name}>
-              <input className="field" value={editing.name} onChange={(e) => set({ name: e.target.value })} />
-            </FieldRow>
-            <SelectField label={t.machine.type} value={editing.kind} options={kinds.map((k) => ({ value: k, label: t.machine.toolKinds[k] }))} onChange={(kind) => set({ kind })} />
-            <NumberField label={plasma ? t.props.kerf : t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
-            {editing.kind === 'vbit' && <NumberField label={t.machine.angle} unit="°" step={5} min={10} max={170} value={editing.angle ?? 90} onChange={(angle) => set({ angle })} />}
-            {editing.kind === 'drill' && <NumberField label={t.machine.pointAngle} unit="°" step={1} min={60} max={180} value={editing.angle ?? 118} onChange={(angle) => set({ angle })} />}
-            {router && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}
-            {editing.kind !== 'drill' && <NumberField label={t.machine.feed} unit="mm/min" step={50} min={1} value={editing.defaults.feedRate} onChange={(feedRate) => setDef({ feedRate })} />}
-            {router && (
-              <>
-                <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={editing.defaults.plungeRate} onChange={(plungeRate) => setDef({ plungeRate })} />
-                <NumberField label={editing.kind === 'drill' ? t.props.peck : t.machine.stepDown} unit="mm" step={0.1} min={0.05} value={editing.defaults.stepDown} onChange={(stepDown) => setDef({ stepDown })} />
-                {!beginner && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={editing.defaults.spindleRpm ?? 18000} onChange={(spindleRpm) => setDef({ spindleRpm })} />}
-              </>
-            )}
-            {laser && <NumberField label={t.props.power} unit="%" step={5} min={0} max={100} value={editing.defaults.laserPowerPct ?? 100} onChange={(laserPowerPct) => setDef({ laserPowerPct })} />}
-          </div>
-          {router && !beginner && (
-            <div className="space-y-2.5 border-t border-line pt-3">
-              <h4 className="text-xs font-semibold">{t.machine.advanced}</h4>
-              <div className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-                <NumberField label={t.machine.fluteLength} unit="mm" step={0.5} min={0} value={editing.fluteLength ?? +(cuttingLength(editing) ?? 0).toFixed(2)} onChange={(fluteLength) => set({ fluteLength })} />
-                <NumberField label={t.machine.shankDiameter} unit="mm" step={0.1} min={0} value={editing.shankDiameter ?? editing.diameter} onChange={(shankDiameter) => set({ shankDiameter })} />
-                <NumberField label={t.machine.overallLength} unit="mm" step={1} min={0} value={editing.overallLength ?? 0} onChange={(overallLength) => set({ overallLength: overallLength || undefined })} />
-                <NumberField label={t.machine.stickout} unit="mm" step={1} min={0} value={editing.stickout ?? 0} onChange={(stickout) => set({ stickout: stickout || undefined })} />
-              </div>
-              <p className="text-2xs leading-relaxed text-muted">{t.machine.lengthNote}</p>
-            </div>
-          )}
-          </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-1">
-            <button className="btn" onClick={() => setEditing(null)}>
-              {t.common.cancel}
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                saveTool(editing);
-                // Användarens namn ersätter det översatta standardnamnet.
-                useAppStore.getState().setStatus(t.status.toolSaved(editing.name));
-                setEditing(null);
-              }}
-            >
-              {t.common.apply}
-            </button>
-          </div>
-        </section>
-      ) : (
+      {editing && !inList ? (
+        editor
+      ) : !editing ? (
         <button className="btn" onClick={startNew}>
           <Plus size={13} /> {t.machine.addTool}
         </button>
-      )}
+      ) : null}
 
       <ToolTips kind={kind} />
     </div>
