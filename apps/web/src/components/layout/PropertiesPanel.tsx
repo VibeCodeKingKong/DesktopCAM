@@ -33,7 +33,7 @@ import {
   type ToolpathConfig,
   type VectorShape,
 } from '@desktopcam/core';
-import { allShapes, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
+import { allShapes, favoritesFirst, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
 import { toolFits } from '../../cam/toolRules';
 import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
@@ -487,7 +487,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
   const currentTool = tools.find((x) => x.id === tp.toolId);
   const toolOk = toolFits(tp, currentTool?.kind);
   const toolOptions = [
-    ...tools.filter((x) => toolFits(tp, x.kind)).map((x) => ({ value: x.id, label: toolName(t, x.id, x.name) })),
+    ...favoritesFirst(tools.filter((x) => toolFits(tp, x.kind))).map((x) => ({ value: x.id, label: `${x.favorite ? '★ ' : ''}${toolName(t, x.id, x.name)}` })),
     ...(currentTool && !toolOk ? [{ value: currentTool.id, label: `${toolName(t, currentTool.id, currentTool.name)} – ${t.toolRules.notSuitable}` }] : []),
   ];
   const sides: { value: CutSide; label: string }[] = [

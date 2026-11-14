@@ -99,6 +99,8 @@ export interface ToolDefinition {
   units: Units;
   defaults: CuttingParams;
   notes?: string;
+  /** Stjärnmarkerad: visas överst i verktygslistorna. */
+  favorite?: boolean;
 }
 
 /* ───────────────────────── Material ───────────────────────── */

@@ -2,7 +2,7 @@
  * Svenska texter. Den engelska ordlistan (en.ts) måste ha exakt samma form –
  * TypeScript kontrollerar det via typen Dict.
  */
-import type { ImportLabels, MaterialPreset, OperationType, ReliefCategory, ToolKind } from '@desktopcam/core';
+import type { ImportLabels, MachineKind, MaterialPreset, OperationType, ReliefCategory, ToolKind } from '@desktopcam/core';
 import type { Language } from './initial';
 const mmSv = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
@@ -921,6 +921,37 @@ export const sv = {
     plasmaCodes: { torchOn: 'Tänd brännaren', torchOff: 'Släck brännaren', thcOn: 'THC på', thcOff: 'THC av' },
     plasmaCodesHint: 'Koderna skrivs in i G-koden. Lämna THC tomt om maskinens styrning sköter höjdregleringen själv.',
     pointAngle: 'Spetsvinkel (borr)',
+    favorite: "Markera som favorit – visas överst i verktygslistan",
+    unfavorite: "Ta bort favoritmarkering",
+    toolTipsTitle: "Vilket verktyg till vilket material?",
+    currentMaterial: "valt material",
+    toolTips: {
+      router: [
+        { title: "Furu och gran", text: "Tvåskärs pinnfräs 3,175–6 mm. Uppskärande fräs ger bra spånavgång; nedskärande fräs ger rena överkanter i tunt material.", materials: ["pine"] },
+        { title: "Björkplywood", text: "Nedskärande fräs eller kompressionsfräs ger flisfria kanter i fanéret. 3,175 mm för detaljer, 6 mm för utskärning.", materials: ["birch-ply"] },
+        { title: "MDF", text: "Tvåskärs pinnfräs i hårdmetall – limmet sliter. V-fräs 60–90° ger skarp gravyr. Använd dammsugning, dammet är fint.", materials: ["mdf"] },
+        { title: "Ek och annat lövträ", text: "Tvåskärs pinnfräs med grundare pass och lägre matning än i furu. Kulfräs 3–6 mm för former och reliefer.", materials: ["oak"] },
+        { title: "Akryl", text: "Enskärs fräs (O-flute) ger stora spån som inte smälter fast. Håll matningen uppe och varvtalet nere.", materials: ["acrylic"] },
+        { title: "Aluminium", text: "Enskärs aluminiumfräs 3,175 mm, grunda pass (0,2–0,5 mm) och kylning med luft eller sprit. Borra med låg matning per varv.", materials: ["aluminium"] },
+        { title: "V-gravyr och text", text: "V-fräs 30° för fin text, 60° allround, 90° för större bokstäver och fasning, 120° för breda och grunda skyltar." },
+        { title: "Reliefer och 3D", text: "Grovbearbeta med pinnfräs 3–6 mm och finbearbeta med kulfräs 1–3 mm och liten sidstegning." },
+        { title: "Hål", text: "Spiralborr när hålet har borrens storlek. Större eller udda hål fräses som ficka med en pinnfräs." },
+        { title: "Planfräsning", text: "Planfräsen 22 mm jämnar offerbordet eller ämnets yta med grunda pass och stor sidstegning." },
+      ],
+      laser: [
+        { title: "Trä, plywood och MDF", text: "Skärs i flera pass med full effekt. Luftassist ger mindre svedda kanter. Räkna med en kerf på 0,1–0,15 mm.", materials: ["pine", "birch-ply", "mdf", "oak"] },
+        { title: "Läder och kartong", text: "Låg effekt och hög hastighet – det bränns lätt igenom. Testa på en spillbit först.", materials: ["leather", "cardboard"] },
+        { title: "Akryl", text: "En diodlaser skär inte klar eller blå akryl, bara mörka och ogenomskinliga färger.", materials: ["acrylic"] },
+        { title: "Metall och sten", text: "En diodlaser skär inte metall. Gravyr fungerar på skiffer, anodiserad aluminium eller med markeringsspray.", materials: ["aluminium", "mild-steel", "stainless", "slate"] },
+      ],
+      plasma: [
+        { title: "Tunn plåt 1–3 mm", text: "Finmunstycke ger smalare kerf och renare hål. Lägre ström och hög hastighet minskar värmeslaget." },
+        { title: "Grövre plåt 4–12 mm", text: "Standardmunstycke och högre ström. Rätt pierce-höjd och fördröjning ger längst livslängd för munstycket." },
+        { title: "Rostfritt och aluminium", text: "Kräver ren och torr tryckluft. Aluminium ger mer slagg – skär något långsammare.", materials: ["stainless", "aluminium"] },
+        { title: "Svartplåt", text: "Det vanligaste materialet för plasma. Följ skärtabellen och justera farten tills slaggen släpper lätt.", materials: ["mild-steel"] },
+        { title: "Små hål", text: "Hål mindre än plåtens tjocklek blir sällan bra med plasma – borra dem i stället." },
+      ],
+    } as Record<MachineKind, { title: string; text: string; materials?: string[] }[]>,
     toolDefaultsNote: 'Riktvärdena räknas fram från material, maskin och verktygets diameter och antal skär när en bana skapas. Värdena här används bara om materialet saknar riktvärden. Borrar har ingen sidmatning – deras nedmatning räknas från matning per varv × varvtal.',
     arcs: 'Bågar (G2/G3)',
     workArea: (x: number, y: number) => `Arbetsyta ${x} × ${y} mm`,

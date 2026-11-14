@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { ToolIcon } from '../ui/ToolIcon';
 import { cuttingLength } from '../../cam/toolReach';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { GripVertical, Lightbulb, Pencil, Plus, Star, Trash2 } from 'lucide-react';
+import { DndContext, KeyboardSensor, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { ReactNode } from 'react';
 import { uid, type FirmwareFlavor, type MachineKind, type MachineProfile, type ToolDefinition, type ToolKind } from '@desktopcam/core';
 import { toolFitsMachine, useAppStore, useExpert } from '../../store/useAppStore';
 import { toolName, useT } from '../../i18n';
@@ -263,6 +267,61 @@ export function MachineSetupDialog() {
 }
 
 /** Verktygsbiblioteket: lista + formulär för att ändra eller lägga till. */
+/** En rad i verktygsbiblioteket som kan dras till en ny plats. */
+function SortableToolRow({ id, className, children }: { id: string; className: string; children: (handle: ReactNode) => ReactNode }) {
+  const t = useT();
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const handle = (
+    <button
+      ref={setActivatorNodeRef}
+      {...attributes}
+      {...listeners}
+      className="cursor-grab touch-none rounded p-1 text-muted hover:text-ink active:cursor-grabbing"
+      aria-label={t.tree.dragToReorder}
+      title={t.tree.dragToReorder}
+    >
+      <GripVertical size={13} />
+    </button>
+  );
+  return (
+    <tr
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      className={`${className} ${isDragging ? 'relative z-10 bg-surface opacity-90 shadow-pop' : ''}`}
+    >
+      {children(handle)}
+    </tr>
+  );
+}
+
+/** Tips om vilka verktyg som passar vilka material; det valda materialet markeras. */
+function ToolTips({ kind }: { kind: MachineKind }) {
+  const t = useT();
+  const presetId = useAppStore((s) => s.material.presetId);
+  const tips = t.machine.toolTips[kind];
+  return (
+    <section className="rounded-lg border border-line p-4">
+      <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
+        <Lightbulb size={14} className="text-accent" /> {t.machine.toolTipsTitle}
+      </h3>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {tips.map((x) => {
+          const current = x.materials?.includes(presetId);
+          return (
+            <li key={x.title} className={`rounded-md px-3 py-2 text-xs leading-relaxed ${current ? 'bg-accent/10 ring-1 ring-accent/40' : 'bg-app'}`}>
+              <div className="font-medium">
+                {x.title}
+                {current && <span className="ml-1.5 text-2xs font-normal text-accent">· {t.machine.currentMaterial}</span>}
+              </div>
+              <div className="text-muted">{x.text}</div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 function ToolLibrary({ kind }: { kind: MachineKind }) {
   const laser = kind === 'laser';
   const plasma = kind === 'plasma';
@@ -272,6 +331,16 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
   const tools = useAppStore((s) => s.tools);
   const saveTool = useAppStore((s) => s.saveTool);
   const removeTool = useAppStore((s) => s.removeTool);
+  const toggleFavorite = useAppStore((s) => s.toggleToolFavorite);
+  const moveTool = useAppStore((s) => s.moveTool);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const onDragEnd = (e: DragEndEvent) => {
+    if (e.over && e.active.id !== e.over.id) moveTool(String(e.active.id), String(e.over.id));
+  };
   const [editing, setEditing] = useState<ToolDefinition | null>(null);
   const list = tools.filter((x) => toolFitsMachine(x.kind, kind));
   const kinds: ToolKind[] = laser ? ['laser'] : plasma ? ['plasma'] : ['endmill', 'ballnose', 'vbit', 'drill'];
@@ -309,6 +378,8 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
         <table className="w-full text-xs">
           <thead className="bg-app text-left text-muted">
             <tr>
+              <th className="w-6 px-1 py-2" />
+              <th className="w-8 px-1 py-2" />
               <th className="w-10 px-2 py-2" />
               <th className="px-3 py-2 font-medium">{t.machine.tool}</th>
               <th className="px-3 py-2 font-medium">{t.machine.type}</th>
@@ -318,9 +389,25 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
               <th className="w-16 px-2 py-2" />
             </tr>
           </thead>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={list.map((x) => x.id)} strategy={verticalListSortingStrategy}>
           <tbody>
             {list.map((x) => (
-              <tr key={x.id} className={`border-t border-line ${editing?.id === x.id ? 'bg-accent/5' : ''}`}>
+              <SortableToolRow key={x.id} id={x.id} className={`border-t border-line ${editing?.id === x.id ? 'bg-accent/5' : ''}`}>
+                {(handle) => (
+                <>
+                <td className="px-1 py-1">{handle}</td>
+                <td className="px-1 py-1">
+                  <button
+                    className={`rounded p-1 ${x.favorite ? 'text-amber-500' : 'text-muted hover:text-ink'}`}
+                    onClick={() => toggleFavorite(x.id)}
+                    aria-pressed={!!x.favorite}
+                    aria-label={x.favorite ? t.machine.unfavorite : t.machine.favorite}
+                    title={x.favorite ? t.machine.unfavorite : t.machine.favorite}
+                  >
+                    <Star size={14} fill={x.favorite ? 'currentColor' : 'none'} />
+                  </button>
+                </td>
                 <td className="px-2 py-1">
                   <ToolIcon tool={x} size={40} />
                 </td>
@@ -342,9 +429,13 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
                     <Trash2 size={13} />
                   </button>
                 </td>
-              </tr>
+                </>
+                )}
+              </SortableToolRow>
             ))}
           </tbody>
+          </SortableContext>
+          </DndContext>
         </table>
       </div>
 
@@ -411,6 +502,8 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
           <Plus size={13} /> {t.machine.addTool}
         </button>
       )}
+
+      <ToolTips kind={kind} />
     </div>
   );
 }

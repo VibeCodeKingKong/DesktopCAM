@@ -1,7 +1,7 @@
 import { Settings2, Wrench, Zap } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
-import { toolFitsMachine, useAppStore, useMachine } from '../../../store/useAppStore';
+import { toolFitsMachine, useAppStore, useMachine, favoritesFirst } from '../../../store/useAppStore';
 import { Select } from '../../ui/Field';
 import { IlluMachine, IlluToolLibrary } from '../../smartguide/illustrations';
 import { materialName, toolName, useT } from '../../../i18n';
@@ -111,7 +111,7 @@ export function SetupTab() {
           <RibbonField label={t.setup.activeTool}>
             <Select
               value={activeToolId}
-              options={tools.filter((x) => toolFitsMachine(x.kind, machine.kind)).map((x) => ({ value: x.id, label: toolName(t, x.id, x.name) }))}
+              options={favoritesFirst(tools.filter((x) => toolFitsMachine(x.kind, machine.kind))).map((x) => ({ value: x.id, label: `${x.favorite ? '★ ' : ''}${toolName(t, x.id, x.name)}` }))}
               onChange={setActiveTool}
             />
           </RibbonField>

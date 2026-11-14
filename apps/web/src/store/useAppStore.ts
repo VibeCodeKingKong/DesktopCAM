@@ -154,6 +154,9 @@ interface AppState extends DocSnapshot {
   setActiveTool: (id: string) => void;
   saveTool: (t: ToolDefinition) => void;
   removeTool: (id: string) => void;
+  toggleToolFavorite: (id: string) => void;
+  /** Flyttar verktyget `id` till platsen där `overId` står. */
+  moveTool: (id: string, overId: string) => void;
   setMaterial: (patch: Partial<MaterialSetup>) => void;
 
   // Ritning
@@ -212,6 +215,9 @@ export const toolFitsMachine = (tool: ToolDefinition['kind'], machine: MachinePr
   machine === 'laser' ? tool === 'laser' : machine === 'plasma' ? tool === 'plasma' : tool !== 'laser' && tool !== 'plasma';
 
 /** Behåll aktivt verktyg om det passar maskinen, annars välj första som passar. */
+/** Favoriter först, annars bibliotekets ordning. */
+export const favoritesFirst = (tools: ToolDefinition[]) => [...tools.filter((t) => t.favorite), ...tools.filter((t) => !t.favorite)];
+
 const toolFor = (tools: ToolDefinition[], current: string, kind: MachineProfile['kind']) => {
   const fits = (t: ToolDefinition) => toolFitsMachine(t.kind, kind);
   const cur = tools.find((t) => t.id === current);
@@ -379,6 +385,17 @@ export const useAppStore = create<AppState>()((set, get) => {
         tools: s.tools.some((x) => x.id === t.id) ? s.tools.map((x) => (x.id === t.id ? t : x)) : [...s.tools, t],
       })),
     removeTool: (id) => set((s) => ({ ...push(s), tools: s.tools.filter((t) => t.id !== id) })),
+    toggleToolFavorite: (id) => set((s) => ({ tools: s.tools.map((t) => (t.id === id ? { ...t, favorite: !t.favorite } : t)) })),
+    moveTool: (id, overId) =>
+      set((s) => {
+        const from = s.tools.findIndex((t) => t.id === id);
+        const to = s.tools.findIndex((t) => t.id === overId);
+        if (from < 0 || to < 0 || from === to) return {};
+        const tools = [...s.tools];
+        const [tool] = tools.splice(from, 1);
+        tools.splice(to, 0, tool);
+        return { ...push(s), tools };
+      }),
     setMaterial: (patch) => set((s) => ({ material: { ...s.material, ...patch } })),
 
     setEditTool: (editTool) => set({ editTool, selectedNode: null, textAnchor: null }),

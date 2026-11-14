@@ -1,7 +1,7 @@
 {
   "name": "desktopcam",
   "private": true,
-  "version": "0.20.0",
+  "version": "0.21.0",
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "pnpm --filter @desktopcam/web dev",

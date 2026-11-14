@@ -16,6 +16,47 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.21.0',
+    date: '2026-11-14',
+    text: {
+      sv: [
+        "Stjärnmärk dina favoritverktyg i verktygsbiblioteket – de visas överst i listorna Aktivt verktyg och Verktyg.",
+        "Dra verktygen upp eller ned i verktygsbiblioteket för att ändra ordningen.",
+        "Nya tips under verktygsbiblioteket visar vilka verktyg som passar vilka material. Tipset för det valda materialet markeras.",
+      ],
+      en: [
+        "Star your favourite tools in the tool library – they appear at the top of the Active tool and Tool lists.",
+        "Drag tools up or down in the tool library to change their order.",
+        "New tips below the tool library show which tools suit which materials. The tip for the selected material is highlighted.",
+      ],
+      fr: [
+        "Marquez vos outils favoris d’une étoile dans la bibliothèque – ils apparaissent en tête des listes Outil actif et Outil.",
+        "Faites glisser les outils vers le haut ou le bas dans la bibliothèque pour changer leur ordre.",
+        "De nouveaux conseils sous la bibliothèque indiquent quels outils conviennent à quels matériaux. Le conseil du matériau choisi est mis en évidence.",
+      ],
+      de: [
+        "Markieren Sie Lieblingswerkzeuge in der Werkzeugbibliothek mit einem Stern – sie stehen oben in den Listen Aktives Werkzeug und Werkzeug.",
+        "Ziehen Sie Werkzeuge in der Bibliothek nach oben oder unten, um die Reihenfolge zu ändern.",
+        "Neue Tipps unter der Werkzeugbibliothek zeigen, welche Werkzeuge zu welchen Materialien passen. Der Tipp zum gewählten Material ist hervorgehoben.",
+      ],
+      es: [
+        "Marque sus herramientas favoritas con una estrella en la biblioteca: aparecen arriba en las listas Herramienta activa y Herramienta.",
+        "Arrastre las herramientas hacia arriba o abajo en la biblioteca para cambiar su orden.",
+        "Nuevos consejos bajo la biblioteca de herramientas indican qué herramientas sirven para qué materiales. Se resalta el consejo del material elegido.",
+      ],
+      pl: [
+        "Oznaczaj ulubione narzędzia gwiazdką w bibliotece – pojawiają się na górze list Aktywne narzędzie i Narzędzie.",
+        "Przeciągaj narzędzia w górę lub w dół w bibliotece, aby zmienić ich kolejność.",
+        "Nowe wskazówki pod biblioteką narzędzi pokazują, które narzędzia pasują do jakich materiałów. Wskazówka dla wybranego materiału jest wyróżniona.",
+      ],
+      uk: [
+        "Позначайте улюблені інструменти зіркою в бібліотеці – вони з’являються вгорі списків «Активний інструмент» та «Інструмент».",
+        "Перетягуйте інструменти вгору чи вниз у бібліотеці, щоб змінити їхній порядок.",
+        "Нові поради під бібліотекою інструментів показують, які інструменти підходять для яких матеріалів. Порада для вибраного матеріалу виділена.",
+      ],
+    },
+  },
+  {
     version: '0.20.0',
     date: '2026-11-14',
     text: {
