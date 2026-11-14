@@ -9,7 +9,12 @@
       "feedRate": 1500,
       "plungeRate": 400,
       "spindleRpm": 12000,
-      "stepDownFactor": 0.5
+      "stepDownFactor": 0.5,
+      "drill": {
+        "rpm": 10000,
+        "feedPerRev": 0.06,
+        "peck": 3
+      }
     },
     "laser": {
       "cutSpeed": 300,
@@ -53,7 +58,12 @@
       "feedRate": 1300,
       "plungeRate": 350,
       "spindleRpm": 14000,
-      "stepDownFactor": 0.5
+      "stepDownFactor": 0.5,
+      "drill": {
+        "rpm": 10000,
+        "feedPerRev": 0.05,
+        "peck": 3
+      }
     },
     "laser": {
       "cutSpeed": 250,
@@ -97,7 +107,12 @@
       "feedRate": 1600,
       "plungeRate": 400,
       "spindleRpm": 14000,
-      "stepDownFactor": 0.6
+      "stepDownFactor": 0.6,
+      "drill": {
+        "rpm": 10000,
+        "feedPerRev": 0.06,
+        "peck": 3
+      }
     },
     "laser": {
       "cutSpeed": 200,
@@ -135,7 +150,12 @@
       "feedRate": 1100,
       "plungeRate": 250,
       "spindleRpm": 12000,
-      "stepDownFactor": 0.4
+      "stepDownFactor": 0.4,
+      "drill": {
+        "rpm": 8000,
+        "feedPerRev": 0.04,
+        "peck": 1
+      }
     },
     "laser": {
       "cutSpeed": 150,
@@ -206,7 +226,12 @@
       "feedRate": 1100,
       "plungeRate": 300,
       "spindleRpm": 14000,
-      "stepDownFactor": 0.35
+      "stepDownFactor": 0.35,
+      "drill": {
+        "rpm": 10000,
+        "feedPerRev": 0.04,
+        "peck": 2
+      }
     },
     "laser": {
       "cutSpeed": 200,
@@ -341,7 +366,12 @@
       "feedRate": 1000,
       "plungeRate": 100,
       "spindleRpm": 18000,
-      "stepDownFactor": 0.1
+      "stepDownFactor": 0.1,
+      "drill": {
+        "rpm": 8000,
+        "feedPerRev": 0.02,
+        "peck": 0.5
+      }
     },
     "laser": {
       "canCut": false,

@@ -305,6 +305,7 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
   return (
     <div className="space-y-4 p-4 sm:p-5">
       <div className="overflow-x-auto rounded-lg border border-line">
+        <p className="border-b border-line bg-app px-3 py-2 text-2xs leading-relaxed text-muted">{t.machine.toolDefaultsNote}</p>
         <table className="w-full text-xs">
           <thead className="bg-app text-left text-muted">
             <tr>
@@ -330,7 +331,9 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
                 </td>
                 <td className="px-3 py-2 tabular-nums text-muted">{toolDims(x)}</td>
                 {router && <td className="px-3 py-2 text-right tabular-nums">{x.flutes ?? '–'}</td>}
-                <td className="px-3 py-2 text-right tabular-nums">{x.defaults.feedRate}</td>
+                <td className="px-3 py-2 text-right tabular-nums" title={x.kind === 'drill' ? t.props.plunge : t.machine.feed}>
+                  {x.kind === 'drill' ? `↓ ${x.defaults.plungeRate}` : x.defaults.feedRate}
+                </td>
                 <td className="px-2 py-1 text-right">
                   <button className="rounded p-1.5 text-muted hover:bg-app hover:text-ink" onClick={() => setEditing(structuredClone({ ...x, name: toolName(t, x.id, x.name) }))} aria-label={t.machine.editTool}>
                     <Pencil size={13} />
@@ -360,12 +363,13 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
             <SelectField label={t.machine.type} value={editing.kind} options={kinds.map((k) => ({ value: k, label: t.machine.toolKinds[k] }))} onChange={(kind) => set({ kind })} />
             <NumberField label={plasma ? t.props.kerf : t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
             {editing.kind === 'vbit' && <NumberField label={t.machine.angle} unit="°" step={5} min={10} max={170} value={editing.angle ?? 90} onChange={(angle) => set({ angle })} />}
+            {editing.kind === 'drill' && <NumberField label={t.machine.pointAngle} unit="°" step={1} min={60} max={180} value={editing.angle ?? 118} onChange={(angle) => set({ angle })} />}
             {router && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}
-            <NumberField label={t.machine.feed} unit="mm/min" step={50} min={1} value={editing.defaults.feedRate} onChange={(feedRate) => setDef({ feedRate })} />
+            {editing.kind !== 'drill' && <NumberField label={t.machine.feed} unit="mm/min" step={50} min={1} value={editing.defaults.feedRate} onChange={(feedRate) => setDef({ feedRate })} />}
             {router && (
               <>
                 <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={editing.defaults.plungeRate} onChange={(plungeRate) => setDef({ plungeRate })} />
-                <NumberField label={t.machine.stepDown} unit="mm" step={0.1} min={0.05} value={editing.defaults.stepDown} onChange={(stepDown) => setDef({ stepDown })} />
+                <NumberField label={editing.kind === 'drill' ? t.props.peck : t.machine.stepDown} unit="mm" step={0.1} min={0.05} value={editing.defaults.stepDown} onChange={(stepDown) => setDef({ stepDown })} />
                 {!beginner && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={editing.defaults.spindleRpm ?? 18000} onChange={(spindleRpm) => setDef({ spindleRpm })} />}
               </>
             )}

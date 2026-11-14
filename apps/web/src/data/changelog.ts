@@ -16,6 +16,47 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.20.0',
+    date: '2026-11-14',
+    text: {
+      sv: [
+        'Verktygsbiblioteket har 20 nya verktyg: pinnfräsar 1–8 mm, nedskärande fräs, planfräs 22 mm, kulfräsar 1–6 mm, V-fräsar 30°, 60° och 120°, och borrar 1,5–8 mm.',
+        'Borrning har egna riktvärden: nedmatningen räknas som matning per varv × varvtal för materialet och borrens diameter, och pickdjupet efter materialet. Rätt borr väljs efter hålens storlek, och genomgående hål får borrspetsens längd tillagd.',
+        'Rättat: nedmatningen begränsades av sidmatningen – nu av maskinens Z-hastighet. V-fräsar får inte längre för hög matning på grund av sin stora diameter. Byter du verktyg i en bana uppdateras matning, nedmatning och varvtal.',
+      ],
+      en: [
+        'The tool library has 20 new tools: end mills 1–8 mm, a down-cut bit, a 22 mm surfacing bit, ball noses 1–6 mm, V-bits 30°, 60° and 120°, and drills 1.5–8 mm.',
+        'Drilling has its own guide values: the plunge rate is feed per revolution × speed for the material and drill diameter, and the peck depth follows the material. The right drill is chosen from the hole size, and through holes get the drill point length added.',
+        'Fixed: the plunge rate was limited by the sideways feed – now by the machine’s Z speed. V-bits no longer get too high a feed because of their large diameter. Changing the tool of a toolpath updates feed, plunge and spindle speed.',
+      ],
+      fr: [
+        'La bibliothèque d’outils compte 20 nouveaux outils : fraises droites 1–8 mm, fraise à coupe descendante, fraise à surfacer 22 mm, fraises boules 1–6 mm, fraises en V 30°, 60° et 120°, et forets 1,5–8 mm.',
+        'Le perçage a ses propres valeurs : vitesse de plongée = avance par tour × vitesse selon le matériau et le diamètre, et débourrage selon le matériau. Le foret est choisi selon la taille des trous, et les trous débouchants intègrent la longueur de la pointe.',
+        'Corrigé : la plongée était limitée par l’avance latérale – maintenant par la vitesse de l’axe Z. Les fraises en V n’ont plus une avance trop élevée à cause de leur grand diamètre. Changer d’outil met à jour avance, plongée et vitesse.',
+      ],
+      de: [
+        'Die Werkzeugbibliothek hat 20 neue Werkzeuge: Schaftfräser 1–8 mm, einen Abwärtsschneider, einen Planfräser 22 mm, Kugelfräser 1–6 mm, V-Fräser 30°, 60° und 120° sowie Bohrer 1,5–8 mm.',
+        'Bohren hat eigene Richtwerte: Eintauchvorschub = Vorschub pro Umdrehung × Drehzahl für Material und Bohrerdurchmesser, die Zustelltiefe richtet sich nach dem Material. Der passende Bohrer wird nach Lochgröße gewählt, und Durchgangslöcher bekommen die Länge der Bohrerspitze dazu.',
+        'Behoben: Der Eintauchvorschub war durch den seitlichen Vorschub begrenzt – jetzt durch die Z-Geschwindigkeit der Maschine. V-Fräser bekommen wegen ihres großen Durchmessers keinen zu hohen Vorschub mehr. Beim Werkzeugwechsel einer Bahn werden Vorschub, Eintauchen und Drehzahl aktualisiert.',
+      ],
+      es: [
+        'La biblioteca de herramientas tiene 20 herramientas nuevas: fresas planas de 1–8 mm, una fresa de corte descendente, una fresa de planear de 22 mm, fresas de bola de 1–6 mm, fresas en V de 30°, 60° y 120°, y brocas de 1,5–8 mm.',
+        'El taladrado tiene valores propios: la penetración es avance por vuelta × revoluciones según el material y el diámetro, y el picoteo depende del material. La broca se elige según el tamaño de los agujeros y los pasantes suman la longitud de la punta.',
+        'Corregido: la penetración estaba limitada por el avance lateral; ahora por la velocidad del eje Z. Las fresas en V ya no reciben un avance excesivo por su gran diámetro. Al cambiar la herramienta de una trayectoria se actualizan avance, penetración y revoluciones.',
+      ],
+      pl: [
+        'Biblioteka narzędzi ma 20 nowych narzędzi: frezy walcowe 1–8 mm, frez ze spiralą w dół, frez do planowania 22 mm, frezy kulowe 1–6 mm, frezy V 30°, 60° i 120° oraz wiertła 1,5–8 mm.',
+        'Wiercenie ma własne wartości: posuw wgłębny = posuw na obrót × obroty dla materiału i średnicy wiertła, a głębokość kroku zależy od materiału. Wiertło jest dobierane do wielkości otworów, a otwory przelotowe uwzględniają długość wierzchołka.',
+        'Poprawiono: posuw wgłębny był ograniczany posuwem bocznym – teraz prędkością osi Z. Frezy V nie dostają już zbyt dużego posuwu przez dużą średnicę. Zmiana narzędzia w ścieżce aktualizuje posuw, wgłębianie i obroty.',
+      ],
+      uk: [
+        'У бібліотеці інструментів 20 нових: прямі фрези 1–8 мм, низхідна фреза, фреза для вирівнювання 22 мм, сферичні фрези 1–6 мм, V-фрези 30°, 60° і 120° та свердла 1,5–8 мм.',
+        'Свердління має власні значення: подача врізання = подача на оберт × оберти для матеріалу й діаметра свердла, крок залежить від матеріалу. Свердло обирається за розміром отворів, а для наскрізних додається довжина вершини.',
+        'Виправлено: подачу врізання обмежувала бічна подача – тепер швидкість осі Z. V-фрези більше не отримують завелику подачу через великий діаметр. Зміна інструмента в траєкторії оновлює подачу, врізання й оберти.',
+      ],
+    },
+  },
+  {
     version: '0.19.0',
     date: '2026-11-14',
     text: {

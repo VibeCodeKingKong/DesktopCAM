@@ -56,6 +56,7 @@ import {
   createReliefPlug,
   showInlayPart,
   updateReliefPlug,
+  retoolPatch,
 } from '../../cam/commands';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
@@ -528,7 +529,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
           label={t.props.tool}
           value={tp.toolId}
           options={toolOptions}
-          onChange={(toolId) => patch({ toolId })}
+          onChange={(toolId) => patch(retoolPatch(tp, toolId))}
         />
         {!toolOk && currentTool && (
           <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs leading-relaxed text-warn">{t.toolRules.why(tp.operation, currentTool.kind, tp.operation === 'profile' ? tp.side : undefined)}</p>

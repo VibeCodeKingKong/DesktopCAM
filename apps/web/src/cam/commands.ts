@@ -7,6 +7,7 @@ import {
   defaultPlasmaSettings,
   plasmaDataFor,
   routerParamsFor,
+  drillTipLength,
   type MachineKind,
   type PatternConfig,
   type ReliefInstance,
@@ -289,15 +290,28 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
       break;
     }
     case 'drill': {
-      const tool = routerTool(['drill', 'endmill']);
+      // Borren som passar hålen: den största som inte är grövre än det minsta hålet.
+      const holeSizes = sel
+        .filter(shapeHasArea)
+        .map((sh) => {
+          const b = shapesBounds([sh]);
+          return b ? Math.min(b.max.x - b.min.x, b.max.y - b.min.y) : Infinity;
+        });
+      const smallest = holeSizes.length ? Math.min(...holeSizes) : Infinity;
+      const drills = s.tools.filter((x) => x.kind === 'drill' && x.diameter <= smallest + 0.05).sort((a, b) => b.diameter - a.diameter);
+      const active = s.tools.find((x) => x.id === s.activeToolId);
+      const tool = (active?.kind === 'drill' && Math.abs(active.diameter - smallest) < 0.05 ? active : drills[0]) ?? routerTool(['drill', 'endmill']);
+      const params = { ...tool.defaults, ...(routerParamsFor(preset, tool, machine) ?? {}) };
+      // Genomgående hål: borrspetsen måste gå igenom, plus 0,3 mm.
+      const through = s.material.thickness + drillTipLength(tool) + 0.3;
       tp = {
         ...base,
         operation,
         name: `${n}. ${opName}`,
         toolId: tool.id,
-        depth: s.material.thickness,
-        peckDepth: Math.max(1, +tool.diameter.toFixed(1)),
-        params: { ...tool.defaults },
+        depth: +through.toFixed(1),
+        peckDepth: tool.kind === 'drill' ? params.stepDown : Math.max(0.5, +(tool.diameter * 0.5).toFixed(1)),
+        params,
       };
       break;
     }
@@ -391,6 +405,25 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   else if (machine.kind === 'router' && !preset.router) status(t.status.notForRouter(matName));
   else if (machine.kind === 'plasma' && !preset.plasma) status(t.status.notForPlasma(matName));
   return id;
+}
+
+/**
+ * Nya riktvärden när verktyget byts i en fräsbana – annars ligger den gamla
+ * fräsens (eller borrens) matning och nedmatning kvar.
+ */
+export function retoolPatch(tp: ToolpathConfig, toolId: string): Partial<ToolpathConfig> {
+  const s = useAppStore.getState();
+  const tool = s.tools.find((x) => x.id === toolId);
+  const machine = getMachine();
+  if (!tool || machine.kind !== 'router') return { toolId };
+  const p = routerParamsFor(getEffectiveMaterial(), tool, machine);
+  if (!p) return { toolId };
+  const params = { ...tp.params, feedRate: p.feedRate, plungeRate: p.plungeRate, spindleRpm: p.spindleRpm };
+  if (tp.operation === 'drill') {
+    return { toolId, params, peckDepth: tool.kind === 'drill' ? p.stepDown : tp.peckDepth, depth: +(s.material.thickness + drillTipLength(tool) + 0.3).toFixed(1) } as Partial<ToolpathConfig>;
+  }
+  if (tp.operation === 'profile' || tp.operation === 'pocket' || tp.operation === 'relief') params.stepDown = p.stepDown;
+  return { toolId, params } as Partial<ToolpathConfig>;
 }
 
 /**
@@ -545,8 +578,14 @@ function loadProject(data: unknown): boolean {
     reliefs: d.reliefs ?? [],
     toolpaths: d.toolpaths ?? [],
     material: d.material,
-    // Äldre projekt saknar verktygens längder – fyll i från de inbyggda verktygen.
-    tools: d.tools?.length ? d.tools.map((x) => ({ ...(toolsJson as ToolDefinition[]).find((b) => b.id === x.id), ...x })) : useAppStore.getState().tools,
+    // Äldre projekt saknar verktygens längder – fyll i från de inbyggda
+    // verktygen – och nya inbyggda verktyg läggs till efter projektets egna.
+    tools: d.tools?.length
+      ? [
+          ...d.tools.map((x) => ({ ...(toolsJson as ToolDefinition[]).find((b) => b.id === x.id), ...x })),
+          ...(toolsJson as ToolDefinition[]).filter((b) => !d.tools!.some((x) => x.id === b.id)),
+        ]
+      : useAppStore.getState().tools,
     machineId: d.machineId,
     customMachines: d.customMachines ?? [],
   });

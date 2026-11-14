@@ -72,8 +72,8 @@ export function effectiveMaterial(preset: MaterialPreset, machine: MachineProfil
       r.stepDownFactor *= 0.6;
     }
     r.feedRate = Math.min(r.feedRate, machine.maxFeed.xy * 0.9);
-    r.plungeRate = Math.min(r.plungeRate, (machine.maxFeed.z || r.plungeRate) * 0.9, r.feedRate);
-    out.router = { feedRate: round(r.feedRate, 10), plungeRate: round(r.plungeRate, 10), spindleRpm: round(r.spindleRpm, 500), stepDownFactor: +r.stepDownFactor.toFixed(2) };
+    r.plungeRate = Math.min(r.plungeRate, (machine.maxFeed.z || r.plungeRate) * 0.9);
+    out.router = { feedRate: round(r.feedRate, 10), plungeRate: round(r.plungeRate, 10), spindleRpm: round(r.spindleRpm, 500), stepDownFactor: +r.stepDownFactor.toFixed(2), drill: preset.router.drill };
   }
 
   const chart = preset.laser.chart;
@@ -111,19 +111,53 @@ export function plasmaDataFor(preset: MaterialPreset, machine: MachineProfile, t
   return { ...row, amps: maxAmps, feedRate: round((row.feedRate * maxAmps) / row.amps, 10), limited: true as const };
 }
 
+/** Spetsens längd för en borr (mm): r / tan(spetsvinkel/2), standardvinkel 118°. */
+export const drillTipLength = (tool: ToolDefinition) => tool.kind === 'drill' ? tool.diameter / 2 / Math.tan((((tool.angle ?? 118) / 2) * Math.PI) / 180) : 0;
+
+/**
+ * Borrdata: nedmatningen = matning per varv × varvtal – den har inget med
+ * fräsens sidmatning att göra. Matning per varv växer med diametern
+ * (grövre borr tål tjockare spån). Begränsas av maskinens Z-hastighet.
+ */
+export function drillParamsFor(eff: MaterialPreset, tool: ToolDefinition, machine: MachineProfile) {
+  const dr = eff.router?.drill ?? { rpm: 10000, feedPerRev: 0.05, peck: 1.5 };
+  const sp = machine.spindle;
+  const rpm = sp && sp.maxRpm > 0 ? clamp(dr.rpm, sp.minRpm || 0, sp.maxRpm) : dr.rpm;
+  const perRev = dr.feedPerRev * clamp(tool.diameter / 3, 0.5, 2.5);
+  const zMax = machine.maxFeed.z > 0 ? machine.maxFeed.z * 0.9 : Infinity;
+  return {
+    plungeRate: round(Math.min(perRev * rpm, zMax), 10),
+    spindleRpm: round(rpm, 500),
+    peckDepth: Math.max(0.5, +(tool.diameter * dr.peck).toFixed(1)),
+  };
+}
+
 /**
  * Fräsdata för ett visst verktyg: matningen skalas efter antal skär och
  * diameter (större fräs tål tjockare spån), skärdjupet efter diametern.
+ * V-fräsar skär med spetsen, så deras stora överdiameter räknas inte.
+ * Nedmatningen begränsas av maskinens Z-hastighet, inte av sidmatningen.
  */
 export function routerParamsFor(eff: MaterialPreset, tool: ToolDefinition, machine: MachineProfile) {
   const r = eff.router;
   if (!r) return null;
+  if (tool.kind === 'drill') {
+    const d = drillParamsFor(eff, tool, machine);
+    return { feedRate: r.feedRate, plungeRate: d.plungeRate, spindleRpm: d.spindleRpm, stepDown: d.peckDepth };
+  }
   const flutes = tool.flutes ?? 2;
-  const scale = (flutes / 2) * clamp(tool.diameter / 3.175, 0.5, 1.8);
+  const size = tool.kind === 'vbit' ? 1 : clamp(tool.diameter / 3.175, 0.5, 1.8);
+  const scale = (flutes / 2) * size;
+  const zMax = machine.maxFeed.z > 0 ? machine.maxFeed.z * 0.9 : Infinity;
   return {
     feedRate: round(Math.min(r.feedRate * scale, machine.maxFeed.xy * 0.9), 10),
-    plungeRate: round(Math.min(r.plungeRate * clamp(tool.diameter / 3.175, 0.6, 1.5), r.feedRate * scale), 10),
+    plungeRate: round(Math.min(r.plungeRate * (tool.kind === 'vbit' ? 1 : clamp(tool.diameter / 3.175, 0.6, 1.5)), zMax), 10),
     spindleRpm: r.spindleRpm,
-    stepDown: +(tool.diameter * r.stepDownFactor).toFixed(2),
+    // V-fräsar: eget passdjup. Grova fräsar (t.ex. planfräs): samma spånarea
+    // som en 6,35 mm fräs, annars blir passet orimligt djupt.
+    stepDown:
+      tool.kind === 'vbit'
+        ? tool.defaults.stepDown
+        : +Math.min(tool.diameter * r.stepDownFactor, (6.35 * 6.35 * r.stepDownFactor) / tool.diameter, tool.fluteLength ?? Infinity).toFixed(2),
   };
 }

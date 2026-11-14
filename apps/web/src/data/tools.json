@@ -39,7 +39,7 @@
   },
   {
     "id": "em-3175-1f-alu",
-    "name": "Enskärsfräs 3,175 mm (aluminium)",
+    "name": "Enskärsfräs 3,175 mm (plast och aluminium)",
     "kind": "endmill",
     "diameter": 3.175,
     "flutes": 1,
@@ -52,10 +52,147 @@
       "stepDown": 0.3,
       "stepOver": 0.3
     },
-    "notes": "Kör med luft eller smörjmedel och grunda pass.",
+    "notes": "O-flute: stora spånrum som inte smälter plast eller kladdar i aluminium. Luft eller smörjmedel i aluminium.",
     "shankDiameter": 3.175,
     "overallLength": 38,
     "stickout": 20
+  },
+  {
+    "id": "em-1-2f",
+    "name": "Pinnfräs 1 mm, 2 skär",
+    "kind": "endmill",
+    "diameter": 1,
+    "flutes": 2,
+    "fluteLength": 3,
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 18,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 400,
+      "plungeRate": 100,
+      "spindleRpm": 18000,
+      "stepDown": 0.3,
+      "stepOver": 0.35
+    },
+    "notes": "För fina detaljer och små hål. Bryts lätt – grunda pass."
+  },
+  {
+    "id": "em-2-2f",
+    "name": "Pinnfräs 2 mm, 2 skär",
+    "kind": "endmill",
+    "diameter": 2,
+    "flutes": 2,
+    "fluteLength": 6,
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 20,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 700,
+      "plungeRate": 180,
+      "spindleRpm": 18000,
+      "stepDown": 0.8,
+      "stepOver": 0.4
+    }
+  },
+  {
+    "id": "em-3175-2f-down",
+    "name": "Pinnfräs 3,175 mm, nedskärande",
+    "kind": "endmill",
+    "diameter": 3.175,
+    "flutes": 2,
+    "fluteLength": 12,
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 20,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 900,
+      "plungeRate": 200,
+      "spindleRpm": 16000,
+      "stepDown": 1.2,
+      "stepOver": 0.4
+    },
+    "notes": "Pressar ner fibrerna – ren översida i plywood och laminat, men spånen packas i spåret: grundare pass."
+  },
+  {
+    "id": "em-4-2f",
+    "name": "Pinnfräs 4 mm, 2 skär",
+    "kind": "endmill",
+    "diameter": 4,
+    "flutes": 2,
+    "fluteLength": 15,
+    "shankDiameter": 4,
+    "overallLength": 50,
+    "stickout": 25,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1100,
+      "plungeRate": 280,
+      "spindleRpm": 16000,
+      "stepDown": 2,
+      "stepOver": 0.4
+    }
+  },
+  {
+    "id": "em-635-2f",
+    "name": "Pinnfräs 6,35 mm (1/4\"), 2 skär",
+    "kind": "endmill",
+    "diameter": 6.35,
+    "flutes": 2,
+    "fluteLength": 25,
+    "shankDiameter": 6.35,
+    "overallLength": 60,
+    "stickout": 35,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1300,
+      "plungeRate": 320,
+      "spindleRpm": 16000,
+      "stepDown": 3,
+      "stepOver": 0.45
+    }
+  },
+  {
+    "id": "em-8-2f",
+    "name": "Pinnfräs 8 mm, 2 skär",
+    "kind": "endmill",
+    "diameter": 8,
+    "flutes": 2,
+    "fluteLength": 25,
+    "shankDiameter": 8,
+    "overallLength": 60,
+    "stickout": 35,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1400,
+      "plungeRate": 350,
+      "spindleRpm": 16000,
+      "stepDown": 3.5,
+      "stepOver": 0.45
+    },
+    "notes": "Kräver 8 mm spännhylsa och en styv maskin."
+  },
+  {
+    "id": "surf-22",
+    "name": "Planfräs 22 mm (ytfräs)",
+    "kind": "endmill",
+    "diameter": 22,
+    "flutes": 2,
+    "fluteLength": 6,
+    "shankDiameter": 6.35,
+    "overallLength": 45,
+    "stickout": 25,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1500,
+      "plungeRate": 300,
+      "spindleRpm": 14000,
+      "stepDown": 0.5,
+      "stepOver": 0.75
+    },
+    "notes": "För att planfräsa offerskivan och ytor. Ytfräs med ficka och 70–80 % stepover."
   },
   {
     "id": "bn-3175",
@@ -75,6 +212,64 @@
     "shankDiameter": 3.175,
     "overallLength": 38,
     "stickout": 22
+  },
+  {
+    "id": "bn-1",
+    "name": "Kulfräs 1 mm",
+    "kind": "ballnose",
+    "diameter": 1,
+    "flutes": 2,
+    "fluteLength": 4,
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 18,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 500,
+      "plungeRate": 120,
+      "spindleRpm": 18000,
+      "stepDown": 0.3,
+      "stepOver": 0.1
+    },
+    "notes": "Fina detaljer i reliefer. Långsamt men skarpt."
+  },
+  {
+    "id": "bn-2",
+    "name": "Kulfräs 2 mm",
+    "kind": "ballnose",
+    "diameter": 2,
+    "flutes": 2,
+    "fluteLength": 8,
+    "shankDiameter": 3.175,
+    "overallLength": 38,
+    "stickout": 20,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 700,
+      "plungeRate": 180,
+      "spindleRpm": 18000,
+      "stepDown": 0.6,
+      "stepOver": 0.12
+    }
+  },
+  {
+    "id": "bn-6",
+    "name": "Kulfräs 6 mm",
+    "kind": "ballnose",
+    "diameter": 6,
+    "flutes": 2,
+    "fluteLength": 20,
+    "shankDiameter": 6,
+    "overallLength": 50,
+    "stickout": 30,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1200,
+      "plungeRate": 300,
+      "spindleRpm": 16000,
+      "stepDown": 2,
+      "stepOver": 0.15
+    }
   },
   {
     "id": "vbit-60",
@@ -117,6 +312,68 @@
     "stickout": 25
   },
   {
+    "id": "vbit-30",
+    "name": "V-fräs 30°, 6,35 mm",
+    "kind": "vbit",
+    "diameter": 6.35,
+    "flutes": 2,
+    "fluteLength": 11.8,
+    "shankDiameter": 6.35,
+    "overallLength": 40,
+    "stickout": 22,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 600,
+      "plungeRate": 150,
+      "spindleRpm": 18000,
+      "stepDown": 1,
+      "stepOver": 0.2
+    },
+    "angle": 30,
+    "notes": "Smal gravyrfräs för liten text och fina linjer."
+  },
+  {
+    "id": "vbit-60-small",
+    "name": "V-fräs 60°, 6,35 mm",
+    "kind": "vbit",
+    "diameter": 6.35,
+    "flutes": 2,
+    "fluteLength": 5.5,
+    "shankDiameter": 6.35,
+    "overallLength": 40,
+    "stickout": 22,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 700,
+      "plungeRate": 180,
+      "spindleRpm": 18000,
+      "stepDown": 1.5,
+      "stepOver": 0.2
+    },
+    "angle": 60
+  },
+  {
+    "id": "vbit-120",
+    "name": "V-fräs 120°, 22 mm",
+    "kind": "vbit",
+    "diameter": 22,
+    "flutes": 2,
+    "fluteLength": 6.4,
+    "shankDiameter": 6.35,
+    "overallLength": 45,
+    "stickout": 25,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 900,
+      "plungeRate": 200,
+      "spindleRpm": 16000,
+      "stepDown": 2,
+      "stepOver": 0.2
+    },
+    "angle": 120,
+    "notes": "Bred och grund – för stora skyltbokstäver och fasning."
+  },
+  {
     "id": "drill-3",
     "name": "Borr 3 mm",
     "kind": "drill",
@@ -124,8 +381,8 @@
     "units": "mm",
     "defaults": {
       "feedRate": 300,
-      "plungeRate": 150,
-      "spindleRpm": 12000,
+      "plungeRate": 500,
+      "spindleRpm": 10000,
       "stepDown": 2,
       "stepOver": 1
     },
@@ -133,7 +390,148 @@
     "fluteLength": 33,
     "shankDiameter": 3,
     "overallLength": 61,
-    "stickout": 40
+    "stickout": 40,
+    "angle": 118
+  },
+  {
+    "id": "drill-15",
+    "name": "Borr 1,5 mm",
+    "kind": "drill",
+    "diameter": 1.5,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 18,
+    "shankDiameter": 1.5,
+    "overallLength": 40,
+    "stickout": 25,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 250,
+      "spindleRpm": 10000,
+      "stepDown": 2.2,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "drill-2",
+    "name": "Borr 2 mm",
+    "kind": "drill",
+    "diameter": 2,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 24,
+    "shankDiameter": 2,
+    "overallLength": 49,
+    "stickout": 32,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 330,
+      "spindleRpm": 10000,
+      "stepDown": 3.0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "drill-25",
+    "name": "Borr 2,5 mm",
+    "kind": "drill",
+    "diameter": 2.5,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 30,
+    "shankDiameter": 2.5,
+    "overallLength": 57,
+    "stickout": 38,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 420,
+      "spindleRpm": 10000,
+      "stepDown": 3.8,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "drill-4",
+    "name": "Borr 4 mm",
+    "kind": "drill",
+    "diameter": 4,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 43,
+    "shankDiameter": 4,
+    "overallLength": 75,
+    "stickout": 51,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 670,
+      "spindleRpm": 10000,
+      "stepDown": 6.0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "drill-5",
+    "name": "Borr 5 mm",
+    "kind": "drill",
+    "diameter": 5,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 52,
+    "shankDiameter": 5,
+    "overallLength": 86,
+    "stickout": 60,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 830,
+      "spindleRpm": 10000,
+      "stepDown": 7.5,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "drill-6",
+    "name": "Borr 6 mm",
+    "kind": "drill",
+    "diameter": 6,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 57,
+    "shankDiameter": 6,
+    "overallLength": 93,
+    "stickout": 65,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 1000,
+      "spindleRpm": 10000,
+      "stepDown": 9.0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "drill-8",
+    "name": "Borr 8 mm",
+    "kind": "drill",
+    "diameter": 8,
+    "angle": 118,
+    "flutes": 2,
+    "fluteLength": 75,
+    "shankDiameter": 8,
+    "overallLength": 117,
+    "stickout": 83,
+    "units": "mm",
+    "defaults": {
+      "feedRate": 300,
+      "plungeRate": 1330,
+      "spindleRpm": 10000,
+      "stepDown": 12.0,
+      "stepOver": 1
+    }
   },
   {
     "id": "laser-diode",

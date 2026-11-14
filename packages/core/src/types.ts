@@ -112,7 +112,17 @@ export interface MaterialPreset {
   /** Hex-färg som används i 3D-vyn. */
   color: string;
   defaultThickness: number;
-  router: { feedRate: number; plungeRate: number; spindleRpm: number; stepDownFactor: number } | null;
+  router: {
+    feedRate: number;
+    plungeRate: number;
+    spindleRpm: number;
+    stepDownFactor: number;
+    /**
+     * Borrning: varvtal, matning per varv för en 3 mm borr (skalas med
+     * diametern) och pickdjup som andel av diametern.
+     */
+    drill?: { rpm: number; feedPerRev: number; peck: number };
+  } | null;
   laser: {
     /** false = en diodlaser kan bara gravera/märka materialet, inte skära igenom. */
     canCut?: boolean;
