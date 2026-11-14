@@ -219,6 +219,9 @@ export function MachineSetupDialog() {
       {step === 'post' && (
         <div className="grid gap-5 p-4 sm:grid-cols-2 sm:p-5">
           <div className="space-y-2.5">
+            <FieldRow label={t.machine.arcs} hint="gcodeArcs">
+              <Switch checked={draft.postprocessor.arcs !== false} onChange={(arcs) => setPost({ arcs })} label={t.machine.arcs} />
+            </FieldRow>
             <NumberField label={t.machine.decimals} value={draft.postprocessor.decimals} min={0} max={6} onChange={(decimals) => setPost({ decimals: Math.round(decimals) })} />
             {draft.kind === 'plasma' && (
               <>

@@ -111,7 +111,8 @@ function shapesOf(tp: ToolpathConfig): VectorShape[] {
   return shapes;
 }
 
-const groupsOf = (shapes: VectorShape[]): PolylineInput[][] => shapes.map((sh) => shapeToPolylines(sh));
+// Fin uppdelning av kurvor (0,005 mm) – annars blir cirklar månghörningar som varken blir exakta eller kan skrivas som G2/G3.
+const groupsOf = (shapes: VectorShape[]): PolylineInput[][] => shapes.map((sh) => shapeToPolylines(sh, 0.005));
 
 function buildProfileJob(tp: ToolpathConfig): ProfileJob {
   const s = useAppStore.getState();

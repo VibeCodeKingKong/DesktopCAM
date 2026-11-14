@@ -5,7 +5,8 @@
 import {
   patternTransforms,
   defaultPlasmaSettings,
-  plasmaChartAt,
+  plasmaDataFor,
+  routerParamsFor,
   type MachineKind,
   type PatternConfig,
   type ReliefInstance,
@@ -36,7 +37,7 @@ import {
 } from '@desktopcam/core';
 import { getT } from '../i18n';
 import toolsJson from '../data/tools.json';
-import { allShapes, getMachine, getMaterialPreset, useAppStore } from '../store/useAppStore';
+import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
 import { computeToolpath } from './toolpathService';
 import { buildTextShape, ensureTextFont } from '../text/textShape';
@@ -193,7 +194,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const s = useAppStore.getState();
   const t = getT();
   const machine = getMachine();
-  const preset = getMaterialPreset();
+  const preset = getEffectiveMaterial();
   const opName = t.operations[operation];
 
   if (!isImplemented(operation)) {
@@ -229,19 +230,13 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const id = uid('tp');
   const n = s.toolpaths.length + 1;
   const base = { id, shapeIds, visible: true };
-  const r = preset.router;
   const routerTool = (prefer: string[]) => {
     const active = s.tools.find((x) => x.id === s.activeToolId);
     if (active && prefer.includes(active.kind)) return active;
     return s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma')!;
   };
-  const routerParams = (tool: ReturnType<typeof routerTool>) => ({
-    ...tool.defaults,
-    feedRate: r?.feedRate ?? tool.defaults.feedRate,
-    plungeRate: r?.plungeRate ?? tool.defaults.plungeRate,
-    spindleRpm: r?.spindleRpm ?? tool.defaults.spindleRpm,
-    stepDown: r ? +(tool.diameter * r.stepDownFactor).toFixed(2) : tool.defaults.stepDown,
-  });
+  // Materialets värden skalade efter maskinen, verktygets diameter och antal skär.
+  const routerParams = (tool: ReturnType<typeof routerTool>) => ({ ...tool.defaults, ...(routerParamsFor(preset, tool, machine) ?? {}) });
   let tp: ToolpathConfig;
 
   switch (operation) {
@@ -346,7 +341,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         return null;
       }
       // Riktvärden ur materialets skärtabell för den aktuella tjockleken.
-      const chart = plasmaChartAt(preset.plasma, s.material.thickness);
+      const chart = plasmaDataFor(preset, machine, s.material.thickness);
       const settings = defaultPlasmaSettings();
       if (chart) Object.assign(settings, { pierceDelay: chart.pierceDelay, pierceHeight: chart.pierceHeight, cutHeight: chart.cutHeight });
       settings.ihs = machine.plasma?.ihs ?? settings.ihs;
@@ -360,7 +355,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         toolId: tool.id,
         side: sel.some(shapeHasArea) ? 'outside' : 'on',
         kerf: chart?.kerf ?? tool.diameter,
-        amps: Math.min(chart?.amps ?? 45, machine.plasma?.maxAmps ?? 999),
+        amps: chart?.amps ?? Math.min(45, machine.plasma?.maxAmps ?? 45),
         plasma: settings,
         params: { ...tool.defaults, feedRate: chart?.feedRate ?? tool.defaults.feedRate },
       };
@@ -392,6 +387,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   void computeToolpath(id);
   const matName = materialName(t, preset.id, preset.name);
   if (operation === 'laserCut' && preset.laser.canCut === false && tp.operation === 'laserCut' && tp.side !== 'on') status(t.status.cannotCut(matName));
+  else if (operation === 'laserCut' && preset.laserTooThick && tp.operation === 'laserCut' && tp.side !== 'on') status(t.status.laserTooThick(matName, s.material.thickness));
   else if (machine.kind === 'router' && !preset.router) status(t.status.notForRouter(matName));
   else if (machine.kind === 'plasma' && !preset.plasma) status(t.status.notForPlasma(matName));
   return id;
@@ -423,7 +419,7 @@ export function createInlay(): void {
     status(t.status.needsVbit);
     return;
   }
-  const r = getMaterialPreset().router;
+  const r = getEffectiveMaterial().router;
   const groupId = uid('inlay');
   const pocketDepth = Math.min(5, Math.max(1, s.material.thickness - 3));
   const shared = {
@@ -457,7 +453,7 @@ export function createInlay(): void {
 }
 
 export function createLineEngraving() {
-  const preset = getMaterialPreset();
+  const preset = getEffectiveMaterial();
   const t = getT();
   createToolpath('laserCut', {
     name: `${useAppStore.getState().toolpaths.length + 1}. ${t.lineEngrave}`,

@@ -6,17 +6,37 @@
     "color": "#d9b27c",
     "defaultThickness": 18,
     "router": {
-      "feedRate": 1200,
-      "plungeRate": 300,
-      "spindleRpm": 18000,
+      "feedRate": 1500,
+      "plungeRate": 400,
+      "spindleRpm": 12000,
       "stepDownFactor": 0.5
     },
     "laser": {
-      "cutSpeed": 240,
+      "cutSpeed": 300,
       "cutPowerPct": 100,
-      "cutPasses": 3,
+      "cutPasses": 1,
       "engraveSpeed": 3000,
-      "engravePowerPct": 35
+      "engravePowerPct": 40,
+      "chart": [
+        {
+          "thickness": 3,
+          "speed": 300,
+          "passes": 1,
+          "power": 100
+        },
+        {
+          "thickness": 5,
+          "speed": 200,
+          "passes": 2,
+          "power": 100
+        },
+        {
+          "thickness": 8,
+          "speed": 150,
+          "passes": 4,
+          "power": 100
+        }
+      ]
     },
     "tips": [
       "Kåda kan sätta igen fräsen – blås rent mellan passen.",
@@ -30,17 +50,37 @@
     "color": "#e6caa0",
     "defaultThickness": 6,
     "router": {
-      "feedRate": 1000,
-      "plungeRate": 250,
-      "spindleRpm": 18000,
+      "feedRate": 1300,
+      "plungeRate": 350,
+      "spindleRpm": 14000,
       "stepDownFactor": 0.5
     },
     "laser": {
-      "cutSpeed": 300,
+      "cutSpeed": 250,
       "cutPowerPct": 100,
-      "cutPasses": 2,
-      "engraveSpeed": 4000,
-      "engravePowerPct": 30
+      "cutPasses": 1,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 35,
+      "chart": [
+        {
+          "thickness": 3,
+          "speed": 250,
+          "passes": 1,
+          "power": 100
+        },
+        {
+          "thickness": 4,
+          "speed": 200,
+          "passes": 2,
+          "power": 100
+        },
+        {
+          "thickness": 6,
+          "speed": 150,
+          "passes": 3,
+          "power": 100
+        }
+      ]
     },
     "tips": [
       "Använd nedskärande fräs för rena ytskikt.",
@@ -54,17 +94,31 @@
     "color": "#b98f5f",
     "defaultThickness": 12,
     "router": {
-      "feedRate": 1400,
-      "plungeRate": 350,
-      "spindleRpm": 18000,
+      "feedRate": 1600,
+      "plungeRate": 400,
+      "spindleRpm": 14000,
       "stepDownFactor": 0.6
     },
     "laser": {
       "cutSpeed": 200,
       "cutPowerPct": 100,
-      "cutPasses": 3,
-      "engraveSpeed": 3500,
-      "engravePowerPct": 30
+      "cutPasses": 1,
+      "engraveSpeed": 3000,
+      "engravePowerPct": 35,
+      "chart": [
+        {
+          "thickness": 3,
+          "speed": 200,
+          "passes": 1,
+          "power": 100
+        },
+        {
+          "thickness": 6,
+          "speed": 120,
+          "passes": 3,
+          "power": 100
+        }
+      ]
     },
     "tips": [
       "Mycket fint damm – använd dammsugare och andningsskydd.",
@@ -78,17 +132,31 @@
     "color": "#9fd3e6",
     "defaultThickness": 3,
     "router": {
-      "feedRate": 900,
-      "plungeRate": 200,
-      "spindleRpm": 16000,
-      "stepDownFactor": 0.3
+      "feedRate": 1100,
+      "plungeRate": 250,
+      "spindleRpm": 12000,
+      "stepDownFactor": 0.4
     },
     "laser": {
       "cutSpeed": 150,
       "cutPowerPct": 100,
-      "cutPasses": 4,
-      "engraveSpeed": 3000,
-      "engravePowerPct": 40
+      "cutPasses": 2,
+      "engraveSpeed": 2500,
+      "engravePowerPct": 45,
+      "chart": [
+        {
+          "thickness": 3,
+          "speed": 150,
+          "passes": 2,
+          "power": 100
+        },
+        {
+          "thickness": 5,
+          "speed": 100,
+          "passes": 4,
+          "power": 100
+        }
+      ]
     },
     "tips": [
       "En blå diodlaser skär inte genom klar eller blå akryl – välj mörk eller ogenomskinlig.",
@@ -105,9 +173,23 @@
     "laser": {
       "cutSpeed": 600,
       "cutPowerPct": 80,
-      "cutPasses": 2,
+      "cutPasses": 1,
       "engraveSpeed": 4000,
-      "engravePowerPct": 20
+      "engravePowerPct": 20,
+      "chart": [
+        {
+          "thickness": 2,
+          "speed": 600,
+          "passes": 1,
+          "power": 80
+        },
+        {
+          "thickness": 3,
+          "speed": 400,
+          "passes": 2,
+          "power": 90
+        }
+      ]
     },
     "tips": [
       "Använd bara kromfritt (vegetabiliskt garvat) läder i laser.",
@@ -121,17 +203,31 @@
     "color": "#c8a06a",
     "defaultThickness": 20,
     "router": {
-      "feedRate": 1000,
-      "plungeRate": 250,
-      "spindleRpm": 18000,
-      "stepDownFactor": 0.4
+      "feedRate": 1100,
+      "plungeRate": 300,
+      "spindleRpm": 14000,
+      "stepDownFactor": 0.35
     },
     "laser": {
       "cutSpeed": 200,
       "cutPowerPct": 100,
-      "cutPasses": 4,
-      "engraveSpeed": 3000,
-      "engravePowerPct": 40
+      "cutPasses": 2,
+      "engraveSpeed": 2500,
+      "engravePowerPct": 45,
+      "chart": [
+        {
+          "thickness": 3,
+          "speed": 200,
+          "passes": 2,
+          "power": 100
+        },
+        {
+          "thickness": 5,
+          "speed": 120,
+          "passes": 4,
+          "power": 100
+        }
+      ]
     },
     "tips": []
   },
@@ -154,65 +250,83 @@
       {
         "thickness": 1,
         "amps": 25,
-        "feedRate": 7600,
-        "kerf": 0.9,
-        "pierceDelay": 0,
-        "pierceHeight": 3.8,
+        "feedRate": 4000,
+        "kerf": 1.0,
+        "pierceDelay": 0.0,
+        "pierceHeight": 3.2,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 1.5,
+        "amps": 30,
+        "feedRate": 3600,
+        "kerf": 1.1,
+        "pierceDelay": 0.1,
+        "pierceHeight": 3.2,
         "cutHeight": 1.5
       },
       {
         "thickness": 2,
-        "amps": 35,
-        "feedRate": 6400,
-        "kerf": 1.1,
-        "pierceDelay": 0.1,
-        "pierceHeight": 3.8,
-        "cutHeight": 1.5
-      },
-      {
-        "thickness": 3,
-        "amps": 45,
-        "feedRate": 5200,
-        "kerf": 1.5,
+        "amps": 40,
+        "feedRate": 3200,
+        "kerf": 1.3,
         "pierceDelay": 0.2,
         "pierceHeight": 3.8,
         "cutHeight": 1.5
       },
       {
-        "thickness": 6,
-        "amps": 45,
-        "feedRate": 2600,
-        "kerf": 1.6,
-        "pierceDelay": 0.5,
+        "thickness": 3,
+        "amps": 55,
+        "feedRate": 2500,
+        "kerf": 1.5,
+        "pierceDelay": 0.4,
         "pierceHeight": 3.8,
         "cutHeight": 1.5
       },
       {
-        "thickness": 10,
-        "amps": 45,
+        "thickness": 5,
+        "amps": 60,
+        "feedRate": 1600,
+        "kerf": 1.7,
+        "pierceDelay": 0.6,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 6,
+        "amps": 60,
         "feedRate": 1300,
         "kerf": 1.8,
-        "pierceDelay": 0.8,
+        "pierceDelay": 0.7,
+        "pierceHeight": 4.0,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 8,
+        "amps": 60,
+        "feedRate": 900,
+        "kerf": 1.9,
+        "pierceDelay": 0.9,
         "pierceHeight": 4.5,
         "cutHeight": 1.5
       },
       {
-        "thickness": 12,
-        "amps": 45,
-        "feedRate": 900,
-        "kerf": 1.9,
-        "pierceDelay": 1.0,
+        "thickness": 10,
+        "amps": 60,
+        "feedRate": 650,
+        "kerf": 2.0,
+        "pierceDelay": 1.2,
         "pierceHeight": 5.0,
-        "cutHeight": 1.5
+        "cutHeight": 1.8
       },
       {
-        "thickness": 16,
-        "amps": 45,
-        "feedRate": 500,
-        "kerf": 2.0,
-        "pierceDelay": 1.4,
+        "thickness": 12,
+        "amps": 60,
+        "feedRate": 450,
+        "kerf": 2.1,
+        "pierceDelay": 1.5,
         "pierceHeight": 5.0,
-        "cutHeight": 1.5
+        "cutHeight": 1.8
       }
     ],
     "tips": []
@@ -224,9 +338,9 @@
     "color": "#c3c7cc",
     "defaultThickness": 3,
     "router": {
-      "feedRate": 500,
+      "feedRate": 1000,
       "plungeRate": 100,
-      "spindleRpm": 20000,
+      "spindleRpm": 18000,
       "stepDownFactor": 0.1
     },
     "laser": {
@@ -242,56 +356,74 @@
       {
         "thickness": 1,
         "amps": 25,
-        "feedRate": 8000,
+        "feedRate": 4400,
         "kerf": 1.0,
-        "pierceDelay": 0,
-        "pierceHeight": 3.8,
+        "pierceDelay": 0.0,
+        "pierceHeight": 3.2,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 1.5,
+        "amps": 30,
+        "feedRate": 3960,
+        "kerf": 1.1,
+        "pierceDelay": 0.08,
+        "pierceHeight": 3.2,
         "cutHeight": 1.5
       },
       {
         "thickness": 2,
-        "amps": 35,
-        "feedRate": 7000,
-        "kerf": 1.2,
-        "pierceDelay": 0.1,
+        "amps": 40,
+        "feedRate": 3520,
+        "kerf": 1.3,
+        "pierceDelay": 0.16,
         "pierceHeight": 3.8,
         "cutHeight": 1.5
       },
       {
         "thickness": 3,
-        "amps": 45,
-        "feedRate": 6000,
-        "kerf": 1.6,
-        "pierceDelay": 0.2,
+        "amps": 55,
+        "feedRate": 2750,
+        "kerf": 1.5,
+        "pierceDelay": 0.32,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 5,
+        "amps": 60,
+        "feedRate": 1760,
+        "kerf": 1.7,
+        "pierceDelay": 0.48,
         "pierceHeight": 3.8,
         "cutHeight": 1.5
       },
       {
         "thickness": 6,
-        "amps": 45,
-        "feedRate": 3000,
+        "amps": 60,
+        "feedRate": 1430,
         "kerf": 1.8,
-        "pierceDelay": 0.4,
-        "pierceHeight": 3.8,
+        "pierceDelay": 0.56,
+        "pierceHeight": 4.0,
         "cutHeight": 1.5
       },
       {
-        "thickness": 10,
-        "amps": 45,
-        "feedRate": 1500,
-        "kerf": 2.0,
-        "pierceDelay": 0.6,
+        "thickness": 8,
+        "amps": 60,
+        "feedRate": 990,
+        "kerf": 1.9,
+        "pierceDelay": 0.72,
         "pierceHeight": 4.5,
         "cutHeight": 1.5
       },
       {
-        "thickness": 12,
-        "amps": 45,
-        "feedRate": 1000,
-        "kerf": 2.1,
-        "pierceDelay": 0.8,
+        "thickness": 10,
+        "amps": 60,
+        "feedRate": 720,
+        "kerf": 2.0,
+        "pierceDelay": 0.96,
         "pierceHeight": 5.0,
-        "cutHeight": 1.5
+        "cutHeight": 1.8
       }
     ]
   },
@@ -315,65 +447,83 @@
       {
         "thickness": 1,
         "amps": 25,
-        "feedRate": 6460,
-        "kerf": 0.9,
-        "pierceDelay": 0,
-        "pierceHeight": 3.8,
+        "feedRate": 3200,
+        "kerf": 1.0,
+        "pierceDelay": 0.0,
+        "pierceHeight": 3.2,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 1.5,
+        "amps": 30,
+        "feedRate": 2880,
+        "kerf": 1.1,
+        "pierceDelay": 0.1,
+        "pierceHeight": 3.2,
         "cutHeight": 1.5
       },
       {
         "thickness": 2,
-        "amps": 35,
-        "feedRate": 5440,
-        "kerf": 1.1,
-        "pierceDelay": 0.1,
-        "pierceHeight": 3.8,
-        "cutHeight": 1.5
-      },
-      {
-        "thickness": 3,
-        "amps": 45,
-        "feedRate": 4420,
-        "kerf": 1.5,
+        "amps": 40,
+        "feedRate": 2560,
+        "kerf": 1.3,
         "pierceDelay": 0.2,
         "pierceHeight": 3.8,
         "cutHeight": 1.5
       },
       {
-        "thickness": 6,
-        "amps": 45,
-        "feedRate": 2210,
-        "kerf": 1.6,
-        "pierceDelay": 0.5,
+        "thickness": 3,
+        "amps": 55,
+        "feedRate": 2000,
+        "kerf": 1.5,
+        "pierceDelay": 0.4,
         "pierceHeight": 3.8,
         "cutHeight": 1.5
       },
       {
-        "thickness": 10,
-        "amps": 45,
-        "feedRate": 1100,
+        "thickness": 5,
+        "amps": 60,
+        "feedRate": 1280,
+        "kerf": 1.7,
+        "pierceDelay": 0.6,
+        "pierceHeight": 3.8,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 6,
+        "amps": 60,
+        "feedRate": 1040,
         "kerf": 1.8,
-        "pierceDelay": 0.8,
+        "pierceDelay": 0.7,
+        "pierceHeight": 4.0,
+        "cutHeight": 1.5
+      },
+      {
+        "thickness": 8,
+        "amps": 60,
+        "feedRate": 720,
+        "kerf": 1.9,
+        "pierceDelay": 0.9,
         "pierceHeight": 4.5,
         "cutHeight": 1.5
       },
       {
-        "thickness": 12,
-        "amps": 45,
-        "feedRate": 760,
-        "kerf": 1.9,
-        "pierceDelay": 1.0,
+        "thickness": 10,
+        "amps": 60,
+        "feedRate": 520,
+        "kerf": 2.0,
+        "pierceDelay": 1.2,
         "pierceHeight": 5.0,
-        "cutHeight": 1.5
+        "cutHeight": 1.8
       },
       {
-        "thickness": 16,
-        "amps": 45,
-        "feedRate": 420,
-        "kerf": 2.0,
-        "pierceDelay": 1.4,
+        "thickness": 12,
+        "amps": 60,
+        "feedRate": 360,
+        "kerf": 2.1,
+        "pierceDelay": 1.5,
         "pierceHeight": 5.0,
-        "cutHeight": 1.5
+        "cutHeight": 1.8
       }
     ]
   },
@@ -406,7 +556,21 @@
       "cutPowerPct": 60,
       "cutPasses": 1,
       "engraveSpeed": 6000,
-      "engravePowerPct": 15
+      "engravePowerPct": 15,
+      "chart": [
+        {
+          "thickness": 2,
+          "speed": 1200,
+          "passes": 1,
+          "power": 60
+        },
+        {
+          "thickness": 4,
+          "speed": 800,
+          "passes": 1,
+          "power": 70
+        }
+      ]
     },
     "tips": []
   }

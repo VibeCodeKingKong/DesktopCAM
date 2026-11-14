@@ -51,6 +51,17 @@ export interface PlasmaSettings {
   thcOffInHoles: boolean;
   /** true = detaljen till höger om färdriktningen (medurs virvel, vanligast). */
   partOnRight: boolean;
+  /** Matning i inlöpet och utlöpet, procent av skärmatningen. */
+  leadInFeedPct: number;
+  leadOutFeedPct: number;
+  /** Sakta ner i skarpa hörn (mindre fasning, ingen urbränning i hörnet). */
+  cornerSlowdown: boolean;
+  /** Riktningsändring som räknas som skarpt hörn (grader). */
+  cornerAngle: number;
+  /** Hur långt före och efter hörnet farten sänks (mm). */
+  cornerDistance: number;
+  /** Matning i hörnen, procent av skärmatningen. */
+  cornerFeedPct: number;
 }
 
 export interface PlasmaJob {
@@ -85,7 +96,63 @@ export const defaultPlasmaSettings = (): PlasmaSettings => ({
   holeFeedPct: 60,
   thcOffInHoles: true,
   partOnRight: true,
+  leadInFeedPct: 100,
+  leadOutFeedPct: 100,
+  cornerSlowdown: true,
+  cornerAngle: 45,
+  cornerDistance: 3,
+  cornerFeedPct: 60,
 });
+
+/** Inställningar från äldre projekt får standardvärden för nya fält. */
+export const withPlasmaDefaults = (s: Partial<PlasmaSettings>): PlasmaSettings => ({ ...defaultPlasmaSettings(), ...s });
+
+/**
+ * Var på banan det finns skarpa hörn (båglängd). Riktningen jämförs över
+ * ett fönster på w mm åt varje håll, så att även hörn som består av många
+ * korta segment (t.ex. en kugg) upptäcks, men inte mjuka bågar.
+ */
+export function cornerStations(pts: [number, number][], closed: boolean, angleDeg: number, w = 1): number[] {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const L = cum[cum.length - 1];
+  if (L < 1e-6) return [];
+  const at = (s: number): [number, number] => {
+    if (closed) s = ((s % L) + L) % L;
+    else s = Math.max(0, Math.min(L, s));
+    let lo = 0, hi = cum.length - 1;
+    while (hi - lo > 1) {
+      const m = (lo + hi) >> 1;
+      if (cum[m] <= s) lo = m;
+      else hi = m;
+    }
+    const t = (s - cum[lo]) / (cum[hi] - cum[lo] || 1);
+    return [pts[lo][0] + (pts[hi][0] - pts[lo][0]) * t, pts[lo][1] + (pts[hi][1] - pts[lo][1]) * t];
+  };
+  const limit = Math.cos((angleDeg * Math.PI) / 180);
+  const found: { s: number; c: number }[] = [];
+  const last = closed ? pts.length - 1 : pts.length;
+  for (let k = 0; k < last; k++) {
+    const s = cum[k];
+    if (!closed && (s < w || s > L - w)) continue;
+    const a = at(s - w), b = at(s + w), q = pts[k];
+    const v1x = q[0] - a[0], v1y = q[1] - a[1], v2x = b[0] - q[0], v2y = b[1] - q[1];
+    const n = Math.hypot(v1x, v1y) * Math.hypot(v2x, v2y);
+    if (n < 1e-12) continue;
+    const c = (v1x * v2x + v1y * v2y) / n;
+    if (c < limit) found.push({ s, c });
+  }
+  // Ett hörn per kluster: punkten med störst riktningsändring.
+  const out: number[] = [];
+  for (const f of found) {
+    const prev = out.length ? out[out.length - 1] : -Infinity;
+    if (f.s - prev < w) {
+      const pf = found.find((x) => x.s === prev)!;
+      if (f.c < pf.c) out[out.length - 1] = f.s;
+    } else out.push(f.s);
+  }
+  return out;
+}
 
 type P = [number, number];
 
@@ -135,7 +202,7 @@ interface Cut {
 }
 
 export function plasmaGcode(job: PlasmaJob): string {
-  const s = job.settings;
+  const s = withPlasmaDefaults(job.settings);
   const p = job.post;
   const f = (n: number) => formatNumber(n, p.decimals);
   const side: CutSide = job.side;
@@ -232,13 +299,13 @@ export function plasmaGcode(job: PlasmaJob): string {
     if (s.pierceDelay > 0) out.push(`G4 P${f(s.pierceDelay)}`);
     if (job.zAxis) out.push(`G1 Z${f(s.cutHeight)} F${f(job.plungeRate)}`);
     lastF = job.zAxis ? job.plungeRate : -1;
-    for (const q of leadIn) line(q, rate);
-    for (const q of c.path.slice(1)) line(q, rate);
+    for (const q of leadIn) line(q, (rate * s.leadInFeedPct) / 100);
 
+    // Konturen, och för slutna konturer en överskärning förbi startpunkten.
+    const route: P[] = c.path.slice();
+    let endDir: P = c.tangent;
     if (c.closed) {
-      // Överskärning: fortsätt en bit förbi startpunkten.
       let left = Math.max(0, s.overcut);
-      let endDir: P = c.tangent;
       let pos = c.path[c.path.length - 1];
       for (let k = 1; k < c.path.length && left > 1e-6; k++) {
         const q = c.path[k];
@@ -247,17 +314,47 @@ export function plasmaGcode(job: PlasmaJob): string {
         endDir = [(q[0] - pos[0]) / d, (q[1] - pos[1]) / d];
         const step = Math.min(d, left);
         pos = [pos[0] + endDir[0] * step, pos[1] + endDir[1] * step];
-        line(pos, rate);
+        route.push(pos);
         left -= step;
       }
+    }
+    // Hörnbromsning: lägre matning cornerDistance före och efter varje skarpt hörn.
+    const L = c.closed ? c.path.reduce((acc, q, k) => (k ? acc + Math.hypot(q[0] - c.path[k - 1][0], q[1] - c.path[k - 1][1]) : 0), 0) : 0;
+    const corners = s.cornerSlowdown ? cornerStations(c.path, c.closed, s.cornerAngle, Math.min(1, s.cornerDistance)) : [];
+    const D = Math.max(0, s.cornerDistance);
+    const slowAt = (u: number) => corners.some((cs) => {
+      const d = c.closed ? Math.min(Math.abs(u - cs), Math.abs(u - cs - L), Math.abs(u - cs + L)) : Math.abs(u - cs);
+      return d <= D;
+    });
+    const bounds: number[] = [];
+    for (const cs of corners) for (const sh of c.closed ? [-L, 0, L] : [0]) bounds.push(cs + sh - D, cs + sh + D);
+    bounds.sort((a, b) => a - b);
+    const slowRate = Math.min(rate, (job.feedRate * s.cornerFeedPct) / 100);
+    let sAcc = 0;
+    for (let k = 1; k < route.length; k++) {
+      const a = route[k - 1], b = route[k];
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (len < 1e-9) continue;
+      const cuts = [sAcc, ...bounds.filter((x) => x > sAcc + 1e-6 && x < sAcc + len - 1e-6), sAcc + len];
+      for (let m = 1; m < cuts.length; m++) {
+        const t = (cuts[m] - sAcc) / len;
+        const mid = (cuts[m - 1] + cuts[m]) / 2;
+        line(m === cuts.length - 1 ? b : [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], corners.length && slowAt(mid) ? slowRate : rate);
+      }
+      sAcc += len;
+    }
+
+    if (c.closed) {
+      const pos = route[route.length - 1];
+      const leadOutRate = (rate * s.leadOutFeedPct) / 100;
       // Utlöp ut i spillet.
       const lo = s.leadOut !== 'none' ? Math.min(s.leadOutLength, c.hole ? (c.diameter / 2) * 0.4 : Infinity) : 0;
       if (lo > 0.05) {
         const sl: P = s.partOnRight ? [-endDir[1], endDir[0]] : [endDir[1], -endDir[0]];
         if (s.leadOut === 'arc') {
           const C: P = [pos[0] + sl[0] * lo, pos[1] + sl[1] * lo];
-          for (const q of arcPoints(pos, [C[0] + endDir[0] * lo, C[1] + endDir[1] * lo], C, s.partOnRight)) line(q, rate);
-        } else line([pos[0] + sl[0] * lo, pos[1] + sl[1] * lo], rate);
+          for (const q of arcPoints(pos, [C[0] + endDir[0] * lo, C[1] + endDir[1] * lo], C, s.partOnRight)) line(q, leadOutRate);
+        } else line([pos[0] + sl[0] * lo, pos[1] + sl[1] * lo], leadOutRate);
       }
     }
     out.push(torchOff);

@@ -6,7 +6,7 @@
  * Simuleringen kan spolas till vilken tidpunkt som helst: framåt räknas bara
  * de nya rörelserna, bakåt börjar den om från början (det går snabbt).
  */
-import type { MaterialSetup, ToolDefinition, ToolpathConfig } from '@desktopcam/core';
+import { arcPoints, type MaterialSetup, type ToolDefinition, type ToolpathConfig } from '@desktopcam/core';
 import type { ToolpathResult } from '../store/useAppStore';
 
 const RAPID_RATE = 3000; // mm/min, samma antagande som tidsuppskattningen
@@ -50,13 +50,15 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
     const line = raw.replace(/\(.*?\)/g, '').split(';')[0].trim();
     if (!line) continue;
     if (/\bG(92|38(\.\d)?)\b/i.test(line)) continue;
-    let nx = x, ny = y, nz = z, moved = false, dwell = false;
+    let nx = x, ny = y, nz = z, moved = false, dwell = false, ai = 0, aj = 0;
     WORD.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = WORD.exec(line))) {
       const v = parseFloat(m[2]);
       switch (m[1].toUpperCase()) {
-        case 'G': if (v === 0 || v === 1) mode = v; else if (v === 4) dwell = true; break;
+        case 'G': if (v >= 0 && v <= 3 && Number.isInteger(v)) mode = v; else if (v === 4) dwell = true; break;
+        case 'I': ai = v; break;
+        case 'J': aj = v; break;
         case 'P': if (dwell) t += v; break;
         case 'M': if (v === 3 || v === 4) on = true; else if (v === 5) on = !beam; break;
         case 'X': nx = v; moved = true; break;
@@ -67,14 +69,18 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
       }
     }
     if (!moved) continue;
-    const len = Math.hypot(nx - x, ny - y, nz - z);
-    if (len > 0) {
-      const cut = mode === 1 && (plasma ? on : !laser || (on && s > 0));
-      const dt = (len / (mode === 0 ? RAPID_RATE : feed)) * 60;
-      moves.push({ x0: x, y0: y, z0: z, x1: nx, y1: ny, z1: nz, cut, power: laser ? Math.min(1, s / sMax) : 0, t0: t, t1: t + dt, job });
-      t += dt;
+    const cut = mode !== 0 && (plasma ? on : !laser || (on && s > 0));
+    // G2/G3: bågen som korta raka rörelser.
+    const targets = mode === 2 || mode === 3 ? arcPoints(x, y, z, nx, ny, nz, ai, aj, mode === 2, 0.3) : [[nx, ny, nz] as [number, number, number]];
+    for (const [qx, qy, qz] of targets) {
+      const len = Math.hypot(qx - x, qy - y, qz - z);
+      if (len > 0) {
+        const dt = (len / (mode === 0 ? RAPID_RATE : feed)) * 60;
+        moves.push({ x0: x, y0: y, z0: z, x1: qx, y1: qy, z1: qz, cut, power: laser ? Math.min(1, s / sMax) : 0, t0: t, t1: t + dt, job });
+        t += dt;
+      }
+      x = qx; y = qy; z = qz;
     }
-    x = nx; y = ny; z = nz;
   }
   return { moves, end: t };
 }

@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { materialName, useT, type GuideKey } from '../../i18n';
-import { useAppStore } from '../../store/useAppStore';
+import { effectiveMaterial } from '@desktopcam/core';
+import { useAppStore, useMachine } from '../../store/useAppStore';
 import { placeFloating, type FloatingPosition } from './position';
 
 const WIDTH = 320;
@@ -15,6 +16,8 @@ export function InfoHint({ topic }: { topic: GuideKey }) {
   const beginner = useAppStore((s) => s.beginnerMode);
   const materials = useAppStore((s) => s.materials);
   const currentMaterial = useAppStore((s) => s.material.presetId);
+  const thickness = useAppStore((s) => s.material.thickness);
+  const machine = useMachine();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<FloatingPosition | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -46,7 +49,7 @@ export function InfoHint({ topic }: { topic: GuideKey }) {
   if (!beginner) return null;
 
   const rows = recommend
-    ? materials.map((m) => ({ id: m.id, name: materialName(t, m.id, m.name), value: recommend(m) })).filter((r) => r.value)
+    ? materials.map((m) => ({ id: m.id, name: materialName(t, m.id, m.name), value: recommend(effectiveMaterial(m, machine, thickness)) })).filter((r) => r.value)
     : [];
 
   return (

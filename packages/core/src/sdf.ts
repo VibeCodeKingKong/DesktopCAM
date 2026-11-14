@@ -18,6 +18,86 @@ export interface DistanceField {
   cell: number;
   /** Negativt inuti formerna, positivt utanför (mm). */
   d: Float32Array;
+  /**
+   * Formernas kanter som segment [x0, y0, x1, y1, …]. Med dem flyttas
+   * konturpunkterna till exakt rätt avstånd (se refineToOffset).
+   */
+  edges?: Float64Array;
+}
+
+/**
+ * Rutnätet ger avståndet till rutornas mitt, inte till den verkliga kanten –
+ * konturerna får därför ett brus på upp till en halv ruta, som ett
+ * sicksackmönster. Det ger mängder av mikrosegment i G-koden som får
+ * maskinen att rycka. Här flyttas varje punkt till exakt avståndet |level|
+ * från närmaste kant: raka kanter blir helt raka, bågar exakta.
+ */
+class EdgeIndex {
+  private buckets = new Map<number, number[]>();
+  private readonly size: number;
+  constructor(private edges: Float64Array, size: number) {
+    this.size = size;
+    for (let e = 0; e < edges.length; e += 4) {
+      const i0 = Math.floor(Math.min(edges[e], edges[e + 2]) / size), i1 = Math.floor(Math.max(edges[e], edges[e + 2]) / size);
+      const j0 = Math.floor(Math.min(edges[e + 1], edges[e + 3]) / size), j1 = Math.floor(Math.max(edges[e + 1], edges[e + 3]) / size);
+      for (let j = j0; j <= j1; j++)
+        for (let i = i0; i <= i1; i++) {
+          const k = i * 73856093 ^ j * 19349663;
+          const b = this.buckets.get(k);
+          if (b) b.push(e);
+          else this.buckets.set(k, [e]);
+        }
+    }
+  }
+  /** Närmaste punkt på en kant inom radien r, eller null. */
+  nearest(x: number, y: number, r: number): [number, number, number] | null {
+    const E = this.edges, s = this.size;
+    let best = r * r, bx = 0, by = 0, found = false;
+    const seen = new Set<number>();
+    for (let j = Math.floor((y - r) / s); j <= Math.floor((y + r) / s); j++)
+      for (let i = Math.floor((x - r) / s); i <= Math.floor((x + r) / s); i++) {
+        const b = this.buckets.get(i * 73856093 ^ j * 19349663);
+        if (!b) continue;
+        for (const e of b) {
+          if (seen.has(e)) continue;
+          seen.add(e);
+          const ax = E[e], ay = E[e + 1], dx = E[e + 2] - ax, dy = E[e + 3] - ay;
+          const L2 = dx * dx + dy * dy;
+          const t = L2 > 1e-18 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)) : 0;
+          const qx = ax + dx * t, qy = ay + dy * t;
+          const d2 = (x - qx) ** 2 + (y - qy) ** 2;
+          if (d2 < best) (best = d2), (bx = qx), (by = qy), (found = true);
+        }
+      }
+    return found ? [bx, by, Math.sqrt(best)] : null;
+  }
+}
+
+const edgeIndexCache = new WeakMap<DistanceField, EdgeIndex>();
+
+/** Flyttar konturpunkterna till exakt avståndet |level| från formernas kanter. */
+export function refineToOffset(f: DistanceField, pts: number[], level: number): number[] {
+  if (!f.edges?.length || Math.abs(level) < 1e-6) return pts;
+  const target = Math.abs(level);
+  // Långt in i en ficka kostar sökningen mer än den ger.
+  if (target > 25) return pts;
+  let idx = edgeIndexCache.get(f);
+  if (!idx) {
+    idx = new EdgeIndex(f.edges, Math.max(1, f.cell * 8));
+    edgeIndexCache.set(f, idx);
+  }
+  const r = target + 2 * f.cell;
+  const out = pts.slice();
+  for (let k = 0; k + 1 < pts.length; k += 2) {
+    const n = idx.nearest(pts[k], pts[k + 1], r);
+    if (!n || n[2] < 1e-9) continue;
+    const [qx, qy, dist] = n;
+    // Bara små korrigeringar – annars är punkten på fel ställe (t.ex. vid en spets).
+    if (Math.abs(dist - target) > 1.5 * f.cell) continue;
+    out[k] = qx + ((pts[k] - qx) / dist) * target;
+    out[k + 1] = qy + ((pts[k + 1] - qy) / dist) * target;
+  }
+  return out;
 }
 
 const INF = 1e20;
@@ -140,7 +220,16 @@ export function buildDistanceField(groups: PolylineInput[][], opts: FieldOptions
     // Kanten ligger mitt emellan två rutor → halv ruta korrigering.
     d[k] = mask[k] ? -(toOutside[k] - 0.5) * cell : (toInside[k] - 0.5) * cell;
   }
-  return { nx, ny, x0, y0, cell, d };
+  const edges: number[] = [];
+  for (const g of groups) for (const p of g) {
+    if (!p.closed) continue;
+    const n = p.points.length / 2;
+    for (let k = 0; k < n; k++) {
+      const b = (k + 1) % n;
+      edges.push(p.points[2 * k], p.points[2 * k + 1], p.points[2 * b], p.points[2 * b + 1]);
+    }
+  }
+  return { nx, ny, x0, y0, cell, d, edges: Float64Array.from(edges) };
 }
 
 /**
@@ -207,7 +296,7 @@ export function isolines(f: DistanceField, level: number, simplifyTol = 0.01): n
       pts.push(x, y);
       cur = next.get(cur);
     }
-    if (pts.length >= 6) loops.push(simplifyClosed(pts, simplifyTol));
+    if (pts.length >= 6) loops.push(simplifyClosed(refineToOffset(f, pts, level), simplifyTol));
   }
   return loops.filter((l) => l.length >= 6);
 }

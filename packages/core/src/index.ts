@@ -19,3 +19,5 @@ export * from './imageRelief';
 export * from './pattern';
 export * from './shapeLibrary';
 export * from './plasma';
+export * from './cutData';
+export * from './gcodeOptimize';

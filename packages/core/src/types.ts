@@ -32,6 +32,8 @@ export interface PostprocessorConfig {
   safeZ: number;
   /** Laser: M4 (dynamisk effekt, rekommenderas för GRBL) i stället för M3. */
   laserDynamicPower: boolean;
+  /** Skriv cirkelbågar som G2/G3 (standard). Av för styrsystem utan bågar. */
+  arcs?: boolean;
   /** Plasma: tänd och släck brännaren (standard "M3 S1000" och "M5"). */
   torchOn?: string;
   torchOff?: string;
@@ -119,6 +121,8 @@ export interface MaterialPreset {
     cutPasses: number;
     engraveSpeed: number;
     engravePowerPct: number;
+    /** Skärtabell per tjocklek vid 10 W optisk effekt (skalas efter laserns effekt). */
+    chart?: LaserChartRow[];
   };
   /**
    * Plasma: riktvärden per tjocklek (interpoleras). Saknas = materialet leder
@@ -214,6 +218,7 @@ export interface VectorLayer {
 
 import type { ImageReliefSource } from './imageRelief';
 import type { PlasmaSettings } from './plasma';
+import type { LaserChartRow } from './cutData';
 
 export type ReliefCategory = 'geometric' | 'pattern' | 'nature';
 

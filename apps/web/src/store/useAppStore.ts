@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import { create } from 'zustand';
+import { effectiveMaterial } from '@desktopcam/core';
 import type {
   EngineInfo,
   ImportFormat,
@@ -524,6 +526,19 @@ export const useExpert = () => !useAppStore((s) => s.beginnerMode);
 export const getMachine = () => {
   const s = useAppStore.getState();
   return s.machines.find((m) => m.id === s.machineId) ?? s.machines[0];
+};
+/** Materialets riktvärden anpassade efter vald maskin och tjocklek (React). */
+export const useEffectiveMaterial = () => {
+  const preset = useMaterialPreset();
+  const machine = useMachine();
+  const thickness = useAppStore((s) => s.material.thickness);
+  return useMemo(() => effectiveMaterial(preset, machine, thickness), [preset, machine, thickness]);
+};
+
+/** Materialets riktvärden anpassade efter vald maskin och tjocklek. */
+export const getEffectiveMaterial = () => {
+  const s = useAppStore.getState();
+  return effectiveMaterial(getMaterialPreset(), getMachine(), s.material.thickness);
 };
 export const getMaterialPreset = () => {
   const s = useAppStore.getState();

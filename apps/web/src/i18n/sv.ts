@@ -14,7 +14,7 @@ export type GuideKey =
   | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
   | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay'
-  | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection';
+  | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection' | 'plasmaCorner' | 'gcodeArcs';
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
@@ -276,6 +276,7 @@ export const sv = {
     cannotCut: 'En diodlaser kan inte skära igenom det här materialet. Använd banan för att märka eller välj Linjegravyr.',
     notForRouter: 'Det här materialet passar inte för en hobbyfräs. Byt material eller använd en laser.',
     notForPlasma: 'Det här materialet leder inte ström och kan inte plasmaskäras. Välj stål, rostfritt eller aluminium.',
+    laserTooThick: (t: string) => `För tjockt för den här lasern (${t} mm) – den skär rimligen inte igenom. Välj tunnare material eller en kraftigare laser.`,
     strategy: 'Strategi',
     presets: { fast: 'Snabb', balanced: 'Balanserad', fine: 'Fin yta', custom: 'Egen' },
     presetDesc: {
@@ -595,7 +596,7 @@ export const sv = {
 
   machineTips: {
     title: (m: string) => `Tips för ${m}`,
-    routerLight: ['Lätt maskin: ta grunda pass – högst halva fräsdiametern per pass i trä.', 'Motfräsning är lugnare än medfräsning på den här maskinen.', 'Spänn fast materialet ordentligt – vibrationer ger grova kanter.', 'Kör finpasset med lägre matning för renast kanter.'],
+    routerLight: ['Lätt maskin: ta grunda pass – ungefär en tredjedel av fräsdiametern per pass i trä.', 'Motfräsning är lugnare än medfräsning på den här maskinen.', 'Spänn fast materialet ordentligt – vibrationer ger grova kanter.', 'Kör finpasset med lägre matning för renast kanter.'],
     routerRigid: ['Styv maskin: du kan ta djupare pass och köra snabbare än förinställt.', 'Medfräsning i finpasset ger renast yta.', 'Provfräs i spillmaterial när du byter verktyg.', 'Använd dammsugning – höga hastigheter ger mycket spån.'],
     laserLow: ['Fokusera lasern noga – fokus avgör både skärning och gravyr.', 'Skär tunt material (högst 3 mm) i flera snabba pass i stället för ett långsamt.', 'Använd luftassistans för renare snitt och mindre rök.', 'Använd skyddsglasögon för rätt våglängd och lämna aldrig lasern obevakad.'],
     laserHigh: ['Kraftfull laser: sänk effekten vid gravyr så att kanterna inte bränns.', 'Skär trä på 4–10 mm i ett eller några pass.', 'Använd luftassistans och god ventilation.', 'Använd skyddsglasögon för rätt våglängd och lämna aldrig lasern obevakad.'],
@@ -716,6 +717,14 @@ export const sv = {
     ampsTooHigh: (max: number) => `Högre än aggregatets ${max} A.`,
     chart: (t: string, amps: number, feed: number, kerf: string, delay: string) => `Skärtabell för ${t} mm: ${amps} A, ${feed} mm/min, snittbredd ${kerf} mm, genomstickning ${delay} s.`,
     useChart: 'Använd tabellens värden',
+    chartLimited: (amps: number) => `Aggregatet ger högst ${amps} A, så matningen är sänkt i samma proportion.`,
+    leadInFeed: 'Matning i inlöpet',
+    leadOutFeed: 'Matning i utlöpet',
+    corners: 'Hörn',
+    cornerSlowdown: 'Sakta ner i skarpa hörn',
+    cornerAngle: 'Räknas som hörn från',
+    cornerDistance: 'Sträcka före och efter hörnet',
+    cornerFeed: 'Matning i hörnen',
     pierce: 'Genomstickning',
     pierceHeight: 'Genomstickningshöjd',
     pierceDelay: 'Väntetid vid genomstickning',
@@ -754,6 +763,7 @@ export const sv = {
     needPlasma: (op: string) => `${op} kräver en plasmaskärare – byt maskin under Inställning`,
     needsPlasmaTool: 'Plasmaskärning kräver en plasmabrännare i verktygsbiblioteket',
     notForPlasma: (m: string) => `${m} leder inte ström och kan inte plasmaskäras – välj stål, rostfritt eller aluminium`,
+    laserTooThick: (m: string, t: number) => `${m} ${t} mm är för tjockt för lasern – skär tunnare material eller använd fräs`,
     drawFirst: 'Rita eller importera en form först',
     textNeedsOutline: 'Texten är enkellinjig – bara slutna bokstäver som O skulle fräsas. Markera texten och välj Stil: Kontur under Egenskaper.',
     needClosed: 'Markera minst en sluten form',
@@ -910,6 +920,7 @@ export const sv = {
     plasmaAmps: 'Max ström',
     plasmaCodes: { torchOn: 'Tänd brännaren', torchOff: 'Släck brännaren', thcOn: 'THC på', thcOff: 'THC av' },
     plasmaCodesHint: 'Koderna skrivs in i G-koden. Lämna THC tomt om maskinens styrning sköter höjdregleringen själv.',
+    arcs: 'Bågar (G2/G3)',
     workArea: (x: number, y: number) => `Arbetsyta ${x} × ${y} mm`,
     controller: (c: string) => `Styrning: ${c}`,
     configTitle: 'Inställningar för vald maskin',
@@ -1021,19 +1032,19 @@ export const sv = {
     'drill-3': 'Borr 3 mm',
     'em-3175-1f-alu': 'Enskärsfräs 3,175 mm (aluminium)',
     'laser-diode': 'Diodlaser (fokuserad punkt)',
-    'plasma-45-std': 'Plasmabrännare 45 A (standardmunstycke)',
-    'plasma-45-fine': 'Plasmabrännare 45 A (finmunstycke)',
+    'plasma-45-std': 'Plasmabrännare 40–60 A (standardmunstycke)',
+    'plasma-45-fine': 'Plasmabrännare 40–60 A (finmunstycke)',
   } as Record<string, string>,
 
   guides: {
     rec: 'Rekommenderat för hobbymaskiner',
     items: {
       cutDepth: { title: 'Skärdjup', body: 'Hur djupt fräsen går totalt. För att skära ut en detalj, ange materialets tjocklek.', steps: ['Mät materialet med skjutmått.', 'Ange samma värde här för genomskärning.', 'Lägg en offerskiva under så att bordet inte skadas.'] },
-      stepDown: { title: 'Djup per pass', body: 'Fräsen tar materialet i flera lager. Grundare pass är skonsammare mot små hobbymaskiner.', steps: ['Börja med halva fräsdiametern.', 'Hör du att maskinen kämpar? Minska värdet.', 'MPCNC och 3018 mår bäst av 0,5–1,5 mm.'] },
+      stepDown: { title: 'Djup per pass', body: 'Fräsen tar bort materialet i flera lager. Grundare pass skonar små hobbymaskiner.', steps: ['Styva maskiner: ungefär halva fräsdiametern.', 'Lätta maskiner (MPCNC, 3018): ungefär en tredjedel.', 'Låter maskinen ansträngd? Minska värdet.'] },
       stepOver: { title: 'Sidosteg', body: 'Hur mycket fräsen flyttas i sidled mellan varven i en ficka, i procent av diametern.', steps: ['40–50 % är ett bra startvärde.', 'Mindre steg ger slätare botten men längre tid.'] },
       feedRate: { title: 'Matningshastighet', body: 'Hur snabbt verktyget rör sig i sidled genom materialet.', steps: ['För låg matning bränner kanterna.', 'För hög matning kan bryta fräsen.', 'Justera i steg om 10 % tills ljudet är jämnt.'] },
       plungeRate: { title: 'Nedmatning', body: 'Hastigheten när fräsen sänks rakt ner. Brukar vara cirka en fjärdedel av matningen.' },
-      spindleRpm: { title: 'Spindelvarvtal', body: 'Varvtal för fräsmotorn. På handöverfräsar (t.ex. Makita) ställer du in det med ratten.' },
+      spindleRpm: { title: 'Spindelvarvtal', body: 'Fräsmotorns varvtal. På överfräsar (t.ex. Makita) ställs det in med ratten. På hobbymaskiner ger ett lågt varvtal (12 000–16 000) lagom tjocka spån – för högt varvtal gnider och bränner kanterna.', steps: ['Ratten på steg 1–2 på en Makita ≈ 10 000–14 000 varv.', 'Bränd yta eller fint damm i stället för spån: sänk varvtalet eller öka matningen.'] },
       cutSide: { title: 'Vilken sida av linjen?', body: 'Utsida: detaljen får exakt rätt mått. Insida: hålet får rätt mått. På linjen: verktyget följer linjen, t.ex. för gravyr.', steps: ['Ska du skära ut en bit? Välj Utsida.', 'Ska du göra ett hål eller en ram? Välj Insida.'] },
       laserPower: { title: 'Lasereffekt', body: 'Andel av laserns maxeffekt. Hög effekt med låg hastighet skär, låg effekt med hög hastighet graverar.' },
       laserSpeed: { title: 'Laserhastighet', body: 'Hur snabbt laserhuvudet rör sig. Långsammare ger djupare snitt men mer bränd kant.' },
@@ -1067,17 +1078,19 @@ export const sv = {
       reliefInlay: { title: 'Reliefinlägg', body: 'Pluggen är reliefens motsats: inverterad och spegelvänd. Vänd upp och ner passar den ner i fickan med en tunn limspalt. Runt reliefen fräses pluggbrädan bort så att den inte tar i grundträet.', steps: ['Limspalt 0,1–0,3 mm räcker med trälim.', 'Frigång 1 mm gör att brädan går fri från grundträet utanför reliefen.', 'Fräs båda delarna med samma kulfräs för bäst passform.'] },
       onionSkin: { title: 'Lökskal', body: 'Ett tunt lager som lämnas kvar i botten så att detaljen sitter fast. Bryt eller skär loss den efteråt och slipa kanten.', steps: ['0,2–0,4 mm i plywood och MDF.', 'Används ofta i stället för flikar på små delar.'] },
       snap: { title: 'Fäst mot rutnät', body: 'Punkter du ritar och flyttar hamnar på närmaste steg i rutnätet. Stäng av för helt fri placering.' },
-      plasmaAmps: { title: 'Ström', body: 'Strömmen ställs in på plasmaaggregatet – den skrivs bara som påminnelse i G-koden. Högre ström skär tjockare plåt men ger bredare snitt.', steps: ['Följ brännarens skärtabell för munstycket du använder.', 'Finmunstycke: 25–45 A för plåt upp till ca 4 mm.'] },
+      plasmaAmps: { title: 'Ström', body: 'Strömmen ställs in på plasmaaggregatet – den skrivs bara som påminnelse i G-koden. Högre ström skär tjockare plåt men ger bredare snitt.', steps: ['Följ aggregatets skärtabell för munstycket du använder.', 'Finmunstycke: 25–45 A för plåt upp till ca 3 mm.'] },
       plasmaKerf: { title: 'Snittbredd (kerf)', body: 'Plasmabågen bränner bort en strimma som är 1–2 mm bred. desktopCAM flyttar banan en halv snittbredd ut i spillet så att detaljen får rätt mått.', steps: ['Skär en provbit 50 × 50 mm och mät den.', 'Snittbredd = nuvarande värde + (50 − uppmätt mått).'] },
       pierceHeight: { title: 'Genomstickningshöjd', body: 'Brännaren tänds högre upp än skärhöjden så att smältan som sprutar upp vid genomstickningen inte träffar munstycket.', steps: ['Ofta 1,5–2 × skärhöjden.', 'Tjock plåt kräver högre genomstickningshöjd.'] },
       pierceDelay: { title: 'Väntetid vid genomstickning', body: 'Hur länge brännaren står still efter tändningen innan den börjar röra sig, så att bågen hinner bränna igenom plåten.', steps: ['Tunn plåt: 0–0,2 s.', 'För kort: bågen går inte igenom och slagg sprutar.', 'För lång: genomstickningshålet blir stort.'] },
-      cutHeight: { title: 'Skärhöjd', body: 'Avståndet mellan munstycket och plåten under skärningen. Rätt höjd ger raka snittkanter och lång livslängd på förbrukningsdelarna.', steps: ['Vanligen 1,5 mm för 45 A med luft.', 'För högt ger fasade kanter, för lågt sliter munstycket.'] },
+      cutHeight: { title: 'Skärhöjd', body: 'Avståndet mellan munstycket och plåten under skärningen. Rätt höjd ger raka snittkanter och lång livslängd på förbrukningsdelarna.', steps: ['1,5 mm för de flesta aggregat 40–60 A med luft.', 'För högt ger fasade kanter, för lågt sliter munstycket.'] },
       plasmaIhs: { title: 'Höjdavkänning (IHS)', body: 'Före varje genomstickning sänks brännaren tills den känner plåten (G38.2). Då blir höjden rätt även om plåten är skev eller buktar av värmen.', steps: ['Kräver flytande huvud eller ohmsk avkänning.', 'Givarens frigång: hur långt huvudet rör sig från kontakt tills givaren slår till.'] },
       plasmaLead: { title: 'Inlöp och utlöp', body: 'Genomstickningen ger en krater och lite slagg. Med inlöp sker den i spillet och brännaren glider sedan in på konturen; utlöpet leder ut i spillet igen.', steps: ['Båge ger renast övergång – bäst för ytterkonturer.', 'Linje fungerar bra i hål.', 'Inlöpet ungefär lika långt som plåten är tjock, minst 3 mm.'] },
       plasmaOvercut: { title: 'Överskärning', body: 'Brännaren fortsätter en bit förbi startpunkten innan den lämnar konturen, så att konturen sluts helt och inget litet stycke håller kvar detaljen.', steps: ['0,5–1 mm räcker oftast.'] },
       holeSlowdown: { title: 'Långsammare i små hål', body: 'I små hål hinner bågen inte följa med i full fart – hålet blir koniskt och ovalt. Med lägre matning blir hålet rundare.', steps: ['Hål mindre än ca 2,5 × plåttjockleken räknas som små.', '50–70 % av vanlig matning är en bra start.'] },
       plasmaThc: { title: 'THC i små hål', body: 'Höjdregleringen (THC) följer bågspänningen. I små hål och hörn ändras spänningen när farten sänks, och då kan brännaren dyka ner. Därför stängs den av där.', steps: ['Kräver att maskinens THC-koder är inställda under Postprocessor.'] },
       plasmaDirection: { title: 'Skärriktning', body: 'Plasmagasen virvlar, så snittets ena kant blir rak och den andra lite fasad. Med en vanlig brännare (medurs virvel) hamnar den raka kanten till höger om färdriktningen.', steps: ['Detaljen till höger: ytterkonturer medurs, hål moturs.', 'Byt bara om brännaren virvlar moturs.'] },
+      gcodeArcs: { title: 'Bågar (G2/G3)', body: 'Cirkelbågar skrivs som en G2- eller G3-rad i stället för hundratals korta raka linjer. Filen blir mycket mindre och maskinen rör sig jämnare. Raka sträckor slås också ihop. Banan ändras högst 0,01 mm.', steps: ['GRBL, Marlin, Mach3, LinuxCNC och FireControl förstår G2/G3.', 'Stäng bara av om styrsystemet inte klarar bågar.'] },
+      plasmaCorner: { title: 'Sakta ner i skarpa hörn', body: 'Maskinen bromsar ändå in i hörnen, men plasmabågen ligger kvar lika länge – hörnet bränns ur och blir runt eller fasat. Med lägre matning en bit före och efter hörnet blir det skarpare och jämnare.', steps: ['60–70 % av skärmatningen räcker oftast.', '2–5 mm före och efter hörnet.', 'Mjuka bågar räknas inte som hörn.'] },
     } satisfies Record<GuideKey, GuideEntry> as Record<GuideKey, GuideEntry>,
     recommend: {
       stepDown: (m: MaterialPreset) => (m.router ? `${m.router.stepDownFactor} × fräsdiameter` : null),

@@ -16,6 +16,54 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.19.0',
+    date: '2026-11-14',
+    text: {
+      sv: [
+        'Nya riktvärden: plasma för hobbyaggregat 40–60 A (t.ex. 3 mm stål: 55 A och 2500 mm/min). Fräsdata skalas efter spindelns varvtal, maskinens styvhet och fräsens storlek, och laserdata efter laserns effekt och materialets tjocklek – med varning när materialet är för tjockt.',
+        'Mindre G-kod: cirkelbågar skrivs som G2/G3 och raka sträckor slås ihop (kan stängas av under Maskininställning → Postprocessor). En cirkel som fräses blev ca 10 gånger mindre.',
+        'Plasma: sakta ner i skarpa hörn, och egen matning för inlöp och utlöp.',
+        'Rättat: banor från avståndsfältet hade ett litet sicksackbrus (upp till en halv ruta) som gav tusentals mikrosegment och ryckig rörelse. Konturerna läggs nu exakt, och kurvor delas upp tio gånger finare.',
+      ],
+      en: [
+        'New guide values: plasma for 40–60 A hobby units (e.g. 3 mm steel: 55 A and 2500 mm/min). Router data scales with spindle speed, machine rigidity and cutter size, and laser data with laser power and material thickness – with a warning when the material is too thick.',
+        'Smaller G-code: circular arcs are written as G2/G3 and straight runs are merged (can be turned off under Machine setup → Post-processor). A milled circle became about 10 times smaller.',
+        'Plasma: slow down in sharp corners, and separate feeds for lead-in and lead-out.',
+        'Fixed: paths from the distance field had a slight zigzag noise (up to half a cell) that gave thousands of micro-segments and jerky motion. Contours are now placed exactly, and curves are divided ten times finer.',
+      ],
+      fr: [
+        'Nouvelles valeurs indicatives : plasma pour générateurs de loisir 40–60 A (par ex. acier 3 mm : 55 A et 2500 mm/min). Les données de fraisage suivent la vitesse de broche, la rigidité de la machine et la taille de la fraise, et celles du laser sa puissance et l’épaisseur – avec un avertissement si le matériau est trop épais.',
+        'G-code plus compact : les arcs sont écrits en G2/G3 et les tronçons droits fusionnés (désactivable dans Configuration machine → Post-processeur). Un cercle fraisé est devenu environ 10 fois plus petit.',
+        'Plasma : ralentissement dans les angles vifs et avances distinctes pour l’entrée et la sortie.',
+        'Corrigé : les parcours issus du champ de distance avaient un léger bruit en zigzag (jusqu’à une demi-cellule) qui donnait des milliers de micro-segments et des mouvements saccadés. Les contours sont maintenant placés exactement et les courbes divisées dix fois plus finement.',
+      ],
+      de: [
+        'Neue Richtwerte: Plasma für Hobbygeräte mit 40–60 A (z. B. 3 mm Stahl: 55 A und 2500 mm/min). Fräsdaten richten sich nach Spindeldrehzahl, Steifigkeit der Maschine und Fräsergröße, Laserdaten nach Laserleistung und Materialdicke – mit Warnung, wenn das Material zu dick ist.',
+        'Kleinerer G-Code: Kreisbögen werden als G2/G3 geschrieben und gerade Abschnitte zusammengefasst (abschaltbar unter Maschineneinrichtung → Postprozessor). Ein gefräster Kreis wurde etwa 10-mal kleiner.',
+        'Plasma: langsamer in scharfen Ecken und eigener Vorschub für An- und Abfahrt.',
+        'Behoben: Bahnen aus dem Distanzfeld hatten ein leichtes Zickzack-Rauschen (bis zu einer halben Zelle), das Tausende Mikrosegmente und ruckelnde Bewegungen erzeugte. Konturen werden jetzt exakt gelegt und Kurven zehnmal feiner unterteilt.',
+      ],
+      es: [
+        'Nuevos valores orientativos: plasma para equipos de aficionado de 40–60 A (p. ej. acero de 3 mm: 55 A y 2500 mm/min). Los datos de fresado se ajustan a la velocidad del husillo, la rigidez de la máquina y el tamaño de la fresa, y los del láser a su potencia y al grosor, con aviso cuando el material es demasiado grueso.',
+        'G-code más pequeño: los arcos se escriben como G2/G3 y los tramos rectos se unen (se puede desactivar en Configuración de máquina → Posprocesador). Un círculo fresado quedó unas 10 veces más pequeño.',
+        'Plasma: frenado en esquinas vivas y avances propios para entrada y salida.',
+        'Corregido: las trayectorias del campo de distancia tenían un ligero ruido en zigzag (hasta media celda) que daba miles de microsegmentos y movimientos bruscos. Ahora los contornos se colocan con exactitud y las curvas se dividen diez veces más fino.',
+      ],
+      pl: [
+        'Nowe wartości orientacyjne: plazma dla urządzeń hobbystycznych 40–60 A (np. stal 3 mm: 55 A i 2500 mm/min). Dane frezowania zależą od obrotów wrzeciona, sztywności maszyny i rozmiaru frezu, a lasera od jego mocy i grubości materiału – z ostrzeżeniem, gdy materiał jest za gruby.',
+        'Mniejszy G-code: łuki zapisywane jako G2/G3, proste odcinki łączone (można wyłączyć w Ustawieniach maszyny → Postprocesor). Frezowany okrąg stał się ok. 10 razy mniejszy.',
+        'Plazma: zwalnianie w ostrych narożnikach i osobny posuw wejścia i wyjścia.',
+        'Poprawiono: ścieżki z pola odległości miały lekki szum zygzakowaty (do pół komórki), który dawał tysiące mikroodcinków i szarpany ruch. Kontury są teraz wyznaczane dokładnie, a krzywe dzielone dziesięć razy drobniej.',
+      ],
+      uk: [
+        'Нові орієнтовні значення: плазма для аматорських апаратів 40–60 A (напр. сталь 3 мм: 55 A і 2500 мм/хв). Дані фрезерування залежать від обертів шпинделя, жорсткості верстата й розміру фрези, а лазера – від його потужності й товщини матеріалу, з попередженням, коли матеріал задовгий.',
+        'Менший G-код: дуги записуються як G2/G3, прямі ділянки об’єднуються (можна вимкнути в Налаштуваннях верстата → Постпроцесор). Фрезероване коло стало приблизно в 10 разів меншим.',
+        'Плазма: сповільнення в гострих кутах і окрема подача на вході й виході.',
+        'Виправлено: траєкторії з поля відстаней мали легкий зигзагоподібний шум (до половини клітинки), що давав тисячі мікросегментів і ривки. Тепер контури будуються точно, а криві діляться вдесятеро дрібніше.',
+      ],
+    },
+  },
+  {
     version: '0.18.0',
     date: '2026-11-12',
     text: {

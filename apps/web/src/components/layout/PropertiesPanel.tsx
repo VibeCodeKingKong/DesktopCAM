@@ -23,7 +23,8 @@ import {
   type InlayToolpath,
   type PlasmaCutToolpath,
   type PlasmaSettings,
-  plasmaChartAt,
+  plasmaDataFor,
+  withPlasmaDefaults,
   type ProfileStrategy,
   type ProfileToolpath,
   type ReliefInstance,
@@ -32,7 +33,7 @@ import {
   type ToolpathConfig,
   type VectorShape,
 } from '@desktopcam/core';
-import { allShapes, machineClass, useAppStore, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
+import { allShapes, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
 import { toolFits } from '../../cam/toolRules';
 import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import {
@@ -496,9 +497,13 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
   const dithers = (Object.keys(t.props.ditherMethods) as DitherMethod[]).map((value) => ({ value, label: t.props.ditherMethods[value] }));
   const preset = useMaterialPreset();
   const machineKind = useMachine().kind;
+  const eff = useEffectiveMaterial();
+  const thickness = useAppStore((s) => s.material.thickness);
   const materialWarning =
     tp.operation === 'laserCut' && tp.side !== 'on' && preset.laser.canCut === false
       ? t.props.cannotCut
+      : tp.operation === 'laserCut' && tp.side !== 'on' && eff.laserTooThick
+        ? t.props.laserTooThick(thickness.toLocaleString(t.locale))
       : machineKind === 'router' && !preset.router
         ? t.props.notForRouter
         : machineKind === 'plasma' && !preset.plasma
@@ -718,9 +723,9 @@ function PlasmaEditor({
   const preset = useMaterialPreset();
   const thickness = useAppStore((s) => s.material.thickness);
   const zAxis = machine.plasma?.zAxis ?? true;
-  const s = tp.plasma;
+  const s = withPlasmaDefaults(tp.plasma);
   const set = (p: Partial<PlasmaSettings>) => patch({ plasma: { ...s, ...p } } as Partial<ToolpathConfig>);
-  const chart = plasmaChartAt(preset.plasma, thickness);
+  const chart = plasmaDataFor(preset, machine, thickness);
   const maxAmps = machine.plasma?.maxAmps ?? 999;
   const leads = (value: PlasmaSettings['leadIn']) => ({ value, label: pl.leads[value] });
   const applyChart = () => {
@@ -739,6 +744,7 @@ function PlasmaEditor({
         {chart ? (
           <div className="space-y-1.5 rounded-md bg-app px-2 py-1.5 text-2xs leading-relaxed text-muted">
             <p>{pl.chart(thickness.toLocaleString(t.locale), chart.amps, chart.feedRate, chart.kerf.toLocaleString(t.locale), chart.pierceDelay.toLocaleString(t.locale))}</p>
+            {'limited' in chart && <p>{pl.chartLimited(chart.amps)}</p>}
             <button className="btn h-6 px-2 text-2xs" onClick={applyChart}>
               {pl.useChart}
             </button>
@@ -770,9 +776,24 @@ function PlasmaEditor({
             <Segmented label={pl.leadOut} value={s.leadOut} options={[leads('arc'), leads('line'), leads('none')]} onChange={(leadOut) => set({ leadOut })} />
           </FieldRow>
           {s.leadOut !== 'none' && <NumberField label={s.leadOut === 'arc' ? pl.radius : pl.length} unit="mm" step={0.5} min={0.5} value={s.leadOutLength} hint="plasmaLead" onChange={(leadOutLength) => set({ leadOutLength })} />}
+          {s.leadIn !== 'none' && <NumberField label={pl.leadInFeed} unit="%" step={5} min={10} max={100} value={s.leadInFeedPct} hint="plasmaLead" onChange={(leadInFeedPct) => set({ leadInFeedPct })} />}
+          {s.leadOut !== 'none' && <NumberField label={pl.leadOutFeed} unit="%" step={5} min={10} max={100} value={s.leadOutFeedPct} hint="plasmaLead" onChange={(leadOutFeedPct) => set({ leadOutFeedPct })} />}
           {expert && <NumberField label={pl.overcut} unit="mm" step={0.1} min={0} max={10} value={s.overcut} hint="plasmaOvercut" onChange={(overcut) => set({ overcut })} />}
         </Group>
       )}
+
+      <Group title={pl.corners}>
+        <FieldRow label={pl.cornerSlowdown} hint="plasmaCorner">
+          <Switch checked={s.cornerSlowdown} onChange={(cornerSlowdown) => set({ cornerSlowdown })} label={pl.cornerSlowdown} />
+        </FieldRow>
+        {s.cornerSlowdown && (
+          <>
+            <NumberField label={pl.cornerFeed} unit="%" step={5} min={10} max={100} value={s.cornerFeedPct} hint="plasmaCorner" onChange={(cornerFeedPct) => set({ cornerFeedPct })} />
+            <NumberField label={pl.cornerDistance} unit="mm" step={0.5} min={0.5} max={20} value={s.cornerDistance} hint="plasmaCorner" onChange={(cornerDistance) => set({ cornerDistance })} />
+            {expert && <NumberField label={pl.cornerAngle} unit="°" step={5} min={10} max={170} value={s.cornerAngle} hint="plasmaCorner" onChange={(cornerAngle) => set({ cornerAngle })} />}
+          </>
+        )}
+      </Group>
 
       {tp.side !== 'on' && (
         <Group title={pl.holes}>

@@ -3,6 +3,7 @@
  * Kommunikation: WorkerInbound in, WorkerOutbound ut (se @desktopcam/core/protocol).
  */
 import {
+  optimizeGcode,
   plasmaGcode,
   drillGcode,
   importVectorFile,
@@ -36,6 +37,16 @@ interface Handled {
   transfer: Transferable[];
 }
 
+/**
+ * Mindre G-kod: raka följder slås ihop och cirkelbågar blir G2/G3 (om
+ * maskinens postprocessor tillåter bågar). Banan ändras högst 0,01 mm.
+ */
+function compact(gcode: string, request: CamRequest): string {
+  const post = 'job' in request && request.job && 'post' in request.job ? request.job.post : null;
+  if (!post) return gcode;
+  return optimizeGcode(gcode, { arcs: post.arcs !== false, tolerance: 0.01, decimals: post.decimals });
+}
+
 async function handle(engine: CamEngine, request: CamRequest, progress: Progress): Promise<Handled> {
   switch (request.type) {
     case 'ping': {
@@ -61,24 +72,27 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
       progress(0.5, 'gcode');
       const gcode = engine.profileGcode(job);
       progress(0.75, 'preview');
-      const preview = parseGcode(gcode);
-      const result: ToolpathPayload = { gcode, preview };
+      const small = compact(gcode, request);
+      const preview = parseGcode(small);
+      const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'relief': {
       progress(0.1, 'relief');
       const gcode = engine.reliefGcode(request.job);
       progress(0.75, 'preview');
-      const preview = parseGcode(gcode);
-      const result: ToolpathPayload = { gcode, preview };
+      const small = compact(gcode, request);
+      const preview = parseGcode(small);
+      const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'plasma': {
       progress(0.1, 'offset');
       const gcode = plasmaGcode(request.job);
       progress(0.8, 'preview');
-      const preview = parseGcode(gcode);
-      const result: ToolpathPayload = { gcode, preview };
+      const small = compact(gcode, request);
+      const preview = parseGcode(small);
+      const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'pocket':
@@ -97,8 +111,9 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
               ? vcarveGcode(request.job)
               : routerProfileGcode(request.job);
       progress(0.8, 'preview');
-      const preview = parseGcode(gcode);
-      const result: ToolpathPayload = { gcode, preview };
+      const small = compact(gcode, request);
+      const preview = parseGcode(small);
+      const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'import': {

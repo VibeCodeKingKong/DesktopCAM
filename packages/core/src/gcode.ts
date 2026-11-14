@@ -1,5 +1,6 @@
 import type { GcodePreview } from './protocol';
 import type { ToolpathStats } from './types';
+import { arcPoints } from './gcodeOptimize';
 
 const WORD = /([A-Za-z])\s*([-+]?(?:\d+\.?\d*|\.\d+))/g;
 /** Antagen snabbförflyttningshastighet för tidsuppskattning (mm/min). */
@@ -46,6 +47,7 @@ export function parseGcode(src: string): GcodePreview {
     if (/\bG92\b/i.test(line)) continue;
     let dwell = false;
     let probe = false;
+    let ai = 0, aj = 0;
     WORD.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = WORD.exec(line))) {
@@ -53,7 +55,7 @@ export function parseGcode(src: string): GcodePreview {
       const value = parseFloat(m[2]);
       switch (letter) {
         case 'G':
-          if (value === 0 || value === 1) mode = value;
+          if (value === 0 || value === 1 || value === 2 || value === 3) mode = value;
           else if (value === 4) dwell = true;
           else if (value >= 38 && value < 39) probe = true;
           break;
@@ -63,10 +65,27 @@ export function parseGcode(src: string): GcodePreview {
         case 'X': nx = value; moved = true; break;
         case 'Y': ny = value; moved = true; break;
         case 'Z': nz = value; moved = true; break;
+        case 'I': ai = value; break;
+        case 'J': aj = value; break;
         case 'F': feed = value > 0 ? value : feed; break;
       }
     }
     if (!moved || probe) continue;
+    if (mode === 2 || mode === 3) {
+      // Bågen delas upp i korta delar för förhandsvisningen.
+      let px = x, py = y, pz = z;
+      for (const [qx, qy, qz] of arcPoints(x, y, z, nx, ny, nz, ai, aj, mode === 2)) {
+        cuts.push(px, py, pz, qx, qy, qz);
+        const l = Math.hypot(qx - px, qy - py, qz - pz);
+        cutLen += l;
+        seconds += (l / feed) * 60;
+        grow(px, py, pz);
+        grow(qx, qy, qz);
+        px = qx; py = qy; pz = qz;
+      }
+      x = nx; y = ny; z = nz;
+      continue;
+    }
     const len = Math.hypot(nx - x, ny - y, nz - z);
     if (len > 0) {
       if (mode === 0) {
