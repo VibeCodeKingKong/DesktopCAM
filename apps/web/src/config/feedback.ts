@@ -7,6 +7,6 @@
  * Skapa nyckeln på web3forms.com med mottagarens adress och klistra in den
  * här (eller sätt VITE_WEB3FORMS_KEY vid bygget).
  */
-export const FEEDBACK_ACCESS_KEY: string = import.meta.env.VITE_WEB3FORMS_KEY ?? '';
+export const FEEDBACK_ACCESS_KEY: string = import.meta.env.VITE_WEB3FORMS_KEY || '403ff590-d77a-4e2c-8c2d-0d4b293c827e';
 
 export const FEEDBACK_ENDPOINT = 'https://api.web3forms.com/submit';

@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.23.1',
+    date: '2026-11-14',
+    text: {
+      sv: ["Feedback är nu aktiverad – skicka gärna synpunkter via pratbubblan uppe till höger."],
+      en: ["Feedback is now enabled – send your thoughts via the speech bubble at the top right."],
+      fr: ["Les avis sont maintenant activés – envoyez vos remarques via la bulle en haut à droite."],
+      de: ["Feedback ist jetzt aktiviert – senden Sie Ihre Meinung über die Sprechblase oben rechts."],
+      es: ["Los comentarios ya están activados: envíe sus opiniones con el bocadillo de arriba a la derecha."],
+      pl: ["Opinie są już włączone – wyślij swoje uwagi przez dymek w prawym górnym rogu."],
+      uk: ["Відгуки тепер увімкнено – надсилайте свої думки через хмарку вгорі праворуч."],
+    },
+  },
+  {
     version: '0.23.0',
     date: '2026-11-14',
     text: {
