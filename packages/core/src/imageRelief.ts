@@ -23,6 +23,14 @@ export interface ImageReliefSettings {
   gamma: number;
   /** Platt bakgrund: allt under denna nivå (0–0,6) blir botten. */
   background: number;
+  /**
+   * Bump mapping: bildens fina detaljer (struktur, hår, ådring, text) läggs
+   * ovanpå reliefens form, opåverkade av utjämningen. 0 = av, 1 = detaljerna
+   * får ±halva djupet. Saknas i äldre projekt (= av).
+   */
+  bump?: number;
+  /** Största detalj som räknas som struktur, i bildpunkter vid 360 punkters bredd (1–20). */
+  bumpSize?: number;
 }
 
 export interface ImageReliefSource {
@@ -215,7 +223,35 @@ export function imageReliefHeights(gray: Uint8Array, w: number, h: number, s: Im
     x = x <= th ? 0 : (x - th) / (1 - th);
     v[i] = x;
   }
+  // Bump mapping: högpassfiltrerad bild (bilden minus en suddig kopia) –
+  // räknas före utjämningen så att detaljerna behålls skarpa.
+  const bump = Math.min(1, Math.max(0, s.bump ?? 0));
+  let detail: Float32Array | null = null;
+  if (bump > 0) {
+    const scale = Math.max(w, h) / IMAGE_RELIEF_MAX;
+    const src = new Float32Array(n);
+    for (let i = 0; i < n; i++) src[i] = s.invert ? 1 - gray[i] / 255 : gray[i] / 255;
+    const low = Float32Array.from(src);
+    blur(low, w, h, Math.max(1, (s.bumpSize ?? 4) * scale));
+    // Lätt brusfilter så att JPEG-brus inte blir sandpapper.
+    blur(src, w, h, 0.5 * scale);
+    detail = new Float32Array(n);
+    for (let i = 0; i < n; i++) detail[i] = src[i] - low[i];
+    // Normera: 98:e percentilen av |detalj| blir ±1.
+    const mags = Float32Array.from(detail, Math.abs).sort();
+    const ref = Math.max(1e-3, mags[Math.min(n - 1, Math.floor(n * 0.98))]);
+    for (let i = 0; i < n; i++) detail[i] = Math.max(-1, Math.min(1, detail[i] / ref));
+  }
   blur(v, w, h, (s.smoothing * Math.max(w, h)) / IMAGE_RELIEF_MAX);
+  if (detail) {
+    for (let i = 0; i < n; i++) {
+      // Platt bakgrund förblir platt: strukturen tonas in där motivet börjar.
+      const mask = th > 0 ? Math.min(1, v[i] * 8) : 1;
+      // Formen trycks ihop lite så att detaljerna ryms inom djupet utan att klippas.
+      const k = 0.5 * bump * mask;
+      v[i] = Math.min(1, Math.max(0, v[i] * (1 - k) + 0.5 * k * (1 + detail[i])));
+    }
+  }
   // Vänd raderna: bilden uppifrån, höjdfältet nerifrån.
   const out = new Float32Array(n);
   for (let y = 0; y < h; y++) out.set(v.subarray(y * w, y * w + w), (h - 1 - y) * w);

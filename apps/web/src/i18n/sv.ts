@@ -11,7 +11,7 @@ export type GuideEntry = { title: string; body: string; steps?: string[] };
 export type GuideKey =
   | 'cutDepth' | 'stepDown' | 'stepOver' | 'feedRate' | 'plungeRate' | 'spindleRpm' | 'cutSide'
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
-  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'snap'
+  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'bumpMap' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
   | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay'
   | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection' | 'plasmaCorner' | 'gcodeArcs';
@@ -510,6 +510,9 @@ export const sv = {
     contrast: 'Kontrast',
     gamma: 'Gamma',
     background: 'Platt bakgrund',
+    bump: "Bump mapping",
+    bumpStrength: "Styrka",
+    bumpSize: "Detaljstorlek",
     depth: 'Djup',
     mirror: 'Spegelvänd',
     footer: 'Reliefen placeras mitt på materialet. Skapa sedan en 3D-bana under Verktygsbanor.',
@@ -1151,6 +1154,7 @@ export const sv = {
       facingDepth: { title: "Djup att ta bort", body: "Hur mycket som fräses bort från ovansidan totalt. Z = 0 är ytan före planingen – nollställ Z igen efteråt om andra banor ska mätas från den nya ytan.", steps: ["Offerbord: 0,3–0,5 mm räcker oftast.", "Skevt eller sågat trä: mät den lägsta punkten och ta bort ner till den.", "Djupare än ett pass delas upp i flera pass med Djup per pass."] },
       facingPattern: { title: "Mönster", body: "Sicksack fräser fram och tillbaka och är snabbast. Enkelriktat fräser åt samma håll varje rad och lyfter mellan raderna – det ger samma spånbildning hela vägen och en jämnare yta.", steps: ["Offerbord och grovplaning: Sicksack.", "Synlig yta i fint trä: Enkelriktat."] },
       facingOverhang: { title: "Överhäng vid kanten", body: "Hur långt fräsens kant går förbi ytan i radernas ändar. Fräsen går ner utanför materialet och lämnar rena kanter utan märken.", steps: ["2 mm räcker normalt.", "Se till att det finns plats för fräsen utanför ämnet – klämmor får inte stå där."] },
+      bumpMap: { title: "Bump mapping", body: "Lägger bildens fina detaljer – struktur, hår, ådring, tyg, text – som en tunn yta ovanpå reliefens form. Formen kan då utjämnas mycket för en mjuk yta medan detaljerna förblir skarpa.", steps: ["Styrka: hur djupa detaljerna blir. 100 % = ±halva reliefdjupet; 20–50 % räcker oftast.", "Detaljstorlek: största detalj som räknas som struktur. Litet värde = bara fin struktur, större = även grövre former.", "Fräs med liten kulfräs (1–2 mm) och liten sidstegning, annars försvinner detaljerna.", "Med Platt bakgrund förblir bakgrunden slät."] },
       inlay: { title: 'Så gör du ett inlägg', body: 'Ett V-inlägg består av två delar som fräses med samma V-fräs: en ficka i grundträet och en spegelvänd plugg i ett trä med annan färg.', steps: ['Fräs fickan i grundträet.', 'Fräs pluggen i inläggsträet med samma nollpunkt.', 'Stryk lim i fickan, vänd pluggen och pressa ner den med tving.', 'När limmet torkat: såga eller hyvla bort överskottet och slipa plant.'] },
       inlayPocketDepth: { title: 'Fickdjup', body: 'Fickans största djup. Breda partier får plan botten här, smala partier blir V-formade.', steps: ['5–6 mm är ett bra startvärde.', 'Fickdjupet ska vara större än pluggens startdjup.'] },
       startDepth: { title: 'Startdjup', body: 'Hur långt ner i fickan pluggen sjunker innan väggarna möts. Skillnaden mot fickdjupet blir limspalt under pluggen.', steps: ['Ungefär halva fickdjupet ger gott om plats för lim.'] },

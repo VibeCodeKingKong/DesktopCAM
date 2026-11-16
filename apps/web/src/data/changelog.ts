@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.24.0',
+    date: '2026-11-16',
+    text: {
+      sv: ["Bild till relief har fått bump mapping: bildens fina detaljer läggs ovanpå reliefens utjämnade form, med inställbar styrka och detaljstorlek. Finns i dialogen och under Egenskaper."],
+      en: ["Image to relief now has bump mapping: the image’s fine detail is laid on top of the smoothed relief shape, with adjustable strength and detail size. Available in the dialog and under Properties."],
+      fr: ["Image vers relief propose maintenant le bump mapping : les détails fins de l’image s’ajoutent à la forme lissée du relief, avec intensité et taille des détails réglables. Dans la boîte de dialogue et sous Propriétés."],
+      de: ["Bild zu Relief hat jetzt Bump-Mapping: Die feinen Details des Bildes werden auf die geglättete Reliefform gelegt, mit einstellbarer Stärke und Detailgröße. Im Dialog und unter Eigenschaften."],
+      es: ["Imagen a relieve ahora tiene bump mapping: los detalles finos de la imagen se añaden sobre la forma suavizada del relieve, con intensidad y tamaño de detalle ajustables. En el diálogo y en Propiedades."],
+      pl: ["Obraz na relief ma teraz bump mapping: drobne detale obrazu nakładane są na wygładzony kształt reliefu, z regulowaną siłą i wielkością detali. W oknie dialogowym i w Właściwościach."],
+      uk: ["«Зображення в рельєф» тепер має bump mapping: дрібні деталі зображення накладаються на згладжену форму рельєфу, з налаштовуваною силою й розміром деталей. У діалозі та у Властивостях."],
+    },
+  },
+  {
     version: '0.23.1',
     date: '2026-11-14',
     text: {

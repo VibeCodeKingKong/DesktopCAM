@@ -60,6 +60,17 @@ export function ImageReliefFields({
       {expert && <NumberField label={ti.contrast} step={0.1} min={0.5} max={3} value={settings.contrast} onChange={(contrast) => set({ contrast })} />}
       {expert && <NumberField label={ti.gamma} step={0.1} min={0.3} max={3} value={settings.gamma} onChange={(gamma) => set({ gamma })} />}
       <NumberField label={ti.background} unit="%" step={5} min={0} max={60} value={Math.round(settings.background * 100)} onChange={(pct) => set({ background: pct / 100 })} />
+      <div className="space-y-2.5 border-t border-line pt-2.5">
+        <FieldRow label={ti.bump} hint="bumpMap">
+          <Switch checked={(settings.bump ?? 0) > 0} onChange={(on) => set({ bump: on ? 0.4 : 0, bumpSize: settings.bumpSize ?? 4 })} label={ti.bump} />
+        </FieldRow>
+        {(settings.bump ?? 0) > 0 && (
+          <>
+            <NumberField label={ti.bumpStrength} unit="%" step={5} min={5} max={100} value={Math.round((settings.bump ?? 0) * 100)} onChange={(pct) => set({ bump: pct / 100 })} />
+            <NumberField label={ti.bumpSize} unit="px" step={1} min={1} max={20} value={settings.bumpSize ?? 4} onChange={(bumpSize) => set({ bumpSize })} />
+          </>
+        )}
+      </div>
     </div>
   );
 }
