@@ -1,10 +1,11 @@
-import { CircleHelp, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
+import { CircleHelp, Heart, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
 import { Switch } from '../ui/Field';
 import { startTour } from '../../tutorial/tour';
 import { APP_VERSION } from '../../data/changelog';
+import { DONATE_URL } from '../../config/donate';
 
 function Logo() {
   return (
@@ -64,6 +65,11 @@ export function AppHeader() {
         </span>
         {machine.name}
       </p>
+      {DONATE_URL && (
+        <button className={`${iconBtn} text-rose-500 hover:text-rose-600`} onClick={() => openDialog('donate')} aria-label={t.donate.open} title={t.donate.open}>
+          <Heart size={16} />
+        </button>
+      )}
       <button className={iconBtn} onClick={() => openDialog('feedback')} aria-label={t.feedback.open} title={t.feedback.open}>
         <MessageSquarePlus size={16} />
       </button>

@@ -559,6 +559,14 @@ export const sv = {
     licensesLink: 'Visa alla licenser',
   },
 
+  donate: {
+    open: "Stöd desktopCAM",
+    title: "Stöd desktopCAM",
+    body: "desktopCAM är gratis och utan reklam. Gillar du programmet får du gärna bidra med en valfri summa – det hjälper till att hålla det levande och utvecklas vidare. Tack!",
+    button: "Donera via PayPal",
+    note: "Du skickas vidare till PayPal i en ny flik. desktopCAM ser inga betaluppgifter. Donationen är frivillig och ger inga extra funktioner – allt är gratis för alla.",
+  },
+
   feedback: {
     title: "Skicka feedback",
     open: "Skicka feedback",

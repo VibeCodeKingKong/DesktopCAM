@@ -607,6 +607,14 @@ export const fr: Dict = {
     licensesLink: 'Afficher toutes les licences',
   },
 
+  donate: {
+    open: "Soutenir desktopCAM",
+    title: "Soutenir desktopCAM",
+    body: "desktopCAM est gratuit et sans publicité. S’il vous plaît, vous pouvez faire un don du montant de votre choix – cela aide à le faire vivre et évoluer. Merci !",
+    button: "Faire un don via PayPal",
+    note: "Vous êtes redirigé vers PayPal dans un nouvel onglet. desktopCAM ne voit aucune donnée de paiement. Le don est facultatif et ne débloque rien – tout est gratuit pour tous.",
+  },
+
   feedback: {
     title: "Envoyer un avis",
     open: "Envoyer un avis",

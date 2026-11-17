@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
+import { Heart } from 'lucide-react';
+import { DONATE_URL } from '../../config/donate';
 import { APP_VERSION, CHANGELOG } from '../../data/changelog';
 
 const SEEN_KEY = 'desktopcam.seenVersion';
@@ -52,9 +54,16 @@ export function AboutDialog() {
             </li>
           ))}
         </ol>
-        <button className="btn w-full" onClick={() => useAppStore.getState().openDialog('feedback')}>
-          {t.feedback.open}
-        </button>
+        <div className="flex gap-2">
+          <button className="btn flex-1 justify-center" onClick={() => useAppStore.getState().openDialog('feedback')}>
+            {t.feedback.open}
+          </button>
+          {DONATE_URL && (
+            <button className="btn flex-1 justify-center" onClick={() => useAppStore.getState().openDialog('donate')}>
+              <Heart size={13} className="text-rose-500" /> {t.donate.open}
+            </button>
+          )}
+        </div>
         <section className="space-y-1.5 border-t border-line pt-3 text-2xs leading-relaxed text-muted">
           <h3 className="text-xs font-semibold uppercase tracking-wide">{t.about.legalTitle}</h3>
           <p>{t.about.disclaimer}</p>
