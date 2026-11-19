@@ -99,6 +99,8 @@ export class SceneController {
   private stockSize = { x: 300, y: 200 };
   /** Vad Uppifrån/Iso/Framifrån ramar in: arbetsstycket eller hela arbetsytan. */
   private framing: 'stock' | 'bed' = 'stock';
+  /** Har kameran ramats in en gång? Därefter behåller vybyten zoom och panorering. */
+  private framed = false;
 
   onCursor?: (p: Vec3 | null) => void;
   /** Anropas efter varje renderad bild – används av ritlagret. */
@@ -435,14 +437,20 @@ export class SceneController {
 
     switch (kind) {
       case 'top':
-        this.camera.position.set(center.x, center.y - dist * 0.001, dist);
-        break;
       case 'front':
-        this.camera.position.set(center.x, center.y - dist, dist * 0.18);
+      case 'iso': {
+        const dir = kind === 'top' ? new THREE.Vector3(0, -0.001, 1) : kind === 'front' ? new THREE.Vector3(0, -1, 0.18) : new THREE.Vector3(-0.45, -0.95, 0.75);
+        dir.normalize();
+        // Byte av vy behåller zoom och panorering: samma punkt och samma avstånd,
+        // bara vinkeln ändras. Första gången ramas arbetsstycket in.
+        if (this.framed) {
+          this.camera.position.copy(this.controls.target).add(dir.multiplyScalar(offset.length()));
+          this.controls.update();
+          return;
+        }
+        this.camera.position.copy(center).add(dir.multiplyScalar(dist));
         break;
-      case 'iso':
-        this.camera.position.copy(center).add(new THREE.Vector3(-0.45, -0.95, 0.75).normalize().multiplyScalar(dist));
-        break;
+      }
       case 'fit':
       case 'fitStock':
         // Bara inramningen ändras: samma vinkel som nu (uppifrån, iso, framifrån eller egen).
@@ -458,6 +466,7 @@ export class SceneController {
     }
     this.controls.target.copy(center);
     this.controls.update();
+    this.framed = true;
   }
 
   private handlePointer = (e: PointerEvent) => {
