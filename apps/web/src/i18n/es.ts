@@ -642,12 +642,14 @@ export const es: Dict = {
   },
 
   exportGcode: {
+    noLayer: "Sin capa",
+    layerFile: (n: number) => (n === 1 ? 'capa, 1 trayectoria' : `capa, ${n} trayectorias`),
     title: "Guardar G-code",
     all: "Seleccionar todo",
     none: "No seleccionar nada",
     onBase: "Madera base",
     hidden: "oculta",
-    note: "Cada trayectoria se guarda en su propio archivo. En una incrustación la cajera se fresa en la madera base y el tapón en la madera de incrustación, cada uno con su propio origen.",
+    note: "Las trayectorias se guardan así: cada capa es un archivo con sus trayectorias en el orden de la lista. Si una capa usa varias herramientas, hay un archivo por herramienta, porque Z debe ponerse a cero de nuevo tras un cambio de herramienta. La cajera y el tapón de una incrustación son siempre archivos separados: se fresan en piezas de madera distintas, cada una con su propio origen.",
     download: (n: number) => (n === 1 ? 'Descargar 1 archivo' : `Descargar ${n} archivos`),
     onInlayWood: (w: number, h: number, t: number) => `Madera de incrustación ${w} × ${h} × ${t} mm`,
     lines: (n: string) => `${n} líneas`,

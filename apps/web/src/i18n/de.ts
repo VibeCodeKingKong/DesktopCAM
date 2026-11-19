@@ -642,12 +642,14 @@ export const de: Dict = {
   },
 
   exportGcode: {
+    noLayer: "Ohne Ebene",
+    layerFile: (n: number) => (n === 1 ? 'Ebene, 1 Bahn' : `Ebene, ${n} Bahnen`),
     title: "G-Code speichern",
     all: "Alle auswählen",
     none: "Keine auswählen",
     onBase: "Grundholz",
     hidden: "ausgeblendet",
-    note: "Jede Bahn wird als eigene Datei gespeichert. Bei einer Intarsie wird die Tasche im Grundholz und der Stopfen im Intarsienholz gefräst – jeweils mit eigenem Nullpunkt.",
+    note: "So werden die Bahnen gespeichert: Jede Ebene wird eine eigene Datei mit ihren Bahnen in Listenreihenfolge. Nutzt eine Ebene mehrere Werkzeuge, gibt es eine Datei pro Werkzeug, da Z nach einem Werkzeugwechsel neu genullt werden muss. Tasche und Stopfen einer Intarsie sind immer getrennte Dateien – sie werden in verschiedenen Holzstücken mit eigenem Nullpunkt gefräst.",
     download: (n: number) => (n === 1 ? '1 Datei herunterladen' : `${n} Dateien herunterladen`),
     onInlayWood: (w: number, h: number, t: number) => `Intarsienholz ${w} × ${h} × ${t} mm`,
     lines: (n: string) => `${n} Zeilen`,

@@ -40,6 +40,7 @@ import { getT } from '../i18n';
 import toolsJson from '../data/tools.json';
 import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
+import { fileGcode, planExport } from './exportGcode';
 import { computeToolpath } from './toolpathService';
 import { buildTextShape, ensureTextFont } from '../text/textShape';
 import { activeEditor } from '../editing/EditController';
@@ -673,21 +674,19 @@ export function exportSelectedGcode() {
 }
 
 /**
- * Laddar ner G-koden för banorna, en fil per bana (ficka och plugg i ett
- * inlägg fräses i olika trästycken och kan inte ligga i samma fil).
- * Filerna laddas ner en i taget – annars stoppar webbläsaren alla utom den första.
+ * Laddar ner G-koden för banorna: inläggets ficka och plugg som egna filer,
+ * övriga banor en fil per lager (och verktyg). Filerna laddas ner en i taget
+ * – annars stoppar webbläsaren alla utom den första.
  */
 export function exportToolpathsGcode(ids: string[]) {
-  const s = useAppStore.getState();
   const t = getT();
-  const list = s.toolpaths.filter((x) => ids.includes(x.id) && s.results[x.id]);
-  if (!list.length) {
+  const files = planExport(ids);
+  if (!files.length) {
     status(t.status.noResult);
     return;
   }
-  const names = list.map((tp) => `${slug(s.projectName || 'desktopcam')}-${slug(tp.name)}.gcode`);
-  list.forEach((tp, i) => setTimeout(() => downloadText(names[i], s.results[tp.id].gcode), i * 400));
-  status(list.length === 1 ? t.status.saved(names[0]) : t.status.savedMany(list.length));
+  files.forEach((f, i) => setTimeout(() => downloadText(f.filename, fileGcode(f)), i * 400));
+  status(files.length === 1 ? t.status.saved(files[0].filename) : t.status.savedMany(files.length));
 }
 
 /* ───────── Mått mellan två former ───────── */

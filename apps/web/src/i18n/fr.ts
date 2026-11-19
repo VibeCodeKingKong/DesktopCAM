@@ -642,12 +642,14 @@ export const fr: Dict = {
   },
 
   exportGcode: {
+    noLayer: "Sans calque",
+    layerFile: (n: number) => (n === 1 ? 'calque, 1 parcours' : `calque, ${n} parcours`),
     title: "Enregistrer le G-code",
     all: "Tout sélectionner",
     none: "Tout désélectionner",
     onBase: "Bois de base",
     hidden: "masqué",
-    note: "Chaque parcours est enregistré dans son propre fichier. Dans une incrustation, la poche est usinée dans le bois de base et le bouchon dans le bois d’incrustation – chacun avec sa propre origine.",
+    note: "Les parcours sont enregistrés ainsi : chaque calque devient un fichier avec ses parcours dans l’ordre de la liste. Si un calque utilise plusieurs outils, il y a un fichier par outil, car il faut refaire le zéro Z après un changement d’outil. La poche et le bouchon d’une incrustation sont toujours des fichiers séparés – usinés dans des pièces de bois différentes, chacune avec sa propre origine.",
     download: (n: number) => (n === 1 ? 'Télécharger 1 fichier' : `Télécharger ${n} fichiers`),
     onInlayWood: (w: number, h: number, t: number) => `Bois d’incrustation ${w} × ${h} × ${t} mm`,
     lines: (n: string) => `${n} lignes`,

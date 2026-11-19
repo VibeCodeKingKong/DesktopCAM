@@ -594,12 +594,14 @@ export const sv = {
   },
 
   exportGcode: {
+    noLayer: "Utan lager",
+    layerFile: (n: number) => (n === 1 ? 'lager, 1 bana' : `lager, ${n} banor`),
     title: "Spara G-kod",
     all: "Markera alla",
     none: "Avmarkera alla",
     onBase: "Grundträet",
     hidden: "dold",
-    note: "Varje bana sparas som en egen fil. I ett inlägg fräses fickan i grundträet och pluggen i inläggsträet – med var sin nollpunkt.",
+    note: "Banorna sparas i filer så här: varje lager blir en egen fil med lagrets banor i listans ordning. Använder ett lager flera verktyg blir det en fil per verktyg, eftersom Z måste nollställas på nytt efter ett verktygsbyte. Inläggets ficka och plugg blir alltid var sin fil – de fräses i olika trästycken med var sin nollpunkt.",
     download: (n: number) => (n === 1 ? 'Ladda ner 1 fil' : `Ladda ner ${n} filer`),
     onInlayWood: (w: number, h: number, t: number) => `Inläggsträet ${w} × ${h} × ${t} mm`,
     lines: (n: string) => `${n} rader`,

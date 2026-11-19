@@ -649,12 +649,14 @@ export const pl: Dict = {
   },
 
   exportGcode: {
+    noLayer: "Bez warstwy",
+    layerFile: (n: number) => (n === 1 ? 'warstwa, 1 ścieżka' : `warstwa, ścieżki: ${n}`),
     title: "Zapisz G-code",
     all: "Zaznacz wszystko",
     none: "Odznacz wszystko",
     onBase: "Drewno bazowe",
     hidden: "ukryta",
-    note: "Każda ścieżka zapisywana jest jako osobny plik. W intarsji kieszeń frezuje się w drewnie bazowym, a wkładkę w drewnie wkładki – każde z własnym punktem zerowym.",
+    note: "Ścieżki zapisywane są tak: każda warstwa to osobny plik z jej ścieżkami w kolejności listy. Jeśli warstwa używa kilku narzędzi, powstaje plik na każde narzędzie, bo po zmianie narzędzia trzeba ponownie wyzerować Z. Kieszeń i wkładka intarsji to zawsze osobne pliki – frezuje się je w różnych kawałkach drewna, każdy z własnym punktem zerowym.",
     download: (n: number) => (n === 1 ? 'Pobierz 1 plik' : `Pobierz pliki: ${n}`),
     onInlayWood: (w: number, h: number, t: number) => `Drewno wkładki ${w} × ${h} × ${t} mm`,
     lines: (n: string) => `${n} wierszy`,

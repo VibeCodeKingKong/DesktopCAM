@@ -643,12 +643,14 @@ export const en: Dict = {
   },
 
   exportGcode: {
+    noLayer: "No layer",
+    layerFile: (n: number) => (n === 1 ? 'layer, 1 toolpath' : `layer, ${n} toolpaths`),
     title: "Save G-code",
     all: "Select all",
     none: "Select none",
     onBase: "Base wood",
     hidden: "hidden",
-    note: "Each toolpath is saved as its own file. In an inlay the pocket is milled in the base wood and the plug in the inlay wood – each with its own origin.",
+    note: "Toolpaths are saved like this: each layer becomes its own file with the layer’s toolpaths in list order. If a layer uses several tools, there is one file per tool, since Z must be zeroed again after a tool change. An inlay’s pocket and plug are always separate files – they are milled in different pieces of wood, each with its own origin.",
     download: (n: number) => (n === 1 ? 'Download 1 file' : `Download ${n} files`),
     onInlayWood: (w: number, h: number, t: number) => `Inlay wood ${w} × ${h} × ${t} mm`,
     lines: (n: string) => `${n} lines`,
