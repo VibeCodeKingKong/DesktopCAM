@@ -419,6 +419,8 @@ export interface InlayToolpath extends ToolpathBase {
   /** Bredd som fräses bort runt pluggen. */
   margin: number;
   contourStep: number;
+  /** Inläggsträets material (för simuleringen). Saknas = valnöt. */
+  plugMaterial?: string;
 }
 
 export interface LaserCutToolpath extends ToolpathBase {

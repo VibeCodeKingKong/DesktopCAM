@@ -1,6 +1,6 @@
-import { Pause, Play, SkipForward, X } from 'lucide-react';
+import { Layers, Pause, Play, RotateCcw, SkipForward, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
+import { glueInlays, playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
 import { decimalSep, useT } from '../../i18n';
 
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
@@ -62,6 +62,55 @@ export function SimulationBar() {
           <X size={15} />
         </button>
       </div>
+      {sim.inlays > 0 && <InlayGlue />}
+    </div>
+  );
+}
+
+/** V-inlägg: limma och plana pluggen i fickan, med passningen. */
+function InlayGlue() {
+  const t = useT();
+  const ti = t.inlaySim;
+  const sim = useAppStore((s) => s.sim);
+  const pct = (v: number) => `${Math.round(v * 100)} %`;
+  const mm = (v: number) => `${v.toLocaleString(t.locale, { maximumFractionDigits: 2 })} mm`;
+  return (
+    <div className="mt-2 space-y-1.5 border-t border-line pt-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {sim.assembly === 'none' ? (
+          <button className="btn h-8" onClick={glueInlays} title={ti.glueDesc}>
+            <Layers size={14} /> {ti.glue}
+          </button>
+        ) : (
+          <button className="btn h-8" onClick={() => seekSimulation(1)} disabled={sim.assembly === 'animating'}>
+            <RotateCcw size={14} /> {ti.showMilling}
+          </button>
+        )}
+        {sim.assembly === 'none' && <span className="text-2xs text-muted">{ti.glueDesc}</span>}
+        {sim.assembly === 'done' && (
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-muted">
+            <span className="flex items-center gap-1"><i className="inline-block h-2.5 w-2.5 rounded-sm bg-[#6e4b33]" />{ti.legendInlay}</span>
+            <span className="flex items-center gap-1"><i className="inline-block h-2.5 w-2.5 rounded-sm bg-[#db2626]" />{ti.legendVoid}</span>
+            <span className="flex items-center gap-1"><i className="inline-block h-2.5 w-2.5 rounded-sm bg-[#f9c71a]" />{ti.legendThin}</span>
+          </span>
+        )}
+      </div>
+      {sim.assembly === 'done' &&
+        sim.fit.map((f) => (
+          <div key={f.name} className="text-2xs leading-relaxed">
+            <span className="font-medium">{f.name}: </span>
+            {f.blocked ? (
+              <span className="text-warn">{ti.blocked}</span>
+            ) : (
+              <>
+                <span>{ti.fitSummary(mm(f.sink), mm(f.maxGap), pct(f.filled))}</span>
+                {f.voids > 0.005 && <span className="text-warn"> {ti.voids(pct(f.voids))}</span>}
+                {f.thin > 0.005 && <span className="text-warn"> {ti.thin(pct(f.thin))}</span>}
+                {f.voids <= 0.005 && f.thin <= 0.005 && <span className="text-accent"> {ti.ok}</span>}
+              </>
+            )}
+          </div>
+        ))}
     </div>
   );
 }

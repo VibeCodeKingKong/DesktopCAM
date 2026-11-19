@@ -21,6 +21,7 @@ import materialsJson from '../data/materials.json';
 import { createDemoLayers } from '../data/demoProject';
 import { initialLanguage, type Language } from '../i18n/initial';
 import { DICTS } from '../i18n/dicts';
+import type { InlayFitResult } from '../cam/inlayAssembly';
 import type { MeasureRef } from '../cam/commands';
 
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
@@ -110,7 +111,20 @@ interface AppState extends DocSnapshot {
 
   view: { showToolpaths: boolean; showRapids: boolean; showStock: boolean };
   /** Materialsimulering. progress 0–1, duration i sekunder maskintid. */
-  sim: { active: boolean; playing: boolean; speed: number; progress: number; duration: number; job: string };
+  sim: {
+    active: boolean;
+    playing: boolean;
+    speed: number;
+    progress: number;
+    duration: number;
+    job: string;
+    /** Antal V-inlägg (pluggar) i simuleringen. */
+    inlays: number;
+    /** Limningen: av, animeras eller klar. */
+    assembly: 'none' | 'animating' | 'done';
+    /** Passningen per inlägg efter limningen. */
+    fit: (InlayFitResult & { name: string })[];
+  };
   /** Måttsättning mellan två former: från mitt till mitt eller mellan kanterna. */
   measureRef: MeasureRef | null;
   setMeasureRef: (r: MeasureRef | null) => void;
@@ -277,7 +291,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     future: [],
 
     view: { showToolpaths: true, showRapids: true, showStock: true },
-    sim: { active: false, playing: false, speed: 1, progress: 0, duration: 0, job: '' },
+    sim: { active: false, playing: false, speed: 1, progress: 0, duration: 0, job: '', inlays: 0, assembly: 'none', fit: [] },
     measureRef: null,
     setMeasureRef: (measureRef) => set({ measureRef }),
     measureSwapped: false,

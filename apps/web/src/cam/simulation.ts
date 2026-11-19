@@ -85,6 +85,19 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
   return { moves, end: t };
 }
 
+/** Tolkar alla banors G-kod till en gemensam tidslinje. */
+export function parseJobs(jobs: { job: SimJob; gcode: string }[], sMax: number): { moves: Move[]; duration: number } {
+  const all: Move[] = [];
+  let t = 0;
+  jobs.forEach((j, i) => {
+    const r = parseMoves(j.gcode, i, t, sMax, j.job.tool.kind === 'laser', j.job.tool.kind === 'plasma');
+    // Inte push(...moves): stora banor (t.ex. V-inlägg) har fler rörelser än stacken klarar som argument.
+    for (const mv of r.moves) all.push(mv);
+    t = r.end;
+  });
+  return { moves: all, duration: t };
+}
+
 export class StockSimulator {
   readonly nx: number;
   readonly ny: number;
@@ -117,11 +130,15 @@ export class StockSimulator {
     readonly material: { width: number; height: number; thickness: number },
     jobs: { job: SimJob; gcode: string }[],
     sMax: number,
+    /** Vilka banor som fräser i just det här ämnet (alla om den saknas). */
+    private owns: (job: number) => boolean = () => true,
+    /** Redan tolkad G-kod (delas mellan ämnena, så att den bara tolkas en gång). */
+    parsed?: { moves: Move[]; duration: number },
   ) {
     const { width, height } = material;
     // Laser- och plasmasnitt är bara 0,1–2 mm breda: finare rutnät, annars
     // blir snittet bara några rutor brett och kanten ser hackig ut.
-    const narrow = jobs.some((j) => j.job.laserCut);
+    const narrow = jobs.some((j, i) => j.job.laserCut && owns(i));
     this.cell = narrow ? Math.max(0.12, Math.max(width, height) / 1000) : Math.max(0.2, Math.max(width, height) / 700);
     this.nx = Math.max(2, Math.round(width / this.cell) + 1);
     this.ny = Math.max(2, Math.round(height / this.cell) + 1);
@@ -132,15 +149,9 @@ export class StockSimulator {
     this.partC = new Float32Array(this.nx * this.ny);
     this.display = new Float32Array(this.nx * this.ny);
     this.jobs = jobs.map((j) => j.job);
-    const all: Move[] = [];
-    let t = 0;
-    jobs.forEach((j, i) => {
-      const r = parseMoves(j.gcode, i, t, sMax, j.job.tool.kind === 'laser', j.job.tool.kind === 'plasma');
-      all.push(...r.moves);
-      t = r.end;
-    });
+    const { moves: all, duration } = parsed ?? parseJobs(jobs, sMax);
     this.moves = all;
-    this.duration = t;
+    this.duration = duration;
     if (all.length) this.position = { x: all[0].x0, y: all[0].y0, z: all[0].z0 };
   }
 
@@ -168,7 +179,7 @@ export class StockSimulator {
     let changed = false;
     while (this.index < moves.length && moves[this.index].t1 <= t) {
       const mv = moves[this.index];
-      if (mv.cut) {
+      if (mv.cut && this.owns(mv.job)) {
         this.sweep(mv, 0, 1);
         changed = true;
       }
@@ -178,7 +189,7 @@ export class StockSimulator {
     const mv = moves[this.index];
     if (mv && t > mv.t0) {
       partial = (t - mv.t0) / (mv.t1 - mv.t0);
-      if (mv.cut) {
+      if (mv.cut && this.owns(mv.job)) {
         this.sweep(mv, 0, partial);
         changed = true;
       }
@@ -208,14 +219,19 @@ export class StockSimulator {
     const tool = job.tool;
     const { cell, nx, ny, heights } = this;
     const floor = -this.material.thickness;
-    const R = Math.max(tool.radius, cell * 0.5);
+    const beam = tool.kind === 'laser' || tool.kind === 'plasma';
+    // Fräsen ovanför materialet skär inget.
+    if (!beam && z >= 0) return;
+    const tanHalf = Math.tan(((tool.angle || 90) * Math.PI) / 360);
+    // En V-fräs skär bara ut till djup · tan(α/2) från spetsen – resten av
+    // konan är ovanför ytan. Sparar mycket tid i V-gravyr och inlägg.
+    const R = Math.max(tool.kind === 'vbit' ? Math.min(tool.radius, -z * tanHalf + cell) : tool.radius, cell * 0.5);
     // Rutor ut till en halv ruta utanför kanten kan vara delvis täckta.
     const reach = R + cell * 0.5;
     const i0 = Math.max(0, Math.floor((x - reach) / cell)), i1 = Math.min(nx - 1, Math.ceil((x + reach) / cell));
     const j0 = Math.max(0, Math.floor((y - reach) / cell)), j1 = Math.min(ny - 1, Math.ceil((y + reach) / cell));
     if (i0 > i1 || j0 > j1) return;
     const R2 = R * R, reach2 = reach * reach;
-    const tanHalf = Math.tan(((tool.angle || 90) * Math.PI) / 360);
     for (let j = j0; j <= j1; j++) {
       const dy = j * cell - y;
       for (let i = i0; i <= i1; i++) {
@@ -273,6 +289,68 @@ export class StockSimulator {
   }
 }
 
+/** Ett ämne i simuleringen: grundträet eller inläggsträet till en plugg. */
+export interface SimStock {
+  sim: StockSimulator;
+  /** Var ämnet ligger i 3D-vyn (nedre vänstra hörnet). */
+  x: number;
+  y: number;
+  color: string;
+  /** Pluggens bana (för inläggsträ), annars null. */
+  plugOf: string | null;
+}
+
+export interface PlugPlacement {
+  x: number;
+  y: number;
+  color: string;
+}
+
+/**
+ * Alla ämnen i en simulering med en gemensam tidslinje: banorna körs i
+ * listans ordning, var och en i sitt eget ämne.
+ */
+export class SimulationSet {
+  readonly duration: number;
+  readonly jobs: SimJob[];
+  /** Vilket ämne varje bana fräser i. */
+  readonly jobStock: number[];
+
+  constructor(readonly stocks: SimStock[], jobs: SimJob[], jobStock: number[]) {
+    this.jobs = jobs;
+    this.jobStock = jobStock;
+    this.duration = stocks[0]?.sim.duration ?? 0;
+  }
+
+  get currentTime() {
+    return this.stocks[0]?.sim.currentTime ?? 0;
+  }
+
+  get currentJob() {
+    return this.stocks[0]?.sim.currentJob ?? 0;
+  }
+
+  /** Summan av ämnenas versioner – ändras när något har fräst. */
+  get version() {
+    return this.stocks.reduce((a, st) => a + st.sim.version, 0);
+  }
+
+  /** Verktygets spets i 3D-vyns koordinater (förskjuten till rätt ämne). */
+  get position() {
+    const st = this.stocks[this.jobStock[this.currentJob] ?? 0];
+    const p = this.stocks[0].sim.position;
+    return { x: p.x + (st?.x ?? 0), y: p.y + (st?.y ?? 0), z: p.z };
+  }
+
+  seek(t: number) {
+    for (const st of this.stocks) st.sim.seek(t);
+  }
+
+  reset() {
+    for (const st of this.stocks) st.sim.reset();
+  }
+}
+
 /** Bygger simuleringen av alla synliga, beräknade verktygsbanor i listans ordning. */
 export function buildSimulator(
   material: MaterialSetup,
@@ -280,8 +358,13 @@ export function buildSimulator(
   results: Record<string, ToolpathResult>,
   tools: ToolDefinition[],
   sMax: number,
-): StockSimulator | null {
+  baseColor = '#d9b98c',
+  plugs: Map<string, PlugPlacement & { width: number; height: number; thickness: number }> = new Map(),
+): SimulationSet | null {
   const jobs: { job: SimJob; gcode: string }[] = [];
+  const jobStock: number[] = [];
+  const stockOf = new Map<string, number>();
+  const plugIds: string[] = [];
   for (const tp of toolpaths) {
     const res = results[tp.id];
     if (!tp.visible || !res) continue;
@@ -299,8 +382,32 @@ export function buildSimulator(
       const top = -(finalDepth - Math.min(tp.tabs.height, finalDepth));
       if (top < -0.05) tabTop = top;
     }
+    // Pluggen fräses i sitt eget inläggsträ, allt annat i grundträet.
+    let stock = 0;
+    if (plugs.has(tp.id)) {
+      if (!stockOf.has(tp.id)) {
+        plugIds.push(tp.id);
+        stockOf.set(tp.id, plugIds.length);
+      }
+      stock = stockOf.get(tp.id)!;
+    }
     jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut', tabTop }, gcode: res.gcode });
+    jobStock.push(stock);
   }
   if (!jobs.length) return null;
-  return new StockSimulator(material, jobs, sMax);
+  const parsed = parseJobs(jobs, sMax);
+  const stocks: SimStock[] = [
+    { sim: new StockSimulator(material, jobs, sMax, (j) => jobStock[j] === 0, parsed), x: 0, y: 0, color: baseColor, plugOf: null },
+    ...plugIds.map((id, i) => {
+      const p = plugs.get(id)!;
+      return {
+        sim: new StockSimulator({ width: p.width, height: p.height, thickness: p.thickness }, jobs, sMax, (j) => jobStock[j] === i + 1, parsed),
+        x: p.x,
+        y: p.y,
+        color: p.color,
+        plugOf: id,
+      };
+    }),
+  ];
+  return new SimulationSet(stocks, jobs.map((j) => j.job), jobStock);
 }

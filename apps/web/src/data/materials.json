@@ -257,6 +257,46 @@
     "tips": []
   },
   {
+    "id": "walnut",
+    "name": "Valnöt",
+    "category": "wood",
+    "color": "#6e4b33",
+    "defaultThickness": 12,
+    "router": {
+      "feedRate": 1150,
+      "plungeRate": 320,
+      "spindleRpm": 14000,
+      "stepDownFactor": 0.35,
+      "drill": {
+        "rpm": 10000,
+        "feedPerRev": 0.04,
+        "peck": 2
+      }
+    },
+    "laser": {
+      "cutSpeed": 200,
+      "cutPowerPct": 100,
+      "cutPasses": 2,
+      "engraveSpeed": 2500,
+      "engravePowerPct": 45,
+      "chart": [
+        {
+          "thickness": 3,
+          "speed": 200,
+          "passes": 2,
+          "power": 100
+        },
+        {
+          "thickness": 5,
+          "speed": 120,
+          "passes": 4,
+          "power": 100
+        }
+      ]
+    },
+    "tips": []
+  },
+  {
     "id": "mild-steel",
     "name": "Stål (konstruktionsstål)",
     "category": "metal",

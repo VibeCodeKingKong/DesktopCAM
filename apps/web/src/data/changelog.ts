@@ -16,6 +16,40 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.25.0',
+    date: '2026-11-19',
+    text: {
+      sv: [
+        "V-inlägg simuleras nu som i verkligheten: pluggen fräses i ett eget inläggsträ bredvid grundträet, och Limma och plana vänder pluggen, trycker ner den i fickan och planar ytan – med passningskontroll som visar glipor och tunna partier.",
+        "Pluggens G-kod har nu egen nollpunkt i inläggsträets nedre vänstra hörn, och inläggsträets minsta storlek står i G-koden och under Egenskaper. Välj träslag för inlägget – valnöt är nytt material och standard.",
+      ],
+      en: [
+        "V-inlays are now simulated as in real life: the plug is milled in its own inlay wood next to the base, and Glue and plane flips the plug, presses it into the pocket and planes the surface – with a fit check showing gaps and thin areas.",
+        "The plug G-code now has its own origin at the lower left corner of the inlay wood, and the minimum inlay wood size is written in the G-code and under Properties. Choose the wood for the inlay – walnut is a new material and the default.",
+      ],
+      fr: [
+        "Les incrustations en V sont simulées comme en vrai : le bouchon est usiné dans son propre bois à côté du bois de base, et Coller et raboter retourne le bouchon, l’enfonce dans la poche et rabote la surface – avec un contrôle d’ajustement qui montre les jours et les zones minces.",
+        "Le G-code du bouchon a maintenant sa propre origine au coin inférieur gauche du bois d’incrustation, et la taille minimale de ce bois est indiquée dans le G-code et sous Propriétés. Choisissez l’essence de l’incrustation – le noyer est un nouveau matériau et le choix par défaut.",
+      ],
+      de: [
+        "V-Intarsien werden jetzt wie in echt simuliert: Der Stopfen wird in einem eigenen Intarsienholz neben dem Grundholz gefräst, und Leimen und abrichten dreht ihn, drückt ihn in die Tasche und hobelt die Oberfläche – mit Passungsprüfung, die Spalten und dünne Stellen zeigt.",
+        "Der G-Code des Stopfens hat jetzt einen eigenen Nullpunkt an der unteren linken Ecke des Intarsienholzes, und dessen Mindestgröße steht im G-Code und unter Eigenschaften. Holzart der Intarsie wählbar – Nussbaum ist neues Material und Standard.",
+      ],
+      es: [
+        "Las incrustaciones en V se simulan como en la realidad: el tapón se fresa en su propia madera junto a la base, y Encolar y cepillar le da la vuelta, lo encaja en la cajera y cepilla la superficie, con un control de ajuste que muestra huecos y zonas finas.",
+        "El G-code del tapón tiene ahora su propio origen en la esquina inferior izquierda de la madera de incrustación, y su tamaño mínimo figura en el G-code y en Propiedades. Elija la madera de la incrustación: el nogal es un material nuevo y el predeterminado.",
+      ],
+      pl: [
+        "Intarsje V są teraz symulowane jak w rzeczywistości: wkładka jest frezowana we własnym drewnie obok drewna bazowego, a Klejenie i strugenie odwraca ją, wciska w kieszeń i struga powierzchnię – z kontrolą pasowania pokazującą szczeliny i cienkie miejsca.",
+        "G-code wkładki ma teraz własny punkt zerowy w lewym dolnym rogu drewna wkładki, a jego minimalny rozmiar podany jest w G-code i we Właściwościach. Wybierz gatunek drewna wkładki – orzech to nowy materiał i domyślny wybór.",
+      ],
+      uk: [
+        "V-інкрустації тепер моделюються як насправді: вставка фрезерується у власній деревині поруч з основною, а «Склеїти й прострогати» перевертає її, вдавлює в кишеню й строгає поверхню – з перевіркою посадки, що показує щілини й тонкі місця.",
+        "G-код вставки тепер має власний нуль у нижньому лівому куті деревини вставки, а її мінімальний розмір указано в G-коді та у Властивостях. Оберіть породу деревини вставки – горіх є новим матеріалом і типовим вибором.",
+      ],
+    },
+  },
+  {
     version: '0.24.0',
     date: '2026-11-16',
     text: {

@@ -20,6 +20,7 @@ import {
   type VectorShape,
 } from '@desktopcam/core';
 import { camClient } from '../engine/camClient';
+import { DEFAULT_PLUG_MATERIAL, mirrorInPlace, PLUG_BLANK_GAP, plugBlank, type PlugBlank } from './inlayBlank';
 import { errorText, getT } from '../i18n';
 import { allShapes, getMachine, useAppStore } from '../store/useAppStore';
 import { rasterizeGray } from '../utils/image';
@@ -89,9 +90,12 @@ export async function computeToolpath(id: string): Promise<void> {
     }
     const st = useAppStore.getState();
     const warnings = toolReachWarnings(st.tools.find((x) => x.id === tp.toolId), payload.preview.stats, getT());
+    // Pluggen: skriv inläggsträets mått och nollpunkt överst i G-koden.
+    const blank = plugBlankFor(tp);
+    const gcode = blank ? `${getT().inlaySim.gcodeNote(blank.width, blank.height, blank.thickness).map((l) => `; ${l}`).join('\n')}\n${payload.gcode}` : payload.gcode;
     st.setResult(id, {
       warnings,
-      gcode: payload.gcode,
+      gcode,
       rapids: payload.preview.rapids,
       cuts: payload.preview.cuts,
       stats: payload.preview.stats,
@@ -297,12 +301,30 @@ function buildFacingJob(tp: ToolpathConfig): FacingJob {
   };
 }
 
-/** Spegelvänder former runt deras gemensamma mitt (för inläggets plugg). */
-export function mirrorInPlace(shapes: VectorShape[]): VectorShape[] {
-  const b = shapesBounds(shapes);
-  if (!b) return shapes;
-  const cx = (b.min.x + b.max.x) / 2;
-  return shapes.map((s) => transformShape(s, [-1, 0, 0, 1, 2 * cx, 0]));
+/**
+ * Inläggsträet för varje plugg, med var det visas: bredvid grundträet, och
+ * flera inlägg under varandra.
+ */
+export function plugBlankLayout(): Map<string, PlugBlank & { color: string; materialId: string }> {
+  const s = useAppStore.getState();
+  const out = new Map<string, PlugBlank & { color: string; materialId: string }>();
+  let y = 0;
+  for (const tp of s.toolpaths) {
+    const b = plugBlankFor(tp);
+    if (!b || tp.operation !== 'inlay') continue;
+    const materialId = tp.plugMaterial ?? DEFAULT_PLUG_MATERIAL;
+    const color = s.materials.find((m) => m.id === materialId)?.color ?? '#6e4b33';
+    out.set(tp.id, { ...b, displayY: y, color, materialId });
+    y += b.height + PLUG_BLANK_GAP;
+  }
+  return out;
+}
+
+/** Inläggsträet för en plugg (null för andra banor eller om formerna saknas). */
+export function plugBlankFor(tp: ToolpathConfig): PlugBlank | null {
+  if (tp.operation !== 'inlay' || tp.part !== 'plug') return null;
+  const shapes = allShapes(useAppStore.getState().layers).filter((sh) => tp.shapeIds.includes(sh.id));
+  return shapes.length ? plugBlank(tp, shapes, useAppStore.getState().material) : null;
 }
 
 function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
@@ -312,7 +334,10 @@ function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
   if (!tool || tool.kind !== 'vbit') throw new Error('NEEDS_VBIT');
   const shapes = shapesOf(tp);
   const plug = tp.operation === 'inlay' && tp.part === 'plug';
-  const groups = groupsOf(plug ? mirrorInPlace(shapes) : shapes)
+  // Pluggen: spegelvänd, och flyttad så att inläggsträets nedre vänstra hörn blir nollpunkten.
+  const blank = plug ? plugBlank(tp, shapes, s.material) : null;
+  const placed = blank ? mirrorInPlace(shapes).map((sh) => transformShape(sh, [1, 0, 0, 1, -blank.x0, -blank.y0])) : shapes;
+  const groups = groupsOf(placed)
     .map((g) => g.filter((p) => p.closed))
     .filter((g) => g.length);
   if (!groups.length) throw new Error('NO_CLOSED');

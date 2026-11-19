@@ -36,7 +36,28 @@ export interface ToolpathDisplay {
   rapids: Float32Array;
   laser: boolean;
   highlighted: boolean;
+  /** Banan ritas förskjuten hit (t.ex. pluggen på inläggsträet bredvid grundträet). */
+  offset?: { x: number; y: number };
 }
+
+/** Ett extra ämne i scenen, t.ex. inläggsträet till en plugg. */
+export interface ExtraStock {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  thickness: number;
+  color: string;
+}
+
+/** Ett ämne i simuleringen: grundträet (x = y = 0) eller ett extra ämne. */
+export interface SimStockDisplay extends ExtraStock {
+  nx: number;
+  ny: number;
+}
+
+/** Färg per rutpunkt i simuleringen (r, g, b 0–1), eller null för vanlig färg. */
+export type SimPaint = (k: number) => [number, number, number] | null;
 
 function disposeChildren(group: THREE.Group) {
   for (const child of [...group.children]) {
@@ -60,9 +81,11 @@ export class SceneController {
   private stockGroup = new THREE.Group();
   private vectorGroup = new THREE.Group();
   private toolpathGroup = new THREE.Group();
+  private extraStockGroup = new THREE.Group();
   private simGroup = new THREE.Group();
-  private simTop: THREE.Mesh | null = null;
-  private simBase = new THREE.Color();
+  private simStocks: { group: THREE.Group; top: THREE.Mesh; base: THREE.Color; display: SimStockDisplay }[] = [];
+  /** Hur långt extra ämnen når (för att zooma till arbetsstyckena). */
+  private extraExtent = { x: 0, y: 0 };
   private toolMarker = new THREE.Group();
   private raycaster = new THREE.Raycaster();
   private ndc = new THREE.Vector2();
@@ -102,7 +125,7 @@ export class SceneController {
 
     const axes = new THREE.AxesHelper(25);
     axes.position.z = 0.2;
-    this.scene.add(axes, this.bedGroup, this.stockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker);
+    this.scene.add(axes, this.bedGroup, this.stockGroup, this.extraStockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker);
     this.toolMarker.visible = false;
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -212,37 +235,69 @@ export class SceneController {
     }
   }
 
-  /**
-   * Simulerat material: ovansidan som höjdfält (uppdateras med updateSimulation)
-   * och sidorna som en låda. null tar bort simuleringen.
-   */
-  setSimulation(sim: { width: number; height: number; thickness: number; nx: number; ny: number; color: string } | null) {
-    disposeChildren(this.simGroup);
-    this.simTop = null;
-    if (!sim) return;
-    const { width, height, thickness } = sim;
-    const geo = new THREE.BoxGeometry(width, height, thickness);
-    const side = new THREE.MeshStandardMaterial({ color: sim.color, roughness: 0.85 });
-    const box = new THREE.Mesh(geo, [side, side, side, side, new THREE.MeshBasicMaterial({ visible: false }), side]);
-    box.position.set(width / 2, height / 2, -thickness / 2);
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 }));
-    edges.position.copy(box.position);
-    const top = new THREE.PlaneGeometry(width, height, sim.nx - 1, sim.ny - 1);
-    top.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(sim.nx * sim.ny * 3), 3));
-    this.simTop = new THREE.Mesh(top, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide }));
-    this.simTop.position.set(width / 2, height / 2, 0);
-    this.simBase.set(sim.color);
-    this.simGroup.add(box, edges, this.simTop);
+  /** Extra ämnen (t.ex. inläggsträ) som lådor bredvid grundträet. */
+  setExtraStocks(stocks: ExtraStock[]) {
+    disposeChildren(this.extraStockGroup);
+    this.extraExtent = { x: 0, y: 0 };
+    for (const st of stocks) {
+      const geo = new THREE.BoxGeometry(st.width, st.height, st.thickness);
+      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: st.color, roughness: 0.85, transparent: true, opacity: 0.92 }));
+      mesh.position.set(st.x + st.width / 2, st.y + st.height / 2, -st.thickness / 2);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 }));
+      edges.position.copy(mesh.position);
+      this.extraStockGroup.add(mesh, edges);
+      this.extraExtent = { x: Math.max(this.extraExtent.x, st.x + st.width), y: Math.max(this.extraExtent.y, st.y + st.height) };
+    }
   }
 
-  /** Läser in höjder (mm, 0 = ovansidan) och bränning (0–1) i simuleringsytan. */
-  updateSimulation(heights: Float32Array, burn: Float32Array, nx: number, ny: number, thickness: number, tabMark?: Uint8Array) {
-    const top = this.simTop;
-    if (!top) return;
-    const geo = top.geometry as THREE.BufferGeometry;
+  /**
+   * Simulerade ämnen: varje ämne har ovansidan som höjdfält (uppdateras med
+   * updateSimulation) och sidorna som en låda. null tar bort simuleringen.
+   */
+  setSimulation(stocks: SimStockDisplay[] | null) {
+    disposeChildren(this.simGroup);
+    this.simStocks = [];
+    if (!stocks) return;
+    for (const st of stocks) {
+      const { width, height, thickness } = st;
+      const group = new THREE.Group();
+      group.position.set(st.x, st.y, 0);
+      const geo = new THREE.BoxGeometry(width, height, thickness);
+      const side = new THREE.MeshStandardMaterial({ color: st.color, roughness: 0.85 });
+      const box = new THREE.Mesh(geo, [side, side, side, side, new THREE.MeshBasicMaterial({ visible: false }), side]);
+      box.position.set(width / 2, height / 2, -thickness / 2);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 }));
+      edges.position.copy(box.position);
+      const topGeo = new THREE.PlaneGeometry(width, height, st.nx - 1, st.ny - 1);
+      topGeo.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(st.nx * st.ny * 3), 3));
+      const top = new THREE.Mesh(topGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide }));
+      top.position.set(width / 2, height / 2, 0);
+      group.add(box, edges, top);
+      this.simGroup.add(group);
+      this.simStocks.push({ group, top, base: new THREE.Color(st.color), display: st });
+    }
+  }
+
+  /** Flyttar och vänder ett simulerat ämne (för limningen av pluggen). rotY i radianer runt ämnets Y-axel. */
+  setSimStockTransform(index: number, p: { x: number; y: number; z: number; rotY: number; visible?: boolean }) {
+    const st = this.simStocks[index];
+    if (!st) return;
+    st.group.position.set(p.x, p.y, p.z);
+    st.group.rotation.set(0, p.rotY, 0);
+    st.group.visible = p.visible ?? true;
+  }
+
+  /**
+   * Läser in höjder (mm, 0 = ovansidan) och bränning (0–1) i ett simulerat
+   * ämne. paint kan ge egna färger per rutpunkt (t.ex. inlägget efter limning).
+   */
+  updateSimulation(index: number, heights: Float32Array, burn: Float32Array, nx: number, ny: number, thickness: number, tabMark?: Uint8Array, paint?: SimPaint) {
+    const st = this.simStocks[index];
+    if (!st) return;
+    const geo = st.top.geometry as THREE.BufferGeometry;
     const pos = geo.getAttribute('position') as THREE.BufferAttribute;
     const col = geo.getAttribute('color') as THREE.BufferAttribute;
-    const base = this.simBase;
+    const base = st.base;
     const burnt = { r: 0.16, g: 0.09, b: 0.05 };
     const cutTint = { r: base.r * 0.62, g: base.g * 0.5, b: base.b * 0.38 };
     for (let row = 0; row < ny; row++) {
@@ -251,6 +306,11 @@ export class SceneController {
         const k = (ny - 1 - row) * nx + c;
         const z = heights[k];
         pos.setZ(v, z);
+        const own = paint?.(k);
+        if (own) {
+          col.setXYZ(v, own[0], own[1], own[2]);
+          continue;
+        }
         // Fräst yta lite mörkare (nysågat trä), bränt mörkbrunt, genomskuret syns inte.
         const d = z < -1e-3 ? 0.45 + 0.55 * Math.min(1, -z / thickness) : 0;
         const b = burn[k];
@@ -324,10 +384,14 @@ export class SceneController {
   setToolpaths(paths: ToolpathDisplay[], showRapids: boolean) {
     disposeChildren(this.toolpathGroup);
     for (const p of paths) {
+      const place = (obj: THREE.Object3D) => {
+        if (p.offset) obj.position.set(p.offset.x, p.offset.y, 0);
+        this.toolpathGroup.add(obj);
+      };
       if (p.cuts.length) {
         const g = new THREE.BufferGeometry();
         g.setAttribute('position', new THREE.BufferAttribute(p.cuts, 3));
-        this.toolpathGroup.add(
+        place(
           new THREE.LineSegments(
             g,
             new THREE.LineBasicMaterial({ color: p.laser ? this.theme.laser : this.theme.cut, transparent: true, opacity: p.highlighted ? 1 : 0.55 }),
@@ -337,7 +401,7 @@ export class SceneController {
       if (showRapids && p.rapids.length) {
         const g = new THREE.BufferGeometry();
         g.setAttribute('position', new THREE.BufferAttribute(p.rapids, 3));
-        this.toolpathGroup.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: this.theme.rapid, transparent: true, opacity: 0.35 })));
+        place(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: this.theme.rapid, transparent: true, opacity: 0.35 })));
       }
     }
   }
@@ -345,7 +409,7 @@ export class SceneController {
   command(kind: ViewCommand) {
     if (kind === 'fit') this.framing = 'bed';
     if (kind === 'fitStock') this.framing = 'stock';
-    const { x, y } = this.framing === 'stock' ? this.stockSize : this.bed;
+    const { x, y } = this.framing === 'stock' ? { x: Math.max(this.stockSize.x, this.extraExtent.x), y: Math.max(this.stockSize.y, this.extraExtent.y) } : this.bed;
     const center = new THREE.Vector3(x / 2, y / 2, 0);
     // Avstånd så att rutan ryms både på höjden och bredden (även stående mobil).
     const tanV = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2);
@@ -449,7 +513,7 @@ export class SceneController {
     this.renderer.domElement.removeEventListener('pointermove', this.handlePointer);
     this.renderer.domElement.removeEventListener('pointerleave', this.handleLeave);
     this.controls.dispose();
-    [this.bedGroup, this.stockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker].forEach(disposeChildren);
+    [this.bedGroup, this.stockGroup, this.extraStockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker].forEach(disposeChildren);
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

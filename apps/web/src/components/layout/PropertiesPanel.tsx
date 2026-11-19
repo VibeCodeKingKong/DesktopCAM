@@ -35,7 +35,8 @@ import {
 } from '@desktopcam/core';
 import { allShapes, favoritesFirst, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
 import { toolFits } from '../../cam/toolRules';
-import { computeToolpath, drillPoints, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
+import { computeToolpath, drillPoints, plugBlankFor, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
+import { DEFAULT_PLUG_MATERIAL } from '../../cam/inlayBlank';
 import {
   centerSelection,
   createLineEngraving,
@@ -911,6 +912,11 @@ function InlaySettings({
   const angle = tools.find((x) => x.id === tp.toolId)?.angle ?? 60;
   const tanA = Math.tan((angle * Math.PI) / 360);
   const fit = inlayFit(tp.pocketDepth, tp.startDepth, tp.plugDepth);
+  const materials = useAppStore((s) => s.materials);
+  // Inläggsträets mått (räknas om när formerna eller djupen ändras).
+  const layers = useAppStore((s) => s.layers);
+  const plugTp = tp.part === 'plug' ? tp : sibling?.operation === 'inlay' ? sibling : null;
+  const blank = useMemo(() => (plugTp ? plugBlankFor(plugTp) : null), [plugTp, layers]);
   const f1 = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
 
   return (
@@ -945,6 +951,13 @@ function InlaySettings({
         </dl>
         {fit.glueGap < 0 && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.inlayNoGap}</p>}
         {fit.protrusion <= 0 && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.inlayNoProtrusion}</p>}
+        <SelectField
+          label={t.inlaySim.plugMaterial}
+          value={tp.plugMaterial ?? DEFAULT_PLUG_MATERIAL}
+          options={materials.filter((m) => m.category === 'wood' || m.category === 'composite' || m.category === 'plastic').map((m) => ({ value: m.id, label: materialName(t, m.id, m.name) }))}
+          onChange={(plugMaterial) => patch({ plugMaterial })}
+        />
+        {blank && <p className="rounded-md bg-app px-2 py-1.5 text-2xs leading-relaxed">{t.inlaySim.blankInfo(blank.width, blank.height, blank.thickness)}</p>}
         {tp.part === 'plug' && <p className="text-2xs leading-relaxed text-muted">{t.props.plugMirrored}</p>}
         <p className="text-2xs text-muted">{t.props.sharedSettings}</p>
       </Group>

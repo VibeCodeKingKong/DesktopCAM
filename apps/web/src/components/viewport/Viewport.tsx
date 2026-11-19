@@ -12,6 +12,7 @@ import { useT } from '../../i18n';
 import { DrawingBar } from './DrawingBar';
 import { SimulationBar } from './SimulationBar';
 import { attachSimulationScene } from '../../cam/simController';
+import { plugBlankLayout } from '../../cam/toolpathService';
 
 /** React-skal runt SceneController: översätter app-tillstånd till scenanrop. */
 export function Viewport() {
@@ -69,6 +70,14 @@ export function Viewport() {
     ctlRef.current?.setStock(material.width, material.height, material.thickness, preset.color, view.showStock && !simActive, surface);
   }, [theme, material.width, material.height, material.thickness, preset.color, view.showStock, surface, simActive]);
 
+  // Inläggsträ för pluggarna, bredvid grundträet.
+  const materials = useAppStore((s) => s.materials);
+  const blanks = useMemo(() => plugBlankLayout(), [toolpaths, layers, material, materials]);
+  useEffect(() => {
+    const extras = view.showStock && !simActive ? [...blanks.values()].map((b) => ({ x: b.displayX, y: b.displayY, width: b.width, height: b.height, thickness: b.thickness, color: b.color })) : [];
+    ctlRef.current?.setExtraStocks(extras);
+  }, [theme, blanks, view.showStock, simActive]);
+
   const vectors = useMemo<VectorDisplay[]>(
     () =>
       layers
@@ -89,10 +98,11 @@ export function Viewport() {
             rapids: results[t.id].rapids,
             laser: t.operation === 'laserCut' || t.operation === 'laserRaster',
             highlighted: !selectedToolpathId || selectedToolpathId === t.id,
+            offset: blanks.has(t.id) ? { x: blanks.get(t.id)!.displayX, y: blanks.get(t.id)!.displayY } : undefined,
           }))
       : [];
     ctlRef.current.setToolpaths(display, view.showRapids);
-  }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids, simActive]);
+  }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids, simActive, blanks]);
 
   useEffect(() => {
     if (viewCommand) ctlRef.current?.command(viewCommand.kind);

@@ -500,7 +500,7 @@ export function createInlay(): void {
   s.addToolpath({ ...shared, id: pocketId, visible: true, operation: 'inlay', part: 'pocket', name: `${n}. ${t.operations.inlay} – ${t.inlayParts.pocket}` });
   // Pluggen läggs till utan att bli markerad, så att fickan visas först.
   useAppStore.setState((st) => ({
-    toolpaths: [...st.toolpaths, { ...shared, id: plugId, visible: false, operation: 'inlay', part: 'plug', name: `${n + 1}. ${t.operations.inlay} – ${t.inlayParts.plug}` }],
+    toolpaths: [...st.toolpaths, { ...shared, id: plugId, visible: true, operation: 'inlay', part: 'plug', name: `${n + 1}. ${t.operations.inlay} – ${t.inlayParts.plug}` }],
   }));
   s.setMobilePanel(window.matchMedia('(min-width: 1024px)').matches ? null : 'props');
   status(t.status.inlayCreated);
