@@ -94,28 +94,38 @@ export function vcarveRings(job: VCarveJob): Ring[] {
   // Öar: områden som marginalen runt formerna stänger in (t.ex. mellan
   // bokstäver vars serifer möts) ligger längre bort än marginalen och skulle
   // stå kvar ofrästa. De sitter fast i pluggen och hindrar den från att gå
-  // ner i fickan – fräs bort dem också, på pluggdjupet. En ö är en kontur som
-  // inte omsluter någon av formerna.
-  const samples = job.groups.flat().filter((p) => p.points.length >= 2).map((p) => [p.points[0], p.points[1]] as const);
-  const isIsland = (loop: number[]) => !samples.some(([x, y]) => pointInLoop(x, y, loop));
-  for (let k = 0; k < 20000; k++) {
-    const loops = isolines(field, s, 0.01).filter(isIsland);
-    if (!loops.length) break;
-    rings.push({ depth: D, loops });
-    s += flatStep;
+  // ner i fickan – fräs bort dem också, på pluggdjupet.
+  // En ö är rutor längre bort än marginalen som inte nås från fältets kant
+  // utan att passera marginalen. Allt annat räknas som "inuti" i ett eget
+  // fält, så att konturerna bara går runt öarna – bortom fältets kant blir
+  // konturerna i det vanliga fältet meningslösa.
+  const { nx, ny, d } = field;
+  const outside = new Uint8Array(nx * ny);
+  const stack: number[] = [];
+  for (let i = 0; i < nx; i++) stack.push(i, (ny - 1) * nx + i);
+  for (let j = 0; j < ny; j++) stack.push(j * nx, j * nx + nx - 1);
+  while (stack.length) {
+    const k = stack.pop()!;
+    if (outside[k] || d[k] <= job.margin) continue;
+    outside[k] = 1;
+    const i = k % nx, j = (k - i) / nx;
+    if (i > 0) stack.push(k - 1);
+    if (i < nx - 1) stack.push(k + 1);
+    if (j > 0) stack.push(k - nx);
+    if (j < ny - 1) stack.push(k + nx);
+  }
+  let islands = false;
+  const islandField = { ...field, d: Float32Array.from(d, (v, k) => (outside[k] ? -1 : v)) };
+  for (let k = 0; k < d.length; k++) if (!outside[k] && d[k] > job.margin) islands = true;
+  if (islands) {
+    for (let k = 0; k < 20000; k++) {
+      const loops = isolines(islandField, s, 0.01);
+      if (!loops.length) break;
+      rings.push({ depth: D, loops });
+      s += flatStep;
+    }
   }
   return rings;
-}
-
-/** Ligger punkten (x, y) innanför den slutna konturen [x0, y0, x1, y1, …]? */
-function pointInLoop(x: number, y: number, loop: number[]): boolean {
-  let inside = false;
-  const n = loop.length / 2;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const xi = loop[2 * i], yi = loop[2 * i + 1], xj = loop[2 * j], yj = loop[2 * j + 1];
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
 }
 
 export function vcarveGcode(job: VCarveJob): string {
