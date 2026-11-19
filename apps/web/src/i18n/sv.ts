@@ -137,7 +137,7 @@ export const sv = {
     viewIso: { label: 'Iso', title: 'Isometrisk vy', desc: 'Snett ovanifrån – bäst för att se djup.' },
     viewFit: { label: 'Arbetsyta', title: 'Hela arbetsytan', desc: 'Zoomar ut så att maskinens hela arbetsyta syns.' },
     viewFitStock: { label: 'Arbetsstycke', title: 'Zooma till arbetsstycket', desc: 'Zoomar in så att materialet fyller vyn – bäst för att följa simuleringen.' },
-    saveGcode: { label: 'Spara G-kod', title: 'Spara G-kod', desc: 'Laddar ner den markerade verktygsbanan som .gcode-fil, klar för SD-kort eller sändarprogram.' },
+    saveGcode: { label: 'Spara G-kod', title: 'Spara G-kod', desc: "Välj vilka verktygsbanor som ska sparas som .gcode-filer – för inlägg fickan, pluggen eller båda." },
     viewGcode: { label: 'Visa G-kod', title: 'Visa G-kod', desc: 'Granska koden rad för rad innan du kör den på maskinen.' },
   } satisfies Record<string, Tip>,
 
@@ -568,6 +568,14 @@ export const sv = {
   },
 
   inlaySim: {
+    section: "Genomskärning",
+    sectionPos: "Snittets läge",
+    sectionZoom: "Förstoring i sidled",
+    sectionBase: "Grundträ",
+    sectionGlue: "Limspalt",
+    sectionPlaned: "Planas bort",
+    sectionPlaneLine: "Planingslinje",
+    sectionExaggeration: (n: number) => `Höjden förstorad ${n}×`,
     plugMaterial: "Inläggsträ",
     glue: "Limma och plana",
     glueDesc: "Vänder pluggen, trycker ner den i fickan och planar ytan – visar hur inlägget blir.",
@@ -582,6 +590,18 @@ export const sv = {
     fitSummary: (sink: string, gap: string, filled: string) => `pluggen sjunker ner ${sink}, limspalt upp till ${gap}, ${filled} av fickan fylld.`,
     voids: (p: string) => `Glipor i ytan: ${p} (rött) – kontrollera startdjup och pluggdjup.`,
     thin: (p: string) => `Tunt inlägg: ${p} (gult) – minska planingen eller öka startdjupet.`,
+  },
+
+  exportGcode: {
+    title: "Spara G-kod",
+    all: "Markera alla",
+    none: "Avmarkera alla",
+    onBase: "Grundträet",
+    hidden: "dold",
+    note: "Varje bana sparas som en egen fil. I ett inlägg fräses fickan i grundträet och pluggen i inläggsträet – med var sin nollpunkt.",
+    download: (n: number) => (n === 1 ? 'Ladda ner 1 fil' : `Ladda ner ${n} filer`),
+    onInlayWood: (w: number, h: number, t: number) => `Inläggsträet ${w} × ${h} × ${t} mm`,
+    lines: (n: string) => `${n} rader`,
   },
 
   feedback: {
@@ -831,6 +851,7 @@ export const sv = {
     computed: (n: string, lines: string) => `${n} klar – ${lines} rader G-kod`,
     error: (n: string, msg: string) => `Fel i ${n}: ${msg}`,
     saved: (f: string) => `Sparade ${f}`,
+    savedMany: (n: number) => `Sparade ${n} G-kodfiler`,
     noResult: 'Det finns ingen beräknad verktygsbana att spara',
     notVector: (f: string) => `${f} är varken SVG eller DXF`,
     imported: (n: number, f: string) => `Importerade ${n} former från ${f}`,
@@ -1070,6 +1091,7 @@ export const sv = {
   },
 
   gcode: {
+    choose: "Välj verktygsbana",
     title: (n: string) => `G-kod för ${n}`,
     titleEmpty: 'G-kod',
     truncated: (shown: string, more: string) => `Visar de första ${shown} raderna. Filen innehåller ${more} till.`,

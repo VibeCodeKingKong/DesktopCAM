@@ -82,6 +82,7 @@ export class SceneController {
   private vectorGroup = new THREE.Group();
   private toolpathGroup = new THREE.Group();
   private extraStockGroup = new THREE.Group();
+  private sectionLine: THREE.Line | null = null;
   private simGroup = new THREE.Group();
   private simStocks: { group: THREE.Group; top: THREE.Mesh; base: THREE.Color; display: SimStockDisplay }[] = [];
   /** Hur långt extra ämnen når (för att zooma till arbetsstyckena). */
@@ -276,6 +277,21 @@ export class SceneController {
       this.simGroup.add(group);
       this.simStocks.push({ group, top, base: new THREE.Color(st.color), display: st });
     }
+  }
+
+  /** Röd linje där genomskärningen av ett inlägg går (null döljer den). */
+  setSectionLine(p: { x0: number; x1: number; y: number } | null) {
+    if (this.sectionLine) {
+      this.scene.remove(this.sectionLine);
+      this.sectionLine.geometry.dispose();
+      (this.sectionLine.material as THREE.Material).dispose();
+      this.sectionLine = null;
+    }
+    if (!p) return;
+    const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(p.x0, p.y, 0.3), new THREE.Vector3(p.x1, p.y, 0.3)]);
+    this.sectionLine = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xe11d48, depthTest: false }));
+    this.sectionLine.renderOrder = 10;
+    this.scene.add(this.sectionLine);
   }
 
   /** Flyttar och vänder ett simulerat ämne (för limningen av pluggen). rotY i radianer runt ämnets Y-axel. */

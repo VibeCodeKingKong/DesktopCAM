@@ -17,6 +17,7 @@ import { ImageReliefDialog } from './components/dialogs/ImageReliefDialog';
 import { AboutDialog } from './components/dialogs/AboutDialog';
 import { FeedbackDialog } from './components/dialogs/FeedbackDialog';
 import { DonateDialog } from './components/dialogs/DonateDialog';
+import { ExportDialog } from './components/dialogs/ExportDialog';
 import { PatternDialog } from './components/dialogs/PatternDialog';
 import { camClient } from './engine/camClient';
 import { useShortcuts } from './hooks/useShortcuts';
@@ -84,6 +85,7 @@ export default function App() {
       <AboutDialog />
       <FeedbackDialog />
       <DonateDialog />
+      <ExportDialog />
       <PatternDialog />
     </div>
   );

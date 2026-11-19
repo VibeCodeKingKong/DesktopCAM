@@ -42,7 +42,15 @@ export type CellKind = 0 | 1 | 2 | 3; // 0 grundträ, 1 inlägg, 2 glipa, 3 tunt
  * Lägger pluggen i fickan. Returnerar passningen och vad som syns i varje
  * punkt av grundträet efter planingen (kind) samt höjden där (0 eller glipans djup).
  */
-export function assembleInlay(base: StockSimulator, plug: StockSimulator, at: InlayPlacement, kind: Uint8Array, heights: Float32Array): InlayFitResult {
+export function assembleInlay(
+  base: StockSimulator,
+  plug: StockSimulator,
+  at: InlayPlacement,
+  kind: Uint8Array,
+  heights: Float32Array,
+  /** Fylls med pluggens undersida (Z efter vändning) per punkt, NaN där pluggen inte finns – för genomskärningen. */
+  bottomOut?: Float32Array,
+): InlayFitResult {
   const hb = base.heights;
   const hp = plug.heights;
   const pnx = plug.nx, pny = plug.ny, pc = plug.cell;
@@ -112,6 +120,7 @@ export function assembleInlay(base: StockSimulator, plug: StockSimulator, at: In
     const inPocket = hb[k] < -POCKET_TOL;
     // Pluggens undersida här (efter vändning): d − hp.
     const bottom = Number.isNaN(p) ? Infinity : d - p;
+    if (bottomOut) bottomOut[k] = Number.isNaN(p) ? NaN : bottom;
     if (inPocket && !Number.isNaN(p)) pocket++;
     if (bottom < -1e-3) {
       const thick = -bottom;

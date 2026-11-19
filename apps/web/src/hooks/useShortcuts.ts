@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppStore, type EditTool } from '../store/useAppStore';
-import { createToolpath, deleteSelection, duplicateSelection, exportSelectedGcode, importVectorFile, openProject, redo, saveProject, undo } from '../cam/commands';
+import { createToolpath, deleteSelection, duplicateSelection, importVectorFile, openProject, redo, saveProject, undo } from '../cam/commands';
 import { activeEditor } from '../editing/EditController';
 import { useDraft } from '../editing/draftStore';
 
@@ -21,7 +21,7 @@ export function useShortcuts() {
         const actions: Record<string, () => void> = {
           z: () => (e.shiftKey ? redo() : undo()),
           y: redo,
-          e: exportSelectedGcode,
+          e: () => useAppStore.getState().openDialog('exportGcode'),
           i: () => void importVectorFile(),
           s: saveProject,
           o: () => void openProject(),

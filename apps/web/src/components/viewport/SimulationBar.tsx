@@ -1,7 +1,9 @@
-import { Layers, Pause, Play, RotateCcw, SkipForward, X } from 'lucide-react';
+import { Layers, Pause, Play, RotateCcw, Scissors, SkipForward, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { glueInlays, playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
 import { decimalSep, useT } from '../../i18n';
+import { useState } from 'react';
+import { InlaySectionView } from './InlaySectionView';
 
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
 
@@ -73,6 +75,7 @@ function InlayGlue() {
   const ti = t.inlaySim;
   const sim = useAppStore((s) => s.sim);
   const pct = (v: number) => `${Math.round(v * 100)} %`;
+  const [section, setSection] = useState(false);
   const mm = (v: number) => `${v.toLocaleString(t.locale, { maximumFractionDigits: 2 })} mm`;
   return (
     <div className="mt-2 space-y-1.5 border-t border-line pt-2">
@@ -88,6 +91,11 @@ function InlayGlue() {
         )}
         {sim.assembly === 'none' && <span className="text-2xs text-muted">{ti.glueDesc}</span>}
         {sim.assembly === 'done' && (
+          <button className={`btn h-8 ${section ? 'border-accent text-accent' : ''}`} onClick={() => setSection(!section)} aria-pressed={section}>
+            <Scissors size={14} /> {ti.section}
+          </button>
+        )}
+        {sim.assembly === 'done' && (
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-muted">
             <span className="flex items-center gap-1"><i className="inline-block h-2.5 w-2.5 rounded-sm bg-[#6e4b33]" />{ti.legendInlay}</span>
             <span className="flex items-center gap-1"><i className="inline-block h-2.5 w-2.5 rounded-sm bg-[#db2626]" />{ti.legendVoid}</span>
@@ -95,6 +103,7 @@ function InlayGlue() {
           </span>
         )}
       </div>
+      {sim.assembly === 'done' && section && <InlaySectionView />}
       {sim.assembly === 'done' &&
         sim.fit.map((f) => (
           <div key={f.name} className="text-2xs leading-relaxed">

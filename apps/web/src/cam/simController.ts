@@ -16,6 +16,26 @@ const GLUE_MS = 3600;
 
 /** Var pluggen ska ligga i fickan, per plugg (banans id). */
 let placements = new Map<string, InlayPlacement>();
+
+/** Ett inlägg efter limningen, för genomskärningen (fint rutnät över inläggets yta). */
+export interface InlaySection {
+  name: string;
+  x0: number;
+  y0: number;
+  cell: number;
+  nx: number;
+  ny: number;
+  /** Fickans yta i grundträet (Z). */
+  pocket: Float32Array;
+  /** Pluggens undersida efter vändning (Z), NaN där pluggen inte finns. */
+  bottom: Float32Array;
+  /** Inläggsträets ovansida efter vändning, före planingen (Z). */
+  top: number;
+  baseColor: string;
+  plugColor: string;
+}
+let sections: InlaySection[] = [];
+export const getInlaySections = () => sections;
 let assembly: {
   t0: number;
   items: { stock: number; from: { x: number; y: number }; to: { x: number; y: number; z: number }; lift: number; size: { w: number; h: number; t: number } }[];
@@ -169,6 +189,8 @@ export function showFinalResult() {
 
 export function stopSimulation() {
   sim = null;
+  sections = [];
+  scene?.setSectionLine(null);
   stopLoop();
   scene?.setSimulation(null);
   scene?.setToolMarker(null);
@@ -190,6 +212,8 @@ export function watchSimulationInputs() {
 function undoAssembly() {
   if (!sim || useAppStore.getState().sim.assembly === 'none') return;
   assembly = null;
+  sections = [];
+  scene?.setSectionLine(null);
   sim.stocks.forEach((st, i) => scene?.setSimStockTransform(i, { x: st.x, y: st.y, z: 0, rotY: 0, visible: true }));
   drawn = sim.stocks.map(() => -1);
   useAppStore.getState().setSim({ assembly: 'none', fit: [] });
@@ -214,6 +238,7 @@ export function glueInlays() {
   const fit: (ReturnType<typeof assembleInlay> & { name: string })[] = [];
   const items: NonNullable<typeof assembly>['items'] = [];
   const colors: [number, number, number][] = [];
+  sections = [];
   sim.stocks.forEach((st, i) => {
     if (i === 0 || !st.plugOf) return;
     const at = placements.get(st.plugOf);
@@ -225,7 +250,21 @@ export function glueInlays() {
     const fine = sim!.fineBase(rx, ry, m.width, m.height, st.sim.cell);
     const fk = new Uint8Array(fine.heights.length);
     const fh = Float32Array.from(fine.heights);
-    const r = assembleInlay(fine, st.sim, at, fk, fh);
+    const bottom = new Float32Array(fine.heights.length);
+    const r = assembleInlay(fine, st.sim, at, fk, fh, bottom);
+    sections.push({
+      name: s.toolpaths.find((x) => x.id === st.plugOf)?.name ?? '',
+      x0: rx,
+      y0: ry,
+      cell: fine.cell,
+      nx: fine.nx,
+      ny: fine.ny,
+      pocket: fine.heights,
+      bottom,
+      top: -r.sink + st.sim.material.thickness,
+      baseColor: sim!.stocks[0].color,
+      plugColor: st.color,
+    });
     // Över till grundträets rutnät för visningen. Varje inlägg får sitt eget
     // nummer i kind (1, 3 = inlägg, 2 = glipa) – färgen per inlägg sparas separat.
     for (let j = 0; j < base.ny; j++) {
@@ -292,4 +331,9 @@ function animateAssembly(now: number) {
   drawn[0] = base.sim.version;
   assembly = null;
   useAppStore.getState().setSim({ assembly: 'done' });
+}
+
+/** Visar var genomskärningen går i 3D-vyn (null döljer linjen). */
+export function showSectionLine(p: { x0: number; x1: number; y: number } | null) {
+  scene?.setSectionLine(p);
 }

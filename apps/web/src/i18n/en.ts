@@ -186,7 +186,7 @@ export const en: Dict = {
     viewIso: { label: 'Iso', title: 'Isometric view', desc: 'From above at an angle – best for seeing depth.' },
     viewFit: { label: 'Work area', title: 'Whole work area', desc: 'Zooms out so the machine’s whole work area is visible.' },
     viewFitStock: { label: 'Workpiece', title: 'Zoom to the workpiece', desc: 'Zooms in so the material fills the view – best for following the simulation.' },
-    saveGcode: { label: 'Save G-code', title: 'Save G-code', desc: 'Downloads the selected toolpath as a .gcode file, ready for an SD card or sender app.' },
+    saveGcode: { label: 'Save G-code', title: 'Save G-code', desc: "Choose which toolpaths to save as .gcode files – for inlays the pocket, the plug or both." },
     viewGcode: { label: 'View G-code', title: 'View G-code', desc: 'Review the code line by line before running it on the machine.' },
   },
 
@@ -617,6 +617,14 @@ export const en: Dict = {
   },
 
   inlaySim: {
+    section: "Cross-section",
+    sectionPos: "Section position",
+    sectionZoom: "Horizontal zoom",
+    sectionBase: "Base wood",
+    sectionGlue: "Glue gap",
+    sectionPlaned: "Planed off",
+    sectionPlaneLine: "Planing line",
+    sectionExaggeration: (n: number) => `Height exaggerated ${n}×`,
     plugMaterial: "Inlay wood",
     glue: "Glue and plane",
     glueDesc: "Flips the plug, presses it into the pocket and planes the surface – shows how the inlay turns out.",
@@ -631,6 +639,18 @@ export const en: Dict = {
     fitSummary: (sink: string, gap: string, filled: string) => `the plug sinks ${sink}, glue gap up to ${gap}, ${filled} of the pocket filled.`,
     voids: (p: string) => `Gaps in the surface: ${p} (red) – check start depth and plug depth.`,
     thin: (p: string) => `Thin inlay: ${p} (yellow) – plane less or increase the start depth.`,
+  },
+
+  exportGcode: {
+    title: "Save G-code",
+    all: "Select all",
+    none: "Select none",
+    onBase: "Base wood",
+    hidden: "hidden",
+    note: "Each toolpath is saved as its own file. In an inlay the pocket is milled in the base wood and the plug in the inlay wood – each with its own origin.",
+    download: (n: number) => (n === 1 ? 'Download 1 file' : `Download ${n} files`),
+    onInlayWood: (w: number, h: number, t: number) => `Inlay wood ${w} × ${h} × ${t} mm`,
+    lines: (n: string) => `${n} lines`,
   },
 
   feedback: {
@@ -880,6 +900,7 @@ export const en: Dict = {
     computed: (n: string, lines: string) => `${n} done – ${lines} lines of G-code`,
     error: (n: string, msg: string) => `Error in ${n}: ${msg}`,
     saved: (f: string) => `Saved ${f}`,
+    savedMany: (n: number) => `Saved ${n} G-code files`,
     noResult: 'There is no calculated toolpath to save',
     notVector: (f: string) => `${f} is neither SVG nor DXF`,
     imported: (n: number, f: string) => `Imported ${n} shapes from ${f}`,
@@ -1119,6 +1140,7 @@ export const en: Dict = {
   },
 
   gcode: {
+    choose: "Choose toolpath",
     title: (n: string) => `G-code for ${n}`,
     titleEmpty: 'G-code',
     truncated: (shown: string, more: string) => `Showing the first ${shown} lines. The file has ${more} more.`,

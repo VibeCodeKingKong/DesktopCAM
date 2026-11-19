@@ -185,7 +185,7 @@ export const de: Dict = {
     viewIso: { label: 'Iso', title: 'Isometrische Ansicht', desc: 'Schräg von oben – am besten, um die Tiefe zu sehen.' },
     viewFit: { label: 'Arbeitsbereich', title: 'Ganzer Arbeitsbereich', desc: 'Zoomt heraus, sodass der ganze Arbeitsbereich der Maschine sichtbar ist.' },
     viewFitStock: { label: 'Werkstück', title: 'Auf das Werkstück zoomen', desc: 'Zoomt hinein, sodass das Material die Ansicht füllt – am besten, um der Simulation zu folgen.' },
-    saveGcode: { label: 'G-Code speichern', title: 'G-Code speichern', desc: 'Lädt die ausgewählte Bahn als .gcode-Datei herunter, bereit für SD-Karte oder Sender-App.' },
+    saveGcode: { label: 'G-Code speichern', title: 'G-Code speichern', desc: "Wählen Sie, welche Bahnen als .gcode-Dateien gespeichert werden – bei Intarsien Tasche, Stopfen oder beides." },
     viewGcode: { label: 'G-Code ansehen', title: 'G-Code ansehen', desc: 'Den Code Zeile für Zeile prüfen, bevor er auf der Maschine läuft.' },
   },
 
@@ -616,6 +616,14 @@ export const de: Dict = {
   },
 
   inlaySim: {
+    section: "Schnitt",
+    sectionPos: "Lage des Schnitts",
+    sectionZoom: "Horizontaler Zoom",
+    sectionBase: "Grundholz",
+    sectionGlue: "Leimfuge",
+    sectionPlaned: "Wird abgerichtet",
+    sectionPlaneLine: "Abrichtlinie",
+    sectionExaggeration: (n: number) => `Höhe ${n}× überhöht`,
     plugMaterial: "Intarsienholz",
     glue: "Leimen und abrichten",
     glueDesc: "Dreht den Stopfen, drückt ihn in die Tasche und hobelt die Oberfläche – zeigt, wie die Intarsie wird.",
@@ -630,6 +638,18 @@ export const de: Dict = {
     fitSummary: (sink: string, gap: string, filled: string) => `der Stopfen sinkt ${sink} ein, Leimfuge bis ${gap}, ${filled} der Tasche gefüllt.`,
     voids: (p: string) => `Spalten in der Oberfläche: ${p} (rot) – Starttiefe und Stopfentiefe prüfen.`,
     thin: (p: string) => `Dünne Intarsie: ${p} (gelb) – weniger abrichten oder Starttiefe erhöhen.`,
+  },
+
+  exportGcode: {
+    title: "G-Code speichern",
+    all: "Alle auswählen",
+    none: "Keine auswählen",
+    onBase: "Grundholz",
+    hidden: "ausgeblendet",
+    note: "Jede Bahn wird als eigene Datei gespeichert. Bei einer Intarsie wird die Tasche im Grundholz und der Stopfen im Intarsienholz gefräst – jeweils mit eigenem Nullpunkt.",
+    download: (n: number) => (n === 1 ? '1 Datei herunterladen' : `${n} Dateien herunterladen`),
+    onInlayWood: (w: number, h: number, t: number) => `Intarsienholz ${w} × ${h} × ${t} mm`,
+    lines: (n: string) => `${n} Zeilen`,
   },
 
   feedback: {
@@ -879,6 +899,7 @@ export const de: Dict = {
     computed: (n: string, lines: string) => `${n} fertig – ${lines} Zeilen G-Code`,
     error: (n: string, msg: string) => `Fehler in ${n}: ${msg}`,
     saved: (f: string) => `${f} gespeichert`,
+    savedMany: (n: number) => `${n} G-Code-Dateien gespeichert`,
     noResult: 'Es gibt keine berechnete Werkzeugbahn zum Speichern',
     notVector: (f: string) => `${f} ist weder SVG noch DXF`,
     imported: (n: number, f: string) => `${n} Formen aus ${f} importiert`,
@@ -1118,6 +1139,7 @@ export const de: Dict = {
   },
 
   gcode: {
+    choose: "Bahn wählen",
     title: (n: string) => `G-Code für ${n}`,
     titleEmpty: 'G-Code',
     truncated: (shown: string, more: string) => `Die ersten ${shown} Zeilen werden angezeigt. Die Datei hat ${more} weitere.`,

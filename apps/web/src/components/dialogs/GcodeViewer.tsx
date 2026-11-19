@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Copy, Download } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { exportSelectedGcode } from '../../cam/commands';
+import { exportToolpathsGcode } from '../../cam/commands';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 
@@ -14,7 +14,13 @@ export function GcodeViewer() {
   const results = useAppStore((s) => s.results);
   const selectedId = useAppStore((s) => s.selectedToolpathId);
   const [copied, setCopied] = useState(false);
-  const tp = toolpaths.find((x) => x.id === selectedId && results[x.id]) ?? toolpaths.find((x) => results[x.id]);
+  // Vilken bana som visas: den markerade från början, valbar i listan.
+  const [viewId, setViewId] = useState<string | null>(null);
+  useEffect(() => {
+    if (open) setViewId(selectedId);
+  }, [open, selectedId]);
+  const done = toolpaths.filter((x) => results[x.id]);
+  const tp = done.find((x) => x.id === viewId) ?? done[0];
   const result = tp ? results[tp.id] : undefined;
 
   const { text, truncated } = useMemo(() => {
@@ -29,6 +35,17 @@ export function GcodeViewer() {
       onClose={() => useAppStore.getState().openDialog(null)}
       title={tp ? t.gcode.title(tp.name) : t.gcode.titleEmpty}
       width="max-w-2xl"
+      actions={
+        done.length > 1 && (
+          <select className="field h-7 w-auto max-w-[16rem] py-0 text-xs" value={tp?.id} onChange={(e) => setViewId(e.target.value)} aria-label={t.gcode.choose}>
+            {done.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.name}
+              </option>
+            ))}
+          </select>
+        )
+      }
       footer={
         <>
           <p className="flex-1 text-xs text-muted">
@@ -45,7 +62,7 @@ export function GcodeViewer() {
           >
             <Copy size={13} /> {copied ? t.common.copied : t.common.copy}
           </button>
-          <button className="btn btn-primary" disabled={!result} onClick={exportSelectedGcode}>
+          <button className="btn btn-primary" disabled={!result} onClick={() => tp && exportToolpathsGcode([tp.id])}>
             <Download size={13} /> {t.buttons.saveGcode.label}
           </button>
         </>

@@ -668,18 +668,27 @@ export function startAutosave() {
 
 export function exportSelectedGcode() {
   const s = useAppStore.getState();
+  const tp = s.toolpaths.find((x) => x.id === s.selectedToolpathId && s.results[x.id]) ?? s.toolpaths.find((x) => s.results[x.id]);
+  exportToolpathsGcode(tp ? [tp.id] : []);
+}
+
+/**
+ * Laddar ner G-koden för banorna, en fil per bana (ficka och plugg i ett
+ * inlägg fräses i olika trästycken och kan inte ligga i samma fil).
+ * Filerna laddas ner en i taget – annars stoppar webbläsaren alla utom den första.
+ */
+export function exportToolpathsGcode(ids: string[]) {
+  const s = useAppStore.getState();
   const t = getT();
-  const tp = s.toolpaths.find((x) => x.id === s.selectedToolpathId) ?? s.toolpaths.find((x) => s.results[x.id]);
-  const result = tp && s.results[tp.id];
-  if (!tp || !result) {
+  const list = s.toolpaths.filter((x) => ids.includes(x.id) && s.results[x.id]);
+  if (!list.length) {
     status(t.status.noResult);
     return;
   }
-  const filename = `${slug(s.projectName || 'desktopcam')}-${slug(tp.name)}.gcode`;
-  downloadText(filename, result.gcode);
-  status(t.status.saved(filename));
+  const names = list.map((tp) => `${slug(s.projectName || 'desktopcam')}-${slug(tp.name)}.gcode`);
+  list.forEach((tp, i) => setTimeout(() => downloadText(names[i], s.results[tp.id].gcode), i * 400));
+  status(list.length === 1 ? t.status.saved(names[0]) : t.status.savedMany(list.length));
 }
-
 
 /* ───────── Mått mellan två former ───────── */
 

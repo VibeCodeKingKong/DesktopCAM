@@ -192,7 +192,7 @@ export const pl: Dict = {
     viewIso: { label: 'Izo', title: 'Widok izometryczny', desc: 'Z góry pod kątem – najlepszy, aby widzieć głębokość.' },
     viewFit: { label: 'Obszar roboczy', title: 'Cały obszar roboczy', desc: 'Oddala widok, aby widać było cały obszar roboczy maszyny.' },
     viewFitStock: { label: 'Materiał', title: 'Przybliż do materiału', desc: 'Przybliża, aż materiał wypełni widok – najlepsze do śledzenia symulacji.' },
-    saveGcode: { label: 'Zapisz G-code', title: 'Zapisz G-code', desc: 'Pobiera zaznaczoną ścieżkę jako plik .gcode, gotowy na kartę SD lub do programu sterującego.' },
+    saveGcode: { label: 'Zapisz G-code', title: 'Zapisz G-code', desc: "Wybierz, które ścieżki zapisać jako pliki .gcode – w intarsji kieszeń, wkładkę lub obie." },
     viewGcode: { label: 'Pokaż G-code', title: 'Pokaż G-code', desc: 'Przejrzyj kod linia po linii przed uruchomieniem na maszynie.' },
   },
 
@@ -623,6 +623,14 @@ export const pl: Dict = {
   },
 
   inlaySim: {
+    section: "Przekrój",
+    sectionPos: "Położenie przekroju",
+    sectionZoom: "Powiększenie w poziomie",
+    sectionBase: "Drewno bazowe",
+    sectionGlue: "Spoina kleju",
+    sectionPlaned: "Zostanie zestrugane",
+    sectionPlaneLine: "Linia strugania",
+    sectionExaggeration: (n: number) => `Wysokość powiększona ${n}×`,
     plugMaterial: "Drewno wkładki",
     glue: "Klejenie i strugenie",
     glueDesc: "Odwraca wkładkę, wciska ją w kieszeń i struga powierzchnię – pokazuje, jak wyjdzie intarsja.",
@@ -637,6 +645,18 @@ export const pl: Dict = {
     fitSummary: (sink: string, gap: string, filled: string) => `wkładka zagłębia się o ${sink}, spoina kleju do ${gap}, wypełnione ${filled} kieszeni.`,
     voids: (p: string) => `Szczeliny na powierzchni: ${p} (czerwone) – sprawdź głębokość początkową i głębokość wkładki.`,
     thin: (p: string) => `Cienka wkładka: ${p} (żółte) – strugaj mniej lub zwiększ głębokość początkową.`,
+  },
+
+  exportGcode: {
+    title: "Zapisz G-code",
+    all: "Zaznacz wszystko",
+    none: "Odznacz wszystko",
+    onBase: "Drewno bazowe",
+    hidden: "ukryta",
+    note: "Każda ścieżka zapisywana jest jako osobny plik. W intarsji kieszeń frezuje się w drewnie bazowym, a wkładkę w drewnie wkładki – każde z własnym punktem zerowym.",
+    download: (n: number) => (n === 1 ? 'Pobierz 1 plik' : `Pobierz pliki: ${n}`),
+    onInlayWood: (w: number, h: number, t: number) => `Drewno wkładki ${w} × ${h} × ${t} mm`,
+    lines: (n: string) => `${n} wierszy`,
   },
 
   feedback: {
@@ -886,6 +906,7 @@ export const pl: Dict = {
     computed: (n: string, lines: string) => `${n} gotowe – ${lines} linii G-code`,
     error: (n: string, msg: string) => `Błąd w ${n}: ${msg}`,
     saved: (f: string) => `Zapisano ${f}`,
+    savedMany: (n: number) => `Zapisano pliki G-code: ${n}`,
     noResult: 'Brak obliczonej ścieżki do zapisania',
     notVector: (f: string) => `${f} nie jest plikiem SVG ani DXF`,
     imported: (n: number, f: string) => `Zaimportowano ${n} ${plural(n, 'kształt', 'kształty', 'kształtów')} z ${f}`,
@@ -1125,6 +1146,7 @@ export const pl: Dict = {
   },
 
   gcode: {
+    choose: "Wybierz ścieżkę",
     title: (n: string) => `G-code: ${n}`,
     titleEmpty: 'G-code',
     truncated: (shown: string, more: string) => `Pokazano pierwsze ${shown} linii. Plik ma jeszcze ${more}.`,

@@ -185,7 +185,7 @@ export const fr: Dict = {
     viewIso: { label: 'Iso', title: 'Vue isométrique', desc: 'De biais par-dessus – idéal pour voir la profondeur.' },
     viewFit: { label: 'Zone de travail', title: 'Toute la zone de travail', desc: 'Dézoome pour voir toute la zone de travail de la machine.' },
     viewFitStock: { label: 'Pièce', title: 'Zoomer sur la pièce', desc: 'Zoome pour que le matériau remplisse la vue – idéal pour suivre la simulation.' },
-    saveGcode: { label: 'Enregistrer G-code', title: 'Enregistrer le G-code', desc: 'Télécharge le parcours sélectionné en fichier .gcode, prêt pour une carte SD ou un logiciel d’envoi.' },
+    saveGcode: { label: 'Enregistrer G-code', title: 'Enregistrer le G-code', desc: "Choisissez les parcours à enregistrer en fichiers .gcode – pour une incrustation la poche, le bouchon ou les deux." },
     viewGcode: { label: 'Voir le G-code', title: 'Voir le G-code', desc: 'Relisez le code ligne par ligne avant de l’exécuter sur la machine.' },
   },
 
@@ -616,6 +616,14 @@ export const fr: Dict = {
   },
 
   inlaySim: {
+    section: "Coupe",
+    sectionPos: "Position de la coupe",
+    sectionZoom: "Zoom horizontal",
+    sectionBase: "Bois de base",
+    sectionGlue: "Joint de colle",
+    sectionPlaned: "Raboté",
+    sectionPlaneLine: "Ligne de rabotage",
+    sectionExaggeration: (n: number) => `Hauteur exagérée ${n}×`,
     plugMaterial: "Bois d’incrustation",
     glue: "Coller et raboter",
     glueDesc: "Retourne le bouchon, l’enfonce dans la poche et rabote la surface – montre le résultat de l’incrustation.",
@@ -630,6 +638,18 @@ export const fr: Dict = {
     fitSummary: (sink: string, gap: string, filled: string) => `le bouchon descend de ${sink}, joint de colle jusqu’à ${gap}, ${filled} de la poche rempli.`,
     voids: (p: string) => `Jours en surface : ${p} (rouge) – vérifiez la profondeur de départ et celle du bouchon.`,
     thin: (p: string) => `Incrustation mince : ${p} (jaune) – rabotez moins ou augmentez la profondeur de départ.`,
+  },
+
+  exportGcode: {
+    title: "Enregistrer le G-code",
+    all: "Tout sélectionner",
+    none: "Tout désélectionner",
+    onBase: "Bois de base",
+    hidden: "masqué",
+    note: "Chaque parcours est enregistré dans son propre fichier. Dans une incrustation, la poche est usinée dans le bois de base et le bouchon dans le bois d’incrustation – chacun avec sa propre origine.",
+    download: (n: number) => (n === 1 ? 'Télécharger 1 fichier' : `Télécharger ${n} fichiers`),
+    onInlayWood: (w: number, h: number, t: number) => `Bois d’incrustation ${w} × ${h} × ${t} mm`,
+    lines: (n: string) => `${n} lignes`,
   },
 
   feedback: {
@@ -879,6 +899,7 @@ export const fr: Dict = {
     computed: (n: string, lines: string) => `${n} terminé – ${lines} lignes de G-code`,
     error: (n: string, msg: string) => `Erreur dans ${n} : ${msg}`,
     saved: (f: string) => `${f} enregistré`,
+    savedMany: (n: number) => `${n} fichiers G-code enregistrés`,
     noResult: 'Aucun parcours calculé à enregistrer',
     notVector: (f: string) => `${f} n’est ni un SVG ni un DXF`,
     imported: (n: number, f: string) => `${n} formes importées depuis ${f}`,
@@ -1118,6 +1139,7 @@ export const fr: Dict = {
   },
 
   gcode: {
+    choose: "Choisir le parcours",
     title: (n: string) => `G-code pour ${n}`,
     titleEmpty: 'G-code',
     truncated: (shown: string, more: string) => `Affichage des ${shown} premières lignes. Le fichier en contient ${more} de plus.`,

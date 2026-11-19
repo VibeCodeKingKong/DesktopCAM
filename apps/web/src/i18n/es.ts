@@ -185,7 +185,7 @@ export const es: Dict = {
     viewIso: { label: 'Iso', title: 'Vista isométrica', desc: 'Desde arriba en ángulo: lo mejor para ver la profundidad.' },
     viewFit: { label: 'Área de trabajo', title: 'Toda el área de trabajo', desc: 'Aleja la vista para ver toda el área de trabajo de la máquina.' },
     viewFitStock: { label: 'Pieza', title: 'Acercar a la pieza', desc: 'Acerca la vista para que el material la llene: lo mejor para seguir la simulación.' },
-    saveGcode: { label: 'Guardar G-code', title: 'Guardar G-code', desc: 'Descarga la trayectoria seleccionada como archivo .gcode, lista para una tarjeta SD o un programa emisor.' },
+    saveGcode: { label: 'Guardar G-code', title: 'Guardar G-code', desc: "Elija qué trayectorias guardar como archivos .gcode: en incrustaciones la cajera, el tapón o ambos." },
     viewGcode: { label: 'Ver G-code', title: 'Ver G-code', desc: 'Revisa el código línea a línea antes de ejecutarlo en la máquina.' },
   },
 
@@ -616,6 +616,14 @@ export const es: Dict = {
   },
 
   inlaySim: {
+    section: "Sección",
+    sectionPos: "Posición del corte",
+    sectionZoom: "Zoom horizontal",
+    sectionBase: "Madera base",
+    sectionGlue: "Junta de cola",
+    sectionPlaned: "Se cepilla",
+    sectionPlaneLine: "Línea de cepillado",
+    sectionExaggeration: (n: number) => `Altura exagerada ${n}×`,
     plugMaterial: "Madera de incrustación",
     glue: "Encolar y cepillar",
     glueDesc: "Da la vuelta al tapón, lo encaja en la cajera y cepilla la superficie: muestra cómo queda la incrustación.",
@@ -630,6 +638,18 @@ export const es: Dict = {
     fitSummary: (sink: string, gap: string, filled: string) => `el tapón baja ${sink}, junta de cola hasta ${gap}, ${filled} de la cajera lleno.`,
     voids: (p: string) => `Huecos en la superficie: ${p} (rojo): revise la profundidad inicial y la del tapón.`,
     thin: (p: string) => `Incrustación fina: ${p} (amarillo): cepille menos o aumente la profundidad inicial.`,
+  },
+
+  exportGcode: {
+    title: "Guardar G-code",
+    all: "Seleccionar todo",
+    none: "No seleccionar nada",
+    onBase: "Madera base",
+    hidden: "oculta",
+    note: "Cada trayectoria se guarda en su propio archivo. En una incrustación la cajera se fresa en la madera base y el tapón en la madera de incrustación, cada uno con su propio origen.",
+    download: (n: number) => (n === 1 ? 'Descargar 1 archivo' : `Descargar ${n} archivos`),
+    onInlayWood: (w: number, h: number, t: number) => `Madera de incrustación ${w} × ${h} × ${t} mm`,
+    lines: (n: string) => `${n} líneas`,
   },
 
   feedback: {
@@ -879,6 +899,7 @@ export const es: Dict = {
     computed: (n: string, lines: string) => `${n} listo: ${lines} líneas de G-code`,
     error: (n: string, msg: string) => `Error en ${n}: ${msg}`,
     saved: (f: string) => `${f} guardado`,
+    savedMany: (n: number) => `${n} archivos G-code guardados`,
     noResult: 'No hay ninguna trayectoria calculada que guardar',
     notVector: (f: string) => `${f} no es SVG ni DXF`,
     imported: (n: number, f: string) => `${n} formas importadas de ${f}`,
@@ -1118,6 +1139,7 @@ export const es: Dict = {
   },
 
   gcode: {
+    choose: "Elegir trayectoria",
     title: (n: string) => `G-code de ${n}`,
     titleEmpty: 'G-code',
     truncated: (shown: string, more: string) => `Se muestran las primeras ${shown} líneas. El archivo tiene ${more} más.`,
