@@ -191,6 +191,7 @@ export const en: Dict = {
   },
 
   reasons: {
+    duringSim: "Not available during the simulation – close the simulation to show or hide.",
     needsRouter: 'Needs a router. Change machine under Setup.',
     needsLaser: 'Needs a laser. Change machine under Setup.',
     needsPlasma: 'Needs a plasma cutter. Change machine under Setup.',

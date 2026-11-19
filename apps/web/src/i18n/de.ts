@@ -190,6 +190,7 @@ export const de: Dict = {
   },
 
   reasons: {
+    duringSim: "Während der Simulation nicht verfügbar – Simulation schließen, um ein- oder auszublenden.",
     needsRouter: 'Braucht eine Fräse. Maschine unter Einrichtung wechseln.',
     needsLaser: 'Braucht einen Laser. Maschine unter Einrichtung wechseln.',
     needsPlasma: 'Braucht einen Plasmaschneider. Maschine unter Einrichtung wechseln.',

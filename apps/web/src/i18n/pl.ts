@@ -197,6 +197,7 @@ export const pl: Dict = {
   },
 
   reasons: {
+    duringSim: "Niedostępne podczas symulacji – zamknij symulację, aby pokazać lub ukryć.",
     needsRouter: 'Wymaga frezarki. Zmień maszynę w Ustawieniach.',
     needsLaser: 'Wymaga lasera. Zmień maszynę w Ustawieniach.',
     needsPlasma: 'Wymaga przecinarki plazmowej. Zmień maszynę w Ustawieniach.',

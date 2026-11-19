@@ -190,6 +190,7 @@ export const fr: Dict = {
   },
 
   reasons: {
+    duringSim: "Indisponible pendant la simulation – fermez la simulation pour afficher ou masquer.",
     needsRouter: 'Nécessite une fraiseuse. Changez de machine dans Configuration.',
     needsLaser: 'Nécessite un laser. Changez de machine dans Configuration.',
     needsPlasma: 'Nécessite une découpeuse plasma. Changez de machine dans Configuration.',

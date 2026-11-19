@@ -14,6 +14,8 @@ export function SimulateTab() {
   const setView = useAppStore((s) => s.setView);
   const cmd = useAppStore((s) => s.sendViewCommand);
   const sim = useAppStore((s) => s.sim);
+  // Under simuleringen ritas det frästa materialet i stället och banorna döljs – visningsvalen gäller då inte.
+  const duringSim = sim.active ? t.reasons.duringSim : undefined;
   return (
     <>
       <RibbonGroup label={t.groups.simulation}>
@@ -22,9 +24,9 @@ export function SimulateTab() {
         <RibbonButton icon={X} label={b.simStop.label} disabled={!sim.active} onClick={stopSimulation} tooltip={tip(b.simStop, { illustration: <IlluStop /> })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.show}>
-        <RibbonButton icon={view.showToolpaths ? Eye : EyeOff} label={b.showToolpaths.label} active={view.showToolpaths} onClick={() => setView({ showToolpaths: !view.showToolpaths })} tooltip={tip(b.showToolpaths, { illustration: <IlluShowToolpaths /> })} />
-        <RibbonButton icon={MoveRight} label={b.showRapids.label} active={view.showRapids} onClick={() => setView({ showRapids: !view.showRapids })} tooltip={tip(b.showRapids, { illustration: <IlluRapids /> })} />
-        <RibbonButton icon={PanelBottom} label={b.showStock.label} active={view.showStock} onClick={() => setView({ showStock: !view.showStock })} tooltip={tip(b.showStock, { illustration: <IlluStock /> })} />
+        <RibbonButton icon={view.showToolpaths ? Eye : EyeOff} label={b.showToolpaths.label} disabled={sim.active} active={view.showToolpaths} onClick={() => setView({ showToolpaths: !view.showToolpaths })} tooltip={tip(b.showToolpaths, { disabledReason: duringSim, illustration: <IlluShowToolpaths /> })} />
+        <RibbonButton icon={MoveRight} label={b.showRapids.label} disabled={sim.active} active={view.showRapids} onClick={() => setView({ showRapids: !view.showRapids })} tooltip={tip(b.showRapids, { disabledReason: duringSim, illustration: <IlluRapids /> })} />
+        <RibbonButton icon={PanelBottom} label={b.showStock.label} disabled={sim.active} active={view.showStock} onClick={() => setView({ showStock: !view.showStock })} tooltip={tip(b.showStock, { disabledReason: duringSim, illustration: <IlluStock /> })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.camera}>
         <RibbonButton icon={Square} label={b.viewTop.label} onClick={() => cmd('top')} tooltip={tip(b.viewTop, { illustration: <IlluViewTop />,  shortcut: '1' })} />

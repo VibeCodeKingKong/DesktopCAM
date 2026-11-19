@@ -142,6 +142,7 @@ export const sv = {
   } satisfies Record<string, Tip>,
 
   reasons: {
+    duringSim: "Gäller inte under simuleringen – avsluta simuleringen för att visa eller dölja.",
     needsRouter: 'Kräver en fräs. Byt maskin under Inställning.',
     needsLaser: 'Kräver en laser. Byt maskin under Inställning.',
     needsPlasma: 'Kräver en plasmaskärare. Byt maskin under Inställning.',
