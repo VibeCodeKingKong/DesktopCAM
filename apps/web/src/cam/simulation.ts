@@ -134,12 +134,15 @@ export class StockSimulator {
     private owns: (job: number) => boolean = () => true,
     /** Redan tolkad G-kod (delas mellan ämnena, så att den bara tolkas en gång). */
     parsed?: { moves: Move[]; duration: number },
+    /** Ämnets nedre vänstra hörn i G-kodens koordinater och egen rutstorlek (för en fin delsimulering). */
+    view?: { origin?: { x: number; y: number }; cell?: number },
   ) {
     const { width, height } = material;
     // Laser- och plasmasnitt är bara 0,1–2 mm breda: finare rutnät, annars
     // blir snittet bara några rutor brett och kanten ser hackig ut.
     const narrow = jobs.some((j, i) => j.job.laserCut && owns(i));
-    this.cell = narrow ? Math.max(0.12, Math.max(width, height) / 1000) : Math.max(0.2, Math.max(width, height) / 700);
+    this.cell = view?.cell ?? (narrow ? Math.max(0.12, Math.max(width, height) / 1000) : Math.max(0.2, Math.max(width, height) / 700));
+    this.origin = view?.origin ?? { x: 0, y: 0 };
     this.nx = Math.max(2, Math.round(width / this.cell) + 1);
     this.ny = Math.max(2, Math.round(height / this.cell) + 1);
     this.heights = new Float32Array(this.nx * this.ny);
@@ -215,7 +218,12 @@ export class StockSimulator {
     }
   }
 
+  /** Ämnets nedre vänstra hörn i G-kodens koordinater. */
+  readonly origin: { x: number; y: number };
+
   private stamp(x: number, y: number, z: number, job: SimJob, power: number) {
+    x -= this.origin.x;
+    y -= this.origin.y;
     const tool = job.tool;
     const { cell, nx, ny, heights } = this;
     const floor = -this.material.thickness;
@@ -316,10 +324,26 @@ export class SimulationSet {
   /** Vilket ämne varje bana fräser i. */
   readonly jobStock: number[];
 
-  constructor(readonly stocks: SimStock[], jobs: SimJob[], jobStock: number[]) {
+  constructor(
+    readonly stocks: SimStock[],
+    jobs: SimJob[],
+    jobStock: number[],
+    private input: { jobs: { job: SimJob; gcode: string }[]; parsed: { moves: Move[]; duration: number }; sMax: number },
+  ) {
     this.jobs = jobs;
     this.jobStock = jobStock;
     this.duration = stocks[0]?.sim.duration ?? 0;
+  }
+
+  /**
+   * Grundträet simulerat på nytt, färdigfräst, med fint rutnät över bara en
+   * del av ytan (t.ex. ett inlägg) – grovt rutnät missar botten i smala V-spår.
+   */
+  fineBase(x: number, y: number, width: number, height: number, cell: number): StockSimulator {
+    const base = this.stocks[0].sim;
+    const fine = new StockSimulator({ width, height, thickness: base.material.thickness }, this.input.jobs, this.input.sMax, (j) => this.jobStock[j] === 0, this.input.parsed, { origin: { x, y }, cell });
+    fine.seek(fine.duration);
+    return fine;
   }
 
   get currentTime() {
@@ -409,5 +433,5 @@ export function buildSimulator(
       };
     }),
   ];
-  return new SimulationSet(stocks, jobs.map((j) => j.job), jobStock);
+  return new SimulationSet(stocks, jobs.map((j) => j.job), jobStock, { jobs, parsed, sMax });
 }

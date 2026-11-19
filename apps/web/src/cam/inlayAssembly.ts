@@ -31,6 +31,8 @@ export interface InlayFitResult {
 
 /** Tunnare inlägg än så här efter planing markeras (mm). */
 export const THIN_INLAY = 0.3;
+/** Andel av pluggens punkter som får ge efter (tryckas ihop) när den sänks ner. */
+const CRUSH_SHARE = 0.002;
 /** Grundare än så här räknas inte som ficka (rutnätets och kantens tolerans, mm). */
 const POCKET_TOL = 0.3;
 
@@ -69,6 +71,7 @@ export function assembleInlay(base: StockSimulator, plug: StockSimulator, at: In
   }
 
   // Pluggens höjd under en punkt i grundträet (NaN där pluggen inte finns).
+  const ox = base.origin.x, oy = base.origin.y;
   const plugAt = (x: number, y: number) => {
     const lx = 2 * at.cx - at.x0 - x, ly = y - at.y0;
     const i = Math.round(lx / pc), j = Math.round(ly / pc);
@@ -79,19 +82,24 @@ export function assembleInlay(base: StockSimulator, plug: StockSimulator, at: In
 
   const n = base.nx * base.ny;
   const under = new Float32Array(n).fill(NaN);
-  // Pluggen sänks tills den tar i: d = max(hb + hp) över alla punkter där den finns.
-  let d = -Infinity;
+  // Pluggen sänks tills den tar i: d = max(hb + hp) över alla punkter där den
+  // finns. Enstaka punkter får ge efter: vid hårfina streck är V-spåret
+  // smalare än rutnätet, så både spårets botten och pluggens spets blir för
+  // trubbiga – och i verkligheten pressas så fina spetsar ihop vid limningen.
+  const contact: number[] = [];
   for (let j = 0; j < base.ny; j++) {
     for (let i = 0; i < base.nx; i++) {
       const k = j * base.nx + i;
-      const p = plugAt(i * base.cell, j * base.cell);
+      const p = plugAt(ox + i * base.cell, oy + j * base.cell);
       if (Number.isNaN(p)) continue;
       under[k] = p;
-      d = Math.max(d, hb[k] + p);
+      contact.push(hb[k] + p);
     }
   }
+  if (!contact.length) return { sink: 0, maxGap: 0, filled: 0, voids: 0, thin: 0, blocked: false };
+  contact.sort((a, b) => b - a);
+  const d = contact[Math.min(contact.length - 1, Math.floor(contact.length * CRUSH_SHARE))];
   const result: InlayFitResult = { sink: 0, maxGap: 0, filled: 0, voids: 0, thin: 0, blocked: false };
-  if (d === -Infinity) return result;
   result.sink = -d;
   result.blocked = d >= -1e-3;
 

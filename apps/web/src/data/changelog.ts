@@ -16,6 +16,40 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.25.1',
+    date: '2026-11-19',
+    text: {
+      sv: [
+        "Rättat: V-inläggets plugg fräste inte bort instängda partier mellan bokstäver (t.ex. där serifer möts). De satt kvar i pluggen och hindrade den från att gå ner i fickan. Nu fräses allt innanför marginalen ner till pluggdjupet.",
+        "Limma och plana räknar passningen på ett finare rutnät och låter enstaka hårfina spetsar ge efter, som när man pressar ihop inlägget.",
+      ],
+      en: [
+        "Fixed: the V-inlay plug did not clear enclosed areas between letters (e.g. where serifs meet). They stayed on the plug and kept it from going into the pocket. Everything inside the margin is now milled down to the plug depth.",
+        "Glue and plane computes the fit on a finer grid and lets single hair-thin tips give way, as when the inlay is clamped.",
+      ],
+      fr: [
+        "Corrigé : le bouchon de l’incrustation en V n’évidait pas les zones enfermées entre les lettres (p. ex. là où les empattements se rejoignent). Elles restaient sur le bouchon et l’empêchaient d’entrer dans la poche. Tout ce qui est à l’intérieur de la marge est maintenant usiné à la profondeur du bouchon.",
+        "Coller et raboter calcule l’ajustement sur une grille plus fine et laisse céder les pointes très fines isolées, comme lors du serrage.",
+      ],
+      de: [
+        "Behoben: Der Stopfen der V-Intarsie räumte eingeschlossene Bereiche zwischen Buchstaben (z. B. wo Serifen sich treffen) nicht aus. Sie blieben am Stopfen und verhinderten, dass er in die Tasche ging. Jetzt wird alles innerhalb des Randes auf Stopfentiefe gefräst.",
+        "Leimen und abrichten berechnet die Passung auf einem feineren Raster und lässt einzelne haarfeine Spitzen nachgeben, wie beim Verpressen.",
+      ],
+      es: [
+        "Corregido: el tapón de la incrustación en V no vaciaba las zonas encerradas entre letras (p. ej. donde se juntan las serifas). Quedaban en el tapón e impedían que entrara en la cajera. Ahora todo lo que queda dentro del margen se fresa a la profundidad del tapón.",
+        "Encolar y cepillar calcula el ajuste en una cuadrícula más fina y deja ceder puntas finísimas aisladas, como al prensar la incrustación.",
+      ],
+      pl: [
+        "Poprawiono: wkładka intarsji V nie wybierała zamkniętych obszarów między literami (np. tam, gdzie stykają się szeryfy). Zostawały na wkładce i nie pozwalały jej wejść w kieszeń. Teraz wszystko w obrębie marginesu jest frezowane do głębokości wkładki.",
+        "Klejenie i strugenie liczy pasowanie na drobniejszej siatce i pozwala ustąpić pojedynczym bardzo cienkim ostrzom, jak przy ściskaniu.",
+      ],
+      uk: [
+        "Виправлено: вставка V-інкрустації не вибирала замкнені ділянки між літерами (напр. там, де сходяться засічки). Вони лишалися на вставці й не давали їй увійти в кишеню. Тепер усе всередині поля фрезерується до глибини вставки.",
+        "«Склеїти й прострогати» рахує посадку на дрібнішій сітці й дозволяє поодиноким дуже тонким вістрям піддатися, як під час стискання.",
+      ],
+    },
+  },
+  {
     version: '0.25.0',
     date: '2026-11-19',
     text: {

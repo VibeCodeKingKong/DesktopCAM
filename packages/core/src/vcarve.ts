@@ -91,7 +91,31 @@ export function vcarveRings(job: VCarveJob): Ring[] {
     if (loops.length) rings.push({ depth: Math.min(D, S + s / tanA), loops });
     s += s < sFlat ? Math.min(step, Math.max(0.02, sFlat - s)) : flatStep;
   }
+  // Öar: områden som marginalen runt formerna stänger in (t.ex. mellan
+  // bokstäver vars serifer möts) ligger längre bort än marginalen och skulle
+  // stå kvar ofrästa. De sitter fast i pluggen och hindrar den från att gå
+  // ner i fickan – fräs bort dem också, på pluggdjupet. En ö är en kontur som
+  // inte omsluter någon av formerna.
+  const samples = job.groups.flat().filter((p) => p.points.length >= 2).map((p) => [p.points[0], p.points[1]] as const);
+  const isIsland = (loop: number[]) => !samples.some(([x, y]) => pointInLoop(x, y, loop));
+  for (let k = 0; k < 20000; k++) {
+    const loops = isolines(field, s, 0.01).filter(isIsland);
+    if (!loops.length) break;
+    rings.push({ depth: D, loops });
+    s += flatStep;
+  }
   return rings;
+}
+
+/** Ligger punkten (x, y) innanför den slutna konturen [x0, y0, x1, y1, …]? */
+function pointInLoop(x: number, y: number, loop: number[]): boolean {
+  let inside = false;
+  const n = loop.length / 2;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = loop[2 * i], yi = loop[2 * i + 1], xj = loop[2 * j], yj = loop[2 * j + 1];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
 }
 
 export function vcarveGcode(job: VCarveJob): string {

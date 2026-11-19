@@ -218,14 +218,32 @@ export function glueInlays() {
     if (i === 0 || !st.plugOf) return;
     const at = placements.get(st.plugOf);
     if (!at) return;
-    // Varje inlägg får sitt eget nummer i kind (1, 3 = inlägg) – färgen per inlägg sparas separat.
-    const own = new Uint8Array(kind.length);
-    const r = assembleInlay(base, st.sim, at, own, heights);
-    for (let k = 0; k < own.length; k++) if (own[k]) kind[k] = own[k] + 4 * (colors.length);
+    // Passningen räknas på ett fint rutnät (samma som inläggsträets) över
+    // inläggets yta – grundträets grova rutnät missar botten i smala V-spår.
+    const m = st.sim.material;
+    const rx = 2 * at.cx - at.x0 - m.width, ry = at.y0;
+    const fine = sim!.fineBase(rx, ry, m.width, m.height, st.sim.cell);
+    const fk = new Uint8Array(fine.heights.length);
+    const fh = Float32Array.from(fine.heights);
+    const r = assembleInlay(fine, st.sim, at, fk, fh);
+    // Över till grundträets rutnät för visningen. Varje inlägg får sitt eget
+    // nummer i kind (1, 3 = inlägg, 2 = glipa) – färgen per inlägg sparas separat.
+    for (let j = 0; j < base.ny; j++) {
+      const fj = Math.round((j * base.cell - ry) / fine.cell);
+      if (fj < 0 || fj >= fine.ny) continue;
+      for (let i = 0; i < base.nx; i++) {
+        const fi = Math.round((i * base.cell - rx) / fine.cell);
+        if (fi < 0 || fi >= fine.nx) continue;
+        const f = fj * fine.nx + fi;
+        if (!fk[f]) continue;
+        const k = j * base.nx + i;
+        kind[k] = fk[f] + 4 * colors.length;
+        heights[k] = fh[f];
+      }
+    }
     colors.push(hexRgb(st.color));
     const tp = s.toolpaths.find((x) => x.id === st.plugOf);
     fit.push({ ...r, name: tp?.name ?? '' });
-    const m = st.sim.material;
     // Lyft så högt att träet kan vändas utan att slå i grundträet.
     items.push({ stock: i, from: { x: st.x, y: st.y }, to: { x: 2 * at.cx - at.x0, y: at.y0, z: -r.sink }, lift: 15 + m.thickness + Math.max(m.width, m.height) / 2, size: { w: m.width, h: m.height, t: m.thickness } });
   });
