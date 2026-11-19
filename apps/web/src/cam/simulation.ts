@@ -328,7 +328,7 @@ export class SimulationSet {
     readonly stocks: SimStock[],
     jobs: SimJob[],
     jobStock: number[],
-    private input: { jobs: { job: SimJob; gcode: string }[]; parsed: { moves: Move[]; duration: number }; sMax: number },
+    private input: { jobs: { job: SimJob; gcode: string }[]; ids: string[]; parsed: { moves: Move[]; duration: number }; sMax: number },
   ) {
     this.jobs = jobs;
     this.jobStock = jobStock;
@@ -339,9 +339,12 @@ export class SimulationSet {
    * Grundträet simulerat på nytt, färdigfräst, med fint rutnät över bara en
    * del av ytan (t.ex. ett inlägg) – grovt rutnät missar botten i smala V-spår.
    */
-  fineBase(x: number, y: number, width: number, height: number, cell: number): StockSimulator {
+  fineBase(x: number, y: number, width: number, height: number, cell: number, onlyToolpath?: string): StockSimulator {
     const base = this.stocks[0].sim;
-    const fine = new StockSimulator({ width, height, thickness: base.material.thickness }, this.input.jobs, this.input.sMax, (j) => this.jobStock[j] === 0, this.input.parsed, { origin: { x, y }, cell });
+    // Med onlyToolpath fräses bara den banan (t.ex. inläggets ficka) – andra
+    // banor i närheten, som ett genomgående profilspår, är inga glipor i inlägget.
+    const owns = (j: number) => this.jobStock[j] === 0 && (!onlyToolpath || this.input.ids[j] === onlyToolpath);
+    const fine = new StockSimulator({ width, height, thickness: base.material.thickness }, this.input.jobs, this.input.sMax, owns, this.input.parsed, { origin: { x, y }, cell });
     fine.seek(fine.duration);
     return fine;
   }
@@ -387,6 +390,7 @@ export function buildSimulator(
 ): SimulationSet | null {
   const jobs: { job: SimJob; gcode: string }[] = [];
   const jobStock: number[] = [];
+  const ids: string[] = [];
   const stockOf = new Map<string, number>();
   const plugIds: string[] = [];
   for (const tp of toolpaths) {
@@ -417,6 +421,7 @@ export function buildSimulator(
     }
     jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut', tabTop }, gcode: res.gcode });
     jobStock.push(stock);
+    ids.push(tp.id);
   }
   if (!jobs.length) return null;
   const parsed = parseJobs(jobs, sMax);
@@ -433,5 +438,5 @@ export function buildSimulator(
       };
     }),
   ];
-  return new SimulationSet(stocks, jobs.map((j) => j.job), jobStock, { jobs, parsed, sMax });
+  return new SimulationSet(stocks, jobs.map((j) => j.job), jobStock, { jobs, ids, parsed, sMax });
 }

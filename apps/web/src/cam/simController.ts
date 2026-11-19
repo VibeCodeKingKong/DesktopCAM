@@ -247,7 +247,9 @@ export function glueInlays() {
     // inläggets yta – grundträets grova rutnät missar botten i smala V-spår.
     const m = st.sim.material;
     const rx = 2 * at.cx - at.x0 - m.width, ry = at.y0;
-    const fine = sim!.fineBase(rx, ry, m.width, m.height, st.sim.cell);
+    const plugTp = s.toolpaths.find((x) => x.id === st.plugOf);
+    const pocketTp = plugTp?.operation === 'inlay' ? s.toolpaths.find((x) => x.operation === 'inlay' && x.part === 'pocket' && x.groupId === plugTp.groupId) : undefined;
+    const fine = sim!.fineBase(rx, ry, m.width, m.height, st.sim.cell, pocketTp?.id);
     const fk = new Uint8Array(fine.heights.length);
     const fh = Float32Array.from(fine.heights);
     const bottom = new Float32Array(fine.heights.length);
