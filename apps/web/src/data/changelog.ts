@@ -16,6 +16,61 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.26.0',
+    date: '2026-11-19',
+    text: {
+      sv: [
+        "Spara G-kod öppnar en dialog där du väljer vilka banor som sparas. Varje lager blir en egen fil med lagrets banor i ordning; inläggets ficka och plugg blir var sin fil. Visa G-kod kan visa valfri bana.",
+        "Nytt val: olika verktyg i samma fil, med paus (M0) för verktygsbyte. Marlin visar vilket verktyg som ska i på displayen.",
+        "Genomskärning efter Limma och plana: ett snitt rakt genom inlägget från sidan visar V-formen, limspalten och planingslinjen.",
+        "Byte mellan Uppifrån och Iso behåller zoom och inramning, och Arbetsstycke/Arbetsyta behåller vinkeln. Visningsknapparna är avstängda under simuleringen.",
+        "Rättat: pluggens bortfräsning av öar kunde skära rakt genom bokstäverna. Passningskontrollen räknar inte längre andra banor nära inlägget som glipor.",
+      ],
+      en: [
+        "Save G-code opens a dialog where you choose which toolpaths to save. Each layer becomes its own file with its toolpaths in order; an inlay’s pocket and plug are separate files. View G-code can show any toolpath.",
+        "New option: different tools in the same file, with a pause (M0) for tool changes. Marlin shows which tool to fit on the display.",
+        "Cross-section after Glue and plane: a cut straight through the inlay from the side shows the V shape, the glue gap and the planing line.",
+        "Switching between Top and Iso keeps zoom and framing, and Workpiece/Work area keep the angle. The view buttons are disabled during the simulation.",
+        "Fixed: clearing islands in the plug could cut straight through the letters. The fit check no longer counts other toolpaths near the inlay as gaps.",
+      ],
+      fr: [
+        "Enregistrer le G-code ouvre une fenêtre où vous choisissez les parcours à enregistrer. Chaque calque devient un fichier avec ses parcours dans l’ordre ; la poche et le bouchon d’une incrustation sont des fichiers séparés. Afficher le G-code peut montrer n’importe quel parcours.",
+        "Nouvelle option : outils différents dans le même fichier, avec une pause (M0) pour le changement d’outil. Marlin affiche l’outil à monter.",
+        "Coupe après Coller et raboter : une coupe à travers l’incrustation montre la forme en V, le joint de colle et la ligne de rabotage.",
+        "Passer de Dessus à Iso conserve le zoom et le cadrage, et Pièce/Zone de travail conservent l’angle. Les boutons d’affichage sont désactivés pendant la simulation.",
+        "Corrigé : l’évidement des îlots du bouchon pouvait couper à travers les lettres. Le contrôle d’ajustement ne compte plus les autres parcours proches comme des jours.",
+      ],
+      de: [
+        "G-Code speichern öffnet einen Dialog zur Auswahl der Bahnen. Jede Ebene wird eine eigene Datei mit ihren Bahnen in Reihenfolge; Tasche und Stopfen einer Intarsie sind getrennte Dateien. G-Code anzeigen kann jede Bahn zeigen.",
+        "Neue Option: verschiedene Werkzeuge in derselben Datei, mit Pause (M0) zum Werkzeugwechsel. Marlin zeigt das einzusetzende Werkzeug im Display.",
+        "Schnitt nach Leimen und abrichten: ein Schnitt durch die Intarsie von der Seite zeigt V-Form, Leimfuge und Abrichtlinie.",
+        "Der Wechsel zwischen Oben und Iso behält Zoom und Ausschnitt, Werkstück/Arbeitsbereich behalten den Winkel. Die Anzeige-Schaltflächen sind während der Simulation deaktiviert.",
+        "Behoben: Das Ausräumen von Inseln im Stopfen konnte quer durch die Buchstaben schneiden. Die Passungsprüfung zählt andere Bahnen nahe der Intarsie nicht mehr als Spalten.",
+      ],
+      es: [
+        "Guardar G-code abre un diálogo para elegir las trayectorias. Cada capa es un archivo con sus trayectorias en orden; la cajera y el tapón de una incrustación son archivos separados. Ver G-code puede mostrar cualquier trayectoria.",
+        "Nueva opción: herramientas distintas en el mismo archivo, con pausa (M0) para el cambio. Marlin muestra en pantalla qué herramienta montar.",
+        "Sección tras Encolar y cepillar: un corte a través de la incrustación muestra la forma en V, la junta de cola y la línea de cepillado.",
+        "Cambiar entre Superior e Iso conserva el zoom y el encuadre, y Pieza/Área de trabajo conservan el ángulo. Los botones de vista se desactivan durante la simulación.",
+        "Corregido: el vaciado de islas del tapón podía cortar a través de las letras. El control de ajuste ya no cuenta otras trayectorias cercanas como huecos.",
+      ],
+      pl: [
+        "Zapisz G-code otwiera okno wyboru ścieżek. Każda warstwa to osobny plik z jej ścieżkami po kolei; kieszeń i wkładka intarsji to osobne pliki. Pokaż G-code może pokazać dowolną ścieżkę.",
+        "Nowa opcja: różne narzędzia w jednym pliku, z pauzą (M0) na zmianę narzędzia. Marlin pokazuje na wyświetlaczu, jakie narzędzie założyć.",
+        "Przekrój po Klejeniu i struganiu: cięcie przez intarsję z boku pokazuje kształt V, spoinę kleju i linię strugania.",
+        "Przełączanie między Góra i Izo zachowuje powiększenie i kadr, a Detal/Obszar roboczy zachowują kąt. Przyciski widoku są wyłączone podczas symulacji.",
+        "Poprawiono: wybieranie wysp we wkładce mogło przecinać litery. Kontrola pasowania nie liczy już innych ścieżek w pobliżu jako szczelin.",
+      ],
+      uk: [
+        "«Зберегти G-код» відкриває діалог вибору траєкторій. Кожен шар стає окремим файлом з траєкторіями по порядку; кишеня й вставка інкрустації – окремі файли. «Показати G-код» може показати будь-яку траєкторію.",
+        "Нова опція: різні інструменти в одному файлі з паузою (M0) для зміни інструмента. Marlin показує на дисплеї, який інструмент встановити.",
+        "Переріз після «Склеїти й прострогати»: розріз крізь інкрустацію збоку показує V-форму, клейовий шов і лінію стругання.",
+        "Перемикання між «Згори» та «Ізо» зберігає масштаб і кадр, а «Заготовка»/«Робоча зона» зберігають кут. Кнопки показу вимкнені під час симуляції.",
+        "Виправлено: вибирання острівців у вставці могло прорізати літери. Перевірка посадки більше не вважає інші траєкторії поруч щілинами.",
+      ],
+    },
+  },
+  {
     version: '0.25.1',
     date: '2026-11-19',
     text: {
