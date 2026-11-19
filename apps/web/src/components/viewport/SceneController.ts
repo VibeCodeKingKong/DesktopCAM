@@ -441,9 +441,12 @@ export class SceneController {
         this.camera.position.set(center.x, center.y - dist, dist * 0.18);
         break;
       case 'iso':
+        this.camera.position.copy(center).add(new THREE.Vector3(-0.45, -0.95, 0.75).normalize().multiplyScalar(dist));
+        break;
       case 'fit':
       case 'fitStock':
-        this.camera.position.copy(center).add(new THREE.Vector3(-0.45, -0.95, 0.75).normalize().multiplyScalar(dist));
+        // Bara inramningen ändras: samma vinkel som nu (uppifrån, iso, framifrån eller egen).
+        this.camera.position.copy(center).add((offset.lengthSq() > 1e-9 ? offset : new THREE.Vector3(-0.45, -0.95, 0.75)).normalize().multiplyScalar(dist));
         break;
       case 'zoomIn':
       case 'zoomOut': {
