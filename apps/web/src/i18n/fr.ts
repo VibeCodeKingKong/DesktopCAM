@@ -642,6 +642,10 @@ export const fr: Dict = {
   },
 
   exportGcode: {
+    pauseOption: "Outils différents dans le même fichier, avec pause pour le changement d’outil",
+    pauseNote: "Avant chaque changement d’outil, la fraise monte à la hauteur de sécurité, la broche s’arrête et la machine se met en pause (M0). Marlin affiche l’outil à monter. Refaites le zéro Z avant de continuer si le nouvel outil dépasse d’une autre longueur – tous les contrôleurs ne permettent pas de déplacer la machine pendant une pause M0 ; utilisez la fonction de changement d’outil de votre logiciel d’envoi s’il en a une.",
+    notePause: "Les parcours sont enregistrés ainsi : chaque calque devient un fichier avec ses parcours dans l’ordre de la liste, et les changements d’outil dans le calque ont une pause. La poche et le bouchon d’une incrustation sont toujours des fichiers séparés – usinés dans des pièces de bois différentes, chacune avec sa propre origine.",
+    toolChangeMessage: (tool: string) => `Changer d outil: ${tool} - zero Z`,
     noLayer: "Sans calque",
     layerFile: (n: number) => (n === 1 ? 'calque, 1 parcours' : `calque, ${n} parcours`),
     title: "Enregistrer le G-code",

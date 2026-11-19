@@ -34,8 +34,13 @@ function layerOf(tp: ToolpathConfig) {
   return null;
 }
 
+export interface ExportOptions {
+  /** Olika verktyg i samma lager i samma fil, med paus för verktygsbyte. */
+  toolChangePause?: boolean;
+}
+
 /** Filerna som de valda banorna blir, i listans ordning. */
-export function planExport(ids: string[]): ExportFile[] {
+export function planExport(ids: string[], opts: ExportOptions = {}): ExportFile[] {
   const s = useAppStore.getState();
   const t = getT();
   const project = slug(s.projectName || 'desktopcam');
@@ -49,7 +54,7 @@ export function planExport(ids: string[]): ExportFile[] {
     }
     const layer = layerOf(tp);
     const layerName = layer?.name ?? t.exportGcode.noLayer;
-    const key = `${layer?.id ?? '-'}|${tp.toolId}`;
+    const key = opts.toolChangePause ? `${layer?.id ?? '-'}` : `${layer?.id ?? '-'}|${tp.toolId}`;
     let file = byKey.get(key);
     if (!file) {
       file = { title: layerName, filename: '', toolpathIds: [], kind: 'layer' };
@@ -88,10 +93,23 @@ function findSeq(lines: string[], seq: string[], from = 0, to = lines.length): n
 }
 
 /**
- * Slår ihop flera banors G-kod till en fil: postprocessorns början bara
- * först, slutet bara sist, och en kommentar före varje bana.
+ * Paus för verktygsbyte: lyft till säker höjd, stäng av spindeln och vänta.
+ * Marlin visar texten på displayen (M117); GRBL har ingen M117, där blir
+ * texten en kommentar. Nästa bana startar spindeln igen själv.
  */
-export function combineGcode(parts: { name: string; gcode: string }[], post: PostprocessorConfig): string {
+function toolChangeLines(post: PostprocessorConfig, message: string): string[] {
+  const z = `G0 Z${post.safeZ}`;
+  // Displayen klarar oftast bara ASCII: ä → a, och övriga tecken bort.
+  const ascii = message.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7e]/g, '').replace(/\s+/g, ' ').trim();
+  return post.flavor === 'marlin' ? [z, 'M5', `M117 ${ascii}`, `; ${message}`, 'M0'] : [z, 'M5', `; ${message}`, 'M0'];
+}
+
+/**
+ * Slår ihop flera banors G-kod till en fil: postprocessorns början bara
+ * först, slutet bara sist, och en kommentar före varje bana. Byts verktyget
+ * mellan två banor läggs en paus in (toolChange ger meddelandet).
+ */
+export function combineGcode(parts: { name: string; gcode: string; toolId?: string; toolChange?: string }[], post: PostprocessorConfig): string {
   if (parts.length === 1) return parts[0].gcode;
   const out: string[] = [];
   parts.forEach((part, i) => {
@@ -106,6 +124,7 @@ export function combineGcode(parts: { name: string; gcode: string }[], post: Pos
       const h = findSeq(body, post.header, 0, Math.min(body.length, post.header.length + 6));
       if (h >= 0) body = [...body.slice(0, h), ...body.slice(h + post.header.length)];
     }
+    if (i > 0 && part.toolChange && part.toolId !== parts[i - 1].toolId) out.push(...toolChangeLines(post, part.toolChange));
     out.push(`; ===== ${part.name} =====`, ...body);
   });
   return out.join('\n') + '\n';
@@ -114,7 +133,17 @@ export function combineGcode(parts: { name: string; gcode: string }[], post: Pos
 /** G-koden för en fil. */
 export function fileGcode(file: ExportFile): string {
   const s = useAppStore.getState();
-  const parts = file.toolpathIds.map((id) => ({ name: s.toolpaths.find((x) => x.id === id)?.name ?? '', gcode: s.results[id]?.gcode ?? '' }));
+  const t = getT();
+  const parts = file.toolpathIds.map((id) => {
+    const tp = s.toolpaths.find((x) => x.id === id);
+    const tool = s.tools.find((x) => x.id === tp?.toolId);
+    return {
+      name: tp?.name ?? '',
+      gcode: s.results[id]?.gcode ?? '',
+      toolId: tp?.toolId,
+      toolChange: t.exportGcode.toolChangeMessage(tool ? toolName(t, tool.id, tool.name) : ''),
+    };
+  });
   return combineGcode(parts, getMachine().postprocessor);
 }
 

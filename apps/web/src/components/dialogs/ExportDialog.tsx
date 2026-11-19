@@ -21,6 +21,25 @@ export function ExportDialog() {
   const close = () => useAppStore.getState().openDialog(null);
   const done = toolpaths.filter((x) => results[x.id]);
   const [checked, setChecked] = useState<string[]>([]);
+  // Paus för verktygsbyte: valet sparas i webbläsaren till nästa gång.
+  const [pause, setPause] = useState(() => {
+    try {
+      return localStorage.getItem('desktopcam.toolChangePause') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const setPausePersist = (v: boolean) => {
+    setPause(v);
+    try {
+      localStorage.setItem('desktopcam.toolChangePause', v ? '1' : '0');
+    } catch {
+      /* privat läge */
+    }
+  };
+  const opts = { toolChangePause: pause };
+  // Finns det lager med flera verktyg? Då är valet meningsfullt.
+  const multiTool = planExport(done.map((x) => x.id)).length !== planExport(done.map((x) => x.id), { toolChangePause: true }).length;
 
   // Förval: den markerade banan (eller den första), och i ett inlägg båda delarna.
   useEffect(() => {
@@ -54,11 +73,11 @@ export function ExportDialog() {
             className="btn btn-primary"
             disabled={!checked.length}
             onClick={() => {
-              exportToolpathsGcode(done.filter((x) => checked.includes(x.id)).map((x) => x.id));
+              exportToolpathsGcode(done.filter((x) => checked.includes(x.id)).map((x) => x.id), opts);
               close();
             }}
           >
-            <Download size={13} /> {e.download(planExport(checked).length)}
+            <Download size={13} /> {e.download(planExport(checked, opts).length)}
           </button>
         </>
       }
@@ -68,7 +87,7 @@ export function ExportDialog() {
           <p className="text-sm text-muted">{t.status.noResult}</p>
         ) : (
           <div className="space-y-2">
-            {planExport(done.map((x) => x.id)).map((file) => {
+            {planExport(done.map((x) => x.id), opts).map((file) => {
               const first = done.find((x) => x.id === file.toolpathIds[0])!;
               const blank = first.operation === 'inlay' && first.part === 'plug' ? plugBlankFor(first) : null;
               return (
@@ -100,7 +119,16 @@ export function ExportDialog() {
             })}
           </div>
         )}
-        <p className="text-2xs leading-relaxed text-muted">{e.note}</p>
+        {(multiTool || pause) && (
+          <div className="space-y-1 rounded-lg border border-line p-3">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" checked={pause} onChange={(ev) => setPausePersist(ev.target.checked)} />
+              {e.pauseOption}
+            </label>
+            <p className="text-2xs leading-relaxed text-muted">{e.pauseNote}</p>
+          </div>
+        )}
+        <p className="text-2xs leading-relaxed text-muted">{pause ? e.notePause : e.note}</p>
       </div>
     </Dialog>
   );

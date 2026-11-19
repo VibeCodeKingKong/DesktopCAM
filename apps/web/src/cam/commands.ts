@@ -40,7 +40,7 @@ import { getT } from '../i18n';
 import toolsJson from '../data/tools.json';
 import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
-import { fileGcode, planExport } from './exportGcode';
+import { fileGcode, planExport, type ExportOptions } from './exportGcode';
 import { computeToolpath } from './toolpathService';
 import { buildTextShape, ensureTextFont } from '../text/textShape';
 import { activeEditor } from '../editing/EditController';
@@ -678,9 +678,9 @@ export function exportSelectedGcode() {
  * övriga banor en fil per lager (och verktyg). Filerna laddas ner en i taget
  * – annars stoppar webbläsaren alla utom den första.
  */
-export function exportToolpathsGcode(ids: string[]) {
+export function exportToolpathsGcode(ids: string[], opts: ExportOptions = {}) {
   const t = getT();
-  const files = planExport(ids);
+  const files = planExport(ids, opts);
   if (!files.length) {
     status(t.status.noResult);
     return;

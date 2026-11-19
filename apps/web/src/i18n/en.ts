@@ -643,6 +643,10 @@ export const en: Dict = {
   },
 
   exportGcode: {
+    pauseOption: "Different tools in the same file, with a pause for tool changes",
+    pauseNote: "Before each tool change the cutter is raised to safe height, the spindle is stopped and the machine pauses (M0). Marlin shows which tool to fit on the display. Zero Z again before continuing if the new tool sticks out by a different length – not all controllers let you move the machine during an M0 pause, so use your sender’s tool change feature if it has one.",
+    notePause: "Toolpaths are saved like this: each layer becomes its own file with the layer’s toolpaths in list order, and tool changes within the layer get a pause. An inlay’s pocket and plug are always separate files – they are milled in different pieces of wood, each with its own origin.",
+    toolChangeMessage: (tool: string) => `Change tool: ${tool} - zero Z`,
     noLayer: "No layer",
     layerFile: (n: number) => (n === 1 ? 'layer, 1 toolpath' : `layer, ${n} toolpaths`),
     title: "Save G-code",

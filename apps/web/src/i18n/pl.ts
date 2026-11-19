@@ -649,6 +649,10 @@ export const pl: Dict = {
   },
 
   exportGcode: {
+    pauseOption: "Różne narzędzia w jednym pliku, z pauzą na zmianę narzędzia",
+    pauseNote: "Przed każdą zmianą narzędzia frez unosi się na bezpieczną wysokość, wrzeciono się zatrzymuje, a maszyna pauzuje (M0). Marlin pokazuje na wyświetlaczu, jakie narzędzie założyć. Przed kontynuacją wyzeruj Z ponownie, jeśli nowe narzędzie wystaje inaczej – nie każdy sterownik pozwala ruszać maszyną podczas pauzy M0, więc użyj funkcji zmiany narzędzia w programie wysyłającym, jeśli ją ma.",
+    notePause: "Ścieżki zapisywane są tak: każda warstwa to osobny plik z jej ścieżkami w kolejności listy, a zmiany narzędzia w warstwie mają pauzę. Kieszeń i wkładka intarsji to zawsze osobne pliki – frezuje się je w różnych kawałkach drewna, każdy z własnym punktem zerowym.",
+    toolChangeMessage: (tool: string) => `Zmien narzedzie: ${tool} - zeruj Z`,
     noLayer: "Bez warstwy",
     layerFile: (n: number) => (n === 1 ? 'warstwa, 1 ścieżka' : `warstwa, ścieżki: ${n}`),
     title: "Zapisz G-code",

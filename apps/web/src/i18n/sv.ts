@@ -594,6 +594,10 @@ export const sv = {
   },
 
   exportGcode: {
+    pauseOption: "Olika verktyg i samma fil, med paus för verktygsbyte",
+    pauseNote: "Före varje verktygsbyte lyfts fräsen till säker höjd, spindeln stängs av och maskinen pausar (M0). Marlin visar vilket verktyg som ska i på displayen. Nollställ Z igen innan du fortsätter om det nya verktyget sticker ut olika långt – alla styrsystem låter dig inte flytta maskinen under en M0-paus, så använd sändarens funktion för verktygsbyte om den har en.",
+    notePause: "Banorna sparas i filer så här: varje lager blir en egen fil med lagrets banor i listans ordning, och verktygsbyten i lagret får en paus. Inläggets ficka och plugg blir alltid var sin fil – de fräses i olika trästycken med var sin nollpunkt.",
+    toolChangeMessage: (tool: string) => `Byt verktyg: ${tool} - nollställ Z`,
     noLayer: "Utan lager",
     layerFile: (n: number) => (n === 1 ? 'lager, 1 bana' : `lager, ${n} banor`),
     title: "Spara G-kod",

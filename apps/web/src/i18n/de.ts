@@ -642,6 +642,10 @@ export const de: Dict = {
   },
 
   exportGcode: {
+    pauseOption: "Verschiedene Werkzeuge in derselben Datei, mit Pause zum Werkzeugwechsel",
+    pauseNote: "Vor jedem Werkzeugwechsel fährt der Fräser auf Sicherheitshöhe, die Spindel stoppt und die Maschine pausiert (M0). Marlin zeigt das einzusetzende Werkzeug im Display. Z vor dem Fortsetzen neu nullen, wenn das neue Werkzeug anders weit herausragt – nicht jede Steuerung erlaubt Bewegungen während einer M0-Pause; nutzen Sie die Werkzeugwechsel-Funktion Ihres Senders, falls vorhanden.",
+    notePause: "So werden die Bahnen gespeichert: Jede Ebene wird eine eigene Datei mit ihren Bahnen in Listenreihenfolge, Werkzeugwechsel in der Ebene bekommen eine Pause. Tasche und Stopfen einer Intarsie sind immer getrennte Dateien – sie werden in verschiedenen Holzstücken mit eigenem Nullpunkt gefräst.",
+    toolChangeMessage: (tool: string) => `Werkzeug wechseln: ${tool} - Z nullen`,
     noLayer: "Ohne Ebene",
     layerFile: (n: number) => (n === 1 ? 'Ebene, 1 Bahn' : `Ebene, ${n} Bahnen`),
     title: "G-Code speichern",

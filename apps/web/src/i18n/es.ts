@@ -642,6 +642,10 @@ export const es: Dict = {
   },
 
   exportGcode: {
+    pauseOption: "Herramientas distintas en el mismo archivo, con pausa para el cambio",
+    pauseNote: "Antes de cada cambio de herramienta la fresa sube a la altura segura, el husillo se detiene y la máquina hace una pausa (M0). Marlin muestra en pantalla qué herramienta montar. Vuelva a poner Z a cero antes de continuar si la nueva herramienta sobresale distinto: no todos los controladores permiten mover la máquina durante una pausa M0, así que use la función de cambio de herramienta de su programa de envío si la tiene.",
+    notePause: "Las trayectorias se guardan así: cada capa es un archivo con sus trayectorias en el orden de la lista, y los cambios de herramienta en la capa llevan una pausa. La cajera y el tapón de una incrustación son siempre archivos separados: se fresan en piezas de madera distintas, cada una con su propio origen.",
+    toolChangeMessage: (tool: string) => `Cambiar herramienta: ${tool} - cero Z`,
     noLayer: "Sin capa",
     layerFile: (n: number) => (n === 1 ? 'capa, 1 trayectoria' : `capa, ${n} trayectorias`),
     title: "Guardar G-code",
