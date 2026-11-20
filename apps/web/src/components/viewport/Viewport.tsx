@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { FileUp } from 'lucide-react';
 import { shapeToPolylines } from '@desktopcam/core';
 import { useAppStore, useMachine, useMaterialPreset } from '../../store/useAppStore';
-import { SCENE_THEMES, SceneController, type ToolpathDisplay, type VectorDisplay } from './SceneController';
+import { SCENE_THEMES, SceneController, type ImageDisplay, type ToolpathDisplay, type VectorDisplay } from './SceneController';
 import { ViewportToolbar } from './ViewportToolbar';
 import { ViewportOverlay } from './ViewportOverlay';
 import { composeStockSurface } from '../../cam/reliefs';
 import { importVectorFile } from '../../cam/commands';
+import { imageHeightMm, importImage } from '../../cam/imageObjects';
 import { EditController } from '../../editing/EditController';
 import { useT } from '../../i18n';
 import { DrawingBar } from './DrawingBar';
@@ -79,6 +80,20 @@ export function Viewport() {
     ctlRef.current?.setExtraStocks(extras);
   }, [theme, blanks, view.showStock, simActive]);
 
+  // Bilderna i ritningen; tonas ner när en synlig bana redan ritar bilden.
+  const imageObjects = useAppStore((s) => s.imageObjects);
+  const imageCache = useAppStore((s) => s.images);
+  useEffect(() => {
+    const drawn = (id: string) =>
+      view.showToolpaths && toolpaths.some((t) => (t.operation === 'laserRaster' || t.operation === 'penImage') && t.imageId === id && t.visible && results[t.id]);
+    const display: ImageDisplay[] = simActive
+      ? []
+      : imageObjects
+          .filter((im) => im.visible && imageCache[im.id])
+          .map((im) => ({ bitmap: imageCache[im.id].bitmap, x: im.x, y: im.y, width: im.widthMm, height: imageHeightMm(im), opacity: drawn(im.id) ? 0.35 : 1 }));
+    ctlRef.current?.setImages(display);
+  }, [theme, imageObjects, imageCache, simActive, toolpaths, results, view.showToolpaths]);
+
   const vectors = useMemo<VectorDisplay[]>(
     () =>
       layers
@@ -105,7 +120,9 @@ export function Viewport() {
               ? { x: blanks.get(t.id)!.displayX, y: blanks.get(t.id)!.displayY }
               : tools.some((x) => x.id === t.toolId && x.kind === 'pen')
                 ? { x: 0, y: 0, z: 1 }
-                : undefined,
+                : t.operation === 'laserRaster'
+                  ? { x: 0, y: 0, z: 0.1 }
+                  : undefined,
           }))
       : [];
     ctlRef.current.setToolpaths(display, view.showRapids);
@@ -130,7 +147,8 @@ export function Viewport() {
         e.preventDefault();
         setDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file) void importVectorFile(file);
+        if (file && /^image\/(png|jpeg|webp|bmp|gif)$/.test(file.type)) void importImage(file);
+        else if (file) void importVectorFile(file);
       }}
     >
       <div ref={hostRef} className="absolute inset-0 touch-none select-none" />

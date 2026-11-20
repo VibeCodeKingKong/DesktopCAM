@@ -74,6 +74,15 @@ function disposeChildren(group: THREE.Group) {
   }
 }
 
+export interface ImageDisplay {
+  bitmap: ImageBitmap;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+}
+
 export class SceneController {
   private renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
@@ -84,6 +93,9 @@ export class SceneController {
   private vectorGroup = new THREE.Group();
   private toolpathGroup = new THREE.Group();
   private extraStockGroup = new THREE.Group();
+  private imageGroup = new THREE.Group();
+  /** Texturer per bild – återanvänds när bilden flyttas eller ändrar storlek. */
+  private imageTextures = new Map<ImageBitmap, THREE.Texture>();
   private sectionLine: THREE.Line | null = null;
   private simGroup = new THREE.Group();
   private simStocks: { group: THREE.Group; top: THREE.Mesh; base: THREE.Color; display: SimStockDisplay }[] = [];
@@ -130,7 +142,7 @@ export class SceneController {
 
     const axes = new THREE.AxesHelper(25);
     axes.position.z = 0.2;
-    this.scene.add(axes, this.bedGroup, this.stockGroup, this.extraStockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker);
+    this.scene.add(axes, this.bedGroup, this.stockGroup, this.extraStockGroup, this.imageGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker);
     this.toolMarker.visible = false;
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -237,6 +249,44 @@ export class SceneController {
       const lines = new THREE.LineSegments(g, mat);
       lines.renderOrder = key === 'selected' ? 2 : 1;
       this.vectorGroup.add(lines);
+    }
+  }
+
+  /**
+   * Bilder i ritningen som plan strax ovanför ämnets ovansida. Banor ritas
+   * högre upp (laser, penna) så att de syns ovanpå bilden.
+   */
+  setImages(images: ImageDisplay[]) {
+    for (const child of [...this.imageGroup.children]) {
+      const m = child as THREE.Mesh;
+      m.geometry.dispose();
+      (m.material as THREE.Material).dispose();
+      this.imageGroup.remove(child);
+    }
+    const used = new Set<ImageBitmap>();
+    for (const im of images) {
+      let tex = this.imageTextures.get(im.bitmap);
+      if (!tex) {
+        tex = new THREE.Texture(im.bitmap);
+        // ImageBitmap kan inte vändas vid uppladdningen – vänd med UV i stället.
+        tex.flipY = false;
+        tex.repeat.set(1, -1);
+        tex.offset.set(0, 1);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+        tex.needsUpdate = true;
+        this.imageTextures.set(im.bitmap, tex);
+      }
+      used.add(im.bitmap);
+      const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: im.opacity, depthWrite: false, toneMapped: false });
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(im.width, im.height), mat);
+      mesh.position.set(im.x + im.width / 2, im.y + im.height / 2, 0.03);
+      this.imageGroup.add(mesh);
+    }
+    for (const [bm, tex] of this.imageTextures) {
+      if (used.has(bm)) continue;
+      tex.dispose();
+      this.imageTextures.delete(bm);
     }
   }
 
@@ -552,7 +602,8 @@ export class SceneController {
     this.renderer.domElement.removeEventListener('pointermove', this.handlePointer);
     this.renderer.domElement.removeEventListener('pointerleave', this.handleLeave);
     this.controls.dispose();
-    [this.bedGroup, this.stockGroup, this.extraStockGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker].forEach(disposeChildren);
+    [this.bedGroup, this.stockGroup, this.extraStockGroup, this.imageGroup, this.vectorGroup, this.toolpathGroup, this.simGroup, this.toolMarker].forEach(disposeChildren);
+    for (const tex of this.imageTextures.values()) tex.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

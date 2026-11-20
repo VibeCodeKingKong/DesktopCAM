@@ -482,7 +482,7 @@ function buildReliefJob(tp: ToolpathConfig): ReliefJob {
  */
 export function watchForChanges() {
   return useAppStore.subscribe((s, prev) => {
-    if (s.layers === prev.layers && s.reliefs === prev.reliefs && s.tools === prev.tools && s.machineId === prev.machineId && s.material === prev.material && s.toolpaths === prev.toolpaths) return;
+    if (s.layers === prev.layers && s.reliefs === prev.reliefs && s.tools === prev.tools && s.machineId === prev.machineId && s.material === prev.material && s.toolpaths === prev.toolpaths && s.images === prev.images) return;
     const prevShapes = new Map(allShapes(prev.layers).map((sh) => [sh.id, sh]));
     const changedShapes = new Set(allShapes(s.layers).filter((sh) => prevShapes.get(sh.id) !== sh).map((sh) => sh.id));
     for (const id of prevShapes.keys()) if (!allShapes(s.layers).some((x) => x.id === id)) changedShapes.add(id);
@@ -490,7 +490,10 @@ export function watchForChanges() {
     const global = s.tools !== prev.tools || s.machineId !== prev.machineId || s.material.thickness !== prev.material.thickness;
     for (const tp of s.toolpaths) {
       const configChanged = prevTp.get(tp.id) !== tp && prevTp.has(tp.id) && !s.progress[tp.id];
-      const reliefChanged = (tp.operation === 'relief' && s.reliefs !== prev.reliefs) || (tp.operation === 'facing' && tp.area === 'stock' && s.material !== prev.material);
+      const reliefChanged =
+        (tp.operation === 'relief' && s.reliefs !== prev.reliefs) ||
+        (tp.operation === 'facing' && tp.area === 'stock' && s.material !== prev.material) ||
+        ((tp.operation === 'laserRaster' || tp.operation === 'penImage') && s.images[tp.imageId] !== prev.images[tp.imageId]);
       if (global || configChanged || reliefChanged || tp.shapeIds.some((id) => changedShapes.has(id))) scheduleCompute(tp.id, 400);
     }
   });

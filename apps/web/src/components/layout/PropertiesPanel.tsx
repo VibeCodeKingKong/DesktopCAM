@@ -33,7 +33,8 @@ import {
   type ToolpathConfig,
   type VectorShape,
 } from '@desktopcam/core';
-import { allShapes, favoritesFirst, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedRelief, useSelectedToolpath } from '../../store/useAppStore';
+import { allShapes, favoritesFirst, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedImage, useSelectedRelief, useSelectedToolpath, type ImageObject } from '../../store/useAppStore';
+import { imageHeightMm, imageToRelief } from '../../cam/imageObjects';
 import { toolFits } from '../../cam/toolRules';
 import { computeToolpath, drillPoints, plugBlankFor, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import { DEFAULT_PLUG_MATERIAL } from '../../cam/inlayBlank';
@@ -88,11 +89,12 @@ export function PropertiesPanel() {
   const t = useT();
   const tp = useSelectedToolpath();
   const relief = useSelectedRelief();
+  const image = useSelectedImage();
   const selectedCount = useAppStore((s) => s.selectedShapeIds.length);
-  const title = tp ? t.props.toolpath : relief ? t.props.relief : selectedCount ? t.props.shapes(selectedCount) : t.props.title;
+  const title = tp ? t.props.toolpath : relief ? t.props.relief : image ? t.image.title : selectedCount ? t.props.shapes(selectedCount) : t.props.title;
   return (
     <SidePanel id="props" side="right" title={title} wide>
-      {tp ? <ToolpathEditor tp={tp} /> : relief ? <ReliefEditor relief={relief} /> : selectedCount ? <ShapeEditor /> : <EmptyState />}
+      {tp ? <ToolpathEditor tp={tp} /> : relief ? <ReliefEditor relief={relief} /> : image ? <ImageEditor image={image} /> : selectedCount ? <ShapeEditor /> : <EmptyState />}
     </SidePanel>
   );
 }
@@ -450,6 +452,127 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
   );
 }
 
+/* ───────── Bilder ───────── */
+
+/** Läge och storlek för en bild. Ändringarna gäller bilden och därmed alla banor som ritar den. */
+function ImagePlacement({ image }: { image: ImageObject }) {
+  const t = useT();
+  const material = useAppStore((s) => s.material);
+  const patch = (p: Partial<ImageObject>) => {
+    useAppStore.getState().checkpoint();
+    useAppStore.getState().updateImageObject(image.id, p);
+  };
+  const h = imageHeightMm(image);
+  return (
+    <>
+      <NumberField label={t.props.width} unit="mm" step={5} min={5} value={Math.round(image.widthMm * 100) / 100} onChange={(widthMm) => patch({ widthMm })} />
+      <NumberField
+        label={t.props.height}
+        unit="mm"
+        step={5}
+        min={5}
+        value={Math.round(h * 100) / 100}
+        onChange={(height) => patch({ widthMm: (height * image.pxWidth) / image.pxHeight })}
+      />
+      <NumberField label={t.props.posX} unit="mm" step={1} value={image.x} onChange={(x) => patch({ x })} />
+      <NumberField label={t.props.posY} unit="mm" step={1} value={image.y} onChange={(y) => patch({ y })} />
+      <button className="btn w-full" onClick={() => patch({ x: +((material.width - image.widthMm) / 2).toFixed(2), y: +((material.height - h) / 2).toFixed(2) })}>
+        {t.props.centerOnStock}
+      </button>
+    </>
+  );
+}
+
+function ImageEditor({ image }: { image: ImageObject }) {
+  const t = useT();
+  const machine = useMachine();
+  const update = useAppStore((s) => s.updateImageObject);
+  const remove = useAppStore((s) => s.removeImageObject);
+  const toolpaths = useAppStore((s) => s.toolpaths);
+  const users = useMemo(() => toolpaths.filter((tp) => (tp.operation === 'laserRaster' || tp.operation === 'penImage') && tp.imageId === image.id), [toolpaths, image.id]);
+  return (
+    <div>
+      <Group title={t.props.general}>
+        <img src={image.dataUrl} alt={image.name} className="mx-auto max-h-36 rounded border border-line object-contain" />
+        <FieldRow label={t.common.name}>
+          <input className="field" value={image.name} onChange={(e) => update(image.id, { name: e.target.value })} />
+        </FieldRow>
+        <FieldRow label={t.props.visible}>
+          <Switch checked={image.visible} onChange={(visible) => update(image.id, { visible })} label={t.props.visible} />
+        </FieldRow>
+        <p className="text-2xs text-muted">{t.image.pixels(image.pxWidth, image.pxHeight)}</p>
+      </Group>
+      <Group title={t.props.placement}>
+        <ImagePlacement image={image} />
+      </Group>
+      <Group title={t.props.machining}>
+        {users.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-2xs text-muted">{t.image.usedBy}</p>
+            {users.map((tp) => (
+              <button key={tp.id} className="btn w-full justify-start" onClick={() => useAppStore.getState().selectToolpath(tp.id)}>
+                {tp.name}
+              </button>
+            ))}
+          </div>
+        )}
+        {machine.kind === 'laser' && (
+          <button className="btn btn-primary w-full" onClick={() => createToolpath('laserRaster', { imageId: image.id, origin: { x: image.x, y: image.y }, widthMm: image.widthMm } as Partial<ToolpathConfig>)}>
+            {t.image.engrave}
+          </button>
+        )}
+        {machine.kind === 'plotter' && (
+          <button className="btn btn-primary w-full" onClick={() => createToolpath('penImage', { imageId: image.id, origin: { x: image.x, y: image.y }, widthMm: image.widthMm } as Partial<ToolpathConfig>)}>
+            {t.image.draw}
+          </button>
+        )}
+        {(machine.kind === 'router' || machine.kind === 'plasma') && <p className="text-xs leading-relaxed text-muted">{t.image.routerNote}</p>}
+        <div className="flex gap-2">
+          <button className="btn flex-1" onClick={() => void imageToRelief(image.id)}>
+            {t.buttons.imageRelief.label}
+          </button>
+          <button className="btn" onClick={() => remove(image.id)} title={t.image.remove} aria-label={t.image.remove}>
+            <Trash2 size={13} />
+          </button>
+        </div>
+      </Group>
+    </div>
+  );
+}
+
+/** Bilden som en bild-bana ritar: välj bland bilderna i ritningen, läge och storlek följer bilden. */
+function ImageSourceGroup({ imageId, onChange }: { imageId: string; onChange: (im: ImageObject) => void }) {
+  const t = useT();
+  const images = useAppStore((s) => s.imageObjects);
+  const image = images.find((im) => im.id === imageId);
+  return (
+    <>
+      {images.length > 1 && (
+        <SelectField
+          label={t.image.source}
+          value={imageId}
+          options={images.map((im) => ({ value: im.id, label: im.name }))}
+          onChange={(id) => {
+            const im = images.find((x) => x.id === id);
+            if (im) onChange(im);
+          }}
+        />
+      )}
+      {image ? (
+        <>
+          <button className="btn w-full justify-start gap-2" onClick={() => useAppStore.getState().selectImage(image.id)} title={t.image.selectHint}>
+            <img src={image.dataUrl} alt="" className="h-5 w-5 rounded-sm border border-line object-cover" />
+            <span className="truncate">{image.name}</span>
+          </button>
+          <ImagePlacement image={image} />
+        </>
+      ) : (
+        <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.image.missing}</p>
+      )}
+    </>
+  );
+}
+
 /* ───────── Verktygsbanor ───────── */
 
 function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
@@ -627,9 +750,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
                 onChange={(method) => patch({ image: { ...tp.image, method, ...(method === 'spiral' && tp.image.spacing < 1.2 ? { spacing: 1.5 } : {}) } })}
               />
             </FieldRow>
-            <NumberField label={t.props.width} unit="mm" step={5} min={10} value={tp.widthMm} onChange={(widthMm) => patch({ widthMm })} />
-            <NumberField label={t.props.posX} unit="mm" step={1} value={tp.origin.x} onChange={(x) => patch({ origin: { ...tp.origin, x } })} />
-            <NumberField label={t.props.posY} unit="mm" step={1} value={tp.origin.y} onChange={(y) => patch({ origin: { ...tp.origin, y } })} />
+            <ImageSourceGroup imageId={tp.imageId} onChange={(im) => patch({ imageId: im.id, origin: { x: im.x, y: im.y }, widthMm: im.widthMm })} />
             {tp.image.method !== 'stipple' && (
               <NumberField label={tp.image.method === 'spiral' ? t.props.spiralPitch : t.props.hatchSpacing} unit="mm" step={0.1} min={0.2} max={10} value={tp.image.spacing} hint="hatchSpacing" onChange={(spacing) => patch({ image: { ...tp.image, spacing } })} />
             )}
@@ -787,9 +908,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
       {tp.operation === 'laserRaster' && (
         <>
           <Group title={t.props.image}>
-            <NumberField label={t.props.width} unit="mm" step={5} min={5} value={tp.widthMm} onChange={(widthMm) => patch({ widthMm })} />
-            <NumberField label={t.props.posX} unit="mm" step={1} value={tp.origin.x} onChange={(x) => patch({ origin: { ...tp.origin, x } })} />
-            <NumberField label={t.props.posY} unit="mm" step={1} value={tp.origin.y} onChange={(y) => patch({ origin: { ...tp.origin, y } })} />
+            <ImageSourceGroup imageId={tp.imageId} onChange={(im) => patch({ imageId: im.id, origin: { x: im.x, y: im.y }, widthMm: im.widthMm })} />
             <NumberField label={t.props.lineInterval} unit="mm" step={0.01} min={0.05} max={1} value={tp.lineIntervalMm} hint="lineInterval" onChange={(lineIntervalMm) => patch({ lineIntervalMm })} />
             <SelectField label={t.props.dither} value={tp.dither} options={dithers} hint="dither" onChange={(dither) => patch({ dither })} />
             <NumberField label={t.props.threshold} step={4} min={1} max={254} value={tp.threshold} onChange={(threshold) => patch({ threshold: Math.round(threshold) })} />

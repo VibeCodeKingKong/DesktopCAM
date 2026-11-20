@@ -25,6 +25,7 @@ import { onContour, setTabPositions, tabContext } from './tabs';
 import { defaultMeasureRef, measure } from '../cam/commands';
 import { buildTextShape } from '../text/textShape';
 import { isOutlineFont } from '../text/fonts';
+import { imageHeightMm } from '../cam/imageObjects';
 import { allShapes, useAppStore, type EditTool, type NodeRef } from '../store/useAppStore';
 import { useDraft } from './draftStore';
 import { hitShape, shapeGeometry } from './hitTest';
@@ -44,7 +45,8 @@ type Gesture =
   | { kind: 'tap'; x0: number; y0: number; moved: boolean }
   | { kind: 'curveNode'; p: Vec2; handle: Vec2 | null; x0: number; y0: number }
   | { kind: 'tab'; index: number; x0: number; y0: number; moved: boolean; added: boolean }
-  | { kind: 'relief'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean };
+  | { kind: 'relief'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean }
+  | { kind: 'image'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean };
 
 const DRAW_TOOLS: EditTool[] = ['line', 'curve', 'rect', 'circle', 'text'];
 
@@ -338,6 +340,15 @@ export class EditController {
           this.gesture = { kind: 'relief', id: relief.id, start: w, ox: relief.x, oy: relief.y, x0, y0, moved: false };
           return;
         }
+        // Bilder ligger underst: träffas när varken relief eller form träffas,
+        // eller när bilden redan är markerad och ingen markerad form träffas.
+        const image = relief ? null : this.imageAt(w);
+        if (image && (!hit || (image.id === s.selectedImageId && !s.selectedShapeIds.includes(hit)))) {
+          this.stop(e);
+          if (s.selectedImageId !== image.id) s.selectImage(image.id);
+          this.gesture = { kind: 'image', id: image.id, start: w, ox: image.x, oy: image.y, x0, y0, moved: false };
+          return;
+        }
         if (!hit) {
           this.gesture = { kind: 'empty', x0, y0, moved: false };
           return;
@@ -442,6 +453,20 @@ export class EditController {
         s.updateRelief(g.id, { x: g.ox + dx, y: g.oy + dy });
         return;
       }
+      case 'image': {
+        if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
+        if (!g.moved) {
+          g.moved = true;
+          s.checkpoint();
+        }
+        let dx = w.x - g.start.x, dy = w.y - g.start.y;
+        if (s.snap.grid && s.snap.step > 0) {
+          dx = Math.round((g.ox + dx) / s.snap.step) * s.snap.step - g.ox;
+          dy = Math.round((g.oy + dy) / s.snap.step) * s.snap.step - g.oy;
+        }
+        s.updateImageObject(g.id, { x: +(g.ox + dx).toFixed(3), y: +(g.oy + dy).toFixed(3) });
+        return;
+      }
       case 'tab': {
         if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
         g.moved = true;
@@ -535,6 +560,7 @@ export class EditController {
           else {
             s.clearSelection();
             if (s.selectedReliefId) s.selectRelief(null);
+            if (s.selectedImageId) s.selectImage(null);
           }
         }
         return;
@@ -726,6 +752,28 @@ export class EditController {
         const loc = getT().locale;
         const f = (n: number) => n.toLocaleString(loc, { maximumFractionDigits: 1 });
         this.label(`${r.name}  X ${f(r.x)}  Y ${f(r.y)}`, { x: Math.min(...c.map((q) => q.x)), y: Math.max(...c.map((q) => q.y)) });
+      }
+    }
+
+    // Markerad bild: ram och namn
+    if (s.selectedImageId && s.editTool === 'select' && !s.sim.active) {
+      const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
+      if (im) {
+        const h = imageHeightMm(im);
+        const c = [{ x: im.x, y: im.y }, { x: im.x + im.widthMm, y: im.y }, { x: im.x + im.widthMm, y: im.y + h }, { x: im.x, y: im.y + h }].map(P);
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        c.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
+        ctx.closePath();
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = surface;
+        for (const q of c) { ctx.fillRect(q.x - 3.5, q.y - 3.5, 7, 7); ctx.strokeRect(q.x - 3.5, q.y - 3.5, 7, 7); }
+        const loc = getT().locale;
+        const f = (n: number) => n.toLocaleString(loc, { maximumFractionDigits: 1 });
+        this.label(`${im.name}  X ${f(im.x)}  Y ${f(im.y)}`, { x: Math.min(...c.map((q) => q.x)), y: Math.max(...c.map((q) => q.y)) });
       }
     }
 
@@ -961,6 +1009,16 @@ export class EditController {
   /** Förhandsvisning av punkten som skrivs in med längd och vinkel. */
   setPolarPreview(p: { length: number; angle: number } | null) {
     this.polarPreview = p;
+  }
+
+  /** Översta synliga bild under punkten. */
+  private imageAt(w: Vec2) {
+    const ims = useAppStore.getState().imageObjects;
+    for (let i = ims.length - 1; i >= 0; i--) {
+      const im = ims[i];
+      if (im.visible && w.x >= im.x && w.x <= im.x + im.widthMm && w.y >= im.y && w.y <= im.y + imageHeightMm(im)) return im;
+    }
+    return null;
   }
 
   /** Översta synliga relief under punkten. */

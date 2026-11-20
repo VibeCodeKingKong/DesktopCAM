@@ -40,6 +40,7 @@ import { getT } from '../i18n';
 import toolsJson from '../data/tools.json';
 import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
+import { decodeImageObjects, imageForNewToolpath } from './imageObjects';
 import { fileGcode, planExport, type ExportOptions } from './exportGcode';
 import { computeToolpath } from './toolpathService';
 import { buildTextShape, ensureTextFont } from '../text/textShape';
@@ -80,6 +81,7 @@ export function deleteSelection() {
   }
   if (s.selectedToolpathId) s.removeToolpath(s.selectedToolpathId);
   else if (s.selectedReliefId) s.removeRelief(s.selectedReliefId);
+  else if (s.selectedImageId) s.removeImageObject(s.selectedImageId);
 }
 
 export function duplicateSelection() {
@@ -181,14 +183,26 @@ export async function updateText(shape: VectorShape, patch: Partial<NonNullable<
   useAppStore.getState().replaceShapes([{ ...current, paths: fresh.paths, text, name: fresh.name }]);
 }
 
+/** Banor som ångra/gör om tagit tillbaka saknar resultat – räkna dem igen. */
+function computeMissing() {
+  const s = useAppStore.getState();
+  for (const tp of s.toolpaths) if (!s.results[tp.id] && !s.progress[tp.id] && !s.errors[tp.id]) void computeToolpath(tp.id);
+}
+
 export function undo() {
   const ok = useAppStore.getState().undo();
-  if (ok) status(getT().status.undone);
+  if (ok) {
+    computeMissing();
+    status(getT().status.undone);
+  }
 }
 
 export function redo() {
   const ok = useAppStore.getState().redo();
-  if (ok) status(getT().status.redone);
+  if (ok) {
+    computeMissing();
+    status(getT().status.redone);
+  }
 }
 
 /* ───────── Verktygsbanor ───────── */
@@ -561,18 +575,20 @@ export function createLineEngraving() {
   } as Partial<ToolpathConfig>);
 }
 
-/** Penplotter: välj en bild och rita den med linjer (skraffering, spiral eller prickar). */
+/** Bild-bana från bilden i ritningen: den markerade, den enda, eller en ny bildfil. */
+async function createImageToolpath(operation: 'penImage' | 'laserRaster') {
+  const im = await imageForNewToolpath();
+  if (!im) return;
+  createToolpath(operation, { imageId: im.id, origin: { x: im.x, y: im.y }, widthMm: im.widthMm } as Partial<ToolpathConfig>);
+}
+
+/** Penplotter: rita bilden med linjer (skraffering, spiral eller prickar). */
 export async function importImageForPlotter() {
   if (getMachine().kind !== 'plotter') {
     status(getT().status.needPlotter(getT().operations.penImage));
     return;
   }
-  const file = await pickFile('image/png,image/jpeg,image/webp');
-  if (!file) return;
-  const bitmap = await createImageBitmap(file);
-  const imageId = uid('img');
-  useAppStore.getState().addImage({ id: imageId, name: file.name, bitmap });
-  createToolpath('penImage', { imageId });
+  await createImageToolpath('penImage');
 }
 
 export async function importPhotoForEngraving() {
@@ -580,12 +596,7 @@ export async function importPhotoForEngraving() {
     status(getT().status.photoNeedsLaser);
     return;
   }
-  const file = await pickFile('image/png,image/jpeg,image/webp');
-  if (!file) return;
-  const bitmap = await createImageBitmap(file);
-  const imageId = uid('img');
-  useAppStore.getState().addImage({ id: imageId, name: file.name, bitmap });
-  createToolpath('laserRaster', { imageId });
+  await createImageToolpath('laserRaster');
 }
 
 /* ───────── Import ───────── */
@@ -630,7 +641,7 @@ export function addRelief(reliefId: string, size: { width: number; height: numbe
 const AUTOSAVE_KEY = 'desktopcam.autosave.v1';
 const BUILT_IN = new Map((machinesJson as MachineProfile[]).map((m) => [m.id, m]));
 
-function projectJson() {
+function projectJson(withImages = true) {
   const s = useAppStore.getState();
   return {
     app: 'desktopCAM',
@@ -643,8 +654,9 @@ function projectJson() {
     tools: s.tools,
     layers: s.layers,
     reliefs: s.reliefs,
-    // Fotogravyr och bild till linjer sparas inte: bilden finns bara i minnet.
-    toolpaths: s.toolpaths.filter((tp) => tp.operation !== 'laserRaster' && tp.operation !== 'penImage'),
+    imageObjects: withImages ? s.imageObjects : [],
+    // Banor som ritar en bild sparas bara tillsammans med bilden.
+    toolpaths: s.toolpaths.filter((tp) => (tp.operation !== 'laserRaster' && tp.operation !== 'penImage') || (withImages && s.imageObjects.some((im) => im.id === tp.imageId))),
   };
 }
 
@@ -655,6 +667,7 @@ function loadProject(data: unknown): boolean {
     projectName: d.projectName ?? '',
     layers: d.layers,
     reliefs: d.reliefs ?? [],
+    imageObjects: d.imageObjects ?? [],
     toolpaths: d.toolpaths ?? [],
     material: d.material,
     // Äldre projekt saknar verktygens längder – fyll i från de inbyggda
@@ -668,7 +681,9 @@ function loadProject(data: unknown): boolean {
     machineId: d.machineId,
     customMachines: d.customMachines ?? [],
   });
-  for (const tp of useAppStore.getState().toolpaths) void computeToolpath(tp.id);
+  // Bild-banor räknas när bilderna avkodats (watchForChanges ser nya bilder).
+  for (const tp of useAppStore.getState().toolpaths) if (tp.operation !== 'laserRaster' && tp.operation !== 'penImage') void computeToolpath(tp.id);
+  void decodeImageObjects();
   return true;
 }
 
@@ -708,13 +723,18 @@ export function startAutosave() {
   }
   let timer: ReturnType<typeof setTimeout> | undefined;
   return useAppStore.subscribe((s, prev) => {
-    if (s.layers === prev.layers && s.reliefs === prev.reliefs && s.toolpaths === prev.toolpaths && s.material === prev.material && s.tools === prev.tools && s.machineId === prev.machineId && s.projectName === prev.projectName) return;
+    if (s.layers === prev.layers && s.reliefs === prev.reliefs && s.imageObjects === prev.imageObjects && s.toolpaths === prev.toolpaths && s.material === prev.material && s.tools === prev.tools && s.machineId === prev.machineId && s.projectName === prev.projectName) return;
     clearTimeout(timer);
     timer = setTimeout(() => {
       try {
         localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson()));
       } catch {
-        /* fullt eller privat läge */
+        // Fullt (stora bilder): spara resten utan bilderna.
+        try {
+          localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson(false)));
+        } catch {
+          /* privat läge */
+        }
       }
     }, 800);
   });

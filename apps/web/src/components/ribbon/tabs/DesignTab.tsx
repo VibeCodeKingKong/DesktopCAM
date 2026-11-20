@@ -1,6 +1,8 @@
-import { Circle, Cog, Copy, FileUp, ImageUp, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { Circle, Cog, Copy, FileUp, Image as ImageIcon, ImageUp, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
+import { importImage } from '../../../cam/imageObjects';
+import { RibbonMenuButton } from '../RibbonMenuButton';
 import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
@@ -18,6 +20,7 @@ export function DesignTab() {
   const openDialog = useAppStore((s) => s.openDialog);
   const hasShapeSelection = useAppStore((s) => s.selectedShapeIds.length > 0);
   const hasSelection = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedNode);
+  const canDelete = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedNode || !!s.selectedImageId || !!s.selectedReliefId);
   const canUndo = useAppStore((s) => s.past.length > 0);
   const canRedo = useAppStore((s) => s.future.length > 0);
   const snap = useAppStore((s) => s.snap);
@@ -32,7 +35,7 @@ export function DesignTab() {
           <RibbonButton size="small" icon={Redo2} label={b.redo.label} disabled={!canRedo} onClick={redo} tooltip={tip(b.redo, { illustration: <IlluRedo />,  shortcut: '⇧⌘Z' })} tone="neutral" />
           <RibbonButton size="small" icon={Copy} label={b.duplicate.label} disabled={!hasSelection} onClick={duplicateSelection} tooltip={tip(b.duplicate, { illustration: <IlluDuplicate />,  shortcut: '⌘D', disabledReason: hasSelection ? undefined : t.reasons.needsSelection })} tone="neutral" />
         </RibbonStack>
-        <RibbonButton icon={Trash2} label={b.remove.label} disabled={!hasSelection} onClick={deleteSelection} tooltip={tip(b.remove, { illustration: <IlluDelete />,  shortcut: '⌫', disabledReason: hasSelection ? undefined : t.reasons.needsSelection })} tone="neutral" />
+        <RibbonButton icon={Trash2} label={b.remove.label} disabled={!canDelete} onClick={deleteSelection} tooltip={tip(b.remove, { illustration: <IlluDelete />,  shortcut: '⌫', disabledReason: canDelete ? undefined : t.reasons.needsSelection })} tone="neutral" />
       </RibbonGroup>
       <RibbonGroup label={t.groups.select}>
         <RibbonButton icon={MousePointer2} label={b.select.label} active={tool === 'select'} onClick={pick('select')} tooltip={tip(b.select, { illustration: <IlluSelect />,  shortcut: 'V' })} />
@@ -72,11 +75,19 @@ export function DesignTab() {
       </RibbonGroup>
       <RibbonGroup label={t.groups.import}>
         <RibbonButton icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
+        <RibbonMenuButton
+          icon={ImageIcon}
+          label={b.importImage.label}
+          tooltip={tip(b.importImage, { illustration: <IlluImageRelief /> })}
+          items={[
+            { icon: ImageIcon, label: b.importImage.title, desc: b.importImage.desc, onClick: () => void importImage() },
+            { icon: ImageUp, label: b.imageRelief.label, desc: b.imageRelief.desc, onClick: () => void importImageRelief() },
+          ]}
+        />
       </RibbonGroup>
       <RibbonGroup label={t.groups.library}>
         <RibbonButton icon={Shapes} label={b.shapeLibrary.label} onClick={() => openDialog('shapeLibrary')} tooltip={tip(b.shapeLibrary, { illustration: <IlluShapeLibrary /> })} />
         <RibbonButton icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />
-        <RibbonButton icon={ImageUp} label={b.imageRelief.label} onClick={() => void importImageRelief()} tooltip={tip(b.imageRelief, { illustration: <IlluImageRelief /> })} />
       </RibbonGroup>
     </>
   );

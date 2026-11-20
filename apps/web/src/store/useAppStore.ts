@@ -47,6 +47,26 @@ export interface RasterSource {
   bitmap: ImageBitmap;
 }
 
+/**
+ * En bild i ritningen (Design → Bild). Bilden sparas i färg i projektet som
+ * dataUrl; i minnet finns den avkodad i `images` under samma id. Lasergravyr
+ * och penplotterbilder hämtar bild, läge och storlek härifrån.
+ */
+export interface ImageObject {
+  id: string;
+  name: string;
+  /** Bilden i färg (JPEG/PNG), nedskalad till högst IMAGE_MAX_PX. */
+  dataUrl: string;
+  /** Bildpunkter i den sparade bilden. */
+  pxWidth: number;
+  pxHeight: number;
+  /** Nedre vänstra hörnet i mm. */
+  x: number;
+  y: number;
+  widthMm: number;
+  visible: boolean;
+}
+
 export interface JobProgress {
   value: number;
   message?: string;
@@ -70,6 +90,7 @@ export interface DocSnapshot {
   projectName: string;
   layers: VectorLayer[];
   reliefs: ReliefInstance[];
+  imageObjects: ImageObject[];
   toolpaths: ToolpathConfig[];
   material: MaterialSetup;
   tools: ToolDefinition[];
@@ -99,6 +120,7 @@ interface AppState extends DocSnapshot {
   textAnchor: { x: number; y: number } | null;
 
   selectedReliefId: string | null;
+  selectedImageId: string | null;
   pendingImport: PendingImport | null;
   selectedToolpathId: string | null;
   results: Record<string, ToolpathResult>;
@@ -202,6 +224,13 @@ interface AppState extends DocSnapshot {
   removeRelief: (id: string) => void;
   selectRelief: (id: string | null) => void;
 
+  // Bilder
+  addImageObject: (img: ImageObject) => void;
+  /** Ändrar bilden; banor som ritar bilden följer med i läge och storlek. */
+  updateImageObject: (id: string, patch: Partial<ImageObject>) => void;
+  removeImageObject: (id: string) => void;
+  selectImage: (id: string | null) => void;
+
   // Verktygsbanor
   addToolpath: (tp: ToolpathConfig) => void;
   updateToolpath: (id: string, patch: Partial<ToolpathConfig>) => void;
@@ -243,6 +272,7 @@ const snapshot = (s: DocSnapshot): DocSnapshot => ({
   projectName: s.projectName,
   layers: s.layers,
   reliefs: s.reliefs,
+  imageObjects: s.imageObjects,
   toolpaths: s.toolpaths,
   material: s.material,
   tools: s.tools,
@@ -279,6 +309,8 @@ export const useAppStore = create<AppState>()((set, get) => {
 
     reliefs: [],
     selectedReliefId: null,
+    imageObjects: [],
+    selectedImageId: null,
     pendingImport: null,
     toolpaths: [],
     selectedToolpathId: null,
@@ -352,7 +384,9 @@ export const useAppStore = create<AppState>()((set, get) => {
           machineId: doc.machineId && allMachines.some((m) => m.id === doc.machineId) ? doc.machineId : s.machineId,
           selectedShapeIds: [],
           selectedNode: null,
+          imageObjects: doc.imageObjects ?? [],
           selectedReliefId: null,
+          selectedImageId: null,
           selectedToolpathId: null,
           results: {},
           progress: {},
@@ -370,6 +404,8 @@ export const useAppStore = create<AppState>()((set, get) => {
         selectedNode: null,
         reliefs: [],
         selectedReliefId: null,
+        imageObjects: [],
+        selectedImageId: null,
         toolpaths: [],
         results: {},
         progress: {},
@@ -427,7 +463,7 @@ export const useAppStore = create<AppState>()((set, get) => {
         const layers = s.layers.length
           ? s.layers.map((l) => (l === target ? { ...l, shapes: [...l.shapes, shape] } : l))
           : [{ id: `layer_${Date.now()}`, name: 'Layer 1', color: '#0071e3', visible: true, locked: false, shapes: [shape] }];
-        return { ...push(s), layers, selectedShapeIds: [shape.id], selectedToolpathId: null, selectedReliefId: null };
+        return { ...push(s), layers, selectedShapeIds: [shape.id], selectedToolpathId: null, selectedReliefId: null, selectedImageId: null };
       }),
     addLayers: (layers) =>
       set((s) => ({
@@ -436,6 +472,7 @@ export const useAppStore = create<AppState>()((set, get) => {
         selectedShapeIds: layers.flatMap((l) => l.shapes.map((sh) => sh.id)),
         selectedToolpathId: null,
         selectedReliefId: null,
+        selectedImageId: null,
       })),
     replaceShapes: (shapes, history = true) =>
       set((s) => {
@@ -485,19 +522,19 @@ export const useAppStore = create<AppState>()((set, get) => {
       }),
     selectShape: (id, additive) =>
       set((s) => {
-        const base = { selectedToolpathId: null, selectedReliefId: null, selectedNode: null };
+        const base = { selectedToolpathId: null, selectedReliefId: null, selectedImageId: null, selectedNode: null };
         if (!additive) return { ...base, selectedShapeIds: [id] };
         return {
           ...base,
           selectedShapeIds: s.selectedShapeIds.includes(id) ? s.selectedShapeIds.filter((x) => x !== id) : [...s.selectedShapeIds, id],
         };
       }),
-    setSelection: (ids) => set({ selectedShapeIds: ids, selectedNode: null, selectedToolpathId: null, selectedReliefId: null }),
+    setSelection: (ids) => set({ selectedShapeIds: ids, selectedNode: null, selectedToolpathId: null, selectedReliefId: null, selectedImageId: null }),
     clearSelection: () => set({ selectedShapeIds: [], selectedNode: null }),
     selectNode: (selectedNode) => set({ selectedNode }),
     setPendingImport: (pendingImport) => set({ pendingImport }),
 
-    addRelief: (relief) => set((s) => ({ ...push(s), reliefs: [...s.reliefs, relief], selectedReliefId: relief.id, selectedToolpathId: null, selectedShapeIds: [] })),
+    addRelief: (relief) => set((s) => ({ ...push(s), reliefs: [...s.reliefs, relief], selectedReliefId: relief.id, selectedImageId: null, selectedToolpathId: null, selectedShapeIds: [] })),
     updateRelief: (id, patch) => set((s) => ({ reliefs: s.reliefs.map((r) => (r.id === id ? { ...r, ...patch } : r)) })),
     removeRelief: (id) =>
       set((s) => ({
@@ -506,9 +543,58 @@ export const useAppStore = create<AppState>()((set, get) => {
         selectedReliefId: s.selectedReliefId === id ? null : s.selectedReliefId,
       })),
     selectRelief: (selectedReliefId) =>
-      set((s) => ({ selectedReliefId, selectedToolpathId: selectedReliefId ? null : s.selectedToolpathId, selectedShapeIds: selectedReliefId ? [] : s.selectedShapeIds })),
+      set((s) => ({
+        selectedReliefId,
+        selectedImageId: selectedReliefId ? null : s.selectedImageId,
+        selectedToolpathId: selectedReliefId ? null : s.selectedToolpathId,
+        selectedShapeIds: selectedReliefId ? [] : s.selectedShapeIds,
+      })),
 
-    addToolpath: (tp) => set((s) => ({ ...push(s), toolpaths: [...s.toolpaths, tp], selectedToolpathId: tp.id, selectedReliefId: null })),
+    addImageObject: (img) =>
+      set((s) => ({ ...push(s), imageObjects: [...s.imageObjects, img], selectedImageId: img.id, selectedReliefId: null, selectedToolpathId: null, selectedShapeIds: [] })),
+    updateImageObject: (id, patch) =>
+      set((s) => {
+        const imageObjects = s.imageObjects.map((im) => (im.id === id ? { ...im, ...patch } : im));
+        const im = imageObjects.find((x) => x.id === id);
+        if (!im) return {};
+        const place = { origin: { x: im.x, y: im.y }, widthMm: im.widthMm };
+        const moved = (t: ToolpathConfig) =>
+          (t.operation === 'laserRaster' || t.operation === 'penImage') && t.imageId === id && (t.origin.x !== im.x || t.origin.y !== im.y || t.widthMm !== im.widthMm);
+        return {
+          imageObjects,
+          toolpaths: s.toolpaths.some(moved) ? s.toolpaths.map((t) => (moved(t) ? ({ ...t, ...place } as ToolpathConfig) : t)) : s.toolpaths,
+        };
+      }),
+    removeImageObject: (id) =>
+      set((s) => {
+        // Banor som ritar bilden tas bort med den (ångra tar tillbaka båda).
+        const gone = s.toolpaths.filter((t) => (t.operation === 'laserRaster' || t.operation === 'penImage') && t.imageId === id).map((t) => t.id);
+        let { results, progress, errors } = s;
+        for (const g of gone) {
+          results = without(results, g);
+          progress = without(progress, g);
+          errors = without(errors, g);
+        }
+        return {
+          ...push(s),
+          imageObjects: s.imageObjects.filter((im) => im.id !== id),
+          toolpaths: s.toolpaths.filter((t) => !gone.includes(t.id)),
+          results,
+          progress,
+          errors,
+          selectedImageId: s.selectedImageId === id ? null : s.selectedImageId,
+          selectedToolpathId: s.selectedToolpathId && gone.includes(s.selectedToolpathId) ? null : s.selectedToolpathId,
+        };
+      }),
+    selectImage: (selectedImageId) =>
+      set((s) => ({
+        selectedImageId,
+        selectedReliefId: selectedImageId ? null : s.selectedReliefId,
+        selectedToolpathId: selectedImageId ? null : s.selectedToolpathId,
+        selectedShapeIds: selectedImageId ? [] : s.selectedShapeIds,
+      })),
+
+    addToolpath: (tp) => set((s) => ({ ...push(s), toolpaths: [...s.toolpaths, tp], selectedToolpathId: tp.id, selectedReliefId: null, selectedImageId: null })),
     updateToolpath: (id, patch) =>
       set((s) => ({ toolpaths: s.toolpaths.map((t) => (t.id === id ? ({ ...t, ...patch } as ToolpathConfig) : t)) })),
     removeToolpath: (id) =>
@@ -530,7 +616,11 @@ export const useAppStore = create<AppState>()((set, get) => {
         return { ...push(s), toolpaths: list.map((t, i) => (/^\d+\. /.test(t.name) ? { ...t, name: t.name.replace(/^\d+\. /, `${i + 1}. `) } : t)) };
       }),
     selectToolpath: (selectedToolpathId) =>
-      set((s) => ({ selectedToolpathId, selectedReliefId: selectedToolpathId ? null : s.selectedReliefId })),
+      set((s) => ({
+        selectedToolpathId,
+        selectedReliefId: selectedToolpathId ? null : s.selectedReliefId,
+        selectedImageId: selectedToolpathId ? null : s.selectedImageId,
+      })),
     setResult: (id, r) => set((s) => ({ results: { ...s.results, [id]: r }, errors: without(s.errors, id) })),
     setProgress: (id, p) => set((s) => ({ progress: p ? { ...s.progress, [id]: p } : without(s.progress, id) })),
     setError: (id, message) => set((s) => ({ errors: message ? { ...s.errors, [id]: message } : without(s.errors, id) })),
@@ -543,6 +633,7 @@ export const useAppStore = create<AppState>()((set, get) => {
 export const useMachine = () => useAppStore((s) => s.machines.find((m) => m.id === s.machineId) ?? s.machines[0]);
 export const useMaterialPreset = () => useAppStore((s) => s.materials.find((m) => m.id === s.material.presetId) ?? s.materials[0]);
 export const useSelectedRelief = () => useAppStore((s) => s.reliefs.find((r) => r.id === s.selectedReliefId) ?? null);
+export const useSelectedImage = () => useAppStore((s) => s.imageObjects.find((im) => im.id === s.selectedImageId) ?? null);
 export const useSelectedToolpath = () => useAppStore((s) => s.toolpaths.find((t) => t.id === s.selectedToolpathId) ?? null);
 
 /**

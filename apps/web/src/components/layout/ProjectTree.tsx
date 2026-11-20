@@ -191,6 +191,8 @@ export function ProjectTree() {
   const moveToolpath = useAppStore((s) => s.moveToolpath);
   const deleteShapes = useAppStore((s) => s.deleteShapes);
   const removeRelief = useAppStore((s) => s.removeRelief);
+  const images = useAppStore((s) => s.imageObjects);
+  const selectedImage = useAppStore((s) => s.selectedImageId);
   const activeLayerId = useAppStore((s) => s.activeLayerId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -304,6 +306,35 @@ export function ProjectTree() {
             );
           })}
         </Section>
+
+        {images.length > 0 && (
+          <Section icon={ImageIcon} label={t.tree.images} count={images.length}>
+            {images.map((im) => {
+              const isSel = im.id === selectedImage;
+              const st = useAppStore.getState();
+              return (
+                <div key={im.id} className={`group ${row} pr-1 ${isSel ? 'bg-accent/10 text-accent' : 'hover:bg-app'} ${im.visible ? '' : 'opacity-50'}`}>
+                  <button onClick={() => st.selectImage(isSel ? null : im.id)} aria-pressed={isSel} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+                    <img src={im.dataUrl} alt="" className="h-4 w-4 shrink-0 rounded-sm border border-line object-cover" />
+                    <span className="flex-1 truncate">{im.name}</span>
+                    <span className="text-2xs tabular-nums text-muted">{Math.round(im.widthMm)} mm</span>
+                  </button>
+                  <button
+                    className={rowBtn}
+                    onClick={() => st.updateImageObject(im.id, { visible: !im.visible })}
+                    aria-label={im.visible ? t.tree.hideImage : t.tree.showImage}
+                    title={im.visible ? t.tree.hideImage : t.tree.showImage}
+                  >
+                    {im.visible ? <Eye size={13} /> : <EyeOff size={13} />}
+                  </button>
+                  <button className={trashBtn} onClick={() => st.removeImageObject(im.id)} aria-label={`${t.common.remove} ${im.name}`} title={t.common.remove}>
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              );
+            })}
+          </Section>
+        )}
 
         <Section icon={Layers} label={t.tree.toolpaths} count={toolpaths.length}>
           {toolpaths.length === 0 && <p className="px-2 py-1.5 text-2xs leading-relaxed text-muted">{t.tree.noToolpaths}</p>}
