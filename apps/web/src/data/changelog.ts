@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.29.0',
+    date: '2026-11-20',
+    text: {
+      sv: ["Bilder hör nu till Design: Design → Bild har valen Importera bild och Bild till relief. Bilden sparas i färg i projektet, syns på ämnet i 3D-vyn, kan dras, skalas och döljas, och finns under Bilder i projektträdet. Fotogravyr och Bild till linjer följer bildens läge och storlek, och banor med bilder sparas nu i projektet."],
+      en: ["Images now belong to Design: Design → Image offers Import image and Image to relief. The image is saved in colour in the project, shows on the stock in the 3D view, can be dragged, scaled and hidden, and is listed under Images in the project tree. Photo engraving and Image to lines follow the image’s position and size, and toolpaths with images are now saved in the project."],
+      fr: ["Les images font désormais partie du Dessin : Dessin → Image propose Importer une image et Image en relief. L’image est enregistrée en couleur dans le projet, apparaît sur le brut dans la vue 3D, peut être déplacée, mise à l’échelle et masquée, et figure sous Images dans l’arborescence. La gravure photo et Image en lignes suivent la position et la taille de l’image, et les parcours avec images sont désormais enregistrés dans le projet."],
+      de: ["Bilder gehören jetzt zu Design: Design → Bild bietet Bild importieren und Bild zu Relief. Das Bild wird farbig im Projekt gespeichert, erscheint in der 3D-Ansicht auf dem Rohteil, lässt sich ziehen, skalieren und ausblenden und steht im Projektbaum unter Bilder. Fotogravur und Bild zu Linien folgen Lage und Größe des Bildes, und Bahnen mit Bildern werden jetzt im Projekt gespeichert."],
+      es: ["Las imágenes pasan a Diseño: Diseño → Imagen ofrece Importar imagen e Imagen a relieve. La imagen se guarda en color en el proyecto, se ve sobre el material en la vista 3D, se puede arrastrar, escalar y ocultar, y aparece en Imágenes en el árbol del proyecto. El grabado de foto e Imagen a líneas siguen la posición y el tamaño de la imagen, y las trayectorias con imágenes ahora se guardan en el proyecto."],
+      pl: ["Obrazy należą teraz do Projektowania: Projektowanie → Obraz zawiera Importuj obraz i Obraz na relief. Obraz zapisuje się w kolorze w projekcie, widać go na materiale w widoku 3D, można go przeciągać, skalować i ukrywać, a w drzewie projektu jest w sekcji Obrazy. Grawerowanie zdjęcia i Obraz na linie podążają za położeniem i rozmiarem obrazu, a ścieżki z obrazami zapisują się teraz w projekcie."],
+      uk: ["Зображення тепер належать до Дизайну: Дизайн → Зображення містить Імпорт зображення та Зображення в рельєф. Зображення зберігається в кольорі в проєкті, видно його на заготовці в 3D-виді, його можна перетягувати, масштабувати й ховати, а в дереві проєкту воно є в розділі Зображення. Гравіювання фото та Зображення в лінії слідують за положенням і розміром зображення, а траєкторії із зображеннями тепер зберігаються в проєкті."],
+    },
+  },
+  {
     version: '0.28.1',
     date: '2026-11-20',
     text: {
