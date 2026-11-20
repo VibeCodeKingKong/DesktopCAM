@@ -232,6 +232,7 @@ export interface VectorLayer {
 
 /* ───────────────────────── Reliefer (3D) ───────────────────────── */
 
+import type { PenImageSettings } from './plotterImage';
 import type { ImageReliefSource } from './imageRelief';
 import type { PlasmaSettings } from './plasma';
 import type { LaserChartRow } from './cutData';
@@ -309,7 +310,7 @@ export function plugGeometry(p: ReliefPlug) {
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */
 
-export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing' | 'penDraw' | 'penFill';
+export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing' | 'penDraw' | 'penFill' | 'penImage';
 export type CutSide = 'outside' | 'inside' | 'on';
 export type DitherMethod = 'floyd-steinberg' | 'ordered' | 'threshold';
 
@@ -500,7 +501,19 @@ export interface PenFillToolpath extends ToolpathBase {
   optimize: boolean;
 }
 
+/** Penplotter: en bild ritad med linjer (skraffering, spiral eller prickar). */
+export interface PenImageToolpath extends ToolpathBase {
+  operation: 'penImage';
+  imageId: string;
+  /** Bildens nedre vänstra hörn (mm). */
+  origin: Vec2;
+  widthMm: number;
+  image: PenImageSettings;
+  optimize: boolean;
+}
+
 export type ToolpathConfig =
+  | PenImageToolpath
   | PenDrawToolpath
   | PenFillToolpath
   | FacingToolpath

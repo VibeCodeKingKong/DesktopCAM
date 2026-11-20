@@ -17,6 +17,7 @@ import {
   Rows3,
   PenLine,
   Grid3x3,
+  Image as ImageIcon,
   Plus,
   ImagePlus,
   Layers,
@@ -63,6 +64,7 @@ const OP_ICONS: Record<OperationType, LucideIcon> = {
   facing: Rows3,
   penDraw: PenLine,
   penFill: Grid3x3,
+  penImage: ImageIcon,
 };
 
 function Section({

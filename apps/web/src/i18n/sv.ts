@@ -11,7 +11,7 @@ export type GuideEntry = { title: string; body: string; steps?: string[] };
 export type GuideKey =
   | 'cutDepth' | 'stepDown' | 'stepOver' | 'feedRate' | 'plungeRate' | 'spindleRpm' | 'cutSide'
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
-  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'bumpMap' | 'penHeights' | 'pathOrder' | 'hatchSpacing' | 'snap'
+  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'bumpMap' | 'penHeights' | 'pathOrder' | 'hatchSpacing' | 'penImageMethod' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
   | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay'
   | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection' | 'plasmaCorner' | 'gcodeArcs';
@@ -127,6 +127,7 @@ export const sv = {
     facing: { label: "Planfräs", title: "Planfräsning", desc: "Jämnar ämnets ovansida eller offerbordet med grunda, breda pass. Utan markering planas hela ämnet; med markerade former bara deras yta." },
     penDraw: { label: "Rita", title: "Rita med penna", desc: "Pennan följer formernas linjer – även öppna linjer och enkellinjig text. Linjerna ordnas så att pennan flyttas så lite som möjligt i luften." },
     penFill: { label: "Fyllning", title: "Fyll med penna", desc: "Fyller slutna former med parallella linjer, korsskraffering eller konturer som följer formen." },
+    penImage: { label: "Bild", title: "Bild till linjer", desc: "Välj ett foto eller en bild och rita den med pennan: skraffering i tonlager, en spiral som vågar sig i mörka partier, eller prickar – enskilda eller hopbundna till en enda linje." },
     vcarve: { label: 'V-gravyr', title: 'V-gravyr', desc: 'En V-fräs går djupare där formen är bred – ger skarpa hörn och skyltlik text. Breda partier får plan botten.' },
     inlay: { label: 'Inlägg', title: 'V-inlägg (inlay)', desc: 'Skapar en ficka i grundträet och en spegelvänd plugg i ett kontrastträ som limmas ner i fickan och planas av. Kräver en V-fräs.' },
     laserCut: { label: 'Laser­skärning', title: 'Laserskärning', desc: 'Skär längs konturen med kerf-kompensation så att måtten blir exakta.' },
@@ -291,6 +292,15 @@ export const sv = {
     hatchAngle: "Vinkel",
     drawOutline: "Rita konturen",
     fillPatterns: { lines: "Linjer", cross: "Kors", offset: "Konturer" },
+    penImage: "Bild",
+    imageMethod: "Metod",
+    spiralPitch: "Varvavstånd",
+    toneLevels: "Tonlager",
+    dotCount: "Antal prickar",
+    connectDots: "Bind ihop till en linje",
+    imageContrast: "Kontrast",
+    invertImage: "Ljust blir bläck",
+    imageMethods: { hatch: "Skraffering", spiral: "Spiral", stipple: "Prickar" },
     facing: "Planfräsning",
     facingArea: "Yta",
     facingStock: "Hela ämnet",
@@ -1158,6 +1168,7 @@ export const sv = {
     facing: "Planfräsning",
     penDraw: "Rita",
     penFill: "Fyllning",
+    penImage: "Bild till linjer",
   } satisfies Record<OperationType, string>,
   inlayParts: { pocket: 'ficka', plug: 'plugg' },
   lineEngrave: 'Linjegravyr',
@@ -1253,6 +1264,7 @@ export const sv = {
       penHeights: { title: "Pennans höjd", body: "Z-nollan ställs där pennspetsen precis nuddar papperet. Penna nere är lite under nollan, så att en fjädrande hållare trycker pennan mot papperet. Penna uppe är höjden när pennan flyttas mellan linjerna.", steps: ["Penna nere: −0,3 till −1 mm med fjädrande hållare, 0 med fast hållare.", "Penna uppe: 2–5 mm räcker – högre tar längre tid.", "Hoppar linjerna eller blir de bleka? Sänk pennan lite till."] },
       pathOrder: { title: "Optimera ritordningen", body: "Linjerna ritas i en ordning där nästa linje börjar närmast där förra slutade, och linjer vänds om det är kortare. Linjer som möts ritas utan att pennan lyfts. Det kan halvera tiden.", steps: ["Stäng av om linjerna måste ritas i en viss ordning, t.ex. när bläcket ska torka."] },
       hatchSpacing: { title: "Linjeavstånd", body: "Avståndet mellan linjerna i fyllningen. Lika med spetsens bredd ger en täckande yta; större avstånd ger synliga linjer och går fortare.", steps: ["Täckande: ungefär spetsens bredd.", "Skraffering: 2–4 × spetsens bredd.", "Korsskraffering ger mörkare ton med samma avstånd."] },
+      penImageMethod: { title: "Bild till linjer", body: "En penna kan inte rita gråtoner, så tonen byggs av linjer.", steps: ["Skraffering: upp till fyra lager i olika vinklar – mörkare partier får fler lager. Tydligt och snabbt.", "Spiral: en enda spiral från mitten som vågar sig mer där bilden är mörk. Ritas utan att pennan lyfts.", "Prickar: prickar som ligger tätare där bilden är mörk. Bundna till en linje blir det en enda slingrande linje.", "Höj kontrasten för foton som ser grå ut."] },
       inlay: { title: 'Så gör du ett inlägg', body: 'Ett V-inlägg består av två delar som fräses med samma V-fräs: en ficka i grundträet och en spegelvänd plugg i ett trä med annan färg.', steps: ['Fräs fickan i grundträet.', 'Fräs pluggen i inläggsträet med samma nollpunkt.', 'Stryk lim i fickan, vänd pluggen och pressa ner den med tving.', 'När limmet torkat: såga eller hyvla bort överskottet och slipa plant.'] },
       inlayPocketDepth: { title: 'Fickdjup', body: 'Fickans största djup. Breda partier får plan botten här, smala partier blir V-formade.', steps: ['5–6 mm är ett bra startvärde.', 'Fickdjupet ska vara större än pluggens startdjup.'] },
       startDepth: { title: 'Startdjup', body: 'Hur långt ner i fickan pluggen sjunker innan väggarna möts. Skillnaden mot fickdjupet blir limspalt under pluggen.', steps: ['Ungefär halva fickdjupet ger gott om plats för lim.'] },

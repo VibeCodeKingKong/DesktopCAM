@@ -8,6 +8,8 @@ import {
   drillGcode,
   facingGcode,
   plotterGcode,
+  penImagePaths,
+  orderPaths,
   importVectorFile,
   offsetShapes,
   parseGcode,
@@ -93,6 +95,17 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
       const gcode = plasmaGcode(request.job);
       progress(0.8, 'preview');
       const small = compact(gcode, request);
+      const preview = parseGcode(small);
+      const result: ToolpathPayload = { gcode: small, preview };
+      return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
+    }
+    case 'plotterImage': {
+      progress(0.1, 'gcode');
+      const { input, ...rest } = request.job;
+      const paths = penImagePaths(input, (p) => orderPaths(p));
+      progress(0.6, 'gcode');
+      const small = compact(plotterGcode({ ...rest, paths }), request);
+      progress(0.85, 'preview');
       const preview = parseGcode(small);
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };

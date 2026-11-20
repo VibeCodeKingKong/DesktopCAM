@@ -1,11 +1,11 @@
-import { Zap, CircleDot, Rows3, PenLine, Grid3x3, Combine, Flame, ImagePlus, Layers, Mountain, Scissors, Square, Triangle } from 'lucide-react';
+import { Zap, CircleDot, Rows3, PenLine, Grid3x3, Image as ImageIcon, Combine, Flame, ImagePlus, Layers, Mountain, Scissors, Square, Triangle } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonGroup } from '../RibbonGroup';
 import { useAppStore, useMachine } from '../../../store/useAppStore';
-import { createInlay, createLineEngraving, createToolpath, importPhotoForEngraving } from '../../../cam/commands';
+import { createInlay, createLineEngraving, createToolpath, importImageForPlotter, importPhotoForEngraving } from '../../../cam/commands';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluDither, IlluDrill, IlluFacing, IlluPenDraw, IlluPenFill, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPlasma, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
+import { IlluDither, IlluDrill, IlluFacing, IlluPenDraw, IlluPenFill, IlluPenImage, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPlasma, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
 
 export function ToolpathsTab() {
   const t = useT();
@@ -42,6 +42,7 @@ export function ToolpathsTab() {
       </RibbonGroup>
       <RibbonGroup label={t.groups.plotter}>
         <RibbonButton icon={PenLine} label={b.penDraw.label} disabled={!isPlotter} onClick={() => createToolpath('penDraw')} tooltip={tip(b.penDraw, { illustration: <IlluPenDraw />, disabledReason: needsPlotter })} />
+        <RibbonButton icon={ImageIcon} label={b.penImage.label} disabled={!isPlotter} onClick={() => void importImageForPlotter()} tooltip={tip(b.penImage, { illustration: <IlluPenImage />, disabledReason: needsPlotter })} />
         <RibbonButton icon={Grid3x3} label={b.penFill.label} disabled={!isPlotter} onClick={() => createToolpath('penFill')} tooltip={tip(b.penFill, { illustration: <IlluPenFill />, disabledReason: needsPlotter })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.plasma}>

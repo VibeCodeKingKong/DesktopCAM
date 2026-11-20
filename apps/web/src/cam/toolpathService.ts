@@ -10,6 +10,7 @@ import {
   type VCarveJob,
   type DrillJob,
   type PlotterJob,
+  type PlotterImageJob,
   defaultPlotterSettings,
   hatchLines,
   offsetFill,
@@ -72,6 +73,9 @@ export async function computeToolpath(id: string): Promise<void> {
         break;
       case 'drill':
         payload = await camClient.request({ type: 'drill', job: buildDrillJob(tp) }, { onProgress });
+        break;
+      case 'penImage':
+        payload = await camClient.request({ type: 'plotterImage', job: buildPenImageJob(tp) }, { onProgress });
         break;
       case 'penDraw':
       case 'penFill':
@@ -216,6 +220,25 @@ function buildPlotterJob(tp: ToolpathConfig): PlotterJob {
   }
   return {
     paths,
+    optimize: tp.optimize,
+    settings: machine.plotter ?? defaultPlotterSettings(),
+    feedRate: tp.params.feedRate,
+    plungeRate: tp.params.plungeRate || 600,
+    post: machine.postprocessor,
+  };
+}
+
+/** Bild till linjer: bilden i lagom upplösning för metoden (ungefär tre bildpunkter per linjeavstånd). */
+function buildPenImageJob(tp: ToolpathConfig): PlotterImageJob {
+  if (tp.operation !== 'penImage') throw new Error('NOT_IMPLEMENTED');
+  const s = useAppStore.getState();
+  const machine = getMachine();
+  const img = s.images[tp.imageId];
+  if (!img) throw new Error('IMAGE_MISSING');
+  const width = Math.max(40, Math.min(800, Math.round((tp.widthMm * 3) / Math.max(0.2, tp.image.spacing))));
+  const height = Math.max(2, Math.round((width * img.bitmap.height) / img.bitmap.width));
+  return {
+    input: { gray: rasterizeGray(img.bitmap, width, height), width, height, x: tp.origin.x, y: tp.origin.y, widthMm: tp.widthMm, settings: tp.image },
     optimize: tp.optimize,
     settings: machine.plotter ?? defaultPlotterSettings(),
     feedRate: tp.params.feedRate,

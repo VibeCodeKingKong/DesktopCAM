@@ -17,6 +17,7 @@ export function allowedToolKinds(tp: ToolpathConfig): ToolKind[] {
       return ['drill', 'endmill'];
     case 'penDraw':
     case 'penFill':
+    case 'penImage':
       return ['pen'];
     case 'facing':
       return ['endmill'];

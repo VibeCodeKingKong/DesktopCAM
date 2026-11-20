@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.28.0',
+    date: '2026-11-20',
+    text: {
+      sv: ["Penplotter: ny bana Bild till linjer. Välj ett foto eller en bild och rita den som skraffering i upp till fyra tonlager, som en spiral som vågar sig i mörka partier, eller som prickar – enskilda eller hopbundna till en enda linje. Storlek, läge, linjeavstånd, kontrast och invertering går att ställa in."],
+      en: ["Pen plotter: new toolpath Image to lines. Choose a photo or picture and draw it as hatching in up to four tone layers, as a spiral that wiggles in dark areas, or as dots – separate or joined into a single line. Size, position, line spacing, contrast and inversion are adjustable."],
+      fr: ["Traceur à stylo : nouveau parcours Image en lignes. Choisissez une photo ou une image et dessinez-la en hachures jusqu’à quatre couches de ton, en spirale qui ondule dans les zones sombres, ou en points – séparés ou reliés en une seule ligne. Taille, position, écart, contraste et inversion sont réglables."],
+      de: ["Stiftplotter: neue Bahn Bild zu Linien. Ein Foto oder Bild wählen und als Schraffur in bis zu vier Tonebenen, als Spirale, die in dunklen Bereichen schwingt, oder als Punkte zeichnen – einzeln oder zu einer einzigen Linie verbunden. Größe, Lage, Linienabstand, Kontrast und Umkehrung sind einstellbar."],
+      es: ["Plóter de bolígrafo: nueva trayectoria Imagen a líneas. Elija una foto o imagen y dibújela como sombreado en hasta cuatro capas de tono, como una espiral que ondula en las zonas oscuras o como puntos, separados o unidos en una sola línea. Tamaño, posición, separación, contraste e inversión son ajustables."],
+      pl: ["Ploter z pisakiem: nowa ścieżka Obraz na linie. Wybierz zdjęcie lub obraz i narysuj je jako kreskowanie w maksymalnie czterech warstwach tonów, jako spiralę falującą w ciemnych miejscach albo jako kropki – osobne lub połączone w jedną linię. Rozmiar, położenie, odstęp, kontrast i odwrócenie można ustawić."],
+      uk: ["Плотер із ручкою: нова траєкторія «Зображення в лінії». Виберіть фото чи зображення й намалюйте його штрихуванням до чотирьох шарів тону, спіраллю, що хвилюється в темних місцях, або крапками – окремими чи з’єднаними в одну лінію. Розмір, положення, крок, контраст та інверсію можна налаштувати."],
+    },
+  },
+  {
     version: '0.27.0',
     date: '2026-11-20',
     text: {

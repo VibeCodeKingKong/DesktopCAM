@@ -513,7 +513,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
           ? t.props.notForPlasma
           : null;
   const holes = tp.operation === 'drill' ? drillPoints(allShapes(layers).filter((s) => tp.shapeIds.includes(s.id))).length : 0;
-  const pen = tp.operation === 'penDraw' || tp.operation === 'penFill';
+  const pen = tp.operation === 'penDraw' || tp.operation === 'penFill' || tp.operation === 'penImage';
   const speedGroup = (
     <Group title={t.props.speed}>
       <NumberField label={pen ? t.props.drawSpeed : t.props.feed} unit="mm/min" step={50} min={1} value={tp.params.feedRate} hint={pen ? undefined : 'feedRate'} onChange={(feedRate) => param({ feedRate })} />
@@ -608,6 +608,44 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
       {tp.operation === 'penDraw' && (
         <>
           <Group title={t.props.plotter}>
+            <FieldRow label={t.props.optimizePaths} hint="pathOrder">
+              <Switch checked={tp.optimize} onChange={(optimize) => patch({ optimize })} label={t.props.optimizePaths} />
+            </FieldRow>
+          </Group>
+          {speedGroup}
+        </>
+      )}
+
+      {tp.operation === 'penImage' && (
+        <>
+          <Group title={t.props.penImage}>
+            <FieldRow label={t.props.imageMethod} hint="penImageMethod">
+              <Segmented
+                label={t.props.imageMethod}
+                value={tp.image.method}
+                options={(['hatch', 'spiral', 'stipple'] as const).map((value) => ({ value, label: t.props.imageMethods[value] }))}
+                onChange={(method) => patch({ image: { ...tp.image, method, ...(method === 'spiral' && tp.image.spacing < 1.2 ? { spacing: 1.5 } : {}) } })}
+              />
+            </FieldRow>
+            <NumberField label={t.props.width} unit="mm" step={5} min={10} value={tp.widthMm} onChange={(widthMm) => patch({ widthMm })} />
+            <NumberField label={t.props.posX} unit="mm" step={1} value={tp.origin.x} onChange={(x) => patch({ origin: { ...tp.origin, x } })} />
+            <NumberField label={t.props.posY} unit="mm" step={1} value={tp.origin.y} onChange={(y) => patch({ origin: { ...tp.origin, y } })} />
+            {tp.image.method !== 'stipple' && (
+              <NumberField label={tp.image.method === 'spiral' ? t.props.spiralPitch : t.props.hatchSpacing} unit="mm" step={0.1} min={0.2} max={10} value={tp.image.spacing} hint="hatchSpacing" onChange={(spacing) => patch({ image: { ...tp.image, spacing } })} />
+            )}
+            {tp.image.method === 'hatch' && <NumberField label={t.props.toneLevels} step={1} min={1} max={4} value={tp.image.levels} onChange={(levels) => patch({ image: { ...tp.image, levels: Math.round(levels) } })} />}
+            {tp.image.method === 'stipple' && (
+              <>
+                <NumberField label={t.props.dotCount} step={500} min={100} max={30000} value={tp.image.dots} onChange={(dots) => patch({ image: { ...tp.image, dots: Math.round(dots) } })} />
+                <FieldRow label={t.props.connectDots}>
+                  <Switch checked={tp.image.connect} onChange={(connect) => patch({ image: { ...tp.image, connect } })} label={t.props.connectDots} />
+                </FieldRow>
+              </>
+            )}
+            <NumberField label={t.props.imageContrast} step={0.1} min={0.5} max={3} value={tp.image.contrast} onChange={(contrast) => patch({ image: { ...tp.image, contrast } })} />
+            <FieldRow label={t.props.invertImage}>
+              <Switch checked={tp.image.invert} onChange={(invert) => patch({ image: { ...tp.image, invert } })} label={t.props.invertImage} />
+            </FieldRow>
             <FieldRow label={t.props.optimizePaths} hint="pathOrder">
               <Switch checked={tp.optimize} onChange={(optimize) => patch({ optimize })} label={t.props.optimizePaths} />
             </FieldRow>

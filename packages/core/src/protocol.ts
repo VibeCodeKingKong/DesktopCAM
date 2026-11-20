@@ -3,6 +3,12 @@
  * Allt här måste vara strukturkloningsbart (inga funktioner/klasser).
  */
 import type { PlotterJob } from './plotter';
+import type { PenImageInput } from './plotterImage';
+
+/** Bild till linjer: bilden och pennans inställningar (linjerna räknas i workern). */
+export interface PlotterImageJob extends Omit<PlotterJob, 'paths'> {
+  input: PenImageInput;
+}
 import type { ImportFormat, ImportOptions, ImportResult } from './import/types';
 import type { VCarveJob } from './vcarve';
 import type { RouterProfileJob } from './profileStrategy';
@@ -125,6 +131,7 @@ export type CamRequest =
   | { type: 'drill'; job: DrillJob }
   | { type: 'facing'; job: FacingJob }
   | { type: 'plotter'; job: PlotterJob }
+  | { type: 'plotterImage'; job: PlotterImageJob }
   | { type: 'vcarve'; job: VCarveJob }
   | { type: 'routerProfile'; job: RouterProfileJob }
   | { type: 'plasma'; job: PlasmaJob }
@@ -164,6 +171,7 @@ export interface CamResponseMap {
   drill: ToolpathPayload;
   facing: ToolpathPayload;
   plotter: ToolpathPayload;
+  plotterImage: ToolpathPayload;
   vcarve: ToolpathPayload;
   routerProfile: ToolpathPayload;
   plasma: ToolpathPayload;

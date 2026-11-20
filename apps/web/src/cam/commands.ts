@@ -49,7 +49,7 @@ import { materialName } from '../i18n';
 
 export const isLaserOperation = (op: OperationType) => op === 'laserCut' || op === 'laserRaster';
 /** Vilken sorts maskin en operation kräver. */
-export const isPenOperation = (op: OperationType) => op === 'penDraw' || op === 'penFill';
+export const isPenOperation = (op: OperationType) => op === 'penDraw' || op === 'penFill' || op === 'penImage';
 export const machineKindFor = (op: OperationType): MachineKind => (isLaserOperation(op) ? 'laser' : op === 'plasmaCut' ? 'plasma' : isPenOperation(op) ? 'plotter' : 'router');
 export const isImplemented = (_op: OperationType) => true;
 
@@ -217,7 +217,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const shapes = allShapes(s.layers);
   const sel = s.selectedShapeIds.length ? shapes.filter((x) => s.selectedShapeIds.includes(x.id)) : shapes;
   const shapeIds = sel.map((x) => x.id);
-  if (!shapeIds.length && operation !== 'laserRaster' && operation !== 'relief' && operation !== 'facing') {
+  if (!shapeIds.length && operation !== 'laserRaster' && operation !== 'relief' && operation !== 'facing' && operation !== 'penImage') {
     status(t.status.drawFirst);
     return null;
   }
@@ -243,6 +243,23 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   let tp: ToolpathConfig;
 
   switch (operation) {
+    case 'penImage': {
+      const tool = routerTool(['pen']);
+      tp = {
+        ...base,
+        shapeIds: [],
+        operation,
+        name: `${n}. ${opName}`,
+        toolId: tool.id,
+        imageId: '',
+        origin: { x: 10, y: 10 },
+        widthMm: Math.max(20, Math.min(180, s.material.width - 20)),
+        image: { method: 'hatch', spacing: +Math.max(0.6, tool.diameter * 2).toFixed(1), levels: 4, dots: 6000, connect: false, invert: false, contrast: 1.2 },
+        optimize: true,
+        params: { ...tool.defaults, feedRate: Math.min(tool.defaults.feedRate, machine.maxFeed.xy), plungeRate: Math.min(tool.defaults.plungeRate || 600, machine.maxFeed.z || 600) },
+      };
+      break;
+    }
     case 'penDraw':
     case 'penFill': {
       const tool = routerTool(['pen']);
@@ -544,6 +561,20 @@ export function createLineEngraving() {
   } as Partial<ToolpathConfig>);
 }
 
+/** Penplotter: välj en bild och rita den med linjer (skraffering, spiral eller prickar). */
+export async function importImageForPlotter() {
+  if (getMachine().kind !== 'plotter') {
+    status(getT().status.needPlotter(getT().operations.penImage));
+    return;
+  }
+  const file = await pickFile('image/png,image/jpeg,image/webp');
+  if (!file) return;
+  const bitmap = await createImageBitmap(file);
+  const imageId = uid('img');
+  useAppStore.getState().addImage({ id: imageId, name: file.name, bitmap });
+  createToolpath('penImage', { imageId });
+}
+
 export async function importPhotoForEngraving() {
   if (getMachine().kind !== 'laser') {
     status(getT().status.photoNeedsLaser);
@@ -612,8 +643,8 @@ function projectJson() {
     tools: s.tools,
     layers: s.layers,
     reliefs: s.reliefs,
-    // Fotogravyr sparas inte: bilden finns bara i minnet.
-    toolpaths: s.toolpaths.filter((tp) => tp.operation !== 'laserRaster'),
+    // Fotogravyr och bild till linjer sparas inte: bilden finns bara i minnet.
+    toolpaths: s.toolpaths.filter((tp) => tp.operation !== 'laserRaster' && tp.operation !== 'penImage'),
   };
 }
 

@@ -675,3 +675,21 @@ export const IlluPenFill = () => (
     </g>
   </svg>
 );
+
+/** Penplotter: en bild ritad som spiral med våg. */
+export const IlluPenImage = () => {
+  const pts: string[] = [];
+  for (let k = 0; k < 520; k++) {
+    const th = k * 0.09, r = 1.1 * th;
+    if (r > 30) break;
+    const dark = Math.max(0, 1 - Math.hypot(r * Math.cos(th) + 6, r * Math.sin(th) - 4) / 22);
+    const off = dark * 1.6 * Math.sin(k * 1.9);
+    pts.push(`${(80 + (r + off) * Math.cos(th)).toFixed(1)},${(40 + (r + off) * Math.sin(th) * 0.95).toFixed(1)}`);
+  }
+  return (
+    <svg viewBox="0 0 160 80" width="160" height="80" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="16" y="6" width="128" height="68" rx="2" className="fill-surface stroke-muted" strokeWidth="1" />
+      <polyline points={pts.join(' ')} stroke="currentColor" strokeWidth="0.9" />
+    </svg>
+  );
+};
