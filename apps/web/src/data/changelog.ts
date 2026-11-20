@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.28.1',
+    date: '2026-11-20',
+    text: {
+      sv: ["Rättat: stora bilder som spiral (och andra mycket långa banor) gav felet \"Maximum call stack size exceeded\". Även exporten av sådana banor till en fil per lager är rättad."],
+      en: ["Fixed: large images as a spiral (and other very long toolpaths) gave the error \"Maximum call stack size exceeded\". Exporting such toolpaths to one file per layer is fixed too."],
+      fr: ["Corrigé : les grandes images en spirale (et d’autres parcours très longs) donnaient l’erreur « Maximum call stack size exceeded ». L’export de ces parcours en un fichier par calque est aussi corrigé."],
+      de: ["Behoben: Große Bilder als Spirale (und andere sehr lange Bahnen) gaben den Fehler „Maximum call stack size exceeded“. Auch der Export solcher Bahnen als eine Datei pro Ebene ist behoben."],
+      es: ["Corregido: las imágenes grandes en espiral (y otras trayectorias muy largas) daban el error «Maximum call stack size exceeded». También se corrige la exportación de esas trayectorias en un archivo por capa."],
+      pl: ["Poprawiono: duże obrazy jako spirala (i inne bardzo długie ścieżki) dawały błąd „Maximum call stack size exceeded”. Poprawiono też eksport takich ścieżek do pliku na warstwę."],
+      uk: ["Виправлено: великі зображення спіраллю (та інші дуже довгі траєкторії) давали помилку «Maximum call stack size exceeded». Також виправлено експорт таких траєкторій у файл на шар."],
+    },
+  },
+  {
     version: '0.28.0',
     date: '2026-11-20',
     text: {

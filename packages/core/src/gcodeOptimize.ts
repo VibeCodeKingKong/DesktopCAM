@@ -133,8 +133,9 @@ export function optimizeGcode(src: string, o: GcodeOptimizeOptions): string {
 
   const flush = () => {
     if (!run) return;
-    if (run.pts.length > 2) out.push(...compressRun(run.pts, o, run.s !== null ? ` S${run.s}` : '', run.first));
-    else out.push(...run.raw);
+    // Inte push(...): långa obrutna följder (t.ex. en spiral) har fler rader än stacken klarar som argument.
+    const lines = run.pts.length > 2 ? compressRun(run.pts, o, run.s !== null ? ` S${run.s}` : '', run.first) : run.raw;
+    for (const l of lines) out.push(l);
     run = null;
   };
 

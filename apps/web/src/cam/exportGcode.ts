@@ -125,7 +125,8 @@ export function combineGcode(parts: { name: string; gcode: string; toolId?: stri
       if (h >= 0) body = [...body.slice(0, h), ...body.slice(h + post.header.length)];
     }
     if (i > 0 && part.toolChange && part.toolId !== parts[i - 1].toolId) out.push(...toolChangeLines(post, part.toolChange));
-    out.push(`; ===== ${part.name} =====`, ...body);
+    out.push(`; ===== ${part.name} =====`);
+    for (const l of body) out.push(l); // inte push(...body): stora banor har för många rader
   });
   return out.join('\n') + '\n';
 }

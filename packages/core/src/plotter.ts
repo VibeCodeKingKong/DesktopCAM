@@ -138,7 +138,8 @@ export function joinStrokes(strokes: Stroke[], tol = 0.01): Stroke[] {
   const out: Stroke[] = [];
   for (const s of strokes) {
     const last = out[out.length - 1];
-    if (last && dist2(last[last.length - 2], last[last.length - 1], s[0], s[1]) <= tol * tol) last.push(...s.slice(2));
+    // Inte push(...): en spiral kan ha hundratusentals punkter, fler än stacken klarar som argument.
+    if (last && dist2(last[last.length - 2], last[last.length - 1], s[0], s[1]) <= tol * tol) for (let i = 2; i < s.length; i++) last.push(s[i]);
     else out.push(s.slice());
   }
   return out;
