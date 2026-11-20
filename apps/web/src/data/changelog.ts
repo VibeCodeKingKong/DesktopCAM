@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.30.0',
+    date: '2026-11-20',
+    text: {
+      sv: ["Gränssnittet visar nu bara det som gäller den valda maskinen: Verktygsbanor har bara maskinens banor (knappen Byt maskin visar var övriga finns), reliefer och Bild till relief finns med fräs, och materiallistan visar bara material maskinen kan bearbeta.", "Rättat: med penplotter föreslog egenskaperna för en form fräsens banor – nu Rita och Fyllning."],
+      en: ["The interface now shows only what applies to the selected machine: Toolpaths has just that machine's toolpaths (the Change machine button shows where the others are), reliefs and Image to relief are available with a router, and the material list shows only materials the machine can work.", "Fixed: with a pen plotter the properties for a shape suggested router toolpaths – now Draw and Fill."],
+      fr: ["L’interface n’affiche plus que ce qui concerne la machine choisie : Parcours ne montre que les parcours de cette machine (le bouton Changer de machine indique où trouver les autres), les reliefs et Image en relief sont disponibles avec une fraiseuse, et la liste des matériaux ne montre que ceux que la machine peut travailler.", "Corrigé : avec un traceur, les propriétés d’une forme proposaient des parcours de fraiseuse – désormais Dessiner et Remplissage."],
+      de: ["Die Oberfläche zeigt jetzt nur, was für die gewählte Maschine gilt: Werkzeugwege enthält nur die Bahnen dieser Maschine (die Schaltfläche Maschine wechseln zeigt, wo die übrigen sind), Reliefs und Bild zu Relief gibt es mit der Fräse, und die Materialliste zeigt nur Materialien, die die Maschine bearbeiten kann.", "Behoben: Beim Stiftplotter schlugen die Eigenschaften einer Form Fräsbahnen vor – jetzt Zeichnen und Füllung."],
+      es: ["La interfaz ahora muestra solo lo que corresponde a la máquina elegida: Trayectorias tiene solo las de esa máquina (el botón Cambiar máquina indica dónde están las demás), los relieves e Imagen a relieve están disponibles con fresadora, y la lista de materiales muestra solo los que la máquina puede trabajar.", "Corregido: con plóter, las propiedades de una forma proponían trayectorias de fresadora; ahora Dibujar y Relleno."],
+      pl: ["Interfejs pokazuje teraz tylko to, co dotyczy wybranej maszyny: Ścieżki zawierają tylko ścieżki tej maszyny (przycisk Zmień maszynę wskazuje, gdzie są pozostałe), reliefy i Obraz na relief są dostępne z frezarką, a lista materiałów pokazuje tylko te, które maszyna może obrabiać.", "Poprawiono: przy ploterze właściwości kształtu proponowały ścieżki frezarki – teraz Rysuj i Wypełnienie."],
+      uk: ["Інтерфейс тепер показує лише те, що стосується вибраного верстата: у Траєкторіях лише траєкторії цього верстата (кнопка Змінити верстат показує, де інші), рельєфи та Зображення в рельєф доступні з фрезером, а список матеріалів містить лише ті, які верстат може обробляти.", "Виправлено: з плотером властивості фігури пропонували траєкторії фрезера – тепер Малювати й Заповнення."],
+    },
+  },
+  {
     version: '0.29.0',
     date: '2026-11-20',
     text: {
