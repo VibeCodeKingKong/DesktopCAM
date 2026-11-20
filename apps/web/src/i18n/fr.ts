@@ -140,6 +140,7 @@ export const fr: Dict = {
     gcode: 'G-code',
     post: 'Post-processeur',
     plasma: 'Plasma',
+    otherMachines: "Machine",
   },
 
   buttons: {
@@ -166,6 +167,7 @@ export const fr: Dict = {
     text: { label: 'Texte', title: 'Texte', desc: 'Touchez là où le texte doit commencer. Le texte utilise une police de gravure à trait unique.' },
     importVector: { label: 'SVG / DXF', title: 'Importer des vecteurs', desc: 'Importe des dessins d’Inkscape, Illustrator, Fusion 360 ou LibreCAD. Vous pouvez aussi déposer le fichier sur la vue 3D.' },
     importImage: { label: "Image", title: "Importer une image", desc: "Place une photo ou une image dans le dessin. Déplacez-la et mettez-la à l’échelle, puis gravez-la au laser ou dessinez-la au traceur sous Parcours." },
+    otherMachines: { label: "Changer de machine", title: "Autres parcours", desc: "Seuls les parcours du type de machine choisi sont affichés. Fraiseuse, laser, plasma et traceur ont chacun les leurs – changez de machine sous Configuration pour les voir." },
     shapeLibrary: { label: 'Formes', title: 'Bibliothèque de formes', desc: 'Cadres, bannières, ornements et motifs prêts à l’emploi. Ajoutez un motif puis choisissez l’usinage : poche, gravure en V, contour, incrustation ou gravure de lignes.' },
     plasmaCut: { label: 'Plasma', title: 'Découpe plasma', desc: 'Découpe des pièces dans la tôle à la torche plasma : compensation de saignée, entrée et sortie dans la chute, temporisation de perçage et trous avant le contour.' },
     reliefLibrary: { label: 'Reliefs', title: 'Bibliothèque de reliefs', desc: 'Motifs 3D prêts à placer sur le matériau et à usiner avec une fraise boule.' },
@@ -559,7 +561,8 @@ export const fr: Dict = {
     usedBy: "Parcours utilisant cette image :",
     engrave: "Graver l’image",
     draw: "Dessiner l’image",
-    routerNote: "Les images se gravent au laser ou se dessinent au traceur. Avec une fraiseuse : transformez l’image en relief.",
+    routerNote: "Une fraiseuse ne grave pas les images directement – transformez l’image en relief et fraisez-le.",
+    plasmaNote: "Les images ne peuvent pas être découpées au plasma. Utilisez l’image comme modèle et tracez les contours avec les outils de forme.",
     remove: "Supprimer l’image",
     source: "Image",
     selectHint: "Sélectionnez l’image pour la déplacer dans la vue 3D",

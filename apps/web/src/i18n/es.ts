@@ -140,6 +140,7 @@ export const es: Dict = {
     gcode: 'G-code',
     post: 'Posprocesador',
     plasma: 'Plasma',
+    otherMachines: "Máquina",
   },
 
   buttons: {
@@ -166,6 +167,7 @@ export const es: Dict = {
     text: { label: 'Texto', title: 'Texto', desc: 'Toca donde debe empezar el texto. El texto usa una fuente de grabado de un solo trazo.' },
     importVector: { label: 'SVG / DXF', title: 'Importar vectores', desc: 'Trae dibujos de Inkscape, Illustrator, Fusion 360 o LibreCAD. También puedes soltar el archivo en la vista 3D.' },
     importImage: { label: "Imagen", title: "Importar imagen", desc: "Coloca una foto o imagen en el dibujo. Muévala y escálela allí, y luego grábela con láser o dibújela con el plóter en Trayectorias." },
+    otherMachines: { label: "Cambiar máquina", title: "Otras trayectorias", desc: "Solo se muestran las trayectorias del tipo de máquina elegido. Fresadora, láser, plasma y plóter tienen las suyas: cambie de máquina en Configuración para verlas." },
     shapeLibrary: { label: 'Formas', title: 'Biblioteca de formas', desc: 'Marcos, banderolas, ornamentos y patrones listos. Añade un motivo y elige cómo mecanizarlo: vaciado, grabado en V, perfil, incrustación o grabado de líneas.' },
     plasmaCut: { label: 'Plasma', title: 'Corte por plasma', desc: 'Corta piezas de chapa con antorcha de plasma: compensación de sangría, entrada y salida en el retal, retardo de perforación y agujeros antes del contorno.' },
     reliefLibrary: { label: 'Relieves', title: 'Biblioteca de relieves', desc: 'Motivos 3D listos para colocar en el material y mecanizar con fresa de bola.' },
@@ -559,7 +561,8 @@ export const es: Dict = {
     usedBy: "Trayectorias que usan esta imagen:",
     engrave: "Grabar la imagen",
     draw: "Dibujar la imagen",
-    routerNote: "Las imágenes se graban con láser o se dibujan con plóter. Con fresadora: convierta la imagen en un relieve.",
+    routerNote: "Una fresadora no graba imágenes directamente: convierta la imagen en un relieve y fréselo.",
+    plasmaNote: "Las imágenes no se pueden cortar con plasma. Use la imagen como referencia y trace los contornos con las herramientas de forma.",
     remove: "Quitar la imagen",
     source: "Imagen",
     selectHint: "Seleccione la imagen para moverla en la vista 3D",

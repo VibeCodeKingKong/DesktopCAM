@@ -88,6 +88,7 @@ export const sv = {
     gcode: 'G-kod',
     post: 'Postprocessor',
     plasma: 'Plasma',
+    otherMachines: "Maskin",
   },
 
   buttons: {
@@ -114,6 +115,7 @@ export const sv = {
     text: { label: 'Text', title: 'Text', desc: 'Tryck där texten ska börja. Texten ritas med ett enkellinjigt gravyrtypsnitt.' },
     importVector: { label: 'SVG / DXF', title: 'Importera vektorer', desc: 'Hämtar in ritningar från Inkscape, Illustrator, Fusion 360 eller LibreCAD. Du kan också dra filen till 3D-vyn.' },
     importImage: { label: "Bild", title: "Importera bild", desc: "Lägger in ett foto eller en bild i ritningen. Flytta och skala den där, och gravera den med laser eller rita den med penplotter under Verktygsbanor." },
+    otherMachines: { label: "Byt maskin", title: "Andra banor", desc: "Här visas bara banorna för den valda maskintypen. Fräs, laser, plasma och penplotter har egna banor – byt maskin under Inställning för att se dem." },
     shapeLibrary: { label: 'Formbibliotek', title: 'Formbibliotek', desc: 'Färdiga ramar, banderoller, ornament och mönster. Lägg in ett motiv och välj sedan bearbetning: ficka, V-gravyr, profil, inlägg eller linjegravyr.' },
     plasmaCut: { label: 'Plasma', title: 'Plasmaskärning', desc: 'Skär ut detaljer ur plåt med plasmabrännare: strålkompensation, inlöp och utlöp i spillet, genomstickning med väntetid och hål före ytterkonturen.' },
     reliefLibrary: { label: 'Relief­bibliotek', title: 'Reliefbibliotek', desc: 'Färdiga 3D-motiv att placera på materialet och fräsa med kulfräs.' },
@@ -507,7 +509,8 @@ export const sv = {
     usedBy: "Banor som använder bilden:",
     engrave: "Gravera bilden",
     draw: "Rita bilden",
-    routerNote: "Bilder graveras med laser eller ritas med penplotter. Med fräs: gör om bilden till en relief.",
+    routerNote: "Fräsen graverar inte bilder direkt – gör om bilden till en relief och fräs den.",
+    plasmaNote: "Bilder kan inte skäras med plasma. Använd bilden som förlaga och rita konturerna med formverktygen.",
     remove: "Ta bort bilden",
     source: "Bild",
     selectHint: "Markera bilden för att flytta den i 3D-vyn",

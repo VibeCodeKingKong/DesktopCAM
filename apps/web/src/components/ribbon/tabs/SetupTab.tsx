@@ -1,7 +1,7 @@
 import { Settings2, Wrench, Zap } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
-import { toolFitsMachine, useAppStore, useMachine, favoritesFirst } from '../../../store/useAppStore';
+import { materialFitsMachine, toolFitsMachine, useAppStore, useMachine, favoritesFirst } from '../../../store/useAppStore';
 import { Select } from '../../ui/Field';
 import { IlluMachine, IlluToolLibrary } from '../../smartguide/illustrations';
 import { materialName, toolName, useT } from '../../../i18n';
@@ -91,7 +91,8 @@ export function SetupTab() {
           <RibbonField label={t.setup.material}>
             <Select
               value={material.presetId}
-              options={materials.map((m) => ({ value: m.id, label: materialName(t, m.id, m.name) }))}
+              // Bara material som maskinen kan bearbeta (och det valda, om det inte passar).
+              options={materials.filter((m) => materialFitsMachine(m, machine.kind) || m.id === material.presetId).map((m) => ({ value: m.id, label: materialName(t, m.id, m.name) }))}
               onChange={(presetId) => {
                 const preset = materials.find((m) => m.id === presetId);
                 setMaterial({ presetId, thickness: preset?.defaultThickness ?? material.thickness });

@@ -141,6 +141,7 @@ export const en: Dict = {
     gcode: 'G-code',
     post: 'Post-processor',
     plasma: 'Plasma',
+    otherMachines: "Machine",
   },
 
   buttons: {
@@ -167,6 +168,7 @@ export const en: Dict = {
     text: { label: 'Text', title: 'Text', desc: 'Tap where the text should start. Text uses a single-line engraving font.' },
     importVector: { label: 'SVG / DXF', title: 'Import vectors', desc: 'Brings in drawings from Inkscape, Illustrator, Fusion 360 or LibreCAD. You can also drop the file on the 3D view.' },
     importImage: { label: "Image", title: "Import image", desc: "Places a photo or picture in the drawing. Move and scale it there, then engrave it with a laser or draw it with a pen plotter under Toolpaths." },
+    otherMachines: { label: "Change machine", title: "Other toolpaths", desc: "Only the toolpaths for the selected machine type are shown. Router, laser, plasma and pen plotter each have their own – change machine under Setup to see them." },
     shapeLibrary: { label: 'Shape library', title: 'Shape library', desc: 'Ready-made frames, banners, ornaments and patterns. Add a motif, then choose how to machine it: pocket, V-carve, profile, inlay or line engraving.' },
     plasmaCut: { label: 'Plasma', title: 'Plasma cutting', desc: 'Cuts parts out of sheet metal with a plasma torch: kerf compensation, lead-in and lead-out in the scrap, pierce delay and holes before the outline.' },
     reliefLibrary: { label: 'Relief library', title: 'Relief library', desc: 'Ready-made 3D motifs to place on the material and cut with a ball nose cutter.' },
@@ -560,7 +562,8 @@ export const en: Dict = {
     usedBy: "Toolpaths using this image:",
     engrave: "Engrave the image",
     draw: "Draw the image",
-    routerNote: "Images are engraved with a laser or drawn with a pen plotter. With a router: turn the image into a relief.",
+    routerNote: "A router does not engrave images directly – turn the image into a relief and mill it.",
+    plasmaNote: "Images cannot be cut with plasma. Use the image as a reference and trace the outlines with the shape tools.",
     remove: "Remove the image",
     source: "Image",
     selectHint: "Select the image to move it in the 3D view",

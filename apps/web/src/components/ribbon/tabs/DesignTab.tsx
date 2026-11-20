@@ -6,7 +6,7 @@ import { RibbonMenuButton } from '../RibbonMenuButton';
 import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
-import { useAppStore, type EditTool } from '../../../store/useAppStore';
+import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
 import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluMeasure, IlluPattern, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluShapeLibrary, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
@@ -23,6 +23,7 @@ export function DesignTab() {
   const canDelete = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedNode || !!s.selectedImageId || !!s.selectedReliefId);
   const canUndo = useAppStore((s) => s.past.length > 0);
   const canRedo = useAppStore((s) => s.future.length > 0);
+  const isRouter = useMachine().kind === 'router';
   const snap = useAppStore((s) => s.snap);
   const setSnap = useAppStore((s) => s.setSnap);
   const pick = (x: EditTool) => () => setTool(tool === x && x !== 'select' ? 'select' : x);
@@ -75,19 +76,24 @@ export function DesignTab() {
       </RibbonGroup>
       <RibbonGroup label={t.groups.import}>
         <RibbonButton icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
-        <RibbonMenuButton
-          icon={ImageIcon}
-          label={b.importImage.label}
-          tooltip={tip(b.importImage, { illustration: <IlluImageRelief /> })}
-          items={[
-            { icon: ImageIcon, label: b.importImage.title, desc: b.importImage.desc, onClick: () => void importImage() },
-            { icon: ImageUp, label: b.imageRelief.label, desc: b.imageRelief.desc, onClick: () => void importImageRelief() },
-          ]}
-        />
+        {/* Reliefer fräses – Bild till relief finns bara med fräs. */}
+        {isRouter ? (
+          <RibbonMenuButton
+            icon={ImageIcon}
+            label={b.importImage.label}
+            tooltip={tip(b.importImage, { illustration: <IlluImageRelief /> })}
+            items={[
+              { icon: ImageIcon, label: b.importImage.title, desc: b.importImage.desc, onClick: () => void importImage() },
+              { icon: ImageUp, label: b.imageRelief.label, desc: b.imageRelief.desc, onClick: () => void importImageRelief() },
+            ]}
+          />
+        ) : (
+          <RibbonButton icon={ImageIcon} label={b.importImage.label} onClick={() => void importImage()} tooltip={tip(b.importImage)} />
+        )}
       </RibbonGroup>
       <RibbonGroup label={t.groups.library}>
         <RibbonButton icon={Shapes} label={b.shapeLibrary.label} onClick={() => openDialog('shapeLibrary')} tooltip={tip(b.shapeLibrary, { illustration: <IlluShapeLibrary /> })} />
-        <RibbonButton icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />
+        {isRouter && <RibbonButton icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />}
       </RibbonGroup>
     </>
   );

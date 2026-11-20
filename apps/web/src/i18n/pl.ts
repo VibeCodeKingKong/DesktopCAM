@@ -147,6 +147,7 @@ export const pl: Dict = {
     gcode: 'G-code',
     post: 'Postprocesor',
     plasma: 'Plazma',
+    otherMachines: "Maszyna",
   },
 
   buttons: {
@@ -173,6 +174,7 @@ export const pl: Dict = {
     text: { label: 'Tekst', title: 'Tekst', desc: 'Dotknij miejsca, gdzie ma zaczynać się tekst. Tekst używa jednoliniowej czcionki grawerskiej.' },
     importVector: { label: 'SVG / DXF', title: 'Importuj wektory', desc: 'Wczytuje rysunki z Inkscape, Illustratora, Fusion 360 lub LibreCAD. Plik można też upuścić na widok 3D.' },
     importImage: { label: "Obraz", title: "Importuj obraz", desc: "Wstawia zdjęcie lub obraz do rysunku. Przesuń go i przeskaluj, a potem wygraweruj laserem lub narysuj ploterem w zakładce Ścieżki." },
+    otherMachines: { label: "Zmień maszynę", title: "Inne ścieżki", desc: "Widać tylko ścieżki dla wybranego typu maszyny. Frezarka, laser, plazma i ploter mają własne – zmień maszynę w zakładce Ustawienia, aby je zobaczyć." },
     shapeLibrary: { label: 'Kształty', title: 'Biblioteka kształtów', desc: 'Gotowe ramki, banery, ornamenty i wzory. Dodaj motyw, a potem wybierz obróbkę: kieszeń, grawer V, kontur, intarsję lub grawer linii.' },
     plasmaCut: { label: 'Plazma', title: 'Cięcie plazmą', desc: 'Wycina detale z blachy palnikiem plazmowym: kompensacja szczeliny, wejście i wyjście w odpadzie, opóźnienie przebicia i otwory przed konturem zewnętrznym.' },
     reliefLibrary: { label: 'Reliefy', title: 'Biblioteka reliefów', desc: 'Gotowe motywy 3D do umieszczenia na materiale i frezowania frezem kulowym.' },
@@ -566,7 +568,8 @@ export const pl: Dict = {
     usedBy: "Ścieżki używające tego obrazu:",
     engrave: "Graweruj obraz",
     draw: "Narysuj obraz",
-    routerNote: "Obrazy graweruje się laserem lub rysuje ploterem. Przy frezarce: zamień obraz na relief.",
+    routerNote: "Frezarka nie graweruje obrazów bezpośrednio – zamień obraz na relief i go wyfrezuj.",
+    plasmaNote: "Obrazów nie da się ciąć plazmą. Użyj obrazu jako wzoru i obrysuj kontury narzędziami kształtów.",
     remove: "Usuń obraz",
     source: "Obraz",
     selectHint: "Zaznacz obraz, aby przesunąć go w widoku 3D",

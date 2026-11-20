@@ -288,6 +288,8 @@ export function ProjectTree() {
             })}
         </Section>
 
+        {/* Reliefer fräses: avsnittet visas med fräs, eller om projektet redan har reliefer. */}
+        {(machine.kind === 'router' || reliefs.length > 0) && (
         <Section icon={Mountain} label={t.tree.reliefs} count={reliefs.length}>
           {reliefs.length === 0 && <p className="px-2 py-1.5 text-2xs text-muted">{t.tree.noReliefs}</p>}
           {reliefs.map((r) => {
@@ -306,6 +308,7 @@ export function ProjectTree() {
             );
           })}
         </Section>
+        )}
 
         {images.length > 0 && (
           <Section icon={ImageIcon} label={t.tree.images} count={images.length}>

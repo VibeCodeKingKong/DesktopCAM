@@ -258,6 +258,14 @@ const without = <T,>(rec: Record<string, T>, key: string): Record<string, T> => 
 export const toolFitsMachine = (tool: ToolDefinition['kind'], machine: MachineProfile['kind']) =>
   machine === 'laser' ? tool === 'laser' : machine === 'plasma' ? tool === 'plasma' : machine === 'plotter' ? tool === 'pen' : tool !== 'laser' && tool !== 'plasma' && tool !== 'pen';
 
+/**
+ * Material som maskintypen kan bearbeta: plasma skär bara metall, pennan ritar
+ * på papper och kartong, fräsen tar material med fräsdata och lasern material
+ * med laserdata.
+ */
+export const materialFitsMachine = (m: MaterialPreset, kind: MachineProfile['kind']) =>
+  kind === 'plasma' ? m.category === 'metal' : kind === 'plotter' ? m.category === 'paper' : kind === 'router' ? m.router != null : m.laser != null;
+
 /** Behåll aktivt verktyg om det passar maskinen, annars välj första som passar. */
 /** Favoriter först, annars bibliotekets ordning. */
 export const favoritesFirst = (tools: ToolDefinition[]) => [...tools.filter((t) => t.favorite), ...tools.filter((t) => !t.favorite)];
@@ -266,6 +274,15 @@ const toolFor = (tools: ToolDefinition[], current: string, kind: MachineProfile[
   const fits = (t: ToolDefinition) => toolFitsMachine(t.kind, kind);
   const cur = tools.find((t) => t.id === current);
   return cur && fits(cur) ? cur.id : (tools.find(fits)?.id ?? current);
+};
+
+/** Passar inte materialet maskintypen byts det mot det första som passar (penplotter: papper i A4). */
+const materialFor = (s: { materials: MaterialPreset[]; material: MaterialSetup }, kind: MachineProfile['kind']): { material?: MaterialSetup } => {
+  const current = s.materials.find((x) => x.id === s.material.presetId);
+  if (current && materialFitsMachine(current, kind)) return {};
+  const next = s.materials.find((x) => materialFitsMachine(x, kind));
+  if (!next) return {};
+  return { material: { ...s.material, presetId: next.id, thickness: next.defaultThickness, ...(kind === 'plotter' ? { width: 297, height: 210 } : {}) } };
 };
 
 const snapshot = (s: DocSnapshot): DocSnapshot => ({
@@ -417,15 +434,15 @@ export const useAppStore = create<AppState>()((set, get) => {
     setMachine: (machineId) =>
       set((s) => {
         const m = s.machines.find((x) => x.id === machineId);
-        // Till en penplotter: papper i A4 om materialet inte redan är papper.
-        const paper = m?.kind === 'plotter' && s.material.presetId !== 'paper' ? { material: { ...s.material, presetId: 'paper', width: 297, height: 210, thickness: 1 } } : {};
-        return { machineId, activeToolId: m ? toolFor(s.tools, s.activeToolId, m.kind) : s.activeToolId, ...paper };
+        const material = m ? materialFor(s, m.kind) : {};
+        return { machineId, activeToolId: m ? toolFor(s.tools, s.activeToolId, m.kind) : s.activeToolId, ...material };
       }),
     saveMachine: (m) =>
       set((s) => ({
         machines: s.machines.some((x) => x.id === m.id) ? s.machines.map((x) => (x.id === m.id ? m : x)) : [...s.machines, m],
         machineId: m.id,
         activeToolId: toolFor(s.tools, s.activeToolId, m.kind),
+        ...materialFor(s, m.kind),
       })),
     removeMachine: (id) =>
       set((s) => {

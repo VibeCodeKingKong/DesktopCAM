@@ -140,6 +140,7 @@ export const de: Dict = {
     gcode: 'G-Code',
     post: 'Postprozessor',
     plasma: 'Plasma',
+    otherMachines: "Maschine",
   },
 
   buttons: {
@@ -166,6 +167,7 @@ export const de: Dict = {
     text: { label: 'Text', title: 'Text', desc: 'Dort tippen, wo der Text beginnen soll. Text verwendet eine einlinige Gravurschrift.' },
     importVector: { label: 'SVG / DXF', title: 'Vektoren importieren', desc: 'Holt Zeichnungen aus Inkscape, Illustrator, Fusion 360 oder LibreCAD. Die Datei kann auch auf die 3D-Ansicht gezogen werden.' },
     importImage: { label: "Bild", title: "Bild importieren", desc: "Fügt ein Foto oder Bild in die Zeichnung ein. Dort verschieben und skalieren, dann unter Werkzeugwege mit dem Laser gravieren oder mit dem Stiftplotter zeichnen." },
+    otherMachines: { label: "Maschine wechseln", title: "Weitere Bahnen", desc: "Es werden nur die Bahnen für den gewählten Maschinentyp angezeigt. Fräse, Laser, Plasma und Stiftplotter haben jeweils eigene – unter Einrichtung die Maschine wechseln, um sie zu sehen." },
     shapeLibrary: { label: 'Formen', title: 'Formenbibliothek', desc: 'Fertige Rahmen, Banner, Ornamente und Muster. Ein Motiv einfügen und dann die Bearbeitung wählen: Tasche, V-Gravur, Kontur, Intarsie oder Liniengravur.' },
     plasmaCut: { label: 'Plasma', title: 'Plasmaschneiden', desc: 'Schneidet Teile mit dem Plasmabrenner aus Blech: Schnittspaltkorrektur, An- und Abfahrt im Verschnitt, Einstechverzögerung und Löcher vor der Außenkontur.' },
     reliefLibrary: { label: 'Reliefbibliothek', title: 'Reliefbibliothek', desc: 'Fertige 3D-Motive, die auf das Material gesetzt und mit einem Kugelfräser gefräst werden.' },
@@ -559,7 +561,8 @@ export const de: Dict = {
     usedBy: "Werkzeugwege mit diesem Bild:",
     engrave: "Bild gravieren",
     draw: "Bild zeichnen",
-    routerNote: "Bilder werden mit dem Laser graviert oder mit dem Stiftplotter gezeichnet. Mit der Fräse: das Bild in ein Relief umwandeln.",
+    routerNote: "Eine Fräse graviert Bilder nicht direkt – das Bild in ein Relief umwandeln und fräsen.",
+    plasmaNote: "Bilder lassen sich nicht mit Plasma schneiden. Das Bild als Vorlage nutzen und die Umrisse mit den Formwerkzeugen nachzeichnen.",
     remove: "Bild entfernen",
     source: "Bild",
     selectHint: "Bild auswählen, um es in der 3D-Ansicht zu verschieben",

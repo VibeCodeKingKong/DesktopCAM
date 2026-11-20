@@ -1,7 +1,7 @@
 import { FontPicker } from '../ui/FontPicker';
 import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
+import { CircleDot, Grid3x3, PenLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
 import {
   defaultPocketStrategy,
   matchPocketPreset,
@@ -341,6 +341,15 @@ function ShapeEditor() {
             <button className="btn col-span-2" onClick={() => createToolpath('plasmaCut')}>
               <Zap size={13} className="text-accent" /> {t.operations.plasmaCut}
             </button>
+          ) : machineKind === 'plotter' ? (
+            <>
+              <button className="btn" onClick={() => createToolpath('penDraw')}>
+                <PenLine size={13} className="text-accent" /> {t.operations.penDraw}
+              </button>
+              <button className="btn" onClick={() => createToolpath('penFill')} disabled={!anyClosed}>
+                <Grid3x3 size={13} className="text-accent" /> {t.operations.penFill}
+              </button>
+            </>
           ) : isLaser ? (
             <>
               <button className="btn" onClick={() => createToolpath('laserCut')}>
@@ -376,7 +385,7 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
   const update = useAppStore((s) => s.updateRelief);
   const remove = useAppStore((s) => s.removeRelief);
   const material = useAppStore((s) => s.material);
-  const isLaser = useMachine().kind !== 'router';
+  const isRouter = useMachine().kind === 'router';
   const patch = (p: Partial<ReliefInstance>) => {
     useAppStore.getState().checkpoint();
     update(relief.id, p);
@@ -437,12 +446,16 @@ function ReliefEditor({ relief }: { relief: ReliefInstance }) {
           />
         </Group>
       )}
-      {!relief.plug && <InlayGroup relief={relief} />}
+      {!relief.plug && isRouter && <InlayGroup relief={relief} />}
       <Group title={t.props.machining}>
+        {/* Reliefer fräses – med andra maskiner visas bara en förklaring. */}
+        {!isRouter && <p className="text-xs leading-relaxed text-muted">{t.reasons.needsRouter}</p>}
         <div className="flex gap-2">
-          <button className="btn btn-primary flex-1" onClick={() => createToolpath('relief')} disabled={isLaser} title={isLaser ? t.reasons.needsRouter : undefined}>
-            {t.props.createRelief}
-          </button>
+          {isRouter && (
+            <button className="btn btn-primary flex-1" onClick={() => createToolpath('relief')}>
+              {t.props.createRelief}
+            </button>
+          )}
           <button className="btn" onClick={() => remove(relief.id)} title={t.props.removeRelief} aria-label={t.props.removeRelief}>
             <Trash2 size={13} />
           </button>
@@ -526,13 +539,18 @@ function ImageEditor({ image }: { image: ImageObject }) {
             {t.image.draw}
           </button>
         )}
-        {(machine.kind === 'router' || machine.kind === 'plasma') && <p className="text-xs leading-relaxed text-muted">{t.image.routerNote}</p>}
+        {machine.kind === 'router' && <p className="text-xs leading-relaxed text-muted">{t.image.routerNote}</p>}
+        {machine.kind === 'plasma' && <p className="text-xs leading-relaxed text-muted">{t.image.plasmaNote}</p>}
         <div className="flex gap-2">
-          <button className="btn flex-1" onClick={() => void imageToRelief(image.id)}>
-            {t.buttons.imageRelief.label}
-          </button>
-          <button className="btn" onClick={() => remove(image.id)} title={t.image.remove} aria-label={t.image.remove}>
+          {/* Reliefer fräses – Bild till relief bara med fräs. */}
+          {machine.kind === 'router' && (
+            <button className="btn btn-primary flex-1" onClick={() => void imageToRelief(image.id)}>
+              {t.buttons.imageRelief.label}
+            </button>
+          )}
+          <button className={`btn ${machine.kind === 'router' ? '' : 'flex-1'}`} onClick={() => remove(image.id)} title={t.image.remove} aria-label={t.image.remove}>
             <Trash2 size={13} />
+            {machine.kind !== 'router' && <span>{t.image.remove}</span>}
           </button>
         </div>
       </Group>
