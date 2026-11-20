@@ -5,6 +5,12 @@
 import type { ToolDefinition, ToolpathStats } from '@desktopcam/core';
 import type { Dict } from '../i18n';
 
+/** V-fräsens konhöjd (mm): djupare än så formar konen inte väggen, och skaftet tar i. */
+export function vbitConeHeight(tool: ToolDefinition): number {
+  const cone = tool.diameter / 2 / Math.tan(((tool.angle ?? 90) * Math.PI) / 360);
+  return tool.fluteLength && tool.fluteLength > 0 ? Math.min(cone, tool.fluteLength) : cone;
+}
+
 /** Skärande höjd för ett verktyg (mm), om den är känd. */
 export function cuttingLength(tool: ToolDefinition): number | undefined {
   if (tool.fluteLength && tool.fluteLength > 0) return tool.fluteLength;

@@ -107,6 +107,9 @@ importers:
       d3-delaunay:
         specifier: 6.0.4
         version: 6.0.4
+      flo-mat:
+        specifier: 5.0.7
+        version: 5.0.7
     devDependencies:
       '@types/d3-delaunay':
         specifier: 6.0.4
@@ -617,6 +620,10 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+  big-float-ts@4.0.5:
+    resolution: {integrity: sha512-9mfwPNdffuAvAnZ2k7lpvy7AkjxsvHvONnk5GGobUCWALDOTGs1lxVe9MLJnPCRG6DyLNfXs4WsmXtPO3ydlKQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   bignumber.js@9.3.1:
     resolution: {integrity: sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==}
 
@@ -682,6 +689,10 @@ packages:
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
 
+  double-double@4.0.0:
+    resolution: {integrity: sha512-PTNVQr01cXWZ2ifUPRUlAssGIHxzTWOd3SeoJRAYtBSHnV/2Yorqy4z2ZOA7ZjbUzd45yOG3NuzQtnKdz5gvnw==}
+    engines: {node: '>=22.0.0'}
+
   driver.js@1.11.0:
     resolution: {integrity: sha512-Xp/tYNYQ4Wth6AN3HqVVYdrCF4ahe4FVBDphWKylVDBBbeDEsFqnogxko6Gv30Yf9T/B92g0RZOCp4xfl1gqqw==}
 
@@ -723,6 +734,46 @@ packages:
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
+
+  flo-bezier3@10.0.1:
+    resolution: {integrity: sha512-bsNmHTfIwaZQC7W8aXhfrZ/f3bm8n48GjbfEfE0HcBkSGtPK3vfkYjQ+I/156bh2nvQ3WK3eqBqFrr3p9+ryAA==}
+    engines: {node: '>=22.0.0'}
+
+  flo-boolean@6.0.5:
+    resolution: {integrity: sha512-UeATdquxgUkqX5rrRlsc5QTH2h8J2SoJErUP8nt6FPHYhsP+n3XnG/75ZdlludupbdoVayTKxg3C5smMHKqIbA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-draw@2.0.5:
+    resolution: {integrity: sha512-xjdXmvCaEugjekLAFG0blhE1Q3y0mcJR6jWV71Q5ucebiUFGpqPSDpSAAJuQkokz+zGFnNoHjm2i0WQBsQRNkA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-gauss-quadrature@2.1.4:
+    resolution: {integrity: sha512-NQjxln9QJrFOqZvQmQmPWxZHHCAU3ZeW02DMy5hmBszC0rTzdcRXGnDAIAZ1XoqnBJPM4yp+IdCymcpBMrRzaA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-graham-scan@4.0.2:
+    resolution: {integrity: sha512-PBuKX9902dORIgEeOVonVP8eAfk7FGdZCBU/CLY4xyUrBZxka4ZfgRlHCKHvhCJgqiUeMqi4KkabwbpPylLGgA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-ll-rb-tree@1.0.4:
+    resolution: {integrity: sha512-Y6UHIQqlmpUSa2XLWKiP/XHLERSsSNse0mH1c2W2AIj17kjEtws0EqKHh+qr7sqsVbtXcd7D2h/d+mPpKImLOQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-mat@5.0.7:
+    resolution: {integrity: sha512-UT1tzgJdW20d2kyY1mdLtkXWTJIlQsv++xzznkC2HSGWfw1tyTjmmzNiOBSI1nPWsa06iychqSKUMjHyFICj6A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-memoize@2.0.1:
+    resolution: {integrity: sha512-jKDJmjHLssdHCpK1orm7gIAtcB8G2lBlAV88av/Dx6BOuf+hrdd8fmkjgsCb4p1c+j8y+H+SH7r5zf4JsLa8JQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flo-poly@9.0.2:
+    resolution: {integrity: sha512-f/TbLmBUqpFaTvhWc3C3UbHaOaJR29gkUV6n1B502WIj6yOThVokqda0ZUrIbnISdayZWs0kPZM4Wgc56+7wnA==}
+    engines: {node: '>=20.0.0'}
+
+  flo-vector2d@4.0.6:
+    resolution: {integrity: sha512-YYG408bQdlQ1xCyXafg0+RlwTSFjDNr1XrK+6RiH/g2isY8XT11mAf4zvLujMhZKbjUG+Br8A3wEPuQp/Z5M+A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
@@ -1015,6 +1066,10 @@ packages:
 
   splaytree-ts@1.0.2:
     resolution: {integrity: sha512-0kGecIZNIReCSiznK3uheYB8sbstLjCZLiwcQwbmLhgHJj2gz6OnSPkVzJQCMnmEz1BQ4gPK59ylhBoEWOhGNA==}
+
+  squares-rng@2.0.4:
+    resolution: {integrity: sha512-b923WfayrLBC7MESS9lv4NFeLAlhuiuJJM5sXseKvr729tILIQmsvSs8Ykb/XXDj8mMxx51lx0E6adTVwzaTFw==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   sucrase@3.35.1:
     resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
@@ -1547,6 +1602,8 @@ snapshots:
 
   baseline-browser-mapping@2.11.35: {}
 
+  big-float-ts@4.0.5: {}
+
   bignumber.js@9.3.1: {}
 
   binary-extensions@2.3.0: {}
@@ -1605,6 +1662,8 @@ snapshots:
 
   dlv@1.1.3: {}
 
+  double-double@4.0.0: {}
+
   driver.js@1.11.0: {}
 
   electron-to-chromium@1.5.479: {}
@@ -1660,6 +1719,60 @@ snapshots:
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
+
+  flo-bezier3@10.0.1:
+    dependencies:
+      big-float-ts: 4.0.5
+      double-double: 4.0.0
+      flo-gauss-quadrature: 2.1.4
+      flo-graham-scan: 4.0.2
+      flo-poly: 9.0.2
+      flo-vector2d: 4.0.6
+
+  flo-boolean@6.0.5:
+    dependencies:
+      big-float-ts: 4.0.5
+      double-double: 4.0.0
+      flo-bezier3: 10.0.1
+      flo-draw: 2.0.5
+      flo-gauss-quadrature: 2.1.4
+      flo-memoize: 2.0.1
+      flo-poly: 9.0.2
+      flo-vector2d: 4.0.6
+
+  flo-draw@2.0.5: {}
+
+  flo-gauss-quadrature@2.1.4: {}
+
+  flo-graham-scan@4.0.2:
+    dependencies:
+      big-float-ts: 4.0.5
+
+  flo-ll-rb-tree@1.0.4: {}
+
+  flo-mat@5.0.7:
+    dependencies:
+      big-float-ts: 4.0.5
+      double-double: 4.0.0
+      flo-bezier3: 10.0.1
+      flo-boolean: 6.0.5
+      flo-gauss-quadrature: 2.1.4
+      flo-ll-rb-tree: 1.0.4
+      flo-memoize: 2.0.1
+      flo-poly: 9.0.2
+      flo-vector2d: 4.0.6
+
+  flo-memoize@2.0.1: {}
+
+  flo-poly@9.0.2:
+    dependencies:
+      big-float-ts: 4.0.5
+      double-double: 4.0.0
+      squares-rng: 2.0.4
+
+  flo-vector2d@4.0.6:
+    dependencies:
+      big-float-ts: 4.0.5
 
   fraction.js@4.3.7: {}
 
@@ -1933,6 +2046,8 @@ snapshots:
       spdx-ranges: 2.1.1
 
   splaytree-ts@1.0.2: {}
+
+  squares-rng@2.0.4: {}
 
   sucrase@3.35.1:
     dependencies:

@@ -19,6 +19,7 @@ import type { PolylineInput } from './protocol';
 import { depthPasses } from './referenceEngine';
 import { buildDistanceField, isolines, type DistanceField } from './sdf';
 import { orderPaths } from './plotter';
+import { distanceToEdges, medialAxisPaths } from './medialAxis';
 
 export interface VCarveJob {
   groups: PolylineInput[][];
@@ -39,6 +40,11 @@ export interface VCarveJob {
    * syns inte efteråt och kan stegas glesare.
    */
   flatRidge?: number;
+  /**
+   * Ficka: 'centerline' låter fräsen följa formens mittlinje med varierande
+   * djup (snabbt, som Vectric). 'contours' (standard) fräser konturer inåt.
+   */
+  strategy?: 'contours' | 'centerline';
   stepDown: number;
   feedRate: number;
   plungeRate: number;
@@ -222,11 +228,40 @@ export function vcarveGcode(job: VCarveJob): string {
   const info: { field?: DistanceField; dFlat?: number } = {};
   const raw = vcarveRings(job, info);
   if (!raw.length) throw new Error('NO_CLOSED');
-  const rings: CutRing[] = info.field
-    ? pruneRings(raw, info.field, info.dFlat ?? 0)
-    : raw.map((r) => ({ depth: r.depth, dist: r.dist, loops: r.loops, paths: r.loops.map((points) => ({ points, closed: true })) }));
+  const centerline = job.mode === 'pocket' && job.strategy === 'centerline' && !!info.field;
   const tanA = Math.tan(((job.angle || 60) * Math.PI) / 360);
-  const deepest = Math.max(...rings.map((r) => r.depth));
+  // Mittlinjen: bara den plana botten fräses med konturer, resten följer mittlinjen.
+  const rings: CutRing[] = centerline
+    ? raw.filter((r) => r.depth >= job.maxDepth - 1e-6).map((r) => ({ depth: r.depth, dist: r.dist, loops: r.loops, paths: r.loops.map((points) => ({ points, closed: true })) }))
+    : info.field
+      ? pruneRings(raw, info.field, info.dFlat ?? 0)
+      : raw.map((r) => ({ depth: r.depth, dist: r.dist, loops: r.loops, paths: r.loops.map((points) => ({ points, closed: true })) }));
+  // Mittlinjen med djupet i varje punkt: avståndet till kanten / tan(α/2), högst plana djupet.
+  const axis = centerline
+    ? medialAxisPaths(job.groups).flatMap((pts) => {
+        // Där mittlinjen når plana djupet rensar de plana passen redan – dela upp kedjan där.
+        const zs = distanceToEdges(job.groups, pts).map((r) => Math.min(job.maxDepth, r / tanA));
+        const flat = (i: number) => zs[i] >= job.maxDepth - 1e-6;
+        const parts: { pts: number[]; zs: number[] }[] = [];
+        let cur: { pts: number[]; zs: number[] } | null = null;
+        for (let i = 0; i < zs.length; i++) {
+          // Behåll en punkt in i det plana så att övergången fräses.
+          const keep = !flat(i) || (i > 0 && !flat(i - 1)) || (i + 1 < zs.length && !flat(i + 1));
+          if (keep) {
+            cur ??= { pts: [], zs: [] };
+            cur.pts.push(pts[2 * i], pts[2 * i + 1]);
+            cur.zs.push(zs[i]);
+          } else if (cur) {
+            parts.push(cur);
+            cur = null;
+          }
+        }
+        if (cur) parts.push(cur);
+        return parts.filter((q) => q.zs.length >= 2);
+      })
+    : [];
+  if (centerline && !axis.length && !rings.length) throw new Error('NO_CLOSED');
+  const deepest = Math.max(0, ...rings.map((r) => r.depth), ...axis.map((a) => Math.max(...a.zs)));
   const out: string[] = [
     `; desktopCAM ${job.mode === 'pocket' ? 'v-carve pocket' : 'v-inlay plug'} (${job.angle}° V-bit)`,
     ...p.header,
@@ -240,7 +275,9 @@ export function vcarveGcode(job: VCarveJob): string {
   const levels = depthPasses(deepest, job.stepDown);
   for (const level of levels) {
     // Allt som fräses på det här lagret, i närmaste-granne-ordning (kortare förflyttningar).
-    const items: { path: PolylineInput; z: number }[] = [];
+    const items: { path: PolylineInput; z: number; zs?: number[] }[] = [];
+    // Mittlinjen på varje lager, med djupet begränsat till lagret.
+    for (const a of axis) if (Math.max(...a.zs) > prev + 1e-6) items.push({ path: { points: a.pts, closed: false }, z: 0, zs: a.zs.map((v) => -Math.min(v, level)) });
     // Konturer som är djupare än lagret fräses här bara plant på lagrets djup.
     // Där räcker ett glesare urval (V-fräsen är 2·djup·tan bred där) – det
     // som står kvar tas av nästa lager, och sista lagret fräser allt.
@@ -257,12 +294,17 @@ export function vcarveGcode(job: VCarveJob): string {
       for (const points of ring.loops) items.push({ path: { points, closed: true }, z: -level });
     }
     const order: number[] = [];
-    const strokes = orderPaths(items.map((it) => it.path), x, y, order);
+    const flipped: boolean[] = [];
+    const strokes = orderPaths(items.map((it) => it.path), x, y, order, flipped);
     strokes.forEach((st, k) => {
-      const z = items[order[k]].z;
+      const it = items[order[k]];
+      // Mittlinjen: djup per punkt (vänd om linjen kördes baklänges).
+      let zs = it.zs;
+      if (zs && flipped[k]) zs = [...zs].reverse();
+      const z0 = zs ? zs[0] : it.z;
       // Snabbt ner till strax ovanför ytan, sedan matning (spåren under är redan fräsade).
-      out.push(`G0 X${f(st[0])} Y${f(st[1])}`, `G0 Z${f(Math.min(p.safeZ, 0.5))}`, `G1 Z${f(z)} F${f(job.plungeRate)}`);
-      for (let i = 2; i < st.length; i += 2) out.push(`G1 X${f(st[i])} Y${f(st[i + 1])}${i === 2 ? ` F${f(job.feedRate)}` : ''}`);
+      out.push(`G0 X${f(st[0])} Y${f(st[1])}`, `G0 Z${f(Math.min(p.safeZ, 0.5))}`, `G1 Z${f(z0)} F${f(job.plungeRate)}`);
+      for (let i = 2; i < st.length; i += 2) out.push(`G1 X${f(st[i])} Y${f(st[i + 1])}${zs ? ` Z${f(zs[i / 2])}` : ''}${i === 2 ? ` F${f(job.feedRate)}` : ''}`);
       out.push(`G0 Z${f(p.safeZ)}`);
       x = st[st.length - 2];
       y = st[st.length - 1];

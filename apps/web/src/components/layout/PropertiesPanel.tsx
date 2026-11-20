@@ -36,6 +36,7 @@ import {
 import { allShapes, favoritesFirst, machineClass, useAppStore, useEffectiveMaterial, useExpert, useMachine, useMaterialPreset, useSelectedImage, useSelectedRelief, useSelectedToolpath, type ImageObject } from '../../store/useAppStore';
 import { imageHeightMm, imageToRelief } from '../../cam/imageObjects';
 import { toolFits } from '../../cam/toolRules';
+import { vbitConeHeight } from '../../cam/toolReach';
 import { computeToolpath, drillPoints, plugBlankFor, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
 import { DEFAULT_PLUG_MATERIAL } from '../../cam/inlayBlank';
 import {
@@ -597,6 +598,8 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
   const expert = useExpert();
   const t = useT();
   const tools = useAppStore((s) => s.tools);
+  const tool = tools.find((x) => x.id === tp.toolId);
+  const material = useAppStore((s) => s.material);
   const layers = useAppStore((s) => s.layers);
   const update = useAppStore((s) => s.updateToolpath);
   const remove = useAppStore((s) => s.removeToolpath);
@@ -721,9 +724,21 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
 
       {tp.operation === 'vcarve' && (
         <>
+          <Group title={t.props.vStrategy}>
+            <Segmented
+              label={t.props.vStrategy}
+              value={tp.strategy ?? 'contours'}
+              options={(['contours', 'centerline'] as const).map((value) => ({ value, label: t.props.vStrategies[value] }))}
+              onChange={(strategy) => patch({ strategy })}
+            />
+            <p className="text-2xs leading-relaxed text-muted">{t.props.vStrategyNotes[tp.strategy ?? 'contours']}</p>
+          </Group>
           <Group title={t.props.depth}>
             <NumberField label={t.props.flatDepth} unit="mm" step={0.5} min={0} value={tp.flatDepth} hint="vFlatDepth" onChange={(flatDepth) => patch({ flatDepth })} />
             <p className="-mt-1 text-2xs text-muted">{t.props.flatDepthNote}</p>
+            {tool?.kind === 'vbit' && vbitConeHeight(tool) < (tp.flatDepth > 0 ? tp.flatDepth : material.thickness) && (
+              <p className="rounded-md bg-accent/10 px-2 py-1.5 text-2xs leading-relaxed">{t.props.vConeLimit(+vbitConeHeight(tool).toFixed(1))}</p>
+            )}
             {expert && <NumberField label={t.props.contourStep} unit="mm" step={0.05} min={0.03} max={1} value={tp.contourStep} hint="contourStep" onChange={(contourStep) => patch({ contourStep })} />}
             <NumberField label={t.props.stepDown} unit="mm" step={0.5} min={0.1} value={tp.params.stepDown} hint="stepDown" onChange={(stepDown) => param({ stepDown })} />
           </Group>

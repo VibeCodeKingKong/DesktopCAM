@@ -132,7 +132,7 @@ interface AppState extends DocSnapshot {
   future: DocSnapshot[];
 
   view: { showToolpaths: boolean; showRapids: boolean; showStock: boolean };
-  /** Materialsimulering. progress 0–1, duration i sekunder maskintid. */
+  /** Materialsimulering. progress 0–1, duration i sekunder maskintid. speed: 0 = översikt (40 s), annars gånger verklig hastighet. */
   sim: {
     active: boolean;
     playing: boolean;
@@ -340,7 +340,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     future: [],
 
     view: { showToolpaths: true, showRapids: true, showStock: true },
-    sim: { active: false, playing: false, speed: 1, progress: 0, duration: 0, job: '', inlays: 0, assembly: 'none', fit: [] },
+    sim: { active: false, playing: false, speed: 0, progress: 0, duration: 0, job: '', inlays: 0, assembly: 'none', fit: [] },
     measureRef: null,
     setMeasureRef: (measureRef) => set({ measureRef }),
     measureSwapped: false,

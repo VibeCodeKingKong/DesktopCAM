@@ -21,6 +21,7 @@ import {
   type PlasmaJob,
   type RasterJob,
   type ReliefJob,
+  type ToolDefinition,
   type ToolpathConfig,
   type VectorShape,
 } from '@desktopcam/core';
@@ -30,7 +31,7 @@ import { errorText, getT } from '../i18n';
 import { allShapes, getMachine, useAppStore } from '../store/useAppStore';
 import { rasterizeGray } from '../utils/image';
 import { heightmapFor } from './reliefs';
-import { toolReachWarnings } from './toolReach';
+import { toolReachWarnings, vbitConeHeight } from './toolReach';
 import { toolFits } from './toolRules';
 
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -397,6 +398,12 @@ export function plugBlankFor(tp: ToolpathConfig): PlugBlank | null {
   return shapes.length ? plugBlank(tp, shapes, useAppStore.getState().material) : null;
 }
 
+/** V-gravyrens största djup: valt plant djup (eller materialets tjocklek), högst konens höjd. */
+export function vcarveMaxDepth(tp: Extract<ToolpathConfig, { operation: 'vcarve' }>, tool: ToolDefinition): number {
+  const wanted = tp.flatDepth > 0 ? tp.flatDepth : useAppStore.getState().material.thickness;
+  return +Math.min(wanted, vbitConeHeight(tool)).toFixed(3);
+}
+
 function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
   if (tp.operation !== 'vcarve' && tp.operation !== 'inlay') throw new Error('NOT_IMPLEMENTED');
   const s = useAppStore.getState();
@@ -421,7 +428,8 @@ function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
     post: getMachine().postprocessor,
   };
   if (tp.operation === 'vcarve') {
-    return { ...common, mode: 'pocket', maxDepth: tp.flatDepth > 0 ? tp.flatDepth : s.material.thickness, startDepth: 0, margin: 0, contourStep: tp.contourStep };
+    // Aldrig djupare än konen: där bortom blir det plan botten i stället.
+    return { ...common, mode: 'pocket', maxDepth: vcarveMaxDepth(tp, tool), startDepth: 0, margin: 0, contourStep: tp.contourStep, strategy: tp.strategy };
   }
   return {
     ...common,

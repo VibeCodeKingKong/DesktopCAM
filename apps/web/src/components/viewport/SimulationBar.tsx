@@ -1,11 +1,12 @@
 import { Layers, Pause, Play, RotateCcw, Scissors, SkipForward, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { BASE_PLAYBACK_SECONDS, glueInlays, playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
-import { decimalSep, useT } from '../../i18n';
+import { useT } from '../../i18n';
 import { useState } from 'react';
 import { InlaySectionView } from './InlaySectionView';
 
-const SPEEDS = [0.25, 0.5, 1, 2, 4];
+/** 0 = översikt (hela körningen på 40 s); övriga gånger maskinens verkliga hastighet. */
+const SPEEDS = [0, 1, 2, 5, 10, 25, 100, 500];
 
 /**
  * Uppspelningen är inte i verklig hastighet: 1× spelar hela körningen på
@@ -38,9 +39,11 @@ export function SimulationBar() {
         <span className="ml-auto shrink-0 tabular-nums text-muted">
           {clock(sim.progress * sim.duration)} / {clock(sim.duration)} {t.sim.machineTime}
         </span>
-        <span className="hidden shrink-0 rounded bg-app px-1.5 py-0.5 tabular-nums text-muted sm:inline" title={t.sim.speedHint}>
-          {playbackLabel(t, (sim.duration * sim.speed) / BASE_PLAYBACK_SECONDS)}
-        </span>
+        {sim.speed === 0 && (
+          <span className="hidden shrink-0 rounded bg-app px-1.5 py-0.5 tabular-nums text-muted sm:inline" title={t.sim.speedHint}>
+            {playbackLabel(t, sim.duration / BASE_PLAYBACK_SECONDS)}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <button className="btn h-8 w-8 shrink-0 p-0" onClick={playPause} aria-label={sim.playing ? t.sim.pause : t.sim.play} title={sim.playing ? t.sim.pause : t.sim.play}>
@@ -59,7 +62,7 @@ export function SimulationBar() {
           aria-label={t.sim.position}
         />
         <select
-          className="field h-8 w-[4.5rem] shrink-0 py-0 text-xs"
+          className="field h-8 w-[7.5rem] shrink-0 py-0 text-xs"
           value={sim.speed}
           onChange={(e) => setSim({ speed: Number(e.target.value) })}
           aria-label={t.sim.speed}
@@ -67,7 +70,7 @@ export function SimulationBar() {
         >
           {SPEEDS.map((v) => (
             <option key={v} value={v}>
-              {String(v).replace('.', decimalSep(t))}×
+              {v === 0 ? t.sim.overview : v === 1 ? t.sim.realSpeed : `${v.toLocaleString(t.locale)}×`}
             </option>
           ))}
         </select>

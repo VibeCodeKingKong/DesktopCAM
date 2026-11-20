@@ -109,14 +109,16 @@ function tick(now: number) {
   frame = requestAnimationFrame(tick);
   if (!sim) return;
   const st = useAppStore.getState().sim;
-  const dt = Math.min(0.1, (now - last) / 1000);
+  // Taket hindrar stora hopp efter en paus (t.ex. dold flik) men låter 1× hålla verklig tid vid låg bildfrekvens.
+  const dt = Math.min(0.5, (now - last) / 1000);
   last = now;
   if (assembly) {
     animateAssembly(now);
     return;
   }
   if (st.playing) {
-    const rate = (sim.duration / BASE_PLAYBACK_SECONDS) * st.speed;
+    // speed 0 = översikt (hela körningen på BASE_PLAYBACK_SECONDS), annars gånger verklig hastighet.
+    const rate = st.speed > 0 ? st.speed : sim.duration / BASE_PLAYBACK_SECONDS;
     sim.seek(sim.currentTime + dt * rate);
     if (sim.currentTime >= sim.duration) {
       useAppStore.getState().setSim({ playing: false });

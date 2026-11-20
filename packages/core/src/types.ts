@@ -411,6 +411,8 @@ export interface VCarveToolpath extends ToolpathBase {
   /** Största djup; 0 = materialets tjocklek. Breda partier får plan botten här. */
   flatDepth: number;
   contourStep: number;
+  /** Konturer inåt (standard) eller mittlinjen med varierande djup. */
+  strategy?: 'contours' | 'centerline';
 }
 
 /** V-inlägg: två banor (ficka och plugg) som delar inställningar via groupId. */
