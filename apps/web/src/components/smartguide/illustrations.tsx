@@ -167,7 +167,7 @@ export const IlluExport = () => (
   </Frame>
 );
 
-export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' | 'plasma' }) => (
+export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' | 'plasma' | 'plotter' }) => (
   <svg viewBox="0 0 120 80" className="h-full w-full" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M14 62 34 46h72L86 62z" className="fill-wood/50 stroke-wood" />
     <path d="M14 62v6h72v-6M106 46v6l-20 16" className="stroke-muted" strokeWidth="1.5" />
@@ -178,6 +178,13 @@ export const IlluMachine = ({ kind = 'router' }: { kind?: 'router' | 'laser' | '
       <g>
         <rect x="56" y="24" width="10" height="16" rx="2" className="fill-surface stroke-ink/70" strokeWidth="1.5" />
         <path d="M61 40v8" className="stroke-ink" strokeWidth="2" />
+      </g>
+    ) : kind === 'plotter' ? (
+      <g>
+        {/* Pennhållare med penna som ritar en linje */}
+        <rect x="57" y="22" width="8" height="12" rx="2" className="fill-surface stroke-ink/70" strokeWidth="1.5" />
+        <path d="M59 34h4v10l-2 3-2-3z" className="fill-accent/80 stroke-ink/70" strokeWidth="1" />
+        <path d="M44 56c6-3 10 2 17-3" stroke="currentColor" className="stroke-accent" strokeWidth="1.6" />
       </g>
     ) : kind === 'plasma' ? (
       <g>
@@ -647,4 +654,24 @@ export const IlluFacing = () => (
     <Board />
     <path d="M8 18H152V30H8V42H152V54H8V66H152" stroke="currentColor" strokeWidth="2" className="anim-dash" />
   </Frame>
+);
+
+/** Penplotter: pennan följer en linje. */
+export const IlluPenDraw = () => (
+  <svg viewBox="0 0 160 80" width="160" height="80" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="16" y="10" width="128" height="60" rx="2" className="fill-surface stroke-muted" strokeWidth="1" />
+    <path d="M30 55c12-30 30-30 40-10s28 20 34-8 20-20 26-6" stroke="currentColor" strokeWidth="2" className="anim-dash" />
+  </svg>
+);
+
+/** Penplotter: en form fylls med skraffering. */
+export const IlluPenFill = () => (
+  <svg viewBox="0 0 160 80" width="160" height="80" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="16" y="10" width="128" height="60" rx="2" className="fill-surface stroke-muted" strokeWidth="1" />
+    <circle cx="80" cy="40" r="22" stroke="currentColor" strokeWidth="1.6" />
+    <clipPath id="penfill-clip"><circle cx="80" cy="40" r="22" /></clipPath>
+    <g clipPath="url(#penfill-clip)" stroke="currentColor" strokeWidth="1.2" className="anim-dash">
+      {Array.from({ length: 12 }, (_, i) => <path key={i} d={`M${40 + i * 7} 70 l40 -40`} />)}
+    </g>
+  </svg>
 );

@@ -615,6 +615,36 @@
     "tips": []
   },
   {
+    "id": "paper",
+    "name": "Papper",
+    "category": "paper",
+    "color": "#f7f5ee",
+    "defaultThickness": 1,
+    "router": null,
+    "laser": {
+      "cutSpeed": 2000,
+      "cutPowerPct": 40,
+      "cutPasses": 1,
+      "engraveSpeed": 8000,
+      "engravePowerPct": 8,
+      "chart": [
+        {
+          "thickness": 0.2,
+          "speed": 2500,
+          "passes": 1,
+          "power": 35
+        },
+        {
+          "thickness": 1,
+          "speed": 1500,
+          "passes": 1,
+          "power": 50
+        }
+      ]
+    },
+    "tips": []
+  },
+  {
     "id": "cardboard",
     "name": "Kartong",
     "category": "paper",

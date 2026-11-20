@@ -4,7 +4,7 @@
  */
 
 export type Units = 'mm' | 'inch';
-export type MachineKind = 'router' | 'laser' | 'plasma';
+export type MachineKind = 'router' | 'laser' | 'plasma' | 'plotter';
 export type FirmwareFlavor = 'grbl' | 'marlin';
 
 export interface Vec2 {
@@ -56,6 +56,8 @@ export interface MachineProfile {
   laser?: { opticalPowerW: number; sMax: number };
   /** Plasmaskärare: motoriserad Z-axel, höjdavkänning och aggregatets största ström. */
   plasma?: { zAxis: boolean; ihs: boolean; maxAmps: number };
+  /** Penplotter: pennans höjd uppe och nere (Z, mm) och väntetid efter att den sänkts (s). */
+  plotter?: { penUp: number; penDown: number; penDelay: number };
   postprocessor: PostprocessorConfig;
   /** Användarens egen profil (sparas med projektet). */
   custom?: boolean;
@@ -63,7 +65,7 @@ export interface MachineProfile {
 
 /* ───────────────────────── Verktyg ───────────────────────── */
 
-export type ToolKind = 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma';
+export type ToolKind = 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma' | 'pen';
 
 export interface CuttingParams {
   feedRate: number;
@@ -99,6 +101,8 @@ export interface ToolDefinition {
   units: Units;
   defaults: CuttingParams;
   notes?: string;
+  /** Penna: bläckets färg (#rrggbb), för simuleringen och förhandsvisningen. */
+  color?: string;
   /** Stjärnmarkerad: visas överst i verktygslistorna. */
   favorite?: boolean;
 }
@@ -305,7 +309,7 @@ export function plugGeometry(p: ReliefPlug) {
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */
 
-export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing';
+export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing' | 'penDraw' | 'penFill';
 export type CutSide = 'outside' | 'inside' | 'on';
 export type DitherMethod = 'floyd-steinberg' | 'ordered' | 'threshold';
 
@@ -475,7 +479,30 @@ export interface FacingToolpath extends ToolpathBase {
   overhang: number;
 }
 
+/** Penplotter: pennan följer formernas linjer. */
+export interface PenDrawToolpath extends ToolpathBase {
+  operation: 'penDraw';
+  /** Ordna linjerna för kortast förflyttning med pennan uppe. */
+  optimize: boolean;
+}
+
+/** Penplotter: slutna former fylls med linjer. */
+export interface PenFillToolpath extends ToolpathBase {
+  operation: 'penFill';
+  /** lines: parallella linjer. cross: korsskraffering. offset: konturer som följer formen. */
+  pattern: 'lines' | 'cross' | 'offset';
+  /** Linjernas vinkel i grader (0 = längs X). */
+  angle: number;
+  /** Avstånd mellan linjerna (mm). */
+  spacing: number;
+  /** Rita också formens kontur. */
+  outline: boolean;
+  optimize: boolean;
+}
+
 export type ToolpathConfig =
+  | PenDrawToolpath
+  | PenFillToolpath
   | FacingToolpath
   | InlayToolpath
   | ReliefToolpath

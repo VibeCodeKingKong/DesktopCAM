@@ -225,9 +225,9 @@ const without = <T,>(rec: Record<string, T>, key: string): Record<string, T> => 
   return next;
 };
 
-/** Laser och plasma har egna verktyg; fräsen tar allt annat. */
+/** Laser, plasma och penplotter har egna verktyg; fräsen tar allt annat. */
 export const toolFitsMachine = (tool: ToolDefinition['kind'], machine: MachineProfile['kind']) =>
-  machine === 'laser' ? tool === 'laser' : machine === 'plasma' ? tool === 'plasma' : tool !== 'laser' && tool !== 'plasma';
+  machine === 'laser' ? tool === 'laser' : machine === 'plasma' ? tool === 'plasma' : machine === 'plotter' ? tool === 'pen' : tool !== 'laser' && tool !== 'plasma' && tool !== 'pen';
 
 /** Behåll aktivt verktyg om det passar maskinen, annars välj första som passar. */
 /** Favoriter först, annars bibliotekets ordning. */
@@ -381,7 +381,9 @@ export const useAppStore = create<AppState>()((set, get) => {
     setMachine: (machineId) =>
       set((s) => {
         const m = s.machines.find((x) => x.id === machineId);
-        return { machineId, activeToolId: m ? toolFor(s.tools, s.activeToolId, m.kind) : s.activeToolId };
+        // Till en penplotter: papper i A4 om materialet inte redan är papper.
+        const paper = m?.kind === 'plotter' && s.material.presetId !== 'paper' ? { material: { ...s.material, presetId: 'paper', width: 297, height: 210, thickness: 1 } } : {};
+        return { machineId, activeToolId: m ? toolFor(s.tools, s.activeToolId, m.kind) : s.activeToolId, ...paper };
       }),
     saveMachine: (m) =>
       set((s) => ({
@@ -548,10 +550,11 @@ export const useSelectedToolpath = () => useAppStore((s) => s.toolpaths.find((t)
  * skärdata som styva (Shapeoko, LongMill, Onefinity, 4040), och lasrar skiljer
  * sig mycket mellan 10 W och 20–40 W.
  */
-export type MachineClass = 'routerLight' | 'routerRigid' | 'laserLow' | 'laserHigh' | 'plasma';
+export type MachineClass = 'routerLight' | 'routerRigid' | 'laserLow' | 'laserHigh' | 'plasma' | 'plotter';
 export function machineClass(m: MachineProfile): MachineClass {
   if (m.kind === 'laser') return (m.laser?.opticalPowerW ?? 0) >= 20 ? 'laserHigh' : 'laserLow';
   if (m.kind === 'plasma') return 'plasma';
+  if (m.kind === 'plotter') return 'plotter';
   return m.maxFeed.xy >= 3000 || /4040|shapeoko|longmill|onefinity/i.test(m.name) ? 'routerRigid' : 'routerLight';
 }
 

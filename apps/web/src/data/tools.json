@@ -576,5 +576,89 @@
       "stepOver": 1
     },
     "notes": "För tunn plåt upp till ca 3 mm, 25–45 A. Smalare snitt och mindre fasning."
+  },
+  {
+    "id": "pen-fineliner-03",
+    "name": "Fineliner 0,3 mm svart",
+    "kind": "pen",
+    "diameter": 0.3,
+    "color": "#1f2328",
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1500,
+      "plungeRate": 600,
+      "stepDown": 0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "pen-fineliner-05",
+    "name": "Fineliner 0,5 mm svart",
+    "kind": "pen",
+    "diameter": 0.5,
+    "color": "#1f2328",
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1500,
+      "plungeRate": 600,
+      "stepDown": 0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "pen-ballpoint-07",
+    "name": "Kulspetspenna 0,7 mm blå",
+    "kind": "pen",
+    "diameter": 0.7,
+    "color": "#1d4ed8",
+    "units": "mm",
+    "defaults": {
+      "feedRate": 2000,
+      "plungeRate": 600,
+      "stepDown": 0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "pen-gel-08-red",
+    "name": "Gelpenna 0,8 mm röd",
+    "kind": "pen",
+    "diameter": 0.8,
+    "color": "#dc2626",
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1200,
+      "plungeRate": 600,
+      "stepDown": 0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "pen-marker-20",
+    "name": "Märkpenna 2 mm svart",
+    "kind": "pen",
+    "diameter": 2.0,
+    "color": "#111827",
+    "units": "mm",
+    "defaults": {
+      "feedRate": 1200,
+      "plungeRate": 600,
+      "stepDown": 0,
+      "stepOver": 1
+    }
+  },
+  {
+    "id": "pen-gold-10",
+    "name": "Lackpenna 1 mm guld",
+    "kind": "pen",
+    "diameter": 1.0,
+    "color": "#c8a23a",
+    "units": "mm",
+    "defaults": {
+      "feedRate": 800,
+      "plungeRate": 600,
+      "stepDown": 0,
+      "stepOver": 1
+    }
   }
 ]

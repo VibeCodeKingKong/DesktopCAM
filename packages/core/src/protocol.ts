@@ -2,6 +2,7 @@
  * Meddelandeprotokoll mellan UI-tråden och CAM-workern.
  * Allt här måste vara strukturkloningsbart (inga funktioner/klasser).
  */
+import type { PlotterJob } from './plotter';
 import type { ImportFormat, ImportOptions, ImportResult } from './import/types';
 import type { VCarveJob } from './vcarve';
 import type { RouterProfileJob } from './profileStrategy';
@@ -123,6 +124,7 @@ export type CamRequest =
   | { type: 'pocket'; job: PocketJob }
   | { type: 'drill'; job: DrillJob }
   | { type: 'facing'; job: FacingJob }
+  | { type: 'plotter'; job: PlotterJob }
   | { type: 'vcarve'; job: VCarveJob }
   | { type: 'routerProfile'; job: RouterProfileJob }
   | { type: 'plasma'; job: PlasmaJob }
@@ -161,6 +163,7 @@ export interface CamResponseMap {
   pocket: ToolpathPayload;
   drill: ToolpathPayload;
   facing: ToolpathPayload;
+  plotter: ToolpathPayload;
   vcarve: ToolpathPayload;
   routerProfile: ToolpathPayload;
   plasma: ToolpathPayload;

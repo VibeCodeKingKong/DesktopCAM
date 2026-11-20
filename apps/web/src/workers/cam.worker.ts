@@ -7,6 +7,7 @@ import {
   plasmaGcode,
   drillGcode,
   facingGcode,
+  plotterGcode,
   importVectorFile,
   offsetShapes,
   parseGcode,
@@ -92,6 +93,14 @@ async function handle(engine: CamEngine, request: CamRequest, progress: Progress
       const gcode = plasmaGcode(request.job);
       progress(0.8, 'preview');
       const small = compact(gcode, request);
+      const preview = parseGcode(small);
+      const result: ToolpathPayload = { gcode: small, preview };
+      return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
+    }
+    case 'plotter': {
+      progress(0.1, 'gcode');
+      const small = compact(plotterGcode(request.job), request);
+      progress(0.8, 'preview');
       const preview = parseGcode(small);
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };

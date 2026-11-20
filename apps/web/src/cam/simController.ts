@@ -82,9 +82,14 @@ let drawn: number[] = [];
 
 function draw() {
   if (!scene || !sim) return;
+  // Bläckets färg per bana (penplotter), i samma linjära färgrymd som scenen.
+  const inks = sim.jobs.map((j) => (j.ink ? hexRgb(j.ink) : null));
+  const hasInk = inks.some(Boolean);
   sim.stocks.forEach((st, i) => {
     if (st.sim.version === drawn[i]) return;
-    scene!.updateSimulation(i, st.sim.displayHeights(), st.sim.burn, st.sim.nx, st.sim.ny, st.sim.material.thickness, st.sim.tabMark);
+    const ink = st.sim.ink;
+    const paint = hasInk ? (k: number) => (ink[k] ? inks[ink[k] - 1] : null) : undefined;
+    scene!.updateSimulation(i, st.sim.displayHeights(), st.sim.burn, st.sim.nx, st.sim.ny, st.sim.material.thickness, st.sim.tabMark, paint);
     drawn[i] = st.sim.version;
   });
   const done = sim.currentTime >= sim.duration;

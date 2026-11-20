@@ -16,6 +16,47 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.27.0',
+    date: '2026-11-20',
+    text: {
+      sv: [
+        "Ny maskintyp: penplotter. MPCNC, LowRider eller en GRBL-maskin med pennhållare på Z-axeln – pennan lyfts och sänks med Z, med inställbar höjd uppe och nere och väntetid efter sänkning.",
+        "Nya banor för pennan: Rita följer formernas linjer (även text), och Fyllning fyller slutna former med linjer, korsskraffering eller konturer. Ritordningen optimeras så att pennan flyttas så lite som möjligt i luften.",
+        "Pennor i verktygsbiblioteket med spetsbredd och bläckfärg, papper som material med pappersformat (A5–A2, Letter), och simuleringen visar bläcket i pennans färg. Flera färger: lägg dem i olika lager och spara en fil per lager eller med paus för pennbyte.",
+      ],
+      en: [
+        "New machine type: pen plotter. MPCNC, LowRider or a GRBL machine with a pen holder on the Z axis – the pen is raised and lowered with Z, with adjustable up and down heights and a delay after lowering.",
+        "New pen toolpaths: Draw follows the shapes’ lines (text too), and Fill fills closed shapes with lines, cross-hatching or contours. The drawing order is optimised so the pen moves as little as possible in the air.",
+        "Pens in the tool library with tip width and ink colour, paper as a material with paper sizes (A5–A2, Letter), and the simulation shows the ink in the pen’s colour. Several colours: put them on different layers and save one file per layer or with a pause for pen changes.",
+      ],
+      fr: [
+        "Nouveau type de machine : traceur à stylo. MPCNC, LowRider ou une machine GRBL avec porte-stylo sur l’axe Z – le stylo monte et descend avec Z, avec hauteurs réglables et une pause après la descente.",
+        "Nouveaux parcours au stylo : Dessiner suit les lignes des formes (texte compris), et Remplissage remplit les formes fermées de lignes, de hachures croisées ou de contours. L’ordre de tracé est optimisé pour que le stylo se déplace le moins possible en l’air.",
+        "Stylos dans la bibliothèque d’outils avec largeur de pointe et couleur d’encre, papier comme matériau avec formats (A5–A2, Letter), et la simulation montre l’encre dans la couleur du stylo. Plusieurs couleurs : placez-les sur des calques différents et enregistrez un fichier par calque ou avec une pause pour changer de stylo.",
+      ],
+      de: [
+        "Neuer Maschinentyp: Stiftplotter. MPCNC, LowRider oder eine GRBL-Maschine mit Stifthalter an der Z-Achse – der Stift wird mit Z gehoben und gesenkt, mit einstellbaren Höhen und einer Pause nach dem Absenken.",
+        "Neue Stiftbahnen: Zeichnen folgt den Linien der Formen (auch Schrift), Füllung füllt geschlossene Formen mit Linien, Kreuzschraffur oder Konturen. Die Zeichenreihenfolge wird optimiert, damit der Stift möglichst wenig in der Luft fährt.",
+        "Stifte in der Werkzeugbibliothek mit Spitzenbreite und Tintenfarbe, Papier als Material mit Formaten (A5–A2, Letter), und die Simulation zeigt die Tinte in der Farbe des Stifts. Mehrere Farben: auf verschiedene Ebenen legen und eine Datei pro Ebene oder mit Pause zum Stiftwechsel speichern.",
+      ],
+      es: [
+        "Nuevo tipo de máquina: plóter de bolígrafo. MPCNC, LowRider o una máquina GRBL con portabolígrafos en el eje Z: el bolígrafo sube y baja con Z, con alturas ajustables y pausa tras bajar.",
+        "Nuevas trayectorias de bolígrafo: Dibujar sigue las líneas de las formas (también texto) y Relleno rellena formas cerradas con líneas, sombreado cruzado o contornos. El orden de dibujo se optimiza para que el bolígrafo se mueva lo menos posible en el aire.",
+        "Bolígrafos en la biblioteca con ancho de punta y color de tinta, papel como material con tamaños (A5–A2, Letter), y la simulación muestra la tinta en el color del bolígrafo. Varios colores: póngalos en capas distintas y guarde un archivo por capa o con pausa para cambiar de bolígrafo.",
+      ],
+      pl: [
+        "Nowy typ maszyny: ploter z pisakiem. MPCNC, LowRider lub maszyna GRBL z uchwytem pisaka na osi Z – pisak podnoszony i opuszczany osią Z, z regulowanymi wysokościami i pauzą po opuszczeniu.",
+        "Nowe ścieżki pisaka: Rysuj podąża za liniami kształtów (także tekstem), a Wypełnienie wypełnia zamknięte kształty liniami, kreskowaniem krzyżowym lub konturami. Kolejność rysowania jest optymalizowana, by pisak jak najmniej poruszał się w powietrzu.",
+        "Pisaki w bibliotece narzędzi z szerokością końcówki i kolorem tuszu, papier jako materiał z formatami (A5–A2, Letter), a symulacja pokazuje tusz w kolorze pisaka. Kilka kolorów: umieść je na różnych warstwach i zapisz plik na warstwę lub z pauzą na zmianę pisaka.",
+      ],
+      uk: [
+        "Новий тип верстата: плотер із ручкою. MPCNC, LowRider або верстат GRBL з тримачем ручки на осі Z – ручка піднімається й опускається віссю Z, з налаштовуваними висотами та паузою після опускання.",
+        "Нові траєкторії ручки: «Малювати» йде лініями фігур (і текстом), а «Заповнення» заповнює замкнені фігури лініями, перехресним штрихуванням або контурами. Порядок малювання оптимізується, щоб ручка якнайменше рухалася в повітрі.",
+        "Ручки в бібліотеці інструментів із шириною стрижня й кольором чорнила, папір як матеріал з форматами (A5–A2, Letter), а симуляція показує чорнило кольором ручки. Кілька кольорів: розмістіть їх на різних шарах і зберігайте файл на шар або з паузою для заміни ручки.",
+      ],
+    },
+  },
+  {
     version: '0.26.0',
     date: '2026-11-19',
     text: {

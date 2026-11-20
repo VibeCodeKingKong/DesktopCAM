@@ -9,6 +9,10 @@ import {
   transformShape,
   type VCarveJob,
   type DrillJob,
+  type PlotterJob,
+  defaultPlotterSettings,
+  hatchLines,
+  offsetFill,
   type FacingJob,
   type PocketJob,
   type PolylineInput,
@@ -68,6 +72,10 @@ export async function computeToolpath(id: string): Promise<void> {
         break;
       case 'drill':
         payload = await camClient.request({ type: 'drill', job: buildDrillJob(tp) }, { onProgress });
+        break;
+      case 'penDraw':
+      case 'penFill':
+        payload = await camClient.request({ type: 'plotter', job: buildPlotterJob(tp) }, { onProgress });
         break;
       case 'facing':
         payload = await camClient.request({ type: 'facing', job: buildFacingJob(tp) }, { onProgress });
@@ -185,6 +193,34 @@ function buildPlasmaJob(tp: ToolpathConfig): PlasmaJob {
       // Strömstyrkan ställs in på aggregatet – skriv den i filen som påminnelse.
       header: [`; Plasma: ${tp.amps} A, kerf ${tp.kerf} mm`, ...machine.postprocessor.header],
     },
+  };
+}
+
+/** Penplotter: linjerna att rita – formernas linjer, eller fyllningen av de slutna formerna. */
+function buildPlotterJob(tp: ToolpathConfig): PlotterJob {
+  if (tp.operation !== 'penDraw' && tp.operation !== 'penFill') throw new Error('NOT_IMPLEMENTED');
+  const machine = getMachine();
+  const groups = groupsOf(shapesOf(tp));
+  let paths: PolylineInput[];
+  if (tp.operation === 'penDraw') paths = groups.flat();
+  else {
+    const closed = groups.map((g) => g.filter((p) => p.closed)).filter((g) => g.length);
+    if (!closed.length) throw new Error('NO_CLOSED');
+    const tool = useAppStore.getState().tools.find((t) => t.id === tp.toolId);
+    const width = tool?.diameter ?? 0.5;
+    paths =
+      tp.pattern === 'offset'
+        ? offsetFill(closed, tp.spacing, tp.outline ? tp.spacing : width / 2)
+        : [...hatchLines(closed, tp.spacing, tp.angle), ...(tp.pattern === 'cross' ? hatchLines(closed, tp.spacing, tp.angle + 90) : [])];
+    if (tp.outline) paths = [...closed.flat(), ...paths];
+  }
+  return {
+    paths,
+    optimize: tp.optimize,
+    settings: machine.plotter ?? defaultPlotterSettings(),
+    feedRate: tp.params.feedRate,
+    plungeRate: tp.params.plungeRate || 600,
+    post: machine.postprocessor,
   };
 }
 

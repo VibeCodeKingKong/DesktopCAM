@@ -11,7 +11,7 @@ export type GuideEntry = { title: string; body: string; steps?: string[] };
 export type GuideKey =
   | 'cutDepth' | 'stepDown' | 'stepOver' | 'feedRate' | 'plungeRate' | 'spindleRpm' | 'cutSide'
   | 'laserPower' | 'laserSpeed' | 'passes' | 'kerf' | 'dither' | 'lineInterval' | 'safeZ' | 'thickness'
-  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'bumpMap' | 'snap'
+  | 'reliefDepth' | 'reliefStepOver' | 'roughing' | 'allowance' | 'importUnits' | 'importJoin' | 'peck' | 'pointAngle' | 'facingArea' | 'facingDepth' | 'facingPattern' | 'facingOverhang' | 'bumpMap' | 'penHeights' | 'pathOrder' | 'hatchSpacing' | 'snap'
   | 'inlay' | 'inlayPocketDepth' | 'startDepth' | 'plugDepth' | 'contourStep' | 'vFlatDepth' | 'plugMargin'
   | 'profileStrategy' | 'profileAllowance' | 'cutDirection' | 'rampEntry' | 'tabs' | 'onionSkin' | 'pocketStrategy' | 'pocketPattern' | 'reliefInlay'
   | 'plasmaAmps' | 'plasmaKerf' | 'pierceHeight' | 'pierceDelay' | 'cutHeight' | 'plasmaIhs' | 'plasmaLead' | 'plasmaOvercut' | 'holeSlowdown' | 'plasmaThc' | 'plasmaDirection' | 'plasmaCorner' | 'gcodeArcs';
@@ -66,6 +66,7 @@ export const sv = {
   },
 
   groups: {
+    plotter: "Penplotter",
     modify: 'Ändra',
     simulation: 'Simulering',
     project: 'Projekt',
@@ -124,6 +125,8 @@ export const sv = {
     pocket: { label: 'Ficka', title: 'Ficka', desc: 'Fräser bort allt material innanför formen till ett jämnt djup. Öar och hål lämnas kvar.' },
     drill: { label: 'Borrning', title: 'Borrning', desc: 'Borrar hål i mitten av markerade cirklar, med hackborrning för djupa hål.' },
     facing: { label: "Planfräs", title: "Planfräsning", desc: "Jämnar ämnets ovansida eller offerbordet med grunda, breda pass. Utan markering planas hela ämnet; med markerade former bara deras yta." },
+    penDraw: { label: "Rita", title: "Rita med penna", desc: "Pennan följer formernas linjer – även öppna linjer och enkellinjig text. Linjerna ordnas så att pennan flyttas så lite som möjligt i luften." },
+    penFill: { label: "Fyllning", title: "Fyll med penna", desc: "Fyller slutna former med parallella linjer, korsskraffering eller konturer som följer formen." },
     vcarve: { label: 'V-gravyr', title: 'V-gravyr', desc: 'En V-fräs går djupare där formen är bred – ger skarpa hörn och skyltlik text. Breda partier får plan botten.' },
     inlay: { label: 'Inlägg', title: 'V-inlägg (inlay)', desc: 'Skapar en ficka i grundträet och en spegelvänd plugg i ett kontrastträ som limmas ner i fickan och planas av. Kräver en V-fräs.' },
     laserCut: { label: 'Laser­skärning', title: 'Laserskärning', desc: 'Skär längs konturen med kerf-kompensation så att måtten blir exakta.' },
@@ -142,6 +145,7 @@ export const sv = {
   } satisfies Record<string, Tip>,
 
   reasons: {
+    needsPlotter: "Kräver en penplotter. Byt maskin under Inställning.",
     duringSim: "Gäller inte under simuleringen – avsluta simuleringen för att visa eller dölja.",
     needsRouter: 'Kräver en fräs. Byt maskin under Inställning.',
     needsLaser: 'Kräver en laser. Byt maskin under Inställning.',
@@ -160,6 +164,8 @@ export const sv = {
     size: 'Bredd × höjd',
     zZero: 'Nollpunkt Z',
     zTop: 'Materialets ovansida',
+    paperSize: "Pappersformat",
+    paperCustom: "Eget format",
     activeTool: 'Aktivt verktyg',
     laserPower: 'Lasereffekt',
     sScale: 'S-skala',
@@ -275,6 +281,16 @@ export const sv = {
     allowance: 'Lämna material',
     drillDepth: 'Borrdjup',
     peck: 'Hackdjup',
+    drawSpeed: "Ritfart",
+    penDownSpeed: "Fart när pennan sänks",
+    plotter: "Penplotter",
+    optimizePaths: "Optimera ritordningen",
+    fill: "Fyllning",
+    fillPattern: "Mönster",
+    hatchSpacing: "Linjeavstånd",
+    hatchAngle: "Vinkel",
+    drawOutline: "Rita konturen",
+    fillPatterns: { lines: "Linjer", cross: "Kors", offset: "Konturer" },
     facing: "Planfräsning",
     facingArea: "Yta",
     facingStock: "Hela ämnet",
@@ -691,6 +707,8 @@ export const sv = {
     laserCommon: ['Kör en provgravyr i ett hörn för att hitta rätt effekt och hastighet.'],
     plasma: ['Jorda arbetsstycket med jordklämman nära skärområdet – dålig jord ger ojämn båge.', 'Skär hål och innerkonturer först; ytterkonturen sist så att detaljen inte tippar.', 'Byt munstycke och elektrod när snittet blir snett eller brett – slitna delar ger fasning.', 'Kör ett provsnitt och mät detaljen – justera snittbredden tills måtten stämmer.'],
     plasmaCommon: ['Använd skyddsglasögon med svetsfilter (nyans 5–8), handskar och god ventilation – röken från metall är farlig.', 'Ha brandsläckare nära, och inget brännbart under eller runt bordet.'],
+    plotter: ["Fäst papperet plant med tejp eller magneter – en bubbla ger hackiga linjer.", "Ställ Z-nollan där pennspetsen precis nuddar papperet.", "Använd en fjädrande pennhållare, så jämnar den ut ojämnheter i papperet.", "Gör en provritning i ett hörn för att hitta rätt höjd och fart."],
+    plotterCommon: ["Byt färg per lager – spara G-koden en fil per lager, eller med paus för pennbyte."],
   },
   materialTips: (m: string, kind: string) => `Tips för ${m.toLowerCase()} med ${kind === 'laser' ? 'laser' : kind === 'plasma' ? 'plasma' : 'fräs'}`,
 
@@ -847,6 +865,7 @@ export const sv = {
     needRouter: (op: string) => `${op} kräver en fräs – byt maskin under Inställning`,
     needLaser: (op: string) => `${op} kräver en laser – byt maskin under Inställning`,
     needPlasma: (op: string) => `${op} kräver en plasmaskärare – byt maskin under Inställning`,
+    needPlotter: (op: string) => `${op} kräver en penplotter – byt maskin under Inställning`,
     needsPlasmaTool: 'Plasmaskärning kräver en plasmabrännare i verktygsbiblioteket',
     notForPlasma: (m: string) => `${m} leder inte ström och kan inte plasmaskäras – välj stål, rostfritt eller aluminium`,
     laserTooThick: (m: string, t: number) => `${m} ${t} mm är för tjockt för lasern – skär tunnare material eller använd fräs`,
@@ -1002,6 +1021,12 @@ export const sv = {
     kindRouter: 'CNC-fräs',
     kindLaser: 'Lasergravyr och skärning',
     kindPlasma: 'Plasmaskärning',
+    kindPlotter: "Penplotter",
+    penUp: "Penna uppe (Z)",
+    penDown: "Penna nere (Z)",
+    penDelay: "Väntetid efter sänkning",
+    penWidth: "Spetsbredd",
+    penColor: "Bläckfärg",
     plasmaZ: 'Motoriserad Z-axel',
     plasmaIhs: 'Höjdavkänning (IHS)',
     plasmaAmps: 'Max ström',
@@ -1030,6 +1055,12 @@ export const sv = {
         { title: "Läder och kartong", text: "Låg effekt och hög hastighet – det bränns lätt igenom. Testa på en spillbit först.", materials: ["leather", "cardboard"] },
         { title: "Akryl", text: "En diodlaser skär inte klar eller blå akryl, bara mörka och ogenomskinliga färger.", materials: ["acrylic"] },
         { title: "Metall och sten", text: "En diodlaser skär inte metall. Gravyr fungerar på skiffer, anodiserad aluminium eller med markeringsspray.", materials: ["aluminium", "mild-steel", "stainless", "slate"] },
+      ],
+      plotter: [
+        { title: "Fineliner 0,3–0,5 mm", text: "Fina linjer, text och detaljer. Rita i 1 000–2 000 mm/min.", materials: ["paper"] },
+        { title: "Kulspetspenna", text: "Tål högre fart och lite tryck – sänk pennan något under papperet (t.ex. −0,5 mm) med fjädrande hållare." },
+        { title: "Gel- och lackpennor", text: "Rita långsammare (800–1 200 mm/min) så att bläcket hinner flyta, och låt torka innan nästa färg." },
+        { title: "Märkpennor", text: "Breda linjer till fyllningar och skyltar – ställ linjeavståndet i fyllningen till ungefär spetsens bredd." },
       ],
       plasma: [
         { title: "Tunn plåt 1–3 mm", text: "Finmunstycke ger smalare kerf och renare hål. Lägre ström och hög hastighet minskar värmeslaget." },
@@ -1068,9 +1099,9 @@ export const sv = {
     addTool: 'Nytt verktyg',
     newToolName: 'Nytt verktyg',
     editTool: 'Redigera verktyg',
-    toolKinds: { endmill: 'Pinnfräs', ballnose: 'Kulfräs', vbit: 'V-fräs', drill: 'Borr', laser: 'Laser', plasma: 'Plasmabrännare' } satisfies Record<ToolKind, string>,
+    toolKinds: { endmill: 'Pinnfräs', ballnose: 'Kulfräs', vbit: 'V-fräs', drill: 'Borr', laser: 'Laser', plasma: 'Plasmabrännare', pen: "Penna" } satisfies Record<ToolKind, string>,
     select: 'Välj maskin',
-    machineGroups: { router: 'Fräsar', laser: 'Lasrar', plasma: 'Plasmaskärare', custom: 'Egna profiler' },
+    machineGroups: { router: 'Fräsar', laser: 'Lasrar', plasma: 'Plasmaskärare', plotter: "Penplottrar", custom: 'Egna profiler' },
     deleteProfile: 'Ta bort profil',
     builtInNote: 'Förinställd maskin. Vill du ändra den och spara som en egen variant – tryck på Ny profil.',
     customNote: 'Egen profil. Den sparas med projektet.',
@@ -1125,6 +1156,8 @@ export const sv = {
     inlay: 'Inlägg',
     plasmaCut: 'Plasmaskärning',
     facing: "Planfräsning",
+    penDraw: "Rita",
+    penFill: "Fyllning",
   } satisfies Record<OperationType, string>,
   inlayParts: { pocket: 'ficka', plug: 'plugg' },
   lineEngrave: 'Linjegravyr',
@@ -1139,6 +1172,7 @@ export const sv = {
     leather: { name: "Läder (vegetabiliskt garvat)", tips: { router: ["Läder fräses sällan – skär hellre med laser eller kniv.", "Fäst lädret med dubbelhäftande tejp om du ändå fräser."], laser: ["Använd bara kromfritt (vegetabiliskt garvat) läder i laser.", "Fukta ytan lätt för jämnare gravyr.", "Lägre effekt och fler pass ger mindre brända kanter."], plasma: ['Kan inte plasmaskäras – plasma kräver ett material som leder ström.'] } },
     oak: { name: "Ek", tips: { router: ["Hårt och tätt – sänk matningen något jämfört med furu.", "Garvsyran i ek kan missfärga stålverktyg vid fukt.", "Ek passar utmärkt för V-gravyr och inlägg med ljust trä."], laser: ["Ek graveras mörkt och med hög kontrast.", "Skärning går långsamt – tjock ek kräver flera pass."], plasma: ['Kan inte plasmaskäras – plasma kräver ett material som leder ström.'] } },
     walnut: { name: "Valnöt", tips: { router: ["Medelhårt och lättfräst – ger rena kanter och fina detaljer.", "Mörkt trä som ger stark kontrast mot ljust trä – klassiskt i inlägg.", "Valnötsdamm kan irritera huden och luftvägarna – använd utsug."], laser: ["Valnöt graveras mörkt men kontrasten är lägre än i ljust trä.", "Skärs ungefär som ek – flera pass för tjockare skivor."], plasma: ['Kan inte plasmaskäras – plasma kräver ett material som leder ström.'] } },
+    paper: { name: "Papper", tips: { router: ["Papper fräses inte – använd en laser eller en penplotter."], laser: ["Låg effekt och hög fart – papper brinner lätt.", "Testa på en bit först."], plasma: ['Kan inte plasmaskäras – plasma kräver ett material som leder ström.'] } },
     'mild-steel': { name: 'Stål (konstruktionsstål)', tips: { router: ['Stål kan inte fräsas på hobbyfräsar – skär med plasma.'], laser: ['En diodlaser märker inte blankt stål utan märkspray.'], plasma: ['Rätt hastighet ger en jämn gnistkvast som lutar lite bakåt och nästan ingen slagg.', 'Slagg i pärlor på undersidan: för långsamt. Slagg som är svår att få bort: för snabbt.', 'Tjock plåt: håll inlöpet minst lika långt som plåten är tjock.'] } },
     aluminium: { name: "Aluminium", tips: { router: ["Använd enskärsfräs, grunda pass (cirka 0,3 mm) och luft eller smörjning så att spånen inte svetsar fast.", "Spänn fast ordentligt – aluminium får inte vibrera.", "Kräver en styv maskin; på lätta maskiner som MPCNC och 3018 blir det sällan bra."], laser: ["Diodlasrar kan inte skära aluminium.", "Anodiserad aluminium graveras bra – färgen bränns bort.", "Blank aluminium märks inte utan märkspray."], plasma: ['Aluminium skärs snabbare än stål men ger mer slagg på undersidan.', 'Rengör ytan från oxid och fett där jordklämman sitter.'] } },
     stainless: { name: "Rostfritt stål", tips: { router: ["Stål kan inte fräsas på hobbyfräsar – använd laser för märkning."], laser: ["En diodlaser märker inte blankt stål. Spraya på märkspray (t.ex. LMM eller CerMark), gravera och tvätta av resten.", "Märkning utan spray kräver en fiberlaser."], plasma: ['Rostfritt skärs något långsammare än stål och missfärgas nära snittet.', 'Med luft blir snittkanten mörk – slipa om ytan ska vara blank.'] } },
@@ -1147,6 +1181,12 @@ export const sv = {
   } as Record<string, { name: string; tips: { router: string[]; laser: string[]; plasma: string[] } }>,
 
   tools: {
+    "pen-fineliner-03": "Fineliner 0,3 mm svart",
+    "pen-fineliner-05": "Fineliner 0,5 mm svart",
+    "pen-ballpoint-07": "Kulspetspenna 0,7 mm blå",
+    "pen-gel-08-red": "Gelpenna 0,8 mm röd",
+    "pen-marker-20": "Märkpenna 2 mm svart",
+    "pen-gold-10": "Lackpenna 1 mm guld",
     'em-3175-2f': 'Pinnfräs 3,175 mm, 2 skär',
     'em-6-2f': 'Pinnfräs 6 mm, 2 skär',
     'bn-3175': 'Kulfräs 3,175 mm',
@@ -1210,6 +1250,9 @@ export const sv = {
       facingPattern: { title: "Mönster", body: "Sicksack fräser fram och tillbaka och är snabbast. Enkelriktat fräser åt samma håll varje rad och lyfter mellan raderna – det ger samma spånbildning hela vägen och en jämnare yta.", steps: ["Offerbord och grovplaning: Sicksack.", "Synlig yta i fint trä: Enkelriktat."] },
       facingOverhang: { title: "Överhäng vid kanten", body: "Hur långt fräsens kant går förbi ytan i radernas ändar. Fräsen går ner utanför materialet och lämnar rena kanter utan märken.", steps: ["2 mm räcker normalt.", "Se till att det finns plats för fräsen utanför ämnet – klämmor får inte stå där."] },
       bumpMap: { title: "Bump mapping", body: "Lägger bildens fina detaljer – struktur, hår, ådring, tyg, text – som en tunn yta ovanpå reliefens form. Formen kan då utjämnas mycket för en mjuk yta medan detaljerna förblir skarpa.", steps: ["Styrka: hur djupa detaljerna blir. 100 % = ±halva reliefdjupet; 20–50 % räcker oftast.", "Detaljstorlek: största detalj som räknas som struktur. Litet värde = bara fin struktur, större = även grövre former.", "Fräs med liten kulfräs (1–2 mm) och liten sidstegning, annars försvinner detaljerna.", "Med Platt bakgrund förblir bakgrunden slät."] },
+      penHeights: { title: "Pennans höjd", body: "Z-nollan ställs där pennspetsen precis nuddar papperet. Penna nere är lite under nollan, så att en fjädrande hållare trycker pennan mot papperet. Penna uppe är höjden när pennan flyttas mellan linjerna.", steps: ["Penna nere: −0,3 till −1 mm med fjädrande hållare, 0 med fast hållare.", "Penna uppe: 2–5 mm räcker – högre tar längre tid.", "Hoppar linjerna eller blir de bleka? Sänk pennan lite till."] },
+      pathOrder: { title: "Optimera ritordningen", body: "Linjerna ritas i en ordning där nästa linje börjar närmast där förra slutade, och linjer vänds om det är kortare. Linjer som möts ritas utan att pennan lyfts. Det kan halvera tiden.", steps: ["Stäng av om linjerna måste ritas i en viss ordning, t.ex. när bläcket ska torka."] },
+      hatchSpacing: { title: "Linjeavstånd", body: "Avståndet mellan linjerna i fyllningen. Lika med spetsens bredd ger en täckande yta; större avstånd ger synliga linjer och går fortare.", steps: ["Täckande: ungefär spetsens bredd.", "Skraffering: 2–4 × spetsens bredd.", "Korsskraffering ger mörkare ton med samma avstånd."] },
       inlay: { title: 'Så gör du ett inlägg', body: 'Ett V-inlägg består av två delar som fräses med samma V-fräs: en ficka i grundträet och en spegelvänd plugg i ett trä med annan färg.', steps: ['Fräs fickan i grundträet.', 'Fräs pluggen i inläggsträet med samma nollpunkt.', 'Stryk lim i fickan, vänd pluggen och pressa ner den med tving.', 'När limmet torkat: såga eller hyvla bort överskottet och slipa plant.'] },
       inlayPocketDepth: { title: 'Fickdjup', body: 'Fickans största djup. Breda partier får plan botten här, smala partier blir V-formade.', steps: ['5–6 mm är ett bra startvärde.', 'Fickdjupet ska vara större än pluggens startdjup.'] },
       startDepth: { title: 'Startdjup', body: 'Hur långt ner i fickan pluggen sjunker innan väggarna möts. Skillnaden mot fickdjupet blir limspalt under pluggen.', steps: ['Ungefär halva fickdjupet ger gott om plats för lim.'] },

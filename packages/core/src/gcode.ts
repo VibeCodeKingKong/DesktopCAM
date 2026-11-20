@@ -60,6 +60,8 @@ export function parseGcode(src: string): GcodePreview {
           else if (value >= 38 && value < 39) probe = true;
           break;
         case 'P':
+        case 'S':
+          // Väntetid i sekunder (G4 P i GRBL, G4 S i Marlin). Annars är S varvtal eller effekt.
           if (dwell) seconds += value;
           break;
         case 'X': nx = value; moved = true; break;

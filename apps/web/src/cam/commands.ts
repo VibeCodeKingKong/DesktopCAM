@@ -49,7 +49,8 @@ import { materialName } from '../i18n';
 
 export const isLaserOperation = (op: OperationType) => op === 'laserCut' || op === 'laserRaster';
 /** Vilken sorts maskin en operation kräver. */
-export const machineKindFor = (op: OperationType): MachineKind => (isLaserOperation(op) ? 'laser' : op === 'plasmaCut' ? 'plasma' : 'router');
+export const isPenOperation = (op: OperationType) => op === 'penDraw' || op === 'penFill';
+export const machineKindFor = (op: OperationType): MachineKind => (isLaserOperation(op) ? 'laser' : op === 'plasmaCut' ? 'plasma' : isPenOperation(op) ? 'plotter' : 'router');
 export const isImplemented = (_op: OperationType) => true;
 
 const status = (msg: string) => useAppStore.getState().setStatus(msg);
@@ -205,7 +206,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   }
   const needed = machineKindFor(operation);
   if (needed !== machine.kind) {
-    status(needed === 'router' ? t.status.needRouter(opName) : needed === 'laser' ? t.status.needLaser(opName) : t.status.needPlasma(opName));
+    status(needed === 'router' ? t.status.needRouter(opName) : needed === 'laser' ? t.status.needLaser(opName) : needed === 'plotter' ? t.status.needPlotter(opName) : t.status.needPlasma(opName));
     return null;
   }
   if (operation === 'relief' && !s.reliefs.length) {
@@ -220,7 +221,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
     status(t.status.drawFirst);
     return null;
   }
-  if ((operation === 'pocket' || operation === 'drill' || operation === 'vcarve' || operation === 'inlay') && !sel.some(shapeHasArea)) {
+  if ((operation === 'pocket' || operation === 'drill' || operation === 'vcarve' || operation === 'inlay' || operation === 'penFill') && !sel.some(shapeHasArea)) {
     status(t.status.needClosed);
     return null;
   }
@@ -235,13 +236,36 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const routerTool = (prefer: string[]) => {
     const active = s.tools.find((x) => x.id === s.activeToolId);
     if (active && prefer.includes(active.kind)) return active;
-    return s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma')!;
+    return s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma' && x.kind !== 'pen')!;
   };
   // Materialets värden skalade efter maskinen, verktygets diameter och antal skär.
   const routerParams = (tool: ReturnType<typeof routerTool>) => ({ ...tool.defaults, ...(routerParamsFor(preset, tool, machine) ?? {}) });
   let tp: ToolpathConfig;
 
   switch (operation) {
+    case 'penDraw':
+    case 'penFill': {
+      const tool = routerTool(['pen']);
+      const params = { ...tool.defaults, feedRate: Math.min(tool.defaults.feedRate, machine.maxFeed.xy), plungeRate: Math.min(tool.defaults.plungeRate || 600, machine.maxFeed.z || 600) };
+      tp =
+        operation === 'penDraw'
+          ? { ...base, operation, name: `${n}. ${opName}`, toolId: tool.id, optimize: true, params }
+          : {
+              ...base,
+              shapeIds: sel.filter(shapeHasArea).map((x) => x.id),
+              operation,
+              name: `${n}. ${opName}`,
+              toolId: tool.id,
+              pattern: 'lines',
+              angle: 45,
+              // Glest nog att se linjerna, tätt nog att se ytan: ca 3 × spetsens bredd.
+              spacing: +Math.max(0.6, tool.diameter * 3).toFixed(1),
+              outline: true,
+              optimize: true,
+              params,
+            };
+      break;
+    }
     case 'facing': {
       // Grövsta pinnfräsen (planfräsen), om inte en grov pinnfräs redan är vald.
       const active = s.tools.find((x) => x.id === s.activeToolId);

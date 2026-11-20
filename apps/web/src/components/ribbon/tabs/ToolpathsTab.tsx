@@ -1,11 +1,11 @@
-import { Zap, CircleDot, Rows3, Combine, Flame, ImagePlus, Layers, Mountain, Scissors, Square, Triangle } from 'lucide-react';
+import { Zap, CircleDot, Rows3, PenLine, Grid3x3, Combine, Flame, ImagePlus, Layers, Mountain, Scissors, Square, Triangle } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonGroup } from '../RibbonGroup';
 import { useAppStore, useMachine } from '../../../store/useAppStore';
 import { createInlay, createLineEngraving, createToolpath, importPhotoForEngraving } from '../../../cam/commands';
 import { useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluDither, IlluDrill, IlluFacing, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPlasma, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
+import { IlluDither, IlluDrill, IlluFacing, IlluPenDraw, IlluPenFill, IlluInlay, IlluLaserCut, IlluLineEngrave, IlluPlasma, IlluPocket, IlluProfile, IlluRelief, IlluVCarve } from '../../smartguide/illustrations';
 
 export function ToolpathsTab() {
   const t = useT();
@@ -18,6 +18,8 @@ export function ToolpathsTab() {
   const needsRouter = notRouter ? t.reasons.needsRouter : undefined;
   const needsLaser = isLaser ? undefined : t.reasons.needsLaser;
   const needsPlasma = isPlasma ? undefined : t.reasons.needsPlasma;
+  const isPlotter = machine.kind === 'plotter';
+  const needsPlotter = isPlotter ? undefined : t.reasons.needsPlotter;
 
   return (
     <>
@@ -37,6 +39,10 @@ export function ToolpathsTab() {
           onClick={() => createToolpath('relief')}
           tooltip={tip(b.relief3d, { illustration: <IlluRelief />, disabledReason: needsRouter ?? (hasRelief ? undefined : t.reasons.needsRelief) })}
         />
+      </RibbonGroup>
+      <RibbonGroup label={t.groups.plotter}>
+        <RibbonButton icon={PenLine} label={b.penDraw.label} disabled={!isPlotter} onClick={() => createToolpath('penDraw')} tooltip={tip(b.penDraw, { illustration: <IlluPenDraw />, disabledReason: needsPlotter })} />
+        <RibbonButton icon={Grid3x3} label={b.penFill.label} disabled={!isPlotter} onClick={() => createToolpath('penFill')} tooltip={tip(b.penFill, { illustration: <IlluPenFill />, disabledReason: needsPlotter })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.plasma}>
         <RibbonButton icon={Zap} label={b.plasmaCut.label} disabled={!isPlasma} onClick={() => createToolpath('plasmaCut')} tooltip={tip(b.plasmaCut, { illustration: <IlluPlasma />, disabledReason: needsPlasma })} />

@@ -28,6 +28,24 @@ export function ToolIcon({ tool, size = 40, dimensions = false }: { tool: ToolDe
       </svg>
     );
   }
+  if (tool.kind === 'pen') {
+    // Penna i bläckets färg, spetsen lika bred som linjen (minst synlig).
+    const ink = tool.color ?? '#1f2328';
+    const tip = Math.max(1.5, Math.min(6, tool.diameter * 3));
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} width={(size * W) / H} height={size} aria-hidden="true">
+        <rect x={cx - 7} y={4} width={14} height={58} rx={3} fill={ink} />
+        <rect x={cx - 7} y={46} width={14} height={8} className="fill-surface/40" />
+        <path d={`M${cx - 7} 62 h14 l-${7 - tip / 2} 22 h-${tip} z`} className="fill-ink/25" />
+        <rect x={cx - tip / 2} y={84} width={tip} height={6} fill={ink} />
+        {dimensions && (
+          <text x={cx + 9} y={94} className="fill-muted text-[7px]">
+            {(+tool.diameter.toFixed(2)).toLocaleString(t.locale)}
+          </text>
+        )}
+      </svg>
+    );
+  }
   if (tool.kind === 'laser') {
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width={(size * W) / H} height={size} aria-hidden="true">

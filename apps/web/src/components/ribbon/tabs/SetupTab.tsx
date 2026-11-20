@@ -25,6 +25,15 @@ function MmInput({ value, onChange, label }: { value: number; onChange: (v: numb
   );
 }
 
+/** Pappersformat (stående, mm). */
+const PAPER_SIZES = [
+  { id: 'A5', w: 148, h: 210 },
+  { id: 'A4', w: 210, h: 297 },
+  { id: 'A3', w: 297, h: 420 },
+  { id: 'A2', w: 420, h: 594 },
+  { id: 'Letter', w: 216, h: 279 },
+];
+
 export function SetupTab() {
   const t = useT();
   const b = t.buttons;
@@ -63,6 +72,7 @@ export function SetupTab() {
                 { label: t.machine.machineGroups.router, options: machines.filter((m) => !m.custom && m.kind === 'router').map((m) => ({ value: m.id, label: m.name })) },
                 { label: t.machine.machineGroups.laser, options: machines.filter((m) => !m.custom && m.kind === 'laser').map((m) => ({ value: m.id, label: m.name })) },
                 { label: t.machine.machineGroups.plasma, options: machines.filter((m) => !m.custom && m.kind === 'plasma').map((m) => ({ value: m.id, label: m.name })) },
+                { label: t.machine.machineGroups.plotter, options: machines.filter((m) => !m.custom && m.kind === 'plotter').map((m) => ({ value: m.id, label: m.name })) },
                 { label: t.machine.machineGroups.custom, options: machines.filter((m) => m.custom).map((m) => ({ value: m.id, label: m.name })) },
               ]}
               onChange={setMachine}
@@ -100,9 +110,26 @@ export function SetupTab() {
               <MmInput value={material.height} onChange={(height) => setMaterial({ height })} label={t.props.height} />
             </div>
           </RibbonField>
-          <RibbonField label={t.setup.zZero}>
-            <p className="text-xs">{t.setup.zTop}</p>
-          </RibbonField>
+          {machine.kind === 'plotter' ? (
+            <RibbonField label={t.setup.paperSize}>
+              <Select
+                value={PAPER_SIZES.find((p) => (p.w === material.width && p.h === material.height) || (p.h === material.width && p.w === material.height))?.id ?? 'custom'}
+                options={[
+                  ...PAPER_SIZES.map((p) => ({ value: p.id, label: `${p.id} · ${p.w} × ${p.h}` })),
+                  { value: 'custom', label: t.setup.paperCustom },
+                ]}
+                onChange={(id) => {
+                  const p = PAPER_SIZES.find((x) => x.id === id);
+                  // Liggande om materialet redan är bredare än högt.
+                  if (p) setMaterial(material.width >= material.height ? { width: p.h, height: p.w } : { width: p.w, height: p.h });
+                }}
+              />
+            </RibbonField>
+          ) : (
+            <RibbonField label={t.setup.zZero}>
+              <p className="text-xs">{t.setup.zTop}</p>
+            </RibbonField>
+          )}
         </RibbonStack>
       </RibbonGroup>
 

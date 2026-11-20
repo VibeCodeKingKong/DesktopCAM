@@ -72,6 +72,7 @@ export function MachineSetupDialog() {
     { label: t.machine.machineGroups.router, items: machines.filter((m) => !m.custom && m.kind === 'router') },
     { label: t.machine.machineGroups.laser, items: machines.filter((m) => !m.custom && m.kind === 'laser') },
     { label: t.machine.machineGroups.plasma, items: machines.filter((m) => !m.custom && m.kind === 'plasma') },
+    { label: t.machine.machineGroups.plotter, items: machines.filter((m) => !m.custom && m.kind === 'plotter') },
     { label: t.machine.machineGroups.custom, items: machines.filter((m) => m.custom) },
   ].filter((g) => g.items.length);
 
@@ -153,7 +154,7 @@ export function MachineSetupDialog() {
             </div>
             <div className="min-w-0 flex-1 space-y-0.5 text-xs">
               <p className="text-sm font-semibold leading-snug">{draft.name}</p>
-              <p className="text-muted">{draft.kind === 'laser' ? t.machine.kindLaser : draft.kind === 'plasma' ? t.machine.kindPlasma : t.machine.kindRouter}</p>
+              <p className="text-muted">{draft.kind === 'laser' ? t.machine.kindLaser : draft.kind === 'plasma' ? t.machine.kindPlasma : draft.kind === 'plotter' ? t.machine.kindPlotter : t.machine.kindRouter}</p>
               <p>{t.machine.workArea(draft.workArea.x, draft.workArea.y)}</p>
               <p className="text-muted">{t.machine.controller(draft.postprocessor.flavor === 'grbl' ? 'GRBL' : 'Marlin')}</p>
               {t.machine.info[draft.id] && <p className="pt-1 leading-relaxed text-muted">{t.machine.info[draft.id]}</p>}
@@ -214,6 +215,13 @@ export function MachineSetupDialog() {
                   <NumberField label={t.machine.plasmaAmps} unit="A" step={5} min={10} value={draft.plasma.maxAmps} onChange={(maxAmps) => set({ plasma: { ...draft.plasma!, maxAmps } })} />
                 </>
               )}
+              {draft.plotter && (
+                <>
+                  <NumberField label={t.machine.penUp} unit="mm" step={0.5} min={0} value={draft.plotter.penUp} hint="penHeights" onChange={(penUp) => set({ plotter: { ...draft.plotter!, penUp } })} />
+                  <NumberField label={t.machine.penDown} unit="mm" step={0.1} min={-5} max={2} value={draft.plotter.penDown} hint="penHeights" onChange={(penDown) => set({ plotter: { ...draft.plotter!, penDown } })} />
+                  <NumberField label={t.machine.penDelay} unit="s" step={0.05} min={0} max={5} value={draft.plotter.penDelay} onChange={(penDelay) => set({ plotter: { ...draft.plotter!, penDelay } })} />
+                </>
+              )}
               {draft.laser && <NumberField label={t.machine.sMax} value={draft.laser.sMax} min={1} onChange={(sMax) => set({ laser: { ...draft.laser!, sMax } })} />}
             </div>
           </section>
@@ -237,7 +245,7 @@ export function MachineSetupDialog() {
                 <p className="text-2xs leading-relaxed text-muted">{t.machine.plasmaCodesHint}</p>
               </>
             )}
-            {draft.kind !== 'laser' && <NumberField label={t.machine.safeZ} unit="mm" value={draft.postprocessor.safeZ} min={0} hint="safeZ" onChange={(safeZ) => setPost({ safeZ })} />}
+            {draft.kind !== 'laser' && draft.kind !== 'plotter' && <NumberField label={t.machine.safeZ} unit="mm" value={draft.postprocessor.safeZ} min={0} hint="safeZ" onChange={(safeZ) => setPost({ safeZ })} />}
             {draft.kind === 'laser' && (
               <FieldRow label={t.machine.dynamicPower}>
                 <Switch checked={draft.postprocessor.laserDynamicPower} onChange={(laserDynamicPower) => setPost({ laserDynamicPower })} label={t.machine.dynamicPower} />
@@ -325,6 +333,7 @@ function ToolTips({ kind }: { kind: MachineKind }) {
 function ToolLibrary({ kind }: { kind: MachineKind }) {
   const laser = kind === 'laser';
   const plasma = kind === 'plasma';
+  const plotter = kind === 'plotter';
   /** Fräsverktyg har skär, längder och spindel – laser och plasma inte. */
   const router = kind === 'router';
   const t = useT();
@@ -350,7 +359,7 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
   useEffect(() => {
     if (editingId) editorRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [editingId]);
-  const kinds: ToolKind[] = laser ? ['laser'] : plasma ? ['plasma'] : ['endmill', 'ballnose', 'vbit', 'drill'];
+  const kinds: ToolKind[] = laser ? ['laser'] : plasma ? ['plasma'] : plotter ? ['pen'] : ['endmill', 'ballnose', 'vbit', 'drill'];
   const beginner = useAppStore((s) => s.beginnerMode);
   const num = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
   const toolDims = (x: ToolDefinition) => {
@@ -366,12 +375,15 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
       id: uid('tool'),
       name: t.machine.newToolName,
       kind: kinds[0],
-      diameter: laser ? 0.1 : plasma ? 1.5 : 3.175,
+      diameter: laser ? 0.1 : plasma ? 1.5 : plotter ? 0.5 : 3.175,
+      ...(plotter ? { color: '#1f2328' } : {}),
       units: 'mm',
       defaults: laser
         ? { feedRate: 600, plungeRate: 0, stepDown: 0, stepOver: 1, laserPowerPct: 100, passes: 1 }
         : plasma
           ? { feedRate: 2500, plungeRate: 1000, stepDown: 0, stepOver: 1 }
+          : plotter
+            ? { feedRate: 1500, plungeRate: 600, stepDown: 0, stepOver: 1 }
           : { feedRate: 900, plungeRate: 250, spindleRpm: 18000, stepDown: 1.5, stepOver: 0.4 },
     });
 
@@ -391,7 +403,12 @@ function ToolLibrary({ kind }: { kind: MachineKind }) {
               <input className="field" value={editing.name} onChange={(e) => set({ name: e.target.value })} />
             </FieldRow>
             <SelectField label={t.machine.type} value={editing.kind} options={kinds.map((k) => ({ value: k, label: t.machine.toolKinds[k] }))} onChange={(kind) => set({ kind })} />
-            <NumberField label={plasma ? t.props.kerf : t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
+            <NumberField label={plasma ? t.props.kerf : plotter ? t.machine.penWidth : t.machine.diameter} unit="mm" step={0.1} min={0.01} value={editing.diameter} onChange={(diameter) => set({ diameter })} />
+            {plotter && (
+              <FieldRow label={t.machine.penColor}>
+                <input type="color" className="field h-8 w-16 cursor-pointer p-0.5" value={editing.color ?? '#1f2328'} onChange={(e) => set({ color: e.target.value })} aria-label={t.machine.penColor} />
+              </FieldRow>
+            )}
             {editing.kind === 'vbit' && <NumberField label={t.machine.angle} unit="°" step={5} min={10} max={170} value={editing.angle ?? 90} onChange={(angle) => set({ angle })} />}
             {editing.kind === 'drill' && <NumberField label={t.machine.pointAngle} hint="pointAngle" unit="°" step={1} min={60} max={180} value={editing.angle ?? 118} onChange={(angle) => set({ angle })} />}
             {router && <NumberField label={t.machine.flutes} step={1} min={1} max={8} value={editing.flutes ?? 2} onChange={(flutes) => set({ flutes: Math.round(flutes) })} />}

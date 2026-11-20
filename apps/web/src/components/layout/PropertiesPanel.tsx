@@ -103,10 +103,11 @@ function EmptyState() {
   const machine = useMachine();
   const laser = machine.kind === 'laser';
   // Materialets tips för den valda maskintypen, och tips för just den här maskinen.
-  const own = t.materials[preset.id]?.tips;
-  const materialTips = own ? own[machine.kind] : preset.tips;
+  const own = t.materials[preset.id]?.tips as Record<string, string[]> | undefined;
+  // Penplotter: materialets tips gäller fräs, laser och plasma – visa bara plotterns.
+  const materialTips = machine.kind === 'plotter' ? [] : own ? (own[machine.kind] ?? []) : preset.tips;
   const mt = t.machineTips;
-  const machineTips = [...mt[machineClass(machine)], ...(laser ? mt.laserCommon : machine.kind === 'plasma' ? mt.plasmaCommon : mt.routerCommon), ...mt.common];
+  const machineTips = [...mt[machineClass(machine)], ...(laser ? mt.laserCommon : machine.kind === 'plasma' ? mt.plasmaCommon : machine.kind === 'plotter' ? mt.plotterCommon : mt.routerCommon), ...mt.common];
   const box = (title: string, tips: string[]) => (
     <div className="rounded-lg border border-line bg-app p-3">
       <p className="mb-1.5 font-semibold">{title}</p>
@@ -120,7 +121,7 @@ function EmptyState() {
   return (
     <div className="space-y-4 p-4 text-xs leading-relaxed">
       <p className="text-muted">{t.props.emptyHint}</p>
-      {box(t.materialTips(materialName(t, preset.id, preset.name), machine.kind), materialTips)}
+      {materialTips.length > 0 && box(t.materialTips(materialName(t, preset.id, preset.name), machine.kind), materialTips)}
       {box(mt.title(machine.name), machineTips)}
     </div>
   );
@@ -512,11 +513,12 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
           ? t.props.notForPlasma
           : null;
   const holes = tp.operation === 'drill' ? drillPoints(allShapes(layers).filter((s) => tp.shapeIds.includes(s.id))).length : 0;
+  const pen = tp.operation === 'penDraw' || tp.operation === 'penFill';
   const speedGroup = (
     <Group title={t.props.speed}>
-      <NumberField label={t.props.feed} unit="mm/min" step={50} min={1} value={tp.params.feedRate} hint="feedRate" onChange={(feedRate) => param({ feedRate })} />
-      <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={tp.params.plungeRate} hint="plungeRate" onChange={(plungeRate) => param({ plungeRate })} />
-      {expert && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 18000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />}
+      <NumberField label={pen ? t.props.drawSpeed : t.props.feed} unit="mm/min" step={50} min={1} value={tp.params.feedRate} hint={pen ? undefined : 'feedRate'} onChange={(feedRate) => param({ feedRate })} />
+      <NumberField label={pen ? t.props.penDownSpeed : t.props.plunge} unit="mm/min" step={25} min={1} value={tp.params.plungeRate} hint={pen ? undefined : 'plungeRate'} onChange={(plungeRate) => param({ plungeRate })} />
+      {expert && !pen && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 18000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />}
     </Group>
   );
 
@@ -600,6 +602,41 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
             <NumberField label={t.props.plunge} unit="mm/min" step={25} min={1} value={tp.params.plungeRate} hint="plungeRate" onChange={(plungeRate) => param({ plungeRate })} />
             {expert && <NumberField label={t.props.spindle} unit="rpm" step={1000} min={0} value={tp.params.spindleRpm ?? 12000} hint="spindleRpm" onChange={(spindleRpm) => param({ spindleRpm })} />}
           </Group>
+        </>
+      )}
+
+      {tp.operation === 'penDraw' && (
+        <>
+          <Group title={t.props.plotter}>
+            <FieldRow label={t.props.optimizePaths} hint="pathOrder">
+              <Switch checked={tp.optimize} onChange={(optimize) => patch({ optimize })} label={t.props.optimizePaths} />
+            </FieldRow>
+          </Group>
+          {speedGroup}
+        </>
+      )}
+
+      {tp.operation === 'penFill' && (
+        <>
+          <Group title={t.props.fill}>
+            <FieldRow label={t.props.fillPattern}>
+              <Segmented
+                label={t.props.fillPattern}
+                value={tp.pattern}
+                options={(['lines', 'cross', 'offset'] as const).map((value) => ({ value, label: t.props.fillPatterns[value] }))}
+                onChange={(pattern) => patch({ pattern })}
+              />
+            </FieldRow>
+            <NumberField label={t.props.hatchSpacing} unit="mm" step={0.1} min={0.1} max={20} value={tp.spacing} hint="hatchSpacing" onChange={(spacing) => patch({ spacing })} />
+            {tp.pattern !== 'offset' && <NumberField label={t.props.hatchAngle} unit="°" step={15} min={-180} max={180} value={tp.angle} onChange={(angle) => patch({ angle })} />}
+            <FieldRow label={t.props.drawOutline}>
+              <Switch checked={tp.outline} onChange={(outline) => patch({ outline })} label={t.props.drawOutline} />
+            </FieldRow>
+            <FieldRow label={t.props.optimizePaths} hint="pathOrder">
+              <Switch checked={tp.optimize} onChange={(optimize) => patch({ optimize })} label={t.props.optimizePaths} />
+            </FieldRow>
+          </Group>
+          {speedGroup}
         </>
       )}
 

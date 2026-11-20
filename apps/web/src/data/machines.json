@@ -688,5 +688,123 @@
       "thcOn": "",
       "thcOff": ""
     }
+  },
+  {
+    "id": "mpcnc-primo-pen",
+    "name": "V1 Engineering MPCNC – pennplotter",
+    "manufacturer": "V1 Engineering",
+    "model": "MPCNC Primo med pennhållare på Z-axeln",
+    "kind": "plotter",
+    "workArea": {
+      "x": 600,
+      "y": 600,
+      "z": 80
+    },
+    "maxFeed": {
+      "xy": 1800,
+      "z": 600
+    },
+    "homing": "xy",
+    "postprocessor": {
+      "id": "marlin-plotter",
+      "name": "Marlin (penna)",
+      "flavor": "marlin",
+      "header": [
+        "G17",
+        "G28 X Y",
+        "G92 Z0"
+      ],
+      "footer": [
+        "G0 X0 Y0",
+        "M84"
+      ],
+      "decimals": 3,
+      "safeZ": 3,
+      "laserDynamicPower": false
+    },
+    "description": "Pennhållare i verktygsfästet; Z lyfter och sänker pennan.",
+    "plotter": {
+      "penUp": 3,
+      "penDown": -0.5,
+      "penDelay": 0.05
+    }
+  },
+  {
+    "id": "v1-lowrider3-pen",
+    "name": "V1 Engineering LowRider 3 – pennplotter",
+    "manufacturer": "V1 Engineering",
+    "model": "LowRider 3 med pennhållare på Z-axeln",
+    "kind": "plotter",
+    "workArea": {
+      "x": 1220,
+      "y": 610,
+      "z": 90
+    },
+    "maxFeed": {
+      "xy": 2400,
+      "z": 600
+    },
+    "homing": "xyz",
+    "postprocessor": {
+      "id": "marlin-plotter",
+      "name": "Marlin (penna)",
+      "flavor": "grbl",
+      "header": [
+        "G17",
+        "G94"
+      ],
+      "footer": [
+        "G0 X0 Y0",
+        "M30"
+      ],
+      "decimals": 3,
+      "safeZ": 3,
+      "laserDynamicPower": false
+    },
+    "description": "Pennhållare i verktygsfästet; Z lyfter och sänker pennan.",
+    "plotter": {
+      "penUp": 3,
+      "penDown": -0.5,
+      "penDelay": 0.05
+    }
+  },
+  {
+    "id": "generic-grbl-plotter",
+    "name": "Egen GRBL-pennplotter",
+    "manufacturer": "—",
+    "model": "Generisk GRBL 1.1 med penna på Z",
+    "kind": "plotter",
+    "workArea": {
+      "x": 300,
+      "y": 300,
+      "z": 60
+    },
+    "maxFeed": {
+      "xy": 1500,
+      "z": 500
+    },
+    "homing": "none",
+    "postprocessor": {
+      "id": "grbl-plotter",
+      "name": "GRBL (penna)",
+      "flavor": "grbl",
+      "header": [
+        "G17",
+        "G94"
+      ],
+      "footer": [
+        "G0 X0 Y0",
+        "M30"
+      ],
+      "decimals": 3,
+      "safeZ": 3,
+      "laserDynamicPower": false
+    },
+    "description": "Pennhållare på Z-axeln.",
+    "plotter": {
+      "penUp": 3,
+      "penDown": -0.5,
+      "penDelay": 0.05
+    }
   }
 ]

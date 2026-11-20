@@ -12,7 +12,7 @@ import type { ToolpathResult } from '../store/useAppStore';
 const RAPID_RATE = 3000; // mm/min, samma antagande som tidsuppskattningen
 const WORD = /([A-Za-z])\s*([-+]?(?:\d+\.?\d*|\.\d+))/g;
 
-export type SimToolShape = { kind: 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma'; radius: number; angle: number };
+export type SimToolShape = { kind: 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma' | 'pen'; radius: number; angle: number };
 
 interface Move {
   /** Startpunkt och slutpunkt. */
@@ -33,6 +33,8 @@ export interface SimJob {
   laserCut: boolean;
   /** Profil med flikar: Z för flikarnas ovansida (markeras i simuleringen). */
   tabTop?: number;
+  /** Penna: bläckets färg (#rrggbb). */
+  ink?: string;
 }
 
 /** Tolkar G-koden till rörelser med tider (sekunder i maskintid). */
@@ -65,7 +67,7 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
         case 'Y': ny = v; moved = true; break;
         case 'Z': nz = v; moved = true; break;
         case 'F': if (v > 0) feed = v; break;
-        case 'S': s = v; break;
+        case 'S': if (dwell) t += v; else s = v; break;
       }
     }
     if (!moved) continue;
@@ -108,6 +110,8 @@ export class StockSimulator {
   readonly burn: Float32Array;
   /** 1 där en flik står kvar (verktyget lyfte över materialet). */
   readonly tabMark: Uint8Array;
+  /** Penplotter: vilken penna (banans nummer + 1) som ritat i varje punkt, 0 = inget bläck. */
+  readonly ink: Uint16Array;
   /**
    * Kantutjämning: där fräsens kant bara delvis täcker en rutpunkt sparas det
    * djupaste delvisa snittet och hur stor del av rutan det täckte. Visningen
@@ -140,7 +144,7 @@ export class StockSimulator {
     const { width, height } = material;
     // Laser- och plasmasnitt är bara 0,1–2 mm breda: finare rutnät, annars
     // blir snittet bara några rutor brett och kanten ser hackig ut.
-    const narrow = jobs.some((j, i) => j.job.laserCut && owns(i));
+    const narrow = jobs.some((j, i) => (j.job.laserCut || j.job.tool.kind === 'pen') && owns(i));
     this.cell = view?.cell ?? (narrow ? Math.max(0.12, Math.max(width, height) / 1000) : Math.max(0.2, Math.max(width, height) / 700));
     this.origin = view?.origin ?? { x: 0, y: 0 };
     this.nx = Math.max(2, Math.round(width / this.cell) + 1);
@@ -148,6 +152,7 @@ export class StockSimulator {
     this.heights = new Float32Array(this.nx * this.ny);
     this.burn = new Float32Array(this.nx * this.ny);
     this.tabMark = new Uint8Array(this.nx * this.ny);
+    this.ink = new Uint16Array(this.nx * this.ny);
     this.partZ = new Float32Array(this.nx * this.ny);
     this.partC = new Float32Array(this.nx * this.ny);
     this.display = new Float32Array(this.nx * this.ny);
@@ -166,6 +171,7 @@ export class StockSimulator {
     this.heights.fill(0);
     this.burn.fill(0);
     this.tabMark.fill(0);
+    this.ink.fill(0);
     this.partZ.fill(0);
     this.partC.fill(0);
     this.index = 0;
@@ -214,16 +220,26 @@ export class StockSimulator {
     const steps = Math.max(1, Math.ceil(len / (this.cell * 0.5)));
     for (let k = 0; k <= steps; k++) {
       const f = a + ((b - a) * k) / steps;
-      this.stamp(mv.x0 + (mv.x1 - mv.x0) * f, mv.y0 + (mv.y1 - mv.y0) * f, mv.z0 + (mv.z1 - mv.z0) * f, job, mv.power);
+      this.stamp(mv.x0 + (mv.x1 - mv.x0) * f, mv.y0 + (mv.y1 - mv.y0) * f, mv.z0 + (mv.z1 - mv.z0) * f, job, mv.power, mv.job);
     }
   }
 
   /** Ämnets nedre vänstra hörn i G-kodens koordinater. */
   readonly origin: { x: number; y: number };
 
-  private stamp(x: number, y: number, z: number, job: SimJob, power: number) {
+  private stamp(x: number, y: number, z: number, job: SimJob, power: number, jobIndex = 0) {
     x -= this.origin.x;
     y -= this.origin.y;
+    if (job.tool.kind === 'pen') {
+      // Pennan ritar bara när den är nere (vid eller under papperets yta) och fräser inget.
+      if (z > 0.05) return;
+      const { cell, nx, ny } = this;
+      const R = Math.max(job.tool.radius, cell * 0.5);
+      const i0 = Math.max(0, Math.floor((x - R) / cell)), i1 = Math.min(nx - 1, Math.ceil((x + R) / cell));
+      const j0 = Math.max(0, Math.floor((y - R) / cell)), j1 = Math.min(ny - 1, Math.ceil((y + R) / cell));
+      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if ((i * cell - x) ** 2 + (j * cell - y) ** 2 <= R * R) this.ink[j * nx + i] = jobIndex + 1;
+      return;
+    }
     const tool = job.tool;
     const { cell, nx, ny, heights } = this;
     const floor = -this.material.thickness;
@@ -399,7 +415,9 @@ export function buildSimulator(
     const tool = tools.find((t) => t.id === tp.toolId);
     const laser = tp.operation === 'laserCut' || tp.operation === 'laserRaster';
     const shape: SimToolShape =
-      tp.operation === 'plasmaCut'
+      tool?.kind === 'pen'
+        ? { kind: 'pen', radius: Math.max(0.05, tool.diameter / 2), angle: 0 }
+        : tp.operation === 'plasmaCut'
         ? { kind: 'plasma', radius: Math.max(0.1, tp.kerf / 2), angle: 0 }
         : laser
           ? { kind: 'laser', radius: Math.max(0.05, (tp.operation === 'laserCut' ? tp.kerf : tp.lineIntervalMm) / 2), angle: 0 }
@@ -419,7 +437,7 @@ export function buildSimulator(
       }
       stock = stockOf.get(tp.id)!;
     }
-    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut', tabTop }, gcode: res.gcode });
+    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut', tabTop, ink: tool?.kind === 'pen' ? (tool.color ?? '#1f2328') : undefined }, gcode: res.gcode });
     jobStock.push(stock);
     ids.push(tp.id);
   }

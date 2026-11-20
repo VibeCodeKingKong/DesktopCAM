@@ -33,6 +33,7 @@ export function Viewport() {
   const view = useAppStore((s) => s.view);
   const viewCommand = useAppStore((s) => s.viewCommand);
   const reliefs = useAppStore((s) => s.reliefs);
+  const tools = useAppStore((s) => s.tools);
   const simActive = useAppStore((s) => s.sim.active);
   const [dragging, setDragging] = useState(false);
 
@@ -98,11 +99,17 @@ export function Viewport() {
             rapids: results[t.id].rapids,
             laser: t.operation === 'laserCut' || t.operation === 'laserRaster',
             highlighted: !selectedToolpathId || selectedToolpathId === t.id,
-            offset: blanks.has(t.id) ? { x: blanks.get(t.id)!.displayX, y: blanks.get(t.id)!.displayY } : undefined,
+            color: tools.find((x) => x.id === t.toolId && x.kind === 'pen')?.color,
+            // Pennan ritar strax under papperets yta (tryck) – lyft linjerna så att de syns ovanpå papperet.
+            offset: blanks.has(t.id)
+              ? { x: blanks.get(t.id)!.displayX, y: blanks.get(t.id)!.displayY }
+              : tools.some((x) => x.id === t.toolId && x.kind === 'pen')
+                ? { x: 0, y: 0, z: 1 }
+                : undefined,
           }))
       : [];
     ctlRef.current.setToolpaths(display, view.showRapids);
-  }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids, simActive, blanks]);
+  }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids, simActive, blanks, tools]);
 
   useEffect(() => {
     if (viewCommand) ctlRef.current?.command(viewCommand.kind);

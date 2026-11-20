@@ -36,8 +36,10 @@ export interface ToolpathDisplay {
   rapids: Float32Array;
   laser: boolean;
   highlighted: boolean;
+  /** Egen färg (t.ex. pennans bläck) i stället för temats. */
+  color?: string;
   /** Banan ritas förskjuten hit (t.ex. pluggen på inläggsträet bredvid grundträet). */
-  offset?: { x: number; y: number };
+  offset?: { x: number; y: number; z?: number };
 }
 
 /** Ett extra ämne i scenen, t.ex. inläggsträet till en plugg. */
@@ -357,7 +359,16 @@ export class SceneController {
       disposeChildren(this.toolMarker);
       this.toolMarker.userData.key = key;
       const metal = new THREE.MeshStandardMaterial({ color: 0xc8ccd4, metalness: 0.7, roughness: 0.3 });
-      if (tool.kind === 'laser') {
+      if (tool.kind === 'pen') {
+        // Penna i en hållare: kropp, kon och spets.
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 40, 20), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 }));
+        body.rotation.x = Math.PI / 2;
+        body.position.z = 28;
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(4, 8, 20), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.4 }));
+        cone.rotation.x = -Math.PI / 2;
+        cone.position.z = 4;
+        this.toolMarker.add(body, cone);
+      } else if (tool.kind === 'laser') {
         const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 30, 12), new THREE.MeshBasicMaterial({ color: 0xff7a1a, transparent: true, opacity: 0.7 }));
         beam.rotation.x = Math.PI / 2;
         beam.position.z = 15;
@@ -403,7 +414,7 @@ export class SceneController {
     disposeChildren(this.toolpathGroup);
     for (const p of paths) {
       const place = (obj: THREE.Object3D) => {
-        if (p.offset) obj.position.set(p.offset.x, p.offset.y, 0);
+        if (p.offset) obj.position.set(p.offset.x, p.offset.y, p.offset.z ?? 0);
         this.toolpathGroup.add(obj);
       };
       if (p.cuts.length) {
@@ -412,7 +423,7 @@ export class SceneController {
         place(
           new THREE.LineSegments(
             g,
-            new THREE.LineBasicMaterial({ color: p.laser ? this.theme.laser : this.theme.cut, transparent: true, opacity: p.highlighted ? 1 : 0.55 }),
+            new THREE.LineBasicMaterial({ color: p.color ?? (p.laser ? this.theme.laser : this.theme.cut), transparent: true, opacity: p.highlighted ? 1 : 0.55 }),
           ),
         );
       }
