@@ -54,7 +54,8 @@ const ease = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
 import { getT } from '../i18n';
 
 /** En hel körning tar ungefär så här lång tid vid hastighet 1×. */
-const BASE_PLAYBACK_SECONDS = 40;
+/** 1× spelar hela körningen på så här många sekunder, oavsett hur lång den är. */
+export const BASE_PLAYBACK_SECONDS = 40;
 
 let scene: SceneController | null = null;
 let sim: SimulationSet | null = null;

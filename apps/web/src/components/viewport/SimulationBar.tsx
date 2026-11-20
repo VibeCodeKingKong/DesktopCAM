@@ -1,11 +1,22 @@
 import { Layers, Pause, Play, RotateCcw, Scissors, SkipForward, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { glueInlays, playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
+import { BASE_PLAYBACK_SECONDS, glueInlays, playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
 import { decimalSep, useT } from '../../i18n';
 import { useState } from 'react';
 import { InlaySectionView } from './InlaySectionView';
 
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
+
+/**
+ * Uppspelningen är inte i verklig hastighet: 1× spelar hela körningen på
+ * BASE_PLAYBACK_SECONDS. Visa hur mycket snabbare (eller långsammare) än maskinen.
+ */
+function playbackLabel(t: ReturnType<typeof useT>, factor: number) {
+  const n = (v: number) => (v >= 10 ? Math.round(v) : Math.round(v * 10) / 10).toLocaleString(t.locale);
+  if (factor >= 1.5) return t.sim.faster(n(factor));
+  if (factor <= 0.67) return t.sim.slower(n(1 / factor));
+  return t.sim.realTime;
+}
 
 function clock(seconds: number) {
   const s = Math.max(0, Math.round(seconds));
@@ -26,6 +37,9 @@ export function SimulationBar() {
         <span className="truncate text-muted">{sim.progress >= 1 ? t.sim.finished : sim.job}</span>
         <span className="ml-auto shrink-0 tabular-nums text-muted">
           {clock(sim.progress * sim.duration)} / {clock(sim.duration)} {t.sim.machineTime}
+        </span>
+        <span className="hidden shrink-0 rounded bg-app px-1.5 py-0.5 tabular-nums text-muted sm:inline" title={t.sim.speedHint}>
+          {playbackLabel(t, (sim.duration * sim.speed) / BASE_PLAYBACK_SECONDS)}
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -49,7 +63,7 @@ export function SimulationBar() {
           value={sim.speed}
           onChange={(e) => setSim({ speed: Number(e.target.value) })}
           aria-label={t.sim.speed}
-          title={t.sim.speed}
+          title={t.sim.speedHint}
         >
           {SPEEDS.map((v) => (
             <option key={v} value={v}>

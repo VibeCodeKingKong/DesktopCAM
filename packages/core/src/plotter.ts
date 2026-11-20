@@ -66,10 +66,13 @@ function reverse(s: Stroke): Stroke {
 /**
  * Ordnar linjerna: girig närmaste granne från (sx, sy). Öppna linjer kan
  * vändas, slutna kan börja i valfri punkt. Ett rutnät över ändpunkterna
- * gör sökningen snabb även med tiotusentals skrafferingslinjer.
+ * gör sökningen snabb även med tiotusentals skrafferingslinjer. `order` får
+ * index (i `paths`) för linjerna i den ordning de valdes.
  */
-export function orderPaths(paths: PolylineInput[], sx = 0, sy = 0): Stroke[] {
-  const items = paths.filter((p) => p.points.length >= 4);
+export function orderPaths(paths: PolylineInput[], sx = 0, sy = 0, order?: number[]): Stroke[] {
+  const src: number[] = [];
+  paths.forEach((p, i) => p.points.length >= 4 && src.push(i));
+  const items = src.map((i) => paths[i]);
   const n = items.length;
   if (!n) return [];
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -122,6 +125,7 @@ export function orderPaths(paths: PolylineInput[], sx = 0, sy = 0): Stroke[] {
     }
     if (!best) break;
     used[best.item] = 1;
+    order?.push(src[best.item]);
     const p = items[best.item];
     let stroke: Stroke;
     if (p.closed) stroke = closedFrom(p.points, best.vertex);

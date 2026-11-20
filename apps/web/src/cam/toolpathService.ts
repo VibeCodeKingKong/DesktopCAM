@@ -430,6 +430,9 @@ function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
     startDepth: tp.startDepth,
     margin: tp.margin,
     contourStep: tp.contourStep,
+    // Fickans botten döljs under limspalten och pluggens spillyta planas bort –
+    // där räcker glesare pass, så länge åsarna inte når pluggen eller ytan.
+    flatRidge: Math.max(0.05, Math.min(1, 0.4 * (tp.part === 'pocket' ? tp.pocketDepth - tp.startDepth : tp.plugDepth - tp.startDepth))),
   };
 }
 
