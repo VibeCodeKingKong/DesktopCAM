@@ -883,7 +883,7 @@ export const de: Dict = {
   welcome: {
     menu: "Willkommen und Beispiele",
     title: "Willkommen bei desktopCAM",
-    intro: "desktopCAM macht aus Zeichnungen und Bildern G-Code für Fräse, Laser, Plasma und Stiftplotter – kostenlos und direkt im Browser. Sie zeichnen, wählen die Bearbeitung, sehen das Ergebnis in der Simulation und speichern den G-Code.",
+    intro: "desktopCAM macht aus Zeichnungen und Bildern G-Code für Fräse, Laser, Plasma und Stiftplotter – direkt im Browser. Sie zeichnen, wählen die Bearbeitung, sehen das Ergebnis in der Simulation und speichern den G-Code.",
     chooseMachine: "Welche Maschine haben Sie?",
     machineHint: "Das genaue Modell wählen Sie unter Einrichtung – der Maschinentyp lässt sich jederzeit wechseln.",
     kinds: {

@@ -884,7 +884,7 @@ export const en: Dict = {
   welcome: {
     menu: "Welcome and examples",
     title: "Welcome to desktopCAM",
-    intro: "desktopCAM turns drawings and images into G-code for routers, lasers, plasma cutters and pen plotters – free and right in your browser. You draw, choose how to machine it, see the result in a simulation and save the G-code.",
+    intro: "desktopCAM turns drawings and images into G-code for routers, lasers, plasma cutters and pen plotters – right in your browser. You draw, choose how to machine it, see the result in a simulation and save the G-code.",
     chooseMachine: "Which machine do you have?",
     machineHint: "You pick the exact model under Setup, and you can change machine type at any time.",
     kinds: {

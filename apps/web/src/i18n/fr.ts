@@ -883,7 +883,7 @@ export const fr: Dict = {
   welcome: {
     menu: "Bienvenue et exemples",
     title: "Bienvenue dans desktopCAM",
-    intro: "desktopCAM transforme dessins et images en G-code pour fraiseuse, laser, plasma et traceur à stylo – gratuitement et directement dans le navigateur. Vous dessinez, choisissez l’usinage, voyez le résultat en simulation et enregistrez le G-code.",
+    intro: "desktopCAM transforme dessins et images en G-code pour fraiseuse, laser, plasma et traceur à stylo – directement dans le navigateur. Vous dessinez, choisissez l’usinage, voyez le résultat en simulation et enregistrez le G-code.",
     chooseMachine: "Quelle machine avez-vous ?",
     machineHint: "Vous choisissez le modèle exact sous Configuration et pouvez changer de type de machine à tout moment.",
     kinds: {

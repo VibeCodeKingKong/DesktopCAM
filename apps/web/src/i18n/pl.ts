@@ -890,7 +890,7 @@ export const pl: Dict = {
   welcome: {
     menu: "Powitanie i przykłady",
     title: "Witaj w desktopCAM",
-    intro: "desktopCAM zamienia rysunki i obrazy w G-code dla frezarki, lasera, plazmy i plotera z pisakiem – za darmo i bezpośrednio w przeglądarce. Rysujesz, wybierasz obróbkę, oglądasz wynik w symulacji i zapisujesz G-code.",
+    intro: "desktopCAM zamienia rysunki i obrazy w G-code dla frezarki, lasera, plazmy i plotera z pisakiem – bezpośrednio w przeglądarce. Rysujesz, wybierasz obróbkę, oglądasz wynik w symulacji i zapisujesz G-code.",
     chooseMachine: "Jaką masz maszynę?",
     machineHint: "Dokładny model wybierasz w zakładce Ustawienia, a typ maszyny możesz zmienić w każdej chwili.",
     kinds: {

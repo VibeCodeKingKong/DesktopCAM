@@ -831,7 +831,7 @@ export const sv = {
   welcome: {
     menu: "Välkommen och exempel",
     title: "Välkommen till desktopCAM",
-    intro: "desktopCAM gör om ritningar och bilder till G-kod för fräs, laser, plasma och penplotter – gratis och direkt i webbläsaren. Du ritar, väljer hur det ska bearbetas, ser resultatet i en simulering och sparar G-koden.",
+    intro: "desktopCAM gör om ritningar och bilder till G-kod för fräs, laser, plasma och penplotter – direkt i webbläsaren. Du ritar, väljer hur det ska bearbetas, ser resultatet i en simulering och sparar G-koden.",
     chooseMachine: "Vilken maskin har du?",
     machineHint: "Du väljer exakt modell under Inställning och kan byta maskintyp när som helst.",
     kinds: {

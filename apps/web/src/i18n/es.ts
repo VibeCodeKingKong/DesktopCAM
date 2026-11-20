@@ -883,7 +883,7 @@ export const es: Dict = {
   welcome: {
     menu: "Bienvenida y ejemplos",
     title: "Bienvenido a desktopCAM",
-    intro: "desktopCAM convierte dibujos e imágenes en G-code para fresadora, láser, plasma y plóter de bolígrafo, gratis y directamente en el navegador. Dibuja, elige cómo mecanizar, ve el resultado en una simulación y guarda el G-code.",
+    intro: "desktopCAM convierte dibujos e imágenes en G-code para fresadora, láser, plasma y plóter de bolígrafo, directamente en el navegador. Dibuja, elige cómo mecanizar, ve el resultado en una simulación y guarda el G-code.",
     chooseMachine: "¿Qué máquina tiene?",
     machineHint: "El modelo exacto se elige en Configuración, y puede cambiar el tipo de máquina en cualquier momento.",
     kinds: {
