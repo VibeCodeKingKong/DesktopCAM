@@ -3,8 +3,9 @@
  * delarna i gränssnittet. driver.js (MIT) sköter markeringen och rutan;
  * bilderna är egna animerade SVG:er (TourArt.tsx).
  *
- * Startar av sig själv första gången appen öppnas (inte för den som redan har
- * ett sparat projekt) och kan alltid startas om med ?-knappen i sidhuvudet.
+ * Startas från välkomstfönstret, som visas av sig själv första gången appen
+ * öppnas (inte för den som redan har ett sparat projekt) och alltid kan
+ * öppnas med ?-knappen i sidhuvudet.
  */
 import { driver, type DriveStep, type Side } from 'driver.js';
 import 'driver.js/dist/driver.css';
@@ -88,10 +89,10 @@ const NEW_USER = (() => {
   }
 })();
 
-/** Startar rundturen för nya användare. Returnerar en timer att avbryta. */
-export function maybeStartTour(): ReturnType<typeof setTimeout> | undefined {
+/** Visar välkomstfönstret för nya användare. Rundturen startas därifrån. Returnerar en timer att avbryta. */
+export function maybeWelcome(): ReturnType<typeof setTimeout> | undefined {
   if (!NEW_USER) return undefined;
   return setTimeout(() => {
-    if (!useAppStore.getState().dialog) startTour();
-  }, 900);
+    if (!useAppStore.getState().dialog) useAppStore.getState().openDialog('welcome');
+  }, 700);
 }

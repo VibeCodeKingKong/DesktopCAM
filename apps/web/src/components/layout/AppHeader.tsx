@@ -3,7 +3,6 @@ import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
 import { Switch } from '../ui/Field';
-import { startTour } from '../../tutorial/tour';
 import { APP_VERSION } from '../../data/changelog';
 import { DONATE_URL } from '../../config/donate';
 
@@ -73,7 +72,7 @@ export function AppHeader() {
       <button className={iconBtn} onClick={() => openDialog('feedback')} aria-label={t.feedback.open} title={t.feedback.open}>
         <MessageSquarePlus size={16} />
       </button>
-      <button className={iconBtn} onClick={() => startTour()} aria-label={t.tour.open} title={t.tour.open} data-tour="help">
+      <button className={iconBtn} onClick={() => openDialog('welcome')} aria-label={t.welcome.menu} title={t.welcome.menu} data-tour="help">
         <CircleHelp size={16} />
       </button>
       <label className="flex cursor-pointer items-center gap-1.5 text-xs" title={t.header.beginnerMode} data-tour="beginner">
@@ -84,7 +83,7 @@ export function AppHeader() {
       <label className="relative flex items-center" title={t.header.language}>
         <Languages size={16} className="pointer-events-none absolute left-1.5 text-muted" />
         <select
-          className="h-7 cursor-pointer appearance-none rounded-md bg-transparent pl-7 pr-1.5 text-xs font-medium text-ink hover:bg-app focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="h-7 w-[3.75rem] cursor-pointer appearance-none truncate rounded-md bg-transparent pl-7 pr-1.5 text-xs font-medium text-ink sm:w-auto hover:bg-app focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           value={language}
           onChange={(e) => setLanguage(e.target.value as Language)}
           aria-label={t.header.language}

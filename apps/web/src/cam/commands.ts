@@ -41,6 +41,7 @@ import toolsJson from '../data/tools.json';
 import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
 import { downloadText, pickFile, slug } from '../utils/download';
 import { decodeImageObjects, imageForNewToolpath } from './imageObjects';
+import { exampleUrl } from '../data/examples';
 import { fileGcode, planExport, type ExportOptions } from './exportGcode';
 import { computeToolpath } from './toolpathService';
 import { buildTextShape, ensureTextFont } from '../text/textShape';
@@ -641,7 +642,7 @@ export function addRelief(reliefId: string, size: { width: number; height: numbe
 const AUTOSAVE_KEY = 'desktopcam.autosave.v1';
 const BUILT_IN = new Map((machinesJson as MachineProfile[]).map((m) => [m.id, m]));
 
-function projectJson(withImages = true) {
+export function projectJson(withImages = true) {
   const s = useAppStore.getState();
   return {
     app: 'desktopCAM',
@@ -660,7 +661,7 @@ function projectJson(withImages = true) {
   };
 }
 
-function loadProject(data: unknown): boolean {
+export function loadProject(data: unknown): boolean {
   const d = data as ReturnType<typeof projectJson>;
   if (!d || d.app !== 'desktopCAM' || !Array.isArray(d.layers)) return false;
   useAppStore.getState().loadDocument({
@@ -684,6 +685,48 @@ function loadProject(data: unknown): boolean {
   // Bild-banor räknas när bilderna avkodats (watchForChanges ser nya bilder).
   for (const tp of useAppStore.getState().toolpaths) if (tp.operation !== 'laserRaster' && tp.operation !== 'penImage') void computeToolpath(tp.id);
   void decodeImageObjects();
+  return true;
+}
+
+/**
+ * Exemplen sparas med nycklar som namn (t.ex. "lib:heart", "circle:2") och
+ * får namn på användarens språk när de öppnas.
+ */
+function localizeExample(d: ReturnType<typeof projectJson>) {
+  const t = getT();
+  const shapeName = (name: string) => {
+    const [kind, arg] = name.split(':');
+    if (kind === 'lib') return (t.shapeLib.items as Record<string, string>)[arg] ?? arg;
+    if (kind === 'circle' || kind === 'rect' || kind === 'gear') return `${t.shapeNames[kind]} ${arg}`;
+    return name;
+  };
+  return {
+    ...d,
+    layers: d.layers.map((l, i) => ({ ...l, name: t.common.layer(i + 1), shapes: l.shapes.map((sh) => ({ ...sh, name: shapeName(sh.name) })) })),
+    reliefs: d.reliefs.map((r) => ({ ...r, name: t.relief.items[r.reliefId]?.name ?? r.name })),
+    imageObjects: d.imageObjects.map((im, i) => ({ ...im, name: t.image.name(i + 1) })),
+    toolpaths: d.toolpaths.map((tp, i) => ({
+      ...tp,
+      name: `${i + 1}. ${t.operations[tp.operation]}${tp.operation === 'inlay' ? ` – ${t.inlayParts[tp.part]}` : ''}`,
+    })),
+  };
+}
+
+/** Öppnar ett exempelprojekt från välkomstfönstret. */
+export async function openExample(id: string, title: string): Promise<boolean> {
+  const t = getT();
+  try {
+    const res = await fetch(exampleUrl(id, 'dcam'));
+    if (!res.ok || !loadProject(localizeExample(await res.json()))) throw new Error('INVALID');
+  } catch {
+    status(t.status.projectInvalid);
+    return false;
+  }
+  const s = useAppStore.getState();
+  s.setProjectName(title);
+  s.setTab('simulate');
+  s.sendViewCommand('fitStock');
+  status(t.welcome.opened(title));
   return true;
 }
 

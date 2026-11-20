@@ -1,4 +1,4 @@
-import { FilePlus, FolderOpen, Save, Settings2 } from 'lucide-react';
+import { FilePlus, FolderOpen, LayoutGrid, Save, Settings2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { useAppStore } from '../../../store/useAppStore';
@@ -19,6 +19,7 @@ export function FileTab() {
         <RibbonButton icon={FilePlus} label={b.newProject.label} onClick={newProject} tooltip={tip(b.newProject, { illustration: <IlluNewProject /> })} />
         <RibbonButton icon={FolderOpen} label={b.open.label} onClick={() => void openProject()} tooltip={tip(b.open, { illustration: <IlluOpen />,  shortcut: '⌘O' })} />
         <RibbonButton icon={Save} label={b.save.label} onClick={saveProject} tooltip={tip(b.save, { illustration: <IlluSave />,  shortcut: '⌘S' })} />
+        <RibbonButton icon={LayoutGrid} label={b.examples.label} onClick={() => openDialog('welcome', 'gallery')} tooltip={tip(b.examples)} />
         <RibbonStack>
           <RibbonField label={t.setup.projectName}>
             <input

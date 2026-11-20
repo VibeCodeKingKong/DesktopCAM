@@ -41,10 +41,19 @@ export function scheduleCompute(id: string, delay = 350) {
   timers.set(id, setTimeout(() => void computeToolpath(id), delay));
 }
 
+/**
+ * Varje beräkning får ett nummer. Ändras banan medan den räknas startas en ny
+ * beräkning, och bara den senaste får skriva sitt resultat.
+ */
+const generation = new Map<string, number>();
+
 export async function computeToolpath(id: string): Promise<void> {
   const s = useAppStore.getState();
   const tp = s.toolpaths.find((t) => t.id === id);
   if (!tp) return;
+  const gen = (generation.get(id) ?? 0) + 1;
+  generation.set(id, gen);
+  const stale = () => generation.get(id) !== gen;
   const t = getT();
   const onProgress = (value: number, message?: string) =>
     useAppStore.getState().setProgress(id, { value, message: message ? (getT().progress[message] ?? message) : undefined });
@@ -100,6 +109,7 @@ export async function computeToolpath(id: string): Promise<void> {
       default:
         throw new Error('NOT_IMPLEMENTED');
     }
+    if (stale()) return;
     const st = useAppStore.getState();
     const warnings = toolReachWarnings(st.tools.find((x) => x.id === tp.toolId), payload.preview.stats, getT());
     // Pluggen: skriv inläggsträets mått och nollpunkt överst i G-koden.
@@ -116,12 +126,13 @@ export async function computeToolpath(id: string): Promise<void> {
     });
     st.setStatus(warnings.length ? `${tp.name}: ${warnings[0]}` : getT().status.computed(tp.name, payload.preview.stats.lineCount.toLocaleString(getT().locale)));
   } catch (err) {
+    if (stale()) return;
     const tt = getT();
     const message = errorText(tt, err instanceof Error ? err.message : String(err));
     useAppStore.getState().setError(id, message);
     useAppStore.getState().setStatus(tt.status.error(tp.name, message));
   } finally {
-    useAppStore.getState().setProgress(id, null);
+    if (!stale()) useAppStore.getState().setProgress(id, null);
   }
 }
 
@@ -489,7 +500,8 @@ export function watchForChanges() {
     const prevTp = new Map(prev.toolpaths.map((t) => [t.id, t]));
     const global = s.tools !== prev.tools || s.machineId !== prev.machineId || s.material.thickness !== prev.material.thickness;
     for (const tp of s.toolpaths) {
-      const configChanged = prevTp.get(tp.id) !== tp && prevTp.has(tp.id) && !s.progress[tp.id];
+      // Även under en pågående beräkning: den nya ersätter den gamla.
+      const configChanged = prevTp.get(tp.id) !== tp && prevTp.has(tp.id);
       const reliefChanged =
         (tp.operation === 'relief' && s.reliefs !== prev.reliefs) ||
         (tp.operation === 'facing' && tp.area === 'stock' && s.material !== prev.material) ||

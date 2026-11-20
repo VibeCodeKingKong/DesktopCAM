@@ -43,6 +43,8 @@ export function Viewport() {
     const ctl = new SceneController(hostRef.current!);
     ctl.onCursor = (p) => useAppStore.getState().setCursor(p);
     ctlRef.current = ctl;
+    // Utvecklingsläge: scripts/build-examples.cjs beskär bilderna efter ämnets läge på skärmen.
+    if (import.meta.env.DEV) Object.assign(window, { __scene: ctl });
     const editor = new EditController(ctl);
     attachSimulationScene(ctl);
     return () => {

@@ -335,10 +335,75 @@ export function simplifyClosed(pts: number[], tol: number): number[] {
   return out;
 }
 
-/** Offset av en uppsättning former: positivt = utåt, negativt = inåt. */
+/** Udda antal korsningar = punkten ligger inuti den slutna banan. */
+function insidePath(x: number, y: number, pts: number[]): boolean {
+  let inside = false;
+  const n = pts.length / 2;
+  for (let k = 0, m = n - 1; k < n; m = k++) {
+    const ax = pts[2 * k], ay = pts[2 * k + 1], bx = pts[2 * m], by = pts[2 * m + 1];
+    if (ay > y !== by > y && x < ((bx - ax) * (y - ay)) / (by - ay) + ax) inside = !inside;
+  }
+  return inside;
+}
+
+/**
+ * Former som ligger helt inuti en annan form slås ihop med den, så att de blir
+ * hål i den (jämn-udda) i stället för att försvinna i unionen. Ett hål i en
+ * platta ritat som en egen cirkel skärs alltså som hål – som i Vectric.
+ * Former som bara överlappar slås fortfarande ihop (union).
+ */
+export function nestGroups(groups: PolylineInput[][]): PolylineInput[][] {
+  if (groups.length < 2) return groups;
+  const info = groups.map((g) => {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let outer: number[] | null = null, outerArea = -1;
+    for (const p of g) {
+      if (!p.closed) continue;
+      for (let i = 0; i + 1 < p.points.length; i += 2) {
+        minX = Math.min(minX, p.points[i]); maxX = Math.max(maxX, p.points[i]);
+        minY = Math.min(minY, p.points[i + 1]); maxY = Math.max(maxY, p.points[i + 1]);
+      }
+      let a = 0;
+      for (let i = 0, n = p.points.length / 2; i < n; i++) {
+        const j = (i + 1) % n;
+        a += p.points[2 * i] * p.points[2 * j + 1] - p.points[2 * j] * p.points[2 * i + 1];
+      }
+      a = Math.abs(a / 2);
+      if (a > outerArea) (outerArea = a), (outer = p.points);
+    }
+    return { minX, minY, maxX, maxY, outer, area: (maxX - minX) * (maxY - minY) };
+  });
+  // Varje form hamnar hos den minsta form som omsluter den.
+  const parent = groups.map((_, i) => {
+    const a = info[i];
+    if (!a.outer) return -1;
+    let best = -1;
+    for (let j = 0; j < groups.length; j++) {
+      const b = info[j];
+      if (j === i || !b.outer || b.area <= a.area) continue;
+      if (a.minX < b.minX || a.maxX > b.maxX || a.minY < b.minY || a.maxY > b.maxY) continue;
+      // Alla hörn i formens yttre kontur (glest urval) ska ligga inuti den andra.
+      const step = Math.max(2, 2 * Math.floor(a.outer.length / 2 / 16));
+      let all = true;
+      for (let k = 0; k + 1 < a.outer.length && all; k += step) all = insidePath(a.outer[k], a.outer[k + 1], b.outer);
+      if (all && (best < 0 || b.area < info[best].area)) best = j;
+    }
+    return best;
+  });
+  const root = (i: number): number => (parent[i] < 0 ? i : root(parent[i]));
+  const merged = new Map<number, PolylineInput[]>();
+  groups.forEach((g, i) => {
+    const r = root(i);
+    if (!merged.has(r)) merged.set(r, []);
+    merged.get(r)!.push(...g);
+  });
+  return [...merged.values()];
+}
+
+/** Offset av en uppsättning former: positivt = utåt, negativt = inåt. Former inuti andra blir hål (nestGroups). */
 export function offsetShapes(groups: PolylineInput[][], distance: number): PolylineInput[] {
   if (Math.abs(distance) < 1e-9) return groups.flat();
-  const field = buildDistanceField(groups, { margin: Math.max(0, distance) + 1 });
+  const field = buildDistanceField(nestGroups(groups), { margin: Math.max(0, distance) + 1 });
   if (!field) return [];
   return isolines(field, distance).map((points) => ({ points, closed: true }));
 }

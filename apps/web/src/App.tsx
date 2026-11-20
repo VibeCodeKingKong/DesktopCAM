@@ -1,4 +1,5 @@
-import { maybeStartTour } from './tutorial/tour';
+import { maybeWelcome } from './tutorial/tour';
+import { WelcomeDialog } from './components/dialogs/WelcomeDialog';
 import { useEffect } from 'react';
 import { AppHeader } from './components/layout/AppHeader';
 import { ProjectTree } from './components/layout/ProjectTree';
@@ -52,7 +53,7 @@ export default function App() {
     const stopSimWatch = watchSimulationInputs();
     const stopPlugWatch = watchReliefPlugs();
     for (const tp of useAppStore.getState().toolpaths) void computeToolpath(tp.id);
-    const tourTimer = maybeStartTour();
+    const tourTimer = maybeWelcome();
     return () => {
       stopAutosave();
       stopWatch();
@@ -87,6 +88,7 @@ export default function App() {
       <DonateDialog />
       <ExportDialog />
       <PatternDialog />
+      <WelcomeDialog />
     </div>
   );
 }
