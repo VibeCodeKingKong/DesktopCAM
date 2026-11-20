@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
 import license from 'rollup-plugin-license';
 
 // Versionen finns bara i package.json och byggs in i appen.
@@ -23,6 +25,27 @@ const fontLicenses = () =>
       const text = readFileSync(new URL(`./node_modules/${n}/LICENSE`, import.meta.url), 'utf8').trim();
       return `${n} ${meta.version} - ${meta.license}\n${FONT_COPYRIGHT[n] ? FONT_COPYRIGHT[n] + '\n\n' : ''}${text}`;
     });
+
+/**
+ * Bibliotek som bara finns i CAM-workern (licens-pluginet ser bara
+ * huvudbunten): d3-delaunay och dess beroende delaunator.
+ */
+const workerLicenses = () => {
+  // Paketens katalog: gå uppåt från huvudfilen (exports tillåter inte ./package.json).
+  const pkgDir = (file: string, name: string) => {
+    let dir = dirname(file);
+    while (!dir.endsWith(`node_modules/${name}`) && dirname(dir) !== dir) dir = dirname(dir);
+    return dir;
+  };
+  const fromCore = createRequire(new URL('../../packages/core/package.json', import.meta.url));
+  const d3 = pkgDir(fromCore.resolve('d3-delaunay'), 'd3-delaunay');
+  const del = pkgDir(createRequire(join(d3, 'package.json')).resolve('delaunator'), 'delaunator');
+  return [d3, del].map((dir) => {
+    const meta = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { name: string; version: string; license: string };
+    const text = readFileSync(join(dir, 'LICENSE'), 'utf8').trim();
+    return `${meta.name} ${meta.version} - ${meta.license}\n${text}`;
+  });
+};
 
 const SEP = '\n\n' + '-'.repeat(72) + '\n\n';
 
@@ -50,6 +73,7 @@ export default defineConfig({
                 .filter((d) => !d.name?.startsWith('@fontsource/'))
                 .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
                 .map((d) => `${d.name} ${d.version} - ${d.license}\n${d.author?.text() ? 'Author: ' + d.author.text() + '\n' : ''}\n${(d.licenseText ?? d.noticeText ?? '').trim()}`),
+              ...workerLicenses(),
               ...fontLicenses(),
             ].join(SEP) + '\n',
         },
