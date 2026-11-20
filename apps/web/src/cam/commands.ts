@@ -726,7 +726,13 @@ export async function openExample(id: string, title: string): Promise<boolean> {
   s.setProjectName(title);
   s.setTab('simulate');
   s.sendViewCommand('fitStock');
-  status(t.welcome.opened(title));
+  // Tipset om Simulera visas när banorna är uträknade (inlägg tar en stund).
+  const stop = useAppStore.subscribe((st) => {
+    if (st.projectName !== title) return stop();
+    if (Object.keys(st.progress).length || !st.toolpaths.every((tp) => st.results[tp.id] || st.errors[tp.id])) return;
+    stop();
+    setTimeout(() => status(getT().welcome.opened(title)), 0);
+  });
   return true;
 }
 
