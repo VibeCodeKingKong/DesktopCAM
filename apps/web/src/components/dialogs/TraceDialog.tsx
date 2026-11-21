@@ -46,6 +46,7 @@ export function TraceDialog() {
   const [detail, setDetail] = useState(0.3);
   const [minAreaMm, setMinAreaMm] = useState(20);
   const [holes, setHoles] = useState(true);
+  const [removeShadows, setRemoveShadows] = useState(true);
   const [thinMm, setThinMm] = useState(1);
   const [minHoleMm, setMinHoleMm] = useState(100);
   const [offsetMm, setOffsetMm] = useState(0);
@@ -146,6 +147,7 @@ export function TraceDialog() {
           holes,
           ignoreEdge: !!work.rectified,
           thinRemove: mode === 'objects' ? thinMm / work.mmPerPx : 0,
+          removeShadows,
           minHoleArea: mode === 'centerline' ? 0 : minHoleMm / (work.mmPerPx * work.mmPerPx),
         },
         work.mmPerPx,
@@ -161,7 +163,7 @@ export function TraceDialog() {
         .finally(() => setBusy(null));
     }, 250);
     return () => clearTimeout(timer);
-  }, [open, step, work, mode, autoThreshold, threshold, dark, smooth, detail, minAreaMm, holes, thinMm, minHoleMm, offsetMm]);
+  }, [open, step, work, mode, autoThreshold, threshold, dark, smooth, detail, minAreaMm, holes, thinMm, minHoleMm, offsetMm, removeShadows]);
 
   const add = async () => {
     if (!result || !work || !image) return;
@@ -294,6 +296,11 @@ export function TraceDialog() {
                   <Switch checked={autoThreshold} onChange={setAutoThreshold} label={tr.autoThreshold} />
                 </FieldRow>
                 {!autoThreshold && <NumberField label={tr.threshold} step={4} min={1} max={254} value={threshold} onChange={(v) => setThreshold(Math.round(v))} />}
+                {mode === 'objects' && autoThreshold && dark && (
+                  <FieldRow label={tr.removeShadows}>
+                    <Switch checked={removeShadows} onChange={setRemoveShadows} label={tr.removeShadows} />
+                  </FieldRow>
+                )}
                 {mode === 'objects' && <p className="text-2xs leading-relaxed text-muted">{tr.shadowHint}</p>}
                 {mode !== 'centerline' && <NumberField label={tr.smooth} unit="mm" step={0.25} min={0} max={10} value={smooth} onChange={setSmooth} />}
                 <NumberField label={tr.detail} unit="mm" step={0.1} min={0.05} max={5} value={detail} onChange={setDetail} />

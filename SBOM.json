@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "desktopCAM",
-      "version": "0.39.0",
+      "version": "0.40.0",
       "licenses": [
         {
           "license": {
@@ -3781,6 +3781,33 @@
         {
           "type": "vcs",
           "url": "https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.walk"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@playwright/test",
+      "version": "1.63.0",
+      "purl": "pkg:npm/%40playwright/test@1.63.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Microsoft Corporation",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/microsoft/playwright"
         }
       ],
       "scope": "excluded",
@@ -10329,6 +10356,60 @@
         {
           "type": "vcs",
           "url": "https://github.com/danez/pirates"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "playwright",
+      "version": "1.63.0",
+      "purl": "pkg:npm/playwright@1.63.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Microsoft Corporation",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/microsoft/playwright"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "playwright-core",
+      "version": "1.63.0",
+      "purl": "pkg:npm/playwright-core@1.63.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Microsoft Corporation",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/microsoft/playwright"
         }
       ],
       "scope": "excluded",

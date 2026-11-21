@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import type { PolylineInput, Vec3 } from '@desktopcam/core';
 import type { ViewCommand } from '../../store/useAppStore';
 import type { StockSurface } from '../../cam/reliefs';
@@ -108,6 +111,7 @@ export class SceneController {
   private ndc = new THREE.Vector2();
   private cursorPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
   private resizeObserver: ResizeObserver;
+  private lineResolution = new THREE.Vector2(1, 1);
   private frame = 0;
   private theme: SceneTheme = SCENE_THEMES.light;
   private bed = { x: 300, y: 300, floor: -18 };
@@ -471,19 +475,29 @@ export class SceneController {
         this.toolpathGroup.add(obj);
       };
       if (p.cuts.length) {
-        const g = new THREE.BufferGeometry();
-        g.setAttribute('position', new THREE.BufferAttribute(p.cuts, 3));
-        place(
-          new THREE.LineSegments(
-            g,
-            new THREE.LineBasicMaterial({ color: p.color ?? (p.laser ? this.theme.laser : this.theme.cut), transparent: true, opacity: p.highlighted ? 1 : 0.55 }),
-          ),
-        );
+        // Breda linjer (WebGL ritar annars alltid 1 px) som syns genom materialet –
+        // banorna ligger under ovansidan och skulle annars skymmas av ämnet.
+        const g = new LineSegmentsGeometry();
+        g.setPositions(p.cuts);
+        const mat = new LineMaterial({
+          color: p.color ?? (p.laser ? this.theme.laser : this.theme.cut),
+          linewidth: p.highlighted ? 2 : 1.25,
+          transparent: true,
+          opacity: p.highlighted ? 0.95 : 0.5,
+          depthTest: false,
+        });
+        mat.resolution.copy(this.lineResolution);
+        const lines = new LineSegments2(g, mat);
+        lines.renderOrder = 5;
+        place(lines);
       }
       if (showRapids && p.rapids.length) {
+        // Snabbförflyttningar: tunna och streckade, så att de inte tar över bilden.
         const g = new THREE.BufferGeometry();
         g.setAttribute('position', new THREE.BufferAttribute(p.rapids, 3));
-        place(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: this.theme.rapid, transparent: true, opacity: 0.35 })));
+        const lines = new THREE.LineSegments(g, new THREE.LineDashedMaterial({ color: this.theme.rapid, dashSize: 2, gapSize: 2, transparent: true, opacity: 0.4 }));
+        lines.computeLineDistances();
+        place(lines);
       }
     }
   }
@@ -547,6 +561,12 @@ export class SceneController {
     const { clientWidth: w, clientHeight: h } = this.container;
     if (!w || !h) return;
     this.renderer.setSize(w, h, false);
+    // Breda linjer anges i pixlar och behöver ritytans storlek.
+    this.lineResolution.set(w, h);
+    this.toolpathGroup.traverse((o) => {
+      const m = (o as THREE.Mesh).material;
+      if (m instanceof LineMaterial) m.resolution.set(w, h);
+    });
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
   }

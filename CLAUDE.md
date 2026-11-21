@@ -19,6 +19,9 @@ vilket bibliotek som valts och varför, eller varför egen kod behövdes.
   och säkerhetsregler). Körs också av `pnpm build`. Ändras G-koden med avsikt:
   kontrollera i simuleringen och kör `pnpm test:update`. Ändras jobbformatet
   eller exemplen: `node scripts/capture-gcode-fixtures.cjs` med dev-servern igång.
+- `pnpm test:e2e`: webbläsartester av huvudflödena (Playwright, `apps/web/e2e/`)
+  mot det byggda programmet – kör efter `pnpm build`. Körs inte i Cloudflares
+  bygge (ingen webbläsare där). Första gången: `npx playwright install chromium`.
 - Projektstruktur: `apps/web` (React/Vite), `packages/core` (CAM-kärna i
   TypeScript), `crates/cam-engine` (Rust/Wasm).
 - Verifiera ändringar i webbläsaren (Playwright) och, för verktygsbanor, genom

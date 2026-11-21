@@ -32,7 +32,7 @@ export function OutputTab() {
             <p className="text-xs">{machine.postprocessor.name}</p>
           </RibbonField>
           <RibbonField label={t.output.machine}>
-            <p className="truncate text-xs">{machine.name}</p>
+            <p className="line-clamp-2 text-xs leading-tight" title={machine.name}>{machine.name}</p>
           </RibbonField>
         </RibbonStack>
       </RibbonGroup>

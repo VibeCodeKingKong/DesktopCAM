@@ -126,6 +126,8 @@ export interface FacingJob {
 /** Spåra en bild (Smart Trace). Gråskalan i pixlar, resultatet i mm. */
 export interface TraceJob {
   gray: Uint8Array;
+  /** Färgmättnad per bildpunkt (för skuggfiltret), samma storlek som gray. */
+  chroma?: Uint8Array;
   width: number;
   height: number;
   options: TraceOptions;

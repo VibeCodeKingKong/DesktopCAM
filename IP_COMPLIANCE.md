@@ -2,7 +2,7 @@
 
 Sammanfattning av immaterialrättsliga frågor och identifierade risker.
 Uppdateras när beroenden, algoritmer eller tjänster ändras. Senast granskat:
-2026-11-21 (version 0.39.0: Workbox för offline, idb-keyval).
+2026-11-21 (version 0.40.0: felrapporter, skuggfilter, webbläsartester).
 
 > Detta är en teknisk genomgång, inte juridisk rådgivning. Automatiska
 > licenskontroller är en sållning och ersätter inte en juridisk granskning.
@@ -103,6 +103,7 @@ tillämpningar i CAM-branschen kan omfattas av patent** och bör granskas.
 | Spårning: papper och perspektiv | Ljusaste ytan (Otsu), konvext hölje, linjeanpassning (minsta kvadrat), homografi med fyra punkter (DLT) | Klassisk bildgeometri. Automatisk dokument-/pappersdetektering finns i kommersiella skannerappar och kan vara patenterad i specifika utföranden – REVIEW REQUIRED. |
 | Spårning: objekt och konturer | Tröskel, sammanhängande komponenter, morfologi, marching squares, Douglas–Peucker, avståndsfältets offset | Allmänna metoder; inga kända patent. Potrace (GPL) används inte. |
 | Spårning: mittlinje | Zhang–Suen-uttunning (1984), egen grafföljning och borttagning av utstickare | Publicerad 1984; inget känt patent. |
+| Spårning: skuggfilter | Otsu med tre klasser (Liao m.fl. 2001) och färgmättnad per bildpunkt: grå mellanton = skugga | Allmänna bildbehandlingsmetoder, egen kod. Automatisk skuggborttagning finns i patenterade utföranden – REVIEW REQUIRED (ingår i patentsökningen). |
 | Räta upp | Minsta omslutande rektangel via konvext hölje och roterande skjutmått (Freeman–Shapira 1975, Toussaint 1983) | Klassisk beräkningsgeometri; inget känt patent. |
 | Vektorexport | SVG (W3C, royaltyfri), DXF R12 (Autodesks publicerade format), PDF 1.4 (ISO 32000) | Öppna/publicerade format; egen kod. DXF är Autodesks format – användning för utbyte bedöms tillåten, men "DXF" är ett varumärke att nämna med försiktighet. |
 

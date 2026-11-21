@@ -152,9 +152,9 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       return { result: out, transfer: [out.buffer as ArrayBuffer] };
     }
     case 'trace': {
-      const { gray, width, height, options, mmPerPx, offsetMm } = request.job;
+      const { gray, chroma, width, height, options, mmPerPx, offsetMm } = request.job;
       progress(0.2, 'trace');
-      const res = traceImage(gray, width, height, options);
+      const res = traceImage(gray, width, height, options, chroma);
       progress(0.7, 'offset');
       const objects: TracedObjectMm[] = res.objects.map((o) => {
         let loops = o.loops.map((l) => traceToMm(l, mmPerPx, height));

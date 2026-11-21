@@ -105,7 +105,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | workbox-window | 7.4.1 | MIT | Google's Web DevRel Team and Google's Aurora Team | <https://github.com/googlechrome/workbox> | APPROVED |
 | zustand | 4.5.5 | MIT | Paul Henschel | <https://github.com/pmndrs/zustand> | APPROVED |
 
-## Bara byggverktyg, typer och utveckling – följer inte med appen (468)
+## Bara byggverktyg, typer och utveckling – följer inte med appen (471)
 
 | Paket | Version | Licens | Upphovsrätt | Källa | Status |
 |---|---|---|---|---|---|
@@ -239,6 +239,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | @nodelib/fs.scandir | 2.1.5 | MIT | – | <https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.scandir> | APPROVED |
 | @nodelib/fs.stat | 2.0.5 | MIT | – | <https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.stat> | APPROVED |
 | @nodelib/fs.walk | 1.2.8 | MIT | – | <https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.walk> | APPROVED |
+| @playwright/test | 1.63.0 | Apache-2.0 | Microsoft Corporation | <https://github.com/microsoft/playwright> | APPROVED |
 | @rollup/plugin-babel | 6.1.0 | MIT | Rich Harris | <rollup/plugins> | APPROVED |
 | @rollup/plugin-node-resolve | 16.0.3 | MIT | Rich Harris | <rollup/plugins> | APPROVED |
 | @rollup/plugin-replace | 6.0.3 | MIT | Rich Harris | <rollup/plugins> | APPROVED |
@@ -459,6 +460,8 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | picomatch | 2.3.2 | MIT | Jon Schlinkert | <micromatch/picomatch> | APPROVED |
 | picomatch | 4.0.7 | MIT | Jon Schlinkert | <micromatch/picomatch> | APPROVED |
 | pirates | 4.0.7 | MIT | Ari Porad | <https://github.com/danez/pirates> | APPROVED |
+| playwright | 1.63.0 | Apache-2.0 | Microsoft Corporation | <https://github.com/microsoft/playwright> | APPROVED |
+| playwright-core | 1.63.0 | Apache-2.0 | Microsoft Corporation | <https://github.com/microsoft/playwright> | APPROVED |
 | possible-typed-array-names | 1.1.0 | MIT | Jordan Harband | <https://github.com/ljharb/possible-typed-array-names> | APPROVED |
 | postcss | 8.4.47 | MIT | Andrey Sitnik | <postcss/postcss> | APPROVED |
 | postcss-import | 15.1.0 | MIT | Maxime Thirouin | <https://github.com/postcss/postcss-import> | APPROVED |

@@ -303,23 +303,23 @@ function ShapeEditor() {
         <p className="-mt-1 text-2xs leading-relaxed text-muted">{coarsePointer ? t.contour.rotateHandleHintTouch : t.contour.rotateHandleHint}</p>
         <div className="grid grid-cols-2 gap-2">
           <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.mirrorH, { illustration: <IlluFlip /> })}>
-          <button className="btn" onClick={() => mirrorSelection('h')} title={t.props.mirrorH}>
-            <FlipHorizontal2 size={13} /> <span className="truncate">{t.props.mirrorH}</span>
+          <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" onClick={() => mirrorSelection('h')}>
+            <FlipHorizontal2 size={13} className="shrink-0" /> <span>{t.props.mirrorH}</span>
           </button>
           </SmartTooltip>
           <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.mirrorV, { illustration: <IlluFlip vertical /> })}>
-          <button className="btn" onClick={() => mirrorSelection('v')} title={t.props.mirrorV}>
-            <FlipVertical2 size={13} /> <span className="truncate">{t.props.mirrorV}</span>
+          <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" onClick={() => mirrorSelection('v')}>
+            <FlipVertical2 size={13} className="shrink-0" /> <span>{t.props.mirrorV}</span>
           </button>
           </SmartTooltip>
           <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.center, { illustration: <IlluCenter /> })}>
-          <button className="btn" onClick={centerSelection}>
-            <Crosshair size={13} /> <span className="truncate">{t.props.alignCenter}</span>
+          <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" onClick={centerSelection}>
+            <Crosshair size={13} className="shrink-0" /> <span>{t.props.alignCenter}</span>
           </button>
           </SmartTooltip>
           <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.duplicate, { shortcut: '⌘D', illustration: <IlluDuplicate /> })}>
-          <button className="btn" onClick={duplicateSelection}>
-            <Copy size={13} /> {t.common.duplicate}
+          <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" onClick={duplicateSelection}>
+            <Copy size={13} className="shrink-0" /> <span>{t.common.duplicate}</span>
           </button>
           </SmartTooltip>
         </div>

@@ -4,7 +4,7 @@
 juridisk granskning. Ingen komponent med status REVIEW REQUIRED eller
 REJECTED får ingå i en kommersiell release utan uttryckligt godkännande.
 
-Senast uppdaterad: 2026-11-21 (version 0.39.0).
+Senast uppdaterad: 2026-11-21 (version 0.40.0).
 
 > desktopCAM är **inte** juridiskt klar för kommersiell distribution. Att den
 > automatiska licenskontrollen går igenom (`node scripts/license-audit.mjs
@@ -27,7 +27,7 @@ Senast uppdaterad: 2026-11-21 (version 0.39.0).
 | 1 | **Rättighetsinnehavare och slutanvändaravtal** | Det är inte fastställt vem som äger desktopCAM (person eller bolag), och det finns ingen EULA eller användarvillkor. | Bestäm rättighetsinnehavare, lägg till upphovsrättsnotis och EULA/villkor innan försäljning. |
 | 2 | **Web3Forms** (feedbackformuläret) | Meddelandet, en valfri svarsadress och valfri appinformation (version, språk, maskin, webbläsarens user-agent) skickas till api.web3forms.com. Villkoren kunde inte läsas (sajten nås inte från utvecklingsmiljön). Okänt: kommersiell användning på gratisnivån, gränser, var data lagras, hur länge, om ett personuppgiftsbiträdesavtal (DPA) finns. | Granska villkor och DPA, eller byt till egen mottagare (t.ex. en Cloudflare Worker som skickar e-post) så att ingen tredje part hanterar data. Informera i integritetspolicyn. |
 | 3 | **Cloudflare Workers** (drift) | Kommersiell användning är tillåten, men det behövs ett DPA och uppgifter om loggar och IP-adresser för GDPR. | Teckna Cloudflares DPA, beskriv i integritetspolicyn. |
-| 4 | **Integritetspolicy (GDPR)** | Appen sparar projekt lokalt i webbläsaren (localStorage och IndexedDB) och sina egna programfiler i webbläsarens cache (service worker, för offline), har ingen analys eller spårning och skickar data bara via feedbackformuläret. Ingen integritetspolicy finns. | Skriv integritetspolicy och, vid behov, cookie- och lagringsinformation. |
+| 4 | **Integritetspolicy (GDPR)** | Felrapporter skickas bara om användaren väljer det, utan personuppgifter, till projektets egen Worker (Workers Logs, 7 dagar). Appen sparar projekt lokalt i webbläsaren (localStorage och IndexedDB) och sina egna programfiler i webbläsarens cache (service worker, för offline), har ingen analys eller spårning och skickar data bara via feedbackformuläret och de felrapporter användaren själv väljer att skicka. Ingen integritetspolicy finns. | Skriv integritetspolicy och, vid behov, cookie- och lagringsinformation. |
 | 5 | **Patent** | Ingen patentsökning har gjorts. Särskilt: mittlinjebaserad V-gravyr, V-inlägg, bild till relief. | Freedom-to-operate-sökning för CAM-relaterade patent före lansering. Se `IP_COMPLIANCE.md` §4. |
 | 6 | **Varumärken** | Maskin- och programnamn i gränssnittet; namnet "desktopCAM" är inte sökt. | Varumärkessökning för produktnamnet; granska användningen av tredjeparts namn. |
 | 7 | **Skärdata** | Siffror sammanställda bl.a. ur tillverkares skärtabeller. Fakta, låg risk. | Dokumentera källa per material/maskin. |
@@ -47,6 +47,7 @@ Inga.
 | Tjänst | Används till | Data | Krävs för kärnfunktionen? |
 |---|---|---|---|
 | Cloudflare Workers | Drift av webbappen | IP-adresser i loggar | Ja (drift); appen kan också driftas annorstädes som statiska filer |
+| Cloudflare Workers Logs | Felrapporter som användaren valt att skicka (/api/error, worker/index.js) | Felmeddelande, stackspår, appversion, språk, maskintyp, webbläsarnamn och huvudversion. Ingen IP-adress loggas (invocation_logs av). Sparas upp till 7 dagar. | Nej |
 | Web3Forms | Feedbackformuläret | Meddelande, ev. svarsadress, ev. appinformation och user-agent | Nej |
 | PayPal | Donationslänk (avstängd) | Hanteras av PayPal | Nej |
 | npm-registret, crates.io | Bygget | – | Bara vid utveckling |

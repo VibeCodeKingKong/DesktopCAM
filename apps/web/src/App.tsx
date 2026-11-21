@@ -5,12 +5,17 @@ import { ProjectTree } from './components/layout/ProjectTree';
 import { PropertiesPanel } from './components/layout/PropertiesPanel';
 import { StatusBar } from './components/layout/StatusBar';
 import { UpdatePrompt } from './components/layout/UpdatePrompt';
+import { ErrorPrompt } from './errors/ErrorPrompt';
+import { setReportContext } from './errors/reports';
+
+// Felrapporten får språk och maskintyp (inga projektdata).
+setReportContext(() => ({ language: useAppStore.getState().language, machineKind: getMachine().kind }));
 import { MobileTabBar, Ribbon } from './components/ribbon/Ribbon';
 import { SetupSheet } from './components/ribbon/tabs/SetupTab';
 import { Viewport } from './components/viewport/Viewport';
 import { camClient } from './engine/camClient';
 import { useShortcuts } from './hooks/useShortcuts';
-import { useAppStore, type DialogId } from './store/useAppStore';
+import { getMachine, useAppStore, type DialogId } from './store/useAppStore';
 import { APP_VERSION } from './data/version';
 import { getT } from './i18n';
 import { startAutosave } from './cam/commands';
@@ -38,6 +43,7 @@ const DIALOGS: Partial<Record<DialogId, LazyExoticComponent<ComponentType>>> = {
   pattern: lazy(() => import('./components/dialogs/PatternDialog').then((m) => ({ default: m.PatternDialog }))),
   welcome: lazy(() => import('./components/dialogs/WelcomeDialog').then((m) => ({ default: m.WelcomeDialog }))),
   trace: lazy(() => import('./components/dialogs/TraceDialog').then((m) => ({ default: m.TraceDialog }))),
+  recent: lazy(() => import('./components/dialogs/RecentProjectsDialog').then((m) => ({ default: m.RecentProjectsDialog }))),
 };
 
 function OpenDialog() {
@@ -124,6 +130,7 @@ export default function App() {
       <SetupSheet />
       <OpenDialog />
       <UpdatePrompt />
+      <ErrorPrompt />
     </div>
   );
 }

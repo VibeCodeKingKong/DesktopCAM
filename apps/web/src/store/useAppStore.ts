@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
-import { effectiveMaterial } from '@desktopcam/core';
+import { effectiveMaterial, uid } from '@desktopcam/core';
 import type {
   EngineInfo,
   ImportFormat,
@@ -27,7 +27,7 @@ import type { MeasureRef } from '../cam/commands';
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
 export type ViewCommand = 'fit' | 'fitStock' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
-export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace';
+export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace' | 'recent';
 export type MobilePanel = 'tree' | 'props' | 'setup' | null;
 
 export interface ToolpathResult {
@@ -157,6 +157,8 @@ interface AppState extends DocSnapshot {
   setMeasureSwapped: (v: boolean) => void;
   viewCommand: { kind: ViewCommand; nonce: number } | null;
   cursor: Vec3 | null;
+  /** Projektets id i listan Senaste projekt (sparas inte i ångra-historiken). */
+  projectId: string;
   status: string;
   /** Besked om automatiskt valt verktyg per bana (visas i egenskaperna, sparas inte). */
   toolNotes: Record<string, { toolId: string; text: string }>;
@@ -185,7 +187,8 @@ interface AppState extends DocSnapshot {
   checkpoint: () => void;
   undo: () => boolean;
   redo: () => boolean;
-  loadDocument: (doc: Partial<DocSnapshot> & { machineId?: string; customMachines?: MachineProfile[] }) => void;
+  /** Läser in ett projekt. Utan projectId räknas det som ett nytt projekt i Senaste projekt. */
+  loadDocument: (doc: Partial<DocSnapshot> & { machineId?: string; customMachines?: MachineProfile[]; projectId?: string }) => void;
   newProject: (name: string, layerName: string) => void;
   setProjectName: (name: string) => void;
 
@@ -352,6 +355,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     setMeasureSwapped: (measureSwapped) => set({ measureSwapped }),
     viewCommand: null,
     cursor: null,
+    projectId: uid('proj'),
     status: '',
     toolNotes: {},
     engine: null,
@@ -411,8 +415,10 @@ export const useAppStore = create<AppState>()((set, get) => {
       set((s) => {
         const customMachines = doc.customMachines ?? [];
         const allMachines = [...s.machines.filter((m) => !customMachines.some((c) => c.id === m.id)), ...customMachines];
+        const { projectId, ...rest } = doc;
         return {
-          ...doc,
+          ...rest,
+          projectId: projectId ?? uid('proj'),
           machines: allMachines,
           machineId: doc.machineId && allMachines.some((m) => m.id === doc.machineId) ? doc.machineId : s.machineId,
           selectedShapeIds: [],
@@ -431,6 +437,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     newProject: (name, layerName) =>
       set((s) => ({
         ...push(s),
+        projectId: uid('proj'),
         projectName: name,
         layers: [{ id: `layer_${Date.now()}`, name: layerName, color: '#0071e3', visible: true, locked: false, shapes: [] }],
         selectedShapeIds: [],

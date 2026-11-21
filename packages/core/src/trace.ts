@@ -323,6 +323,12 @@ export interface TraceOptions {
   thinRemove?: number;
   /** Hål mindre än så (px²) fylls igen – t.ex. knappar på en fjärrkontroll. */
   minHoleArea?: number;
+  /**
+   * Objekt: ta bort skuggor (standard på). Kräver färginformation (kroma) och
+   * automatisk tröskel. Gråa mellantoner räknas som skugga; mörka och färgade
+   * ytor behålls. Stäng av för gråa föremål (t.ex. aluminium).
+   */
+  removeShadows?: boolean;
 }
 
 export interface TracedObject {
@@ -340,13 +346,77 @@ export interface TraceResult {
   objects: TracedObject[];
 }
 
-/** Gråskala → mask (1 = objekt/streck). */
-export function traceMask(gray: Uint8Array, w: number, h: number, o: Pick<TraceOptions, 'threshold' | 'dark' | 'mode'>): { mask: Uint8Array; threshold: number } {
+/** Färgmättnad per bildpunkt (största minus minsta färgkanal, 0–255). */
+export function rgbaToChroma(rgba: Uint8ClampedArray | Uint8Array, w: number, h: number): Uint8Array {
+  const c = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const r = rgba[4 * i], g = rgba[4 * i + 1], b = rgba[4 * i + 2];
+    c[i] = Math.max(r, g, b) - Math.min(r, g, b);
+  }
+  return c;
+}
+
+/** Otsus metod med tre klasser (t.ex. föremål, skugga, papper): två trösklar. */
+export function otsu3(gray: Uint8Array): [number, number] {
+  const hist = new Float64Array(256);
+  for (const v of gray) hist[v]++;
+  const n = gray.length;
+  const P = new Float64Array(256), S = new Float64Array(256);
+  let p = 0, sum = 0;
+  for (let i = 0; i < 256; i++) {
+    p += hist[i] / n;
+    sum += (i * hist[i]) / n;
+    P[i] = p;
+    S[i] = sum;
+  }
+  const mT = S[255];
+  let best = -1, r: [number, number] = [85, 170];
+  for (let t1 = 1; t1 < 254; t1++) {
+    const w0 = P[t1];
+    if (w0 <= 0) continue;
+    const m0 = S[t1] / w0;
+    for (let t2 = t1 + 1; t2 < 255; t2++) {
+      const w1 = P[t2] - w0, w2 = 1 - P[t2];
+      if (w1 <= 0 || w2 <= 0) continue;
+      const m1 = (S[t2] - S[t1]) / w1, m2 = (mT - S[t2]) / w2;
+      const v = w0 * (m0 - mT) ** 2 + w1 * (m1 - mT) ** 2 + w2 * (m2 - mT) ** 2;
+      if (v > best) {
+        best = v;
+        r = [t1, t2];
+      }
+    }
+  }
+  return r;
+}
+
+/** Kroma över detta räknas som färg (inte skugga). */
+const SHADOW_MAX_CHROMA = 40;
+
+/** Gråskala → mask (1 = objekt/streck). Med kroma kan skuggor tas bort (objekt). */
+export function traceMask(
+  gray: Uint8Array,
+  w: number,
+  h: number,
+  o: Pick<TraceOptions, 'threshold' | 'dark' | 'mode' | 'removeShadows'>,
+  chroma?: Uint8Array,
+): { mask: Uint8Array; threshold: number } {
   // Skisser: jämna ut belysningen först (skuggor, vinjettering). Objekt: inte –
   // utjämningen tar stora mörka ytor för skugga och gör hål i dem.
   const flat = o.mode === 'objects' ? gray : flattenBackground(gray, w, h, o.dark);
-  const t = o.threshold ?? otsuThreshold(flat);
   const mask = new Uint8Array(gray.length);
+  // Skuggor: papper, skugga och föremål ger tre toner. Skuggan är grå (ingen
+  // färg) och ljusare än föremålet – behåll det mörkaste, och mellantoner bara
+  // om de har färg. Används bara när bilden verkligen har en tydlig mörk ton.
+  if (o.mode === 'objects' && o.dark && o.threshold === null && o.removeShadows !== false && chroma && chroma.length === gray.length) {
+    const [t1, t2] = otsu3(gray);
+    let darkCount = 0;
+    for (let i = 0; i < gray.length; i++) if (gray[i] <= t1) darkCount++;
+    if (darkCount > gray.length * 0.003 && t2 - t1 >= 40) {
+      for (let i = 0; i < gray.length; i++) mask[i] = gray[i] <= t1 || (gray[i] <= t2 && chroma[i] > SHADOW_MAX_CHROMA) ? 1 : 0;
+      return { mask, threshold: t1 };
+    }
+  }
+  const t = o.threshold ?? otsuThreshold(flat);
   for (let i = 0; i < gray.length; i++) mask[i] = (o.dark ? flat[i] <= t : flat[i] > t) ? 1 : 0;
   return { mask, threshold: t };
 }
@@ -539,8 +609,8 @@ function simplifyOpen(pts: number[], tol: number): number[] {
 }
 
 /** Spårar bilden (gråskala) enligt inställningarna. */
-export function traceImage(gray: Uint8Array, w: number, h: number, o: TraceOptions): TraceResult {
-  const { mask: raw, threshold } = traceMask(gray, w, h, o);
+export function traceImage(gray: Uint8Array, w: number, h: number, o: TraceOptions, chroma?: Uint8Array): TraceResult {
+  const { mask: raw, threshold } = traceMask(gray, w, h, o, chroma);
   // Brus bort och små glipor slutna (skisser: bara stängning, så tunna streck finns kvar).
   // Öppning med större radie tar bort tunna linjer (tryck, text, skuggkanter) som annars växer ihop med föremålet.
   const thinR = Math.max(1, Math.round(o.thinRemove ?? 0));

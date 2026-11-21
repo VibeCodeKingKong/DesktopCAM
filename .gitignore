@@ -5,3 +5,8 @@ target
 *.log
 # Byggd Wasm – ta bort raden om du vill checka in motorn i stället för att bygga den i CI
 apps/web/public/wasm/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
+.wrangler/

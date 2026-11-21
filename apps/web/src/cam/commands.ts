@@ -59,6 +59,7 @@ import machinesJson from '../data/machines.json';
 import { decimalSep, materialName, toolName } from '../i18n';
 import { cuttingLength } from './toolReach';
 import { get as idbGet, set as idbSet } from 'idb-keyval';
+import { loadRecent, rememberProject, type RecentEntry } from './recentProjects';
 
 /** Räcker verktygets skärlängd (och utstick) till djupet? */
 function reaches(tool: ToolDefinition, depth: number): boolean {
@@ -736,6 +737,7 @@ export function projectJson(withImages = true) {
     app: 'desktopCAM',
     version: 1,
     savedAt: new Date().toISOString(),
+    projectId: s.projectId,
     projectName: s.projectName,
     machineId: s.machineId,
     customMachines: s.machines.filter((m) => m.custom || JSON.stringify(m) !== JSON.stringify(BUILT_IN.get(m.id))),
@@ -749,10 +751,15 @@ export function projectJson(withImages = true) {
   };
 }
 
-export function loadProject(data: unknown): boolean {
+/**
+ * Läser in ett projekt. keepId: fortsätt spara under projektets id i Senaste
+ * projekt (autosparning, listan); annars – fil eller exempel – blir det ett nytt.
+ */
+export function loadProject(data: unknown, opts: { keepId?: boolean } = {}): boolean {
   const d = data as ReturnType<typeof projectJson>;
   if (!d || d.app !== 'desktopCAM' || !Array.isArray(d.layers)) return false;
   useAppStore.getState().loadDocument({
+    projectId: opts.keepId ? d.projectId : undefined,
     projectName: d.projectName ?? '',
     layers: d.layers,
     reliefs: d.reliefs ?? [],
@@ -803,6 +810,7 @@ function localizeExample(d: ReturnType<typeof projectJson>) {
 /** Öppnar ett exempelprojekt från välkomstfönstret. */
 export async function openExample(id: string, title: string): Promise<boolean> {
   const t = getT();
+  await autosaveNow();
   try {
     const res = await fetch(exampleUrl(id, 'dcam'));
     if (!res.ok || !loadProject(localizeExample(await res.json()))) throw new Error('INVALID');
@@ -836,6 +844,7 @@ export async function openProject() {
   const f = await pickFile('.dcam,.json,application/json');
   if (!f) return;
   const t = getT();
+  await autosaveNow();
   try {
     if (loadProject(JSON.parse(await f.text()))) status(t.status.projectOpened(f.name));
     else status(t.status.projectInvalid);
@@ -846,6 +855,7 @@ export async function openProject() {
 
 export function newProject() {
   const t = getT();
+  void autosaveNow(); // läser projektet direkt, innan det töms
   useAppStore.getState().newProject('', t.common.layer(1));
   status(t.status.newProject);
 }
@@ -862,17 +872,16 @@ let restoring: Promise<void> | null = null;
 
 export function startAutosave() {
   let ready = false;
-  let warned = false;
   const restore = async () => {
     try {
       const data = await idbGet(AUTOSAVE_KEY);
-      if (data && loadProject(data)) return status(getT().status.restored);
+      if (data && loadProject(data, { keepId: true })) return status(getT().status.restored);
     } catch {
       /* IndexedDB saknas (t.ex. vissa privata lägen) */
     }
     try {
       const raw = localStorage.getItem(AUTOSAVE_KEY);
-      if (raw && loadProject(JSON.parse(raw))) status(getT().status.restored);
+      if (raw && loadProject(JSON.parse(raw), { keepId: true })) status(getT().status.restored);
     } catch {
       /* trasig autosparning ignoreras */
     }
@@ -880,39 +889,74 @@ export function startAutosave() {
   restoring ??= restore();
   void restoring.finally(() => (ready = true));
 
-  const save = async () => {
-    const full = projectJson();
-    let fullSaved = false;
-    try {
-      await idbSet(AUTOSAVE_KEY, full);
-      fullSaved = true;
-    } catch {
-      /* fullt eller saknas – prova localStorage nedan */
-    }
-    try {
-      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(fullSaved ? projectJson(false) : full));
-      fullSaved = true;
-    } catch {
-      try {
-        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson(false)));
-      } catch {
-        /* privat läge */
-      }
-    }
-    if (!fullSaved && !warned) {
-      warned = true;
-      status(getT().status.autosaveFull);
-    }
-    if (fullSaved) warned = false;
-  };
-
-  let timer: ReturnType<typeof setTimeout> | undefined;
   return useAppStore.subscribe((s, prev) => {
     if (!ready) return;
     if (s.layers === prev.layers && s.reliefs === prev.reliefs && s.imageObjects === prev.imageObjects && s.toolpaths === prev.toolpaths && s.material === prev.material && s.tools === prev.tools && s.machineId === prev.machineId && s.projectName === prev.projectName) return;
-    clearTimeout(timer);
-    timer = setTimeout(() => void save(), 800);
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => void autosaveNow(), 800);
   });
+}
+
+let autosaveTimer: ReturnType<typeof setTimeout> | undefined;
+let autosaveWarned = false;
+
+/**
+ * Sparar det öppna projektet nu (autosparning och Senaste projekt). Anropas
+ * också innan ett annat projekt öppnas, så att inga ändringar går förlorade.
+ * Projektet läses synkront innan något väntas på.
+ */
+export async function autosaveNow(): Promise<void> {
+  clearTimeout(autosaveTimer);
+  const s = useAppStore.getState();
+  const full = projectJson();
+  const shapes = allShapes(s.layers).length;
+  const entry: RecentEntry = {
+    id: s.projectId,
+    name: s.projectName,
+    machineName: getMachine().name,
+    machineKind: getMachine().kind,
+    savedAt: Date.now(),
+    shapes,
+    toolpaths: s.toolpaths.length,
+    images: s.imageObjects.length,
+  };
+  let fullSaved = false;
+  try {
+    await idbSet(AUTOSAVE_KEY, full);
+    fullSaved = true;
+    // Tomma projekt hamnar inte i listan.
+    if (shapes || s.toolpaths.length || s.imageObjects.length || s.reliefs.length) await rememberProject(full, entry);
+  } catch {
+    /* fullt eller saknas – prova localStorage nedan */
+  }
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(fullSaved ? projectJson(false) : full));
+    fullSaved = true;
+  } catch {
+    try {
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson(false)));
+    } catch {
+      /* privat läge */
+    }
+  }
+  if (!fullSaved && !autosaveWarned) {
+    autosaveWarned = true;
+    status(getT().status.autosaveFull);
+  }
+  if (fullSaved) autosaveWarned = false;
+}
+
+/** Öppnar ett projekt ur listan Senaste projekt (fortsätter spara under samma id). */
+export async function openRecent(id: string, name: string): Promise<boolean> {
+  const t = getT();
+  await autosaveNow();
+  const data = await loadRecent(id).catch(() => null);
+  if (!data || !loadProject(data, { keepId: true })) {
+    status(t.status.projectInvalid);
+    return false;
+  }
+  status(t.status.projectOpened(name || t.common.untitledProject));
+  return true;
 }
 
 /* ───────── Export ───────── */

@@ -3,7 +3,7 @@
  * spårar i workern och lägger in resultatet i ritningen. Algoritmerna finns i
  * @desktopcam/core (trace.ts); här är bara flödet och kopplingen till store.
  */
-import { downscaleGray, multiply, rgbaToGray, rotate, transformShape, translate, uid, type PathSegment, type TraceOptions, type TraceResultMm, type VectorPath, type VectorShape } from '@desktopcam/core';
+import { downscaleGray, multiply, rgbaToChroma, rgbaToGray, rotate, transformShape, translate, uid, type PathSegment, type TraceOptions, type TraceResultMm, type VectorPath, type VectorShape } from '@desktopcam/core';
 import { camClient } from '../engine/camClient';
 import { useAppStore } from '../store/useAppStore';
 import { getT } from '../i18n';
@@ -69,10 +69,12 @@ export async function rectifyPaper(src: TraceImage, quad: P2[], paperMm: [number
 /** Spårar bilden i workern. mmPerPx gäller `img`; bilden skalas ner vid behov. */
 export function runTrace(img: TraceImage, options: TraceOptions, mmPerPx: number, offsetMm: number): Promise<TraceResultMm> {
   const small = downscaleGray(rgbaToGray(img.rgba, img.width, img.height), img.width, img.height, TRACE_MAX);
+  // Färgmättnaden (för skuggfiltret) skalas likadant som gråskalan.
+  const chroma = downscaleGray(rgbaToChroma(img.rgba, img.width, img.height), img.width, img.height, TRACE_MAX).gray;
   const k = img.width / small.w;
   // Inställningar i pixlar följer nedskalningen.
   const o: TraceOptions = { ...options, minArea: options.minArea / (k * k), smooth: options.smooth / k, simplify: options.simplify / k };
-  return camClient.request({ type: 'trace', job: { gray: small.gray, width: small.w, height: small.h, options: o, mmPerPx: mmPerPx * k, offsetMm } });
+  return camClient.request({ type: 'trace', job: { gray: small.gray, chroma, width: small.w, height: small.h, options: o, mmPerPx: mmPerPx * k, offsetMm } });
 }
 
 /** RGBA → bildfil (för att lägga in den upprätade bilden i ritningen). */

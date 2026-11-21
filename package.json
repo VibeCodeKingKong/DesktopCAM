@@ -2,7 +2,7 @@
   "name": "desktopcam",
   "private": true,
   "license": "UNLICENSED",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "pnpm --filter @desktopcam/web dev",
@@ -14,6 +14,7 @@
     "license:audit": "node scripts/license-audit.mjs",
     "license:check": "node scripts/license-audit.mjs --check",
     "test": "pnpm --filter @desktopcam/web test",
-    "test:update": "pnpm --filter @desktopcam/web test:update"
+    "test:update": "pnpm --filter @desktopcam/web test:update",
+    "test:e2e": "pnpm --filter @desktopcam/web test:e2e"
   }
 }
