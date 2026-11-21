@@ -911,6 +911,7 @@ export const pl: Dict = {
     straighten: "Wyprostuj",
     straightenHint: "Obraca kształt o najmniejszy kąt potrzebny, by leżał prosto (według minimalnego prostokąta otaczającego). Obrysowane zdjęcia obracają się razem z nim.",
     rotateHandleHint: "Albo przeciągnij okrągły uchwyt nad zaznaczeniem, aby obracać swobodnie (Shift – co 15°).",
+    rotateHandleHintTouch: "Albo przeciągnij okrągły uchwyt nad zaznaczeniem, aby obracać swobodnie co 1°. Przyciski na dole widoku obracają o 15° naraz.",
     alreadyStraight: "Kształt jest już prosty.",
     straightened: (v: string) => `Wyprostowano: obrót o ${v}°`,
     rotated: (v: string) => `Obrócono o ${v}°`,

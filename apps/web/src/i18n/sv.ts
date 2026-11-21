@@ -852,6 +852,7 @@ export const sv = {
     straighten: "Räta upp",
     straightenHint: "Vrider formen den minsta vinkel som behövs för att den ska ligga rakt (efter minsta omslutande rektangel). Spårade foton följer med.",
     rotateHandleHint: "Eller dra i den runda knappen ovanför markeringen för att vrida fritt (håll Shift för steg om 15°).",
+    rotateHandleHintTouch: "Eller dra i den runda knappen ovanför markeringen för att vrida fritt i steg om 1°. Knapparna nertill i vyn vrider 15° åt gången.",
     alreadyStraight: "Formen ligger redan rakt.",
     straightened: (v: string) => `Uppriktad: vriden ${v}°`,
     rotated: (v: string) => `Vriden ${v}°`,

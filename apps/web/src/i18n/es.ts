@@ -904,6 +904,7 @@ export const es: Dict = {
     straighten: "Enderezar",
     straightenHint: "Gira la forma el ángulo mínimo necesario para que quede recta (según su rectángulo envolvente mínimo). Las fotos trazadas la acompañan.",
     rotateHandleHint: "O arrastre el botón redondo sobre la selección para girar libremente (Mayús para pasos de 15°).",
+    rotateHandleHintTouch: "O arrastre el botón redondo sobre la selección para girar libremente en pasos de 1°. Los botones de la parte inferior de la vista giran 15° cada vez.",
     alreadyStraight: "La forma ya está recta.",
     straightened: (v: string) => `Enderezada: girada ${v}°`,
     rotated: (v: string) => `Girada ${v}°`,

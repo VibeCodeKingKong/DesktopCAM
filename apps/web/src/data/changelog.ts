@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.36.1',
+    date: '2026-11-21',
+    text: {
+      sv: ["Tipset om vridhandtaget nämner inte längre Shift-tangenten på telefon och surfplatta."],
+      en: ["The rotation handle tip no longer mentions the Shift key on phones and tablets."],
+      fr: ["L’astuce sur la poignée de rotation ne mentionne plus la touche Maj sur téléphone et tablette."],
+      de: ["Der Hinweis zum Drehgriff erwähnt auf Handy und Tablet die Umschalttaste nicht mehr."],
+      es: ["El consejo del asa de giro ya no menciona la tecla Mayús en móvil y tableta."],
+      pl: ["Podpowiedź o uchwycie obrotu nie wspomina już o klawiszu Shift na telefonie i tablecie."],
+      uk: ["Підказка про ручку повороту більше не згадує клавішу Shift на телефоні й планшеті."],
+    },
+  },
+  {
     version: '0.36.0',
     date: '2026-11-21',
     text: {

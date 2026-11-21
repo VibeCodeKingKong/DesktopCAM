@@ -905,6 +905,7 @@ export const en: Dict = {
     straighten: "Straighten",
     straightenHint: "Rotates the shape by the smallest angle needed to make it straight (by its minimum bounding rectangle). Traced photos follow.",
     rotateHandleHint: "Or drag the round knob above the selection to rotate freely (hold Shift for 15° steps).",
+    rotateHandleHintTouch: "Or drag the round knob above the selection to rotate freely in 1° steps. The buttons at the bottom of the view rotate 15° at a time.",
     alreadyStraight: "The shape is already straight.",
     straightened: (v: string) => `Straightened: rotated ${v}°`,
     rotated: (v: string) => `Rotated ${v}°`,

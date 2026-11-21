@@ -90,6 +90,9 @@ function Group({ title, children, hint }: { title: string; children: ReactNode; 
   );
 }
 
+/** Pekskärm (telefon, surfplatta): ingen Shift-tangent att hänvisa till. */
+const coarsePointer = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
+
 export function PropertiesPanel() {
   const t = useT();
   const tp = useSelectedToolpath();
@@ -297,7 +300,7 @@ function ShapeEditor() {
         <button className="btn w-full" onClick={straightenSelection} title={t.contour.straightenHint}>
           <AlignVerticalSpaceAround size={13} /> {t.contour.straighten}
         </button>
-        <p className="-mt-1 text-2xs leading-relaxed text-muted">{t.contour.rotateHandleHint}</p>
+        <p className="-mt-1 text-2xs leading-relaxed text-muted">{coarsePointer ? t.contour.rotateHandleHintTouch : t.contour.rotateHandleHint}</p>
         <div className="grid grid-cols-2 gap-2">
           <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.mirrorH, { illustration: <IlluFlip /> })}>
           <button className="btn" onClick={() => mirrorSelection('h')} title={t.props.mirrorH}>
