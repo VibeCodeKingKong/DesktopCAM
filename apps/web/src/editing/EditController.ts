@@ -328,7 +328,7 @@ export class EditController {
       }
       case 'select': {
         // Reliefer: tryck inuti för att markera, dra för att flytta. Över en relief
-        // träffas former bara på sin linje (som i Vectric) – annars vore reliefen
+        // träffas former bara på sin linje (som i vanliga CAM-program) – annars vore reliefen
         // omöjlig att markera där en sluten form ligger ovanpå.
         const relief = this.reliefAt(w);
         const hit = hitShape(s.layers, w, tol, !!relief);

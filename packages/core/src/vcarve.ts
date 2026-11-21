@@ -7,7 +7,7 @@
  * konturavstånd, och mittlinjen (medial axis) uppstår av sig själv där
  * konturerna tar slut. Därför behövs ingen separat mediallinjeberäkning.
  *
- * Inlägg (som "V-Inlay" i Vectric VCarve):
+ * V-inlägg (ficka och plugg som passar i varandra):
  *   Ficka:  V-gravyr av formen, valfritt plant botten på fickdjupet.
  *   Plugg:  formen spegelvänd, V-gravyr runt utsidan med ett startdjup S.
  *           Väggen skär Z = −S exakt på formens kant, så pluggen sjunker ner
@@ -42,7 +42,7 @@ export interface VCarveJob {
   flatRidge?: number;
   /**
    * Ficka: 'centerline' låter fräsen följa formens mittlinje med varierande
-   * djup (snabbt, som Vectric). 'contours' (standard) fräser konturer inåt.
+   * djup (snabbt). 'contours' (standard) fräser konturer inåt.
    */
   strategy?: 'contours' | 'centerline';
   stepDown: number;

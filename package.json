@@ -1,6 +1,7 @@
 {
   "name": "desktopcam",
   "private": true,
+  "license": "UNLICENSED",
   "version": "0.32.0",
   "packageManager": "pnpm@9.12.0",
   "scripts": {
@@ -9,6 +10,8 @@
     "preview": "pnpm --filter @desktopcam/web preview",
     "typecheck": "pnpm -r typecheck",
     "wasm:build": "wasm-pack build crates/cam-engine --release --target web --out-dir ../../apps/web/public/wasm --out-name cam_engine --no-pack",
-    "wasm:test": "cargo test --manifest-path crates/cam-engine/Cargo.toml"
+    "wasm:test": "cargo test --manifest-path crates/cam-engine/Cargo.toml",
+    "license:audit": "node scripts/license-audit.mjs",
+    "license:check": "node scripts/license-audit.mjs --check"
   }
 }

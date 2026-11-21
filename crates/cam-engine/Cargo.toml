@@ -3,7 +3,9 @@ name = "cam-engine"
 version = "0.1.0"
 edition = "2021"
 description = "desktopCAM – CAM-beräkningar (profilering, laserdithering, G-kod) kompilerade till WebAssembly"
-license = "MIT"
+# Egen kod: proprietär, alla rättigheter förbehållna (inte öppen källkod).
+license = "LicenseRef-desktopCAM-Proprietary"
+publish = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]

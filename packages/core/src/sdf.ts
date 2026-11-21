@@ -349,7 +349,7 @@ function insidePath(x: number, y: number, pts: number[]): boolean {
 /**
  * Former som ligger helt inuti en annan form slås ihop med den, så att de blir
  * hål i den (jämn-udda) i stället för att försvinna i unionen. Ett hål i en
- * platta ritat som en egen cirkel skärs alltså som hål – som i Vectric.
+ * platta ritat som en egen cirkel skärs alltså som hål (vanlig CAM-konvention).
  * Former som bara överlappar slås fortfarande ihop (union).
  */
 export function nestGroups(groups: PolylineInput[][]): PolylineInput[][] {

@@ -1,5 +1,5 @@
 /**
- * Profilfräsning med strategier, som i Vectric och Fusion:
+ * Profilfräsning med strategier (vanliga i CAM-program):
  *
  *  - Grovpass som lämnar en tunn hud mot kanten, följt av ett lätt finpass
  *    som ger raka väggar och exakta mått (fräsen böjer sig mindre).

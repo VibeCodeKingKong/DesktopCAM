@@ -1,5 +1,5 @@
 /**
- * Fickfräsning med strategier, som i Vectric, Fusion och Estlcam:
+ * Fickfräsning med strategier (vanliga i CAM-program):
  *
  *  - Mönster: konturparallellt (ringar som följer formen, inifrån och ut)
  *    eller raster (parallella linjer i zigzag i valfri vinkel, följt av ett

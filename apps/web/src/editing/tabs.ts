@@ -1,5 +1,5 @@
 /**
- * Flikplacering i vyn, som i Estlcam: flikarna är punkter på detaljens kontur.
+ * Flikplacering i vyn: flikarna är punkter på detaljens kontur.
  * Klicka på konturen för att lägga till, klicka på en flik för att ta bort,
  * dra för att flytta.
  */

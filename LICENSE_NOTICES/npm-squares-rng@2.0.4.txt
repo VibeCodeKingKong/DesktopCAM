@@ -1,0 +1,9 @@
+squares-rng 2.0.4
+Licens: MIT
+Upphovsrätt: Floris Steenkamp
+Källa: https://github.com/FlorisSteenkamp/squares-rng
+------------------------------------------------------------------------
+
+(Ur paketets README)
+
+The MIT License (MIT)

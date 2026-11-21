@@ -1,0 +1,9 @@
+flo-mat 5.0.7
+Licens: MIT
+Upphovsrätt: Floris Steenkamp
+Källa: https://github.com/FlorisSteenkamp/mat
+------------------------------------------------------------------------
+
+(Ur paketets README)
+
+The MIT License (MIT)
