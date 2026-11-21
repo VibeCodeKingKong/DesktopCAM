@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.38.1',
+    date: '2026-11-21',
+    text: {
+      sv: ["Snabbare: när ett projekt eller exempel öppnas räknas varje verktygsbana bara en gång (tidigare två). Reliefer och V-gravyr blir klara ungefär dubbelt så fort."],
+      en: ["Faster: when a project or example is opened, each toolpath is now calculated once (previously twice). Reliefs and V-carving are ready about twice as fast."],
+      fr: ["Plus rapide : à l’ouverture d’un projet ou d’un exemple, chaque parcours n’est plus calculé qu’une fois (deux auparavant). Reliefs et gravure en V sont prêts environ deux fois plus vite."],
+      de: ["Schneller: Beim Öffnen eines Projekts oder Beispiels wird jede Bahn nur noch einmal berechnet (bisher zweimal). Reliefs und V-Gravuren sind etwa doppelt so schnell fertig."],
+      es: ["Más rápido: al abrir un proyecto o ejemplo, cada trayectoria se calcula una sola vez (antes, dos). Los relieves y el grabado en V están listos aproximadamente el doble de rápido."],
+      pl: ["Szybciej: po otwarciu projektu lub przykładu każda ścieżka jest liczona tylko raz (wcześniej dwa razy). Reliefy i grawerowanie V są gotowe mniej więcej dwa razy szybciej."],
+      uk: ["Швидше: під час відкриття проєкту чи прикладу кожна траєкторія обчислюється лише один раз (раніше двічі). Рельєфи та V-гравіювання готові приблизно вдвічі швидше."],
+    },
+  },
+  {
     version: '0.38.0',
     date: '2026-11-21',
     text: {

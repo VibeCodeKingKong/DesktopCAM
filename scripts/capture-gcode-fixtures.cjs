@@ -1,12 +1,13 @@
 /**
  * Fångar de CAM-jobb som appen skickar till workern när exempelprojekten
  * öppnas och sparar dem som testdata i apps/web/test/fixtures/<exempel>.json.
- * Regressionstesterna (apps/web/test/gcode.test.ts) räknar sedan fram G-koden
+ * Regressionstesterna (apps/web/test/gcode/*.test.ts) räknar sedan fram G-koden
  * ur jobben och jämför med facit.
  *
  * Kör med dev-servern igång (pnpm dev), när jobbformatet eller exemplen ändrats:
  *   node scripts/capture-gcode-fixtures.cjs [http://localhost:5173]
- * och uppdatera sedan facit: pnpm test:update
+ * och uppdatera sedan facit: pnpm test:update (nytt exempel: lägg också till
+ * apps/web/test/gcode/<exempel>.test.ts)
  */
 const { chromium } = require('playwright');
 const fs = require('fs');

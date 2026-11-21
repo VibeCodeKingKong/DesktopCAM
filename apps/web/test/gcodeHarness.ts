@@ -1,7 +1,10 @@
 /**
  * Regressionstester för G-koden. Varje exempelprojekts CAM-jobb (fångade med
  * scripts/capture-gcode-fixtures.cjs) räknas om med samma kod som CAM-workern
- * använder, och G-koden jämförs med facit i gcode.golden.json.
+ * använder, och G-koden jämförs med facit i golden/<exempel>.json.
+ *
+ * En testfil per exempel (gcode/<exempel>.test.ts) så att Vitest kan köra dem
+ * parallellt på flera kärnor.
  *
  * Utöver facit kontrolleras regler som alltid ska gälla, oavsett ändring:
  *  - ingen NaN/undefined/Infinity i koden
@@ -14,14 +17,13 @@
  * och uppdatera facit med `pnpm test:update`.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { createReferenceEngine, type CamRequest } from '@desktopcam/core';
 import { handle } from '../src/workers/camHandler';
 
 const DIR = new URL('./fixtures/', import.meta.url);
-const GOLDEN = new URL('./gcode.golden.json', import.meta.url);
 const UPDATE = !!process.env.UPDATE_GOLDEN;
 
 interface Fixture {
@@ -63,6 +65,8 @@ interface Move {
   line: number;
 }
 
+const WORD = { X: /X(-?\d*\.?\d+)/, Y: /Y(-?\d*\.?\d+)/, Z: /Z(-?\d*\.?\d+)/ };
+
 /** Enkel modal tolkning av G0–G3 (absoluta koordinater, mm). */
 function moves(gcode: string): Move[] {
   const out: Move[] = [];
@@ -75,8 +79,8 @@ function moves(gcode: string): Move[] {
     if (!code) return;
     const g = code.match(/\bG0*([0-3])\b/);
     if (g) mode = Number(g[1]);
-    const word = (c: string) => {
-      const m = code.match(new RegExp(`${c}(-?\\d*\\.?\\d+)`));
+    const word = (c: 'X' | 'Y' | 'Z') => {
+      const m = code.match(WORD[c]);
       return m ? Number(m[1]) : undefined;
     };
     const x = word('X'), y = word('Y'), z = word('Z');
@@ -90,8 +94,7 @@ function moves(gcode: string): Move[] {
   return out;
 }
 
-function summarize(gcode: string): Summary {
-  const ms = moves(gcode);
+function summarize(gcode: string, ms: Move[]): Summary {
   const r = (a: number) => +a.toFixed(3);
   const range = (k: 'x' | 'y' | 'z'): [number, number] => {
     let lo = Infinity, hi = -Infinity;
@@ -104,20 +107,16 @@ function summarize(gcode: string): Summary {
   return { sha256: createHash('sha256').update(gcode).digest('hex'), lines: gcode.split('\n').length, x: range('x'), y: range('y'), z: range('z') };
 }
 
-const fixtures: Fixture[] = existsSync(DIR)
-  ? readdirSync(DIR)
-      .filter((f) => f.endsWith('.json.gz'))
-      .sort()
-      .map((f) => JSON.parse(gunzipSync(readFileSync(new URL(f, DIR))).toString('utf8')) as Fixture)
-  : [];
-const golden: Record<string, Summary> = existsSync(GOLDEN) ? JSON.parse(readFileSync(GOLDEN, 'utf8')) : {};
-const updated: Record<string, Summary> = {};
 const engine = createReferenceEngine();
 
-describe('G-kod för exempelprojekten', () => {
-  it('har testdata', () => expect(fixtures.length).toBeGreaterThan(0));
+export function runExample(name: string) {
+  const fx = JSON.parse(gunzipSync(readFileSync(new URL(`${name}.json.gz`, DIR))).toString('utf8')) as Fixture;
+  const goldenUrl = new URL(`./golden/${name}.json`, import.meta.url);
+  const golden: Record<string, Summary> = existsSync(goldenUrl) ? JSON.parse(readFileSync(goldenUrl, 'utf8')) : {};
+  const updated: Record<string, Summary> = {};
 
-  for (const fx of fixtures) {
+  describe(`G-kod: ${name}`, () => {
+    it('har jobb', () => expect(fx.requests.length).toBeGreaterThan(0));
     fx.requests.forEach((raw, i) => {
       const request = decode(raw) as CamRequest;
       const key = `${fx.example}#${i + 1} ${request.type}`;
@@ -129,22 +128,23 @@ describe('G-kod för exempelprojekten', () => {
 
         const ms = moves(gcode);
         expect(ms.length).toBeGreaterThan(0);
+        // Reglerna kontrolleras i en vanlig loop (expect per rörelse är för långsamt
+        // för 200 000 rader); de första överträdelserna rapporteras.
         const margin = 1;
+        const problems: string[] = [];
+        const fail = (m: Move, why: string) => problems.length < 5 && problems.push(`rad ${m.line}: ${why} (X${m.to.x} Y${m.to.y} Z${m.to.z})`);
         for (const m of ms) {
-          const where = `rad ${m.line}`;
-          expect(m.to.x, where).toBeGreaterThanOrEqual(-margin);
-          expect(m.to.y, where).toBeGreaterThanOrEqual(-margin);
-          expect(m.to.x, where).toBeLessThanOrEqual(fx.workArea.x + margin);
-          expect(m.to.y, where).toBeLessThanOrEqual(fx.workArea.y + margin);
+          if (m.to.x < -margin || m.to.y < -margin || m.to.x > fx.workArea.x + margin || m.to.y > fx.workArea.y + margin) fail(m, 'utanför arbetsytan');
           if (fx.machineKind === 'router') {
-            expect(m.to.z, `${where}: för djupt`).toBeGreaterThanOrEqual(-(fx.thickness + 1));
+            if (m.to.z < -(fx.thickness + 1)) fail(m, 'för djupt');
             const sideways = Math.hypot(m.to.x - m.from.x, m.to.y - m.from.y) > 1e-6;
-            if (m.rapid && sideways) expect(Math.min(m.from.z, m.to.z), `${where}: snabbförflyttning i materialet`).toBeGreaterThanOrEqual(0);
+            if (m.rapid && sideways && Math.min(m.from.z, m.to.z) < 0) fail(m, 'snabbförflyttning i materialet');
           }
-          if (fx.machineKind === 'plasma') expect(m.to.z, `${where}: brännaren under plåten`).toBeGreaterThanOrEqual(0);
+          if (fx.machineKind === 'plasma' && m.to.z < 0) fail(m, 'brännaren under plåten');
         }
+        expect(problems).toEqual([]);
 
-        const sum = summarize(gcode);
+        const sum = summarize(gcode, ms);
         updated[key] = sum;
         if (UPDATE) return;
         expect(golden[key], `facit saknas för ${key} – kör pnpm test:update`).toBeDefined();
@@ -153,10 +153,9 @@ describe('G-kod för exempelprojekten', () => {
         expect(sum.sha256, `G-koden för ${key} har ändrats`).toBe(golden[key].sha256);
       }, 120_000);
     });
-  }
 
-  it.runIf(UPDATE)('sparar nytt facit', () => {
-    const sorted = Object.fromEntries(Object.keys(updated).sort().map((k) => [k, updated[k]]));
-    writeFileSync(GOLDEN, JSON.stringify(sorted, null, 2) + '\n');
+    it.runIf(UPDATE)('sparar nytt facit', () => {
+      writeFileSync(goldenUrl, JSON.stringify(updated, null, 2) + '\n');
+    });
   });
-});
+}

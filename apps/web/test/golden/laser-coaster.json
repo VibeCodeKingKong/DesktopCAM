@@ -1,0 +1,50 @@
+{
+  "laser-coaster#1 profile": {
+    "sha256": "01eb74c2ebfda10914c9af5cb63ecb96c6ddcb8e687d982b9d4fdce1e34a2e10",
+    "lines": 81,
+    "x": [
+      0,
+      106
+    ],
+    "y": [
+      0,
+      102
+    ],
+    "z": [
+      0,
+      0
+    ]
+  },
+  "laser-coaster#2 profile": {
+    "sha256": "3ba96ad140dc61198e637737a58a68682f073bec319a2e28cd4887a48bdf9182",
+    "lines": 71,
+    "x": [
+      0,
+      70.82
+    ],
+    "y": [
+      0,
+      61.194
+    ],
+    "z": [
+      0,
+      0
+    ]
+  },
+  "laser-coaster#3 profile": {
+    "sha256": "06d08fefd1944ab48749fdc58267a59b57b79bac9e92d92b3abf6a2d7d95fbaf",
+    "lines": 13,
+    "x": [
+      0,
+      58.529
+    ],
+    "y": [
+      0,
+      16.451
+    ],
+    "z": [
+      0,
+      0
+    ]
+  }
+}

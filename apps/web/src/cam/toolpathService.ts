@@ -525,6 +525,10 @@ export function watchForChanges() {
     const prevTp = new Map(prev.toolpaths.map((t) => [t.id, t]));
     const global = s.tools !== prev.tools || s.machineId !== prev.machineId || s.material.thickness !== prev.material.thickness;
     for (const tp of s.toolpaths) {
+      // Nya banor (skapade, inlästa med projektet, återställda med ångra) räknas
+      // av den som lade till dem – annars räknas allt två gånger när ett projekt
+      // laddas, eftersom maskin, verktyg och material byts samtidigt.
+      if (!prevTp.has(tp.id)) continue;
       // Även under en pågående beräkning: den nya ersätter den gamla.
       const configChanged = prevTp.get(tp.id) !== tp && prevTp.has(tp.id);
       const reliefChanged =

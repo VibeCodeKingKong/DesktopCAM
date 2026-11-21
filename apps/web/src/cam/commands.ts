@@ -857,6 +857,9 @@ export function newProject() {
  * localStorage som reserv – och som tecken på att användaren varit här förut.
  * Får något inte plats sägs det till, i stället för att bilderna tyst försvinner.
  */
+/** Återställningen görs en gång per sidladdning (React StrictMode kör effekter två gånger i utvecklingsläge). */
+let restoring: Promise<void> | null = null;
+
 export function startAutosave() {
   let ready = false;
   let warned = false;
@@ -874,7 +877,8 @@ export function startAutosave() {
       /* trasig autosparning ignoreras */
     }
   };
-  void restore().finally(() => (ready = true));
+  restoring ??= restore();
+  void restoring.finally(() => (ready = true));
 
   const save = async () => {
     const full = projectJson();
