@@ -4,7 +4,7 @@ import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
 import { Switch } from '../ui/Field';
-import { APP_VERSION } from '../../data/changelog';
+import { APP_VERSION } from '../../data/version';
 import { DONATE_URL } from '../../config/donate';
 
 function Logo() {

@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import license from 'rollup-plugin-license';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // Versionen finns bara i package.json och byggs in i appen.
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string; dependencies: Record<string, string> };
@@ -27,8 +28,8 @@ const fontLicenses = () =>
     });
 
 /**
- * Bibliotek som bara finns i CAM-workern (licens-pluginet ser bara
- * huvudbunten): d3-delaunay och flo-mat med alla deras beroenden.
+ * Bibliotek som bara finns i CAM-workern och service workern (licens-pluginet
+ * ser bara huvudbunten): d3-delaunay, flo-mat och Workbox med beroenden.
  */
 const workerLicenses = () => {
   // Paketens katalog: gå uppåt från huvudfilen (exports tillåter inte ./package.json).
@@ -54,6 +55,9 @@ const workerLicenses = () => {
   };
   const core = dirname(new URL('../../packages/core/package.json', import.meta.url).pathname);
   for (const name of ['d3-delaunay', 'flo-mat']) visit(name, core);
+  // Workbox i service workern (sw/sw.ts) – byggs separat och syns inte heller för licens-pluginet.
+  const web = dirname(new URL('./package.json', import.meta.url).pathname);
+  for (const name of ['workbox-precaching', 'workbox-routing', 'workbox-strategies', 'workbox-expiration']) visit(name, web);
   return [...seen.values()].map((dir) => {
     const meta = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { name: string; version: string; license: string; author?: string | { name?: string } };
     const lic = ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'license'].map((f) => join(dir, f)).find((f) => existsSync(f));
@@ -80,6 +84,36 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    // Offline och installation (vite-plugin-pwa + Workbox, MIT). Egen service worker i sw/sw.ts.
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'sw',
+      filename: 'sw.ts',
+      registerType: 'prompt',
+      injectRegister: false,
+      manifest: {
+        name: 'desktopCAM',
+        short_name: 'desktopCAM',
+        description: 'CAM for CNC routers, lasers, plasma cutters and pen plotters – in the browser.',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        background_color: '#f5f5f7',
+        theme_color: '#f5f5f7',
+        icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      injectManifest: {
+        // Appens filer förladdas; typsnitt och exempel sparas när de används (se sw/sw.ts).
+        globPatterns: ['**/*.{js,css,html,svg,png,txt,webmanifest}'],
+        globIgnores: ['**/*.map', 'examples/**', 'samples/**'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      },
+      devOptions: { enabled: false },
+    }),
     // Licenser för allt från tredje part som följer med i appen → dist/licenses.txt (rollup-plugin-license, MIT).
     license({
       thirdParty: {

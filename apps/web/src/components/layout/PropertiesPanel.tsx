@@ -74,7 +74,7 @@ import { SmartTooltip } from '../smartguide/SmartTooltip';
 import { tip } from '../ribbon/tip';
 import { IlluCenter, IlluDuplicate, IlluFlip, IlluLockAspect, IlluRotate } from '../smartguide/illustrations';
 import { reliefEdgeAtTop } from '../../cam/reliefs';
-import { ImageReliefFields } from '../dialogs/ImageReliefDialog';
+import { ImageReliefFields } from '../dialogs/ImageReliefFields';
 import { getNode, moveNode, nodeCount, setClosed } from '../../editing/nodes';
 
 function Group({ title, children, hint }: { title: string; children: ReactNode; hint?: GuideKey }) {

@@ -674,6 +674,13 @@ export const pl: Dict = {
     ],
   },
 
+  pwa: {
+    updateAvailable: "Dostępna jest nowa wersja desktopCAM.",
+    update: "Aktualizuj",
+    later: "Później",
+    offlineReady: "desktopCAM jest zapisany w przeglądarce i działa teraz także bez internetu.",
+  },
+
   about: {
     title: 'O desktopCAM',
     open: 'Wersja i nowości',

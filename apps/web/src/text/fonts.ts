@@ -6,7 +6,10 @@
  * (latin, latin-ext, kyrilliska) – för varje tecken används den första fil
  * som har tecknet. Filerna hämtas först när typsnittet används.
  */
-import { parse, type Font } from 'opentype.js';
+import type { Font } from 'opentype.js';
+
+/** opentype.js (~470 kB) laddas först när ett typsnitt behövs. */
+const parser = () => import('opentype.js').then((m) => m.parse);
 
 export const LINE_FONT = 'line';
 
@@ -79,7 +82,7 @@ export function loadFont(id: string): Promise<LoadedFont> {
   if (!fam) return Promise.reject(new Error('FONT_MISSING'));
   let p = pending.get(id);
   if (!p) {
-    p = Promise.all(fam.urls.map((u) => fetch(u).then((r) => r.arrayBuffer()).then(parse))).then((faces) => {
+    p = parser().then((parse) => Promise.all(fam.urls.map((u) => fetch(u).then((r) => r.arrayBuffer()).then(parse)))).then((faces) => {
       const f = { id, name: fam.name, faces };
       loaded.set(id, f);
       return f;
@@ -92,6 +95,7 @@ export function loadFont(id: string): Promise<LoadedFont> {
 
 /** Läser in en egen TTF-, OTF- eller WOFF-fil. */
 export async function loadFontFile(file: File): Promise<LoadedFont> {
+  const parse = await parser();
   const face = parse(await file.arrayBuffer());
   const name = face.names.fontFamily?.en ?? Object.values(face.names.fontFamily ?? {})[0] ?? file.name.replace(/\.[^.]+$/, '');
   const id = `custom:${name}`;

@@ -1,15 +1,15 @@
 import { useAppStore } from '../store/useAppStore';
 import type { Dict } from './sv';
 import { DICTS } from './dicts';
-export { DICTS } from './dicts';
+export { DICTS, loadDict, loadAllDicts } from './dicts';
 
 export type { Dict, GuideKey } from './sv';
 export type { Language } from './initial';
-import { LANGUAGE_CODES, type Language } from './initial';
+import { LANGUAGE_CODES, LANGUAGE_NAMES, type Language } from './initial';
 export { initialLanguage } from './initial';
 
 /** I väljaren: varje språk med sitt eget namn. */
-export const LANGUAGES: { code: Language; name: string }[] = LANGUAGE_CODES.map((code) => ({ code, name: DICTS[code].name }));
+export const LANGUAGES: { code: Language; name: string }[] = LANGUAGE_CODES.map((code) => ({ code, name: LANGUAGE_NAMES[code] }));
 
 /** Decimaltecknet för valt språk (komma i de flesta europeiska språk). */
 export const decimalSep = (t: Dict) => (1.5).toLocaleString(t.locale).charAt(1);

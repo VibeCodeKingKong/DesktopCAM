@@ -674,6 +674,13 @@ export const uk: Dict = {
     ],
   },
 
+  pwa: {
+    updateAvailable: "Доступна нова версія desktopCAM.",
+    update: "Оновити",
+    later: "Пізніше",
+    offlineReady: "desktopCAM збережено в браузері, і тепер він працює також без інтернету.",
+  },
+
   about: {
     title: 'Про desktopCAM',
     open: 'Версія та нововведення',

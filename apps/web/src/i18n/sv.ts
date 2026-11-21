@@ -615,6 +615,13 @@ export const sv = {
     ],
   },
 
+  pwa: {
+    updateAvailable: "En ny version av desktopCAM finns.",
+    update: "Uppdatera",
+    later: "Senare",
+    offlineReady: "desktopCAM är sparad i webbläsaren och fungerar nu även utan nät.",
+  },
+
   about: {
     title: 'Om desktopCAM',
     open: 'Version och nyheter',

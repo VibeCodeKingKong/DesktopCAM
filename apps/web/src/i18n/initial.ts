@@ -2,6 +2,9 @@
 export const LANGUAGE_CODES = ['sv', 'en', 'fr', 'de', 'es', 'pl', 'uk'] as const;
 export type Language = (typeof LANGUAGE_CODES)[number];
 
+/** Varje språks namn på sig självt (för väljaren, utan att ladda ordlistorna). */
+export const LANGUAGE_NAMES: Record<Language, string> = { sv: 'Svenska', en: 'English', fr: 'Français', de: 'Deutsch', es: 'Español', pl: 'Polski', uk: 'Українська' };
+
 const isLanguage = (v: string | null): v is Language => !!v && (LANGUAGE_CODES as readonly string[]).includes(v);
 
 /** Sparat språk, annars webbläsarens. Norska och danska får svenska. */

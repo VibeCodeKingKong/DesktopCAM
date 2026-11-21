@@ -20,7 +20,7 @@ import toolsJson from '../data/tools.json';
 import materialsJson from '../data/materials.json';
 import { createDemoLayers } from '../data/demoProject';
 import { initialLanguage, type Language } from '../i18n/initial';
-import { DICTS } from '../i18n/dicts';
+import { DICTS, loadDict } from '../i18n/dicts';
 import type { InlayFitResult } from '../cam/inlayAssembly';
 import type { MeasureRef } from '../cam/commands';
 
@@ -364,10 +364,13 @@ export const useAppStore = create<AppState>()((set, get) => {
       } catch {
         /* privat läge */
       }
-      document.documentElement.lang = language;
-      // Exempelprojektets namn följer språket; egna namn lämnas orörda.
-      const isExample = Object.values(DICTS).some((d) => d.common.exampleProject === get().projectName);
-      set(isExample ? { language, projectName: DICTS[language].common.exampleProject } : { language });
+      // Ordlistan laddas vid behov (oftast redan inläst i bakgrunden).
+      void loadDict(language).then(() => {
+        document.documentElement.lang = language;
+        // Exempelprojektets namn följer språket; egna namn lämnas orörda.
+        const isExample = Object.values(DICTS).some((d) => d.common.exampleProject === get().projectName);
+        set(isExample ? { language, projectName: DICTS[language].common.exampleProject } : { language });
+      });
     },
     setTheme: (theme) => set({ theme }),
     toggleBeginnerMode: () => set((s) => ({ beginnerMode: !s.beginnerMode })),

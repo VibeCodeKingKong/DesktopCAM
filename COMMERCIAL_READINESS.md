@@ -4,7 +4,7 @@
 juridisk granskning. Ingen komponent med status REVIEW REQUIRED eller
 REJECTED får ingå i en kommersiell release utan uttryckligt godkännande.
 
-Senast uppdaterad: 2026-11-21 (version 0.37.0).
+Senast uppdaterad: 2026-11-21 (version 0.39.0).
 
 > desktopCAM är **inte** juridiskt klar för kommersiell distribution. Att den
 > automatiska licenskontrollen går igenom (`node scripts/license-audit.mjs
@@ -14,7 +14,7 @@ Senast uppdaterad: 2026-11-21 (version 0.37.0).
 
 ### APPROVED – kommersiell användning kontrollerad, med licensens villkor
 
-- Alla 45 tredjepartskomponenter som följer med appen (MIT, ISC, BSD-3-Clause,
+- Alla 52 tredjepartskomponenter som följer med appen (MIT, ISC, BSD-3-Clause,
   Apache-2.0, OFL-1.1, Unlicense, 0BSD). Villkor: notiser och licenstexter i
   `dist/licenses.txt` och `LICENSE_NOTICES/`. Se `THIRD_PARTY_LICENSES.md`.
 - Rust-beroendena (om Wasm-motorn byggs): MIT/Apache-2.0, Unlicense/MIT,
@@ -27,7 +27,7 @@ Senast uppdaterad: 2026-11-21 (version 0.37.0).
 | 1 | **Rättighetsinnehavare och slutanvändaravtal** | Det är inte fastställt vem som äger desktopCAM (person eller bolag), och det finns ingen EULA eller användarvillkor. | Bestäm rättighetsinnehavare, lägg till upphovsrättsnotis och EULA/villkor innan försäljning. |
 | 2 | **Web3Forms** (feedbackformuläret) | Meddelandet, en valfri svarsadress och valfri appinformation (version, språk, maskin, webbläsarens user-agent) skickas till api.web3forms.com. Villkoren kunde inte läsas (sajten nås inte från utvecklingsmiljön). Okänt: kommersiell användning på gratisnivån, gränser, var data lagras, hur länge, om ett personuppgiftsbiträdesavtal (DPA) finns. | Granska villkor och DPA, eller byt till egen mottagare (t.ex. en Cloudflare Worker som skickar e-post) så att ingen tredje part hanterar data. Informera i integritetspolicyn. |
 | 3 | **Cloudflare Workers** (drift) | Kommersiell användning är tillåten, men det behövs ett DPA och uppgifter om loggar och IP-adresser för GDPR. | Teckna Cloudflares DPA, beskriv i integritetspolicyn. |
-| 4 | **Integritetspolicy (GDPR)** | Appen sparar projekt lokalt i webbläsaren (localStorage och IndexedDB), har ingen analys eller spårning och skickar data bara via feedbackformuläret. Ingen integritetspolicy finns. | Skriv integritetspolicy och, vid behov, cookie- och lagringsinformation. |
+| 4 | **Integritetspolicy (GDPR)** | Appen sparar projekt lokalt i webbläsaren (localStorage och IndexedDB) och sina egna programfiler i webbläsarens cache (service worker, för offline), har ingen analys eller spårning och skickar data bara via feedbackformuläret. Ingen integritetspolicy finns. | Skriv integritetspolicy och, vid behov, cookie- och lagringsinformation. |
 | 5 | **Patent** | Ingen patentsökning har gjorts. Särskilt: mittlinjebaserad V-gravyr, V-inlägg, bild till relief. | Freedom-to-operate-sökning för CAM-relaterade patent före lansering. Se `IP_COMPLIANCE.md` §4. |
 | 6 | **Varumärken** | Maskin- och programnamn i gränssnittet; namnet "desktopCAM" är inte sökt. | Varumärkessökning för produktnamnet; granska användningen av tredjeparts namn. |
 | 7 | **Skärdata** | Siffror sammanställda bl.a. ur tillverkares skärtabeller. Fakta, låg risk. | Dokumentera källa per material/maskin. |

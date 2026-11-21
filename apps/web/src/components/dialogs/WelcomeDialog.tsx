@@ -93,7 +93,7 @@ export function WelcomeDialog() {
         className="btn"
         onClick={() => {
           close();
-          startTour();
+          void startTour();
         }}
       >
         <Compass size={14} className="text-accent" /> {w.tour}

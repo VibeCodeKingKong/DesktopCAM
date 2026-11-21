@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
@@ -6,30 +5,11 @@ import { Heart } from 'lucide-react';
 import { DONATE_URL } from '../../config/donate';
 import { APP_VERSION, CHANGELOG } from '../../data/changelog';
 
-const SEEN_KEY = 'desktopcam.seenVersion';
-
 /** Om desktopCAM: version och nyheter i varje uppdatering. */
 export function AboutDialog() {
   const t = useT();
   const open = useAppStore((s) => s.dialog === 'about');
   const close = () => useAppStore.getState().openDialog(null);
-
-  // Efter en uppdatering: visa nyheterna en gång. Nya användare får dem inte direkt.
-  useEffect(() => {
-    try {
-      const seen = localStorage.getItem(SEEN_KEY);
-      const returning = seen !== null || localStorage.getItem('desktopcam.autosave.v1') !== null;
-      if (seen !== APP_VERSION) {
-        localStorage.setItem(SEEN_KEY, APP_VERSION);
-        if (returning) useAppStore.getState().openDialog('about');
-      }
-    } catch {
-      /* privat läge */
-    }
-    if (import.meta.env.DEV && CHANGELOG[0]?.version !== APP_VERSION) {
-      console.warn(`[desktopCAM] Versionen i package.json (${APP_VERSION}) saknas överst i data/changelog.ts`);
-    }
-  }, []);
 
   return (
     <Dialog open={open} onClose={close} title={t.about.title} width="max-w-lg" footer={<><div className="flex-1" /><button className="btn btn-primary" onClick={close}>{t.common.close}</button></>}>

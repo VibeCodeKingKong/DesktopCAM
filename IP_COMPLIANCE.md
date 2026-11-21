@@ -2,7 +2,7 @@
 
 Sammanfattning av immaterialrättsliga frågor och identifierade risker.
 Uppdateras när beroenden, algoritmer eller tjänster ändras. Senast granskat:
-2026-11-21 (version 0.37.0: idb-keyval tillagd).
+2026-11-21 (version 0.39.0: Workbox för offline, idb-keyval).
 
 > Detta är en teknisk genomgång, inte juridisk rådgivning. Automatiska
 > licenskontroller är en sållning och ersätter inte en juridisk granskning.
@@ -27,7 +27,7 @@ Uppdateras när beroenden, algoritmer eller tjänster ändras. Senast granskat:
 
 Fullständig förteckning: `THIRD_PARTY_LICENSES.md` och `SBOM.json`.
 
-- 45 komponenter följer med appen: MIT (31), ISC (3), BSD-3-Clause (1),
+- 52 komponenter följer med appen: MIT (37), ISC (4), BSD-3-Clause (1),
   Apache-2.0 (2), OFL-1.1 (6 typsnitt), Unlicense (1), 0BSD (1).
 - Villkoren är att upphovsrättsnotiser och licenstexter följer med. Det sker i
   `dist/licenses.txt` (visas i appen under Om desktopCAM → Licenser) och i
@@ -43,6 +43,12 @@ Fullständig förteckning: `THIRD_PARTY_LICENSES.md` och `SBOM.json`.
   mannen, så risken bedöms som låg. Standardtexten för MIT med upphovsrätts-
   innehavaren (Floris Steenkamp) används. flo-mat och squares-rng har texten i
   sin README, och den används.
+- **Service worker (offline)**: `apps/web/sw/sw.ts` är egen kod som använder
+  Workbox (MIT, Google). Workbox-modulerna som följer med (core, precaching,
+  routing, strategies, expiration, window) finns i `dist/licenses.txt`.
+  Ingen analys eller spårning ingår (workbox-google-analytics är bara ett
+  byggberoende och används inte). Appikonerna är ritade från projektets egen
+  favicon.
 - **Kopierad kod**: `apps/web/src/shims/squares-rng.js` är en kopia av
   squares-rng 2.0.4 (MIT). Avkodningen av den inbäddade Wasm-koden är
   omskriven så att den fungerar i en web worker. Upphovsrätt och licens anges

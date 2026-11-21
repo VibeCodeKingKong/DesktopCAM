@@ -668,6 +668,13 @@ export const en: Dict = {
     ],
   },
 
+  pwa: {
+    updateAvailable: "A new version of desktopCAM is available.",
+    update: "Update",
+    later: "Later",
+    offlineReady: "desktopCAM is saved in the browser and now works offline too.",
+  },
+
   about: {
     title: 'About desktopCAM',
     open: 'Version and what is new',

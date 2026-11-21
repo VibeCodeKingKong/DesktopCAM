@@ -7,8 +7,7 @@
  * öppnas (inte för den som redan har ett sparat projekt) och alltid kan
  * öppnas med ?-knappen i sidhuvudet.
  */
-import { driver, type DriveStep, type Side } from 'driver.js';
-import 'driver.js/dist/driver.css';
+import type { DriveStep, Side } from 'driver.js';
 import { createElement, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getT } from '../i18n';
@@ -28,7 +27,9 @@ const html = (art: ComponentType, body: string) => `<div class="tour-art">${rend
 
 type Key = keyof ReturnType<typeof getT>['tour']['steps'];
 
-export function startTour() {
+/** Startar rundturen. driver.js och dess stil laddas först nu. */
+export async function startTour() {
+  const [{ driver }] = await Promise.all([import('driver.js'), import('driver.js/dist/driver.css')]);
   const t = getT().tour;
   const store = useAppStore.getState();
   store.openDialog(null);

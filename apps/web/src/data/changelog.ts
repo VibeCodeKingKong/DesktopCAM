@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.39.0',
+    date: '2026-11-21',
+    text: {
+      sv: ["Fungerar utan nät: efter första besöket sparas desktopCAM i webbläsaren och startar även offline – rita, beräkna banor, simulera och spara G-kod. Den kan också installeras som app (Lägg till på hemskärmen på telefon, eller installera-ikonen i adressfältet på datorn).", "Snabbare start: bara det som behövs från början laddas – ungefär hälften så mycket som förut. Övriga språk, dialogfönster, typsnitt och rundturen hämtas när de används.", "Ny version: desktopCAM frågar innan den uppdateras, så att inget arbete avbryts."],
+      en: ["Works offline: after the first visit desktopCAM is saved in the browser and starts without a connection – draw, calculate toolpaths, simulate and save G-code. It can also be installed as an app (Add to Home Screen on phones, or the install icon in the address bar on computers).", "Faster start: only what is needed up front is loaded – about half as much as before. Other languages, dialogs, fonts and the tour are fetched when used.", "New version: desktopCAM asks before updating, so no work is interrupted."],
+      fr: ["Fonctionne hors ligne : après la première visite, desktopCAM est enregistré dans le navigateur et démarre sans connexion – dessiner, calculer les parcours, simuler et enregistrer le G-code. Il peut aussi être installé comme une application (Sur l’écran d’accueil sur téléphone, ou l’icône d’installation dans la barre d’adresse sur ordinateur).", "Démarrage plus rapide : seul le nécessaire est chargé au début – environ deux fois moins qu’avant. Les autres langues, fenêtres, polices et la visite guidée sont chargées à l’usage.", "Nouvelle version : desktopCAM demande avant de se mettre à jour, pour ne jamais interrompre votre travail."],
+      de: ["Funktioniert offline: Nach dem ersten Besuch ist desktopCAM im Browser gespeichert und startet auch ohne Verbindung – zeichnen, Bahnen berechnen, simulieren und G-Code speichern. Es lässt sich auch als App installieren (Zum Home-Bildschirm auf dem Handy oder das Installationssymbol in der Adressleiste am Computer).", "Schnellerer Start: Nur das Nötige wird zuerst geladen – etwa halb so viel wie bisher. Weitere Sprachen, Dialoge, Schriften und die Tour werden bei Bedarf geholt.", "Neue Version: desktopCAM fragt vor dem Aktualisieren, damit keine Arbeit unterbrochen wird."],
+      es: ["Funciona sin conexión: tras la primera visita, desktopCAM queda guardado en el navegador y arranca sin conexión: dibujar, calcular trayectorias, simular y guardar G-code. También se puede instalar como app (Añadir a pantalla de inicio en el móvil, o el icono de instalar en la barra de direcciones del ordenador).", "Inicio más rápido: solo se carga lo necesario al principio, más o menos la mitad que antes. Los demás idiomas, ventanas, fuentes y el recorrido se descargan al usarlos.", "Nueva versión: desktopCAM pregunta antes de actualizarse para no interrumpir el trabajo."],
+      pl: ["Działa bez internetu: po pierwszej wizycie desktopCAM zapisuje się w przeglądarce i uruchamia także offline – rysowanie, obliczanie ścieżek, symulacja i zapis G-code. Można go też zainstalować jako aplikację (Dodaj do ekranu głównego na telefonie lub ikona instalacji w pasku adresu na komputerze).", "Szybszy start: na początku ładuje się tylko to, co potrzebne – mniej więcej połowa tego, co wcześniej. Pozostałe języki, okna, czcionki i przewodnik pobierają się w razie potrzeby.", "Nowa wersja: desktopCAM pyta przed aktualizacją, aby nie przerywać pracy."],
+      uk: ["Працює без інтернету: після першого відвідування desktopCAM зберігається в браузері й запускається офлайн – малювання, розрахунок траєкторій, симуляція та збереження G-коду. Його також можна встановити як застосунок (На головний екран на телефоні або значок встановлення в адресному рядку на комп’ютері).", "Швидший запуск: спочатку завантажується лише потрібне – приблизно вдвічі менше, ніж раніше. Інші мови, вікна, шрифти та тур завантажуються під час використання.", "Нова версія: desktopCAM запитує перед оновленням, щоб не переривати роботу."],
+    },
+  },
+  {
     version: '0.38.1',
     date: '2026-11-21',
     text: {
@@ -1217,4 +1230,4 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
 ];
 
-export const APP_VERSION = __APP_VERSION__;
+export { APP_VERSION } from './version';

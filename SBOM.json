@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "desktopCAM",
-      "version": "0.37.0",
+      "version": "0.39.0",
       "licenses": [
         {
           "license": {
@@ -506,6 +506,33 @@
     },
     {
       "type": "library",
+      "name": "@apideck/better-ajv-errors",
+      "version": "0.3.7",
+      "purl": "pkg:npm/%40apideck/better-ajv-errors@0.3.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Apideck",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/apideck-libraries/better-ajv-errors"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/code-frame",
       "version": "7.29.7",
       "purl": "pkg:npm/%40babel/code-frame@7.29.7",
@@ -614,6 +641,60 @@
     },
     {
       "type": "library",
+      "name": "@babel/generator",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/generator@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-annotate-as-pure",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/helper-annotate-as-pure@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/helper-compilation-targets",
       "version": "7.29.13",
       "purl": "pkg:npm/%40babel/helper-compilation-targets@7.29.13",
@@ -641,9 +722,116 @@
     },
     {
       "type": "library",
+      "name": "@babel/helper-create-class-features-plugin",
+      "version": "7.29.13",
+      "purl": "pkg:npm/%40babel/helper-create-class-features-plugin@7.29.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-create-regexp-features-plugin",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/helper-create-regexp-features-plugin@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-define-polyfill-provider",
+      "version": "0.6.8",
+      "purl": "pkg:npm/%40babel/helper-define-polyfill-provider@0.6.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel-polyfills"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/helper-globals",
       "version": "7.29.7",
       "purl": "pkg:npm/%40babel/helper-globals@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-member-expression-to-functions",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/helper-member-expression-to-functions@7.29.14",
       "licenses": [
         {
           "license": {
@@ -722,6 +910,60 @@
     },
     {
       "type": "library",
+      "name": "@babel/helper-module-transforms",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/helper-module-transforms@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-optimise-call-expression",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/helper-optimise-call-expression@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/helper-plugin-utils",
       "version": "7.29.7",
       "purl": "pkg:npm/%40babel/helper-plugin-utils@7.29.7",
@@ -749,9 +991,117 @@
     },
     {
       "type": "library",
+      "name": "@babel/helper-remap-async-to-generator",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/helper-remap-async-to-generator@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-replace-supers",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/helper-replace-supers@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-skip-transparent-expression-wrappers",
+      "version": "7.29.13",
+      "purl": "pkg:npm/%40babel/helper-skip-transparent-expression-wrappers@7.29.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/helper-string-parser",
       "version": "7.29.13",
       "purl": "pkg:npm/%40babel/helper-string-parser@7.29.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-string-parser",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/helper-string-parser@7.29.15",
       "licenses": [
         {
           "license": {
@@ -830,6 +1180,33 @@
     },
     {
       "type": "library",
+      "name": "@babel/helper-wrap-function",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/helper-wrap-function@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/helpers",
       "version": "7.29.13",
       "purl": "pkg:npm/%40babel/helpers@7.29.13",
@@ -860,6 +1237,1356 @@
       "name": "@babel/parser",
       "version": "7.29.13",
       "purl": "pkg:npm/%40babel/parser@7.29.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/parser",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/parser@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-bugfix-firefox-class-in-computed-class-key",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-bugfix-firefox-class-in-computed-class-key@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-bugfix-safari-class-field-initializer-scope",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-bugfix-safari-class-field-initializer-scope@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-bugfix-safari-rest-destructuring-rhs-array",
+      "version": "7.29.13",
+      "purl": "pkg:npm/%40babel/plugin-bugfix-safari-rest-destructuring-rhs-array@7.29.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-bugfix-v8-static-class-fields-redefine-readonly@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-proposal-private-property-in-object",
+      "version": "7.21.0-placeholder-for-preset-env.2",
+      "purl": "pkg:npm/%40babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel-plugin-proposal-private-property-in-object"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-syntax-import-assertions",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-syntax-import-assertions@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-syntax-import-attributes",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-syntax-import-attributes@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-syntax-unicode-sets-regex",
+      "version": "7.18.6",
+      "purl": "pkg:npm/%40babel/plugin-syntax-unicode-sets-regex@7.18.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-arrow-functions",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-arrow-functions@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-async-generator-functions",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-async-generator-functions@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-async-to-generator",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-async-to-generator@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-block-scoped-functions",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-block-scoped-functions@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-block-scoping",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-block-scoping@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-class-properties",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-class-properties@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-class-static-block",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/plugin-transform-class-static-block@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-classes",
+      "version": "7.29.11",
+      "purl": "pkg:npm/%40babel/plugin-transform-classes@7.29.11",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-computed-properties",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-computed-properties@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-destructuring",
+      "version": "7.29.13",
+      "purl": "pkg:npm/%40babel/plugin-transform-destructuring@7.29.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-dotall-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-dotall-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-duplicate-keys",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-duplicate-keys@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-duplicate-named-capturing-groups-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-duplicate-named-capturing-groups-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-dynamic-import",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-dynamic-import@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-explicit-resource-management",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-explicit-resource-management@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-exponentiation-operator",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-exponentiation-operator@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-export-namespace-from",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-export-namespace-from@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-for-of",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-for-of@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-function-name",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-function-name@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-json-strings",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-json-strings@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-literals",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-literals@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-logical-assignment-operators",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-logical-assignment-operators@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-member-expression-literals",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-member-expression-literals@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-modules-amd",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/plugin-transform-modules-amd@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-modules-commonjs",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/plugin-transform-modules-commonjs@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-modules-systemjs",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-modules-systemjs@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-modules-umd",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/plugin-transform-modules-umd@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-named-capturing-groups-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-named-capturing-groups-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-new-target",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-new-target@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-nullish-coalescing-operator",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-nullish-coalescing-operator@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-numeric-separator",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-numeric-separator@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-object-rest-spread",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-object-rest-spread@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-object-super",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-object-super@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-optional-catch-binding",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-optional-catch-binding@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-optional-chaining",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-optional-chaining@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-parameters",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-parameters@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-private-methods",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-private-methods@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-private-property-in-object",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-private-property-in-object@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-property-literals",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-property-literals@7.29.7",
       "licenses": [
         {
           "license": {
@@ -938,6 +2665,410 @@
     },
     {
       "type": "library",
+      "name": "@babel/plugin-transform-regenerator",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-regenerator@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-regexp-modifiers",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-regexp-modifiers@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-reserved-words",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-reserved-words@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-shorthand-properties",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-shorthand-properties@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-spread",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/plugin-transform-spread@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-sticky-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-sticky-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-template-literals",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-template-literals@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-typeof-symbol",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-typeof-symbol@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-unicode-escapes",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-unicode-escapes@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-unicode-property-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-unicode-property-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-unicode-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-unicode-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/plugin-transform-unicode-sets-regex",
+      "version": "7.29.7",
+      "purl": "pkg:npm/%40babel/plugin-transform-unicode-sets-regex@7.29.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/preset-env",
+      "version": "7.29.14",
+      "purl": "pkg:npm/%40babel/preset-env@7.29.14",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/preset-modules",
+      "version": "0.1.6-no-external-plugins",
+      "purl": "pkg:npm/%40babel/preset-modules@0.1.6-no-external-plugins",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/preset-modules"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/runtime",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/runtime@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/template",
       "version": "7.29.7",
       "purl": "pkg:npm/%40babel/template@7.29.7",
@@ -992,9 +3123,63 @@
     },
     {
       "type": "library",
+      "name": "@babel/traverse",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/traverse@7.29.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@babel/types",
       "version": "7.29.11",
       "purl": "pkg:npm/%40babel/types@7.29.11",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "The Babel Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@babel/types",
+      "version": "7.29.15",
+      "purl": "pkg:npm/%40babel/types@7.29.15",
       "licenses": [
         {
           "license": {
@@ -1342,6 +3527,32 @@
     },
     {
       "type": "library",
+      "name": "@isaacs/cliui",
+      "version": "9.0.0",
+      "purl": "pkg:npm/%40isaacs/cliui@9.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "ssh://git@github.com:isaacs/cliui"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@jridgewell/gen-mapping",
       "version": "0.3.13",
       "purl": "pkg:npm/%40jridgewell/gen-mapping@0.3.13",
@@ -1411,6 +3622,33 @@
         {
           "type": "vcs",
           "url": "https://github.com/jridgewell/resolve-uri"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@jridgewell/source-map",
+      "version": "0.3.11",
+      "purl": "pkg:npm/%40jridgewell/source-map@0.3.11",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Justin Ridgewell",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/jridgewell/sourcemaps"
         }
       ],
       "scope": "excluded",
@@ -1555,6 +3793,141 @@
     },
     {
       "type": "library",
+      "name": "@rollup/plugin-babel",
+      "version": "6.1.0",
+      "purl": "pkg:npm/%40rollup/plugin-babel@6.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Rich Harris",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "rollup/plugins"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@rollup/plugin-node-resolve",
+      "version": "16.0.3",
+      "purl": "pkg:npm/%40rollup/plugin-node-resolve@16.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Rich Harris",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "rollup/plugins"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@rollup/plugin-replace",
+      "version": "6.0.3",
+      "purl": "pkg:npm/%40rollup/plugin-replace@6.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Rich Harris",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "rollup/plugins"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@rollup/plugin-terser",
+      "version": "1.0.2",
+      "purl": "pkg:npm/%40rollup/plugin-terser@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Peter Placzek",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "rollup/plugins"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@rollup/pluginutils",
+      "version": "5.5.1",
+      "purl": "pkg:npm/%40rollup/pluginutils@5.5.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Rich Harris",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "rollup/plugins"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@rollup/rollup-linux-x64-gnu",
       "version": "4.68.2",
       "purl": "pkg:npm/%40rollup/rollup-linux-x64-gnu@4.68.2",
@@ -1597,6 +3970,33 @@
         {
           "type": "vcs",
           "url": "https://github.com/rollup/rollup"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@trickfilm400/rollup-plugin-off-main-thread",
+      "version": "3.0.0-pre1",
+      "purl": "pkg:npm/%40trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Surma",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Trickfilm400/rollup-plugin-off-main-thread"
         }
       ],
       "scope": "excluded",
@@ -1870,6 +4270,32 @@
     },
     {
       "type": "library",
+      "name": "@types/resolve",
+      "version": "1.20.2",
+      "purl": "pkg:npm/%40types/resolve@1.20.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "@types/stats.js",
       "version": "0.17.4",
       "purl": "pkg:npm/%40types/stats.js@0.17.4",
@@ -1899,6 +4325,32 @@
       "name": "@types/three",
       "version": "0.169.0",
       "purl": "pkg:npm/%40types/three@0.169.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/trusted-types",
+      "version": "2.0.7",
+      "purl": "pkg:npm/%40types/trusted-types@2.0.7",
       "licenses": [
         {
           "license": {
@@ -2183,6 +4635,59 @@
     },
     {
       "type": "library",
+      "name": "acorn",
+      "version": "8.19.0",
+      "purl": "pkg:npm/acorn@8.19.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/acornjs/acorn"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ajv",
+      "version": "8.20.0",
+      "purl": "pkg:npm/ajv@8.20.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Evgeny Poberezkin",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "ajv-validator/ajv"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "any-promise",
       "version": "1.3.0",
       "purl": "pkg:npm/any-promise@1.3.0",
@@ -2264,6 +4769,33 @@
     },
     {
       "type": "library",
+      "name": "array-buffer-byte-length",
+      "version": "1.0.2",
+      "purl": "pkg:npm/array-buffer-byte-length@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/array-buffer-byte-length"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "array-find-index",
       "version": "1.0.2",
       "purl": "pkg:npm/array-find-index@1.0.2",
@@ -2279,6 +4811,33 @@
         {
           "type": "vcs",
           "url": "sindresorhus/array-find-index"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "arraybuffer.prototype.slice",
+      "version": "1.0.4",
+      "purl": "pkg:npm/arraybuffer.prototype.slice@1.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/es-shims/ArrayBuffer.prototype.slice"
         }
       ],
       "scope": "excluded",
@@ -2318,6 +4877,87 @@
     },
     {
       "type": "library",
+      "name": "async",
+      "version": "3.2.6",
+      "purl": "pkg:npm/async@3.2.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Caolan McMahon",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/caolan/async"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "async-function",
+      "version": "1.0.0",
+      "purl": "pkg:npm/async-function@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harbamd",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/async-function"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "at-least-node",
+      "version": "1.0.0",
+      "purl": "pkg:npm/at-least-node@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Ryan Zimmerman",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RyanZim/at-least-node"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "autoprefixer",
       "version": "10.4.20",
       "purl": "pkg:npm/autoprefixer@10.4.20",
@@ -2333,6 +4973,164 @@
         {
           "type": "vcs",
           "url": "postcss/autoprefixer"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "available-typed-arrays",
+      "version": "1.0.7",
+      "purl": "pkg:npm/available-typed-arrays@1.0.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/available-typed-arrays"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "babel-plugin-polyfill-corejs2",
+      "version": "0.4.17",
+      "purl": "pkg:npm/babel-plugin-polyfill-corejs2@0.4.17",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel-polyfills"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "babel-plugin-polyfill-corejs3",
+      "version": "0.14.2",
+      "purl": "pkg:npm/babel-plugin-polyfill-corejs3@0.14.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel-polyfills"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "babel-plugin-polyfill-regenerator",
+      "version": "0.6.8",
+      "purl": "pkg:npm/babel-plugin-polyfill-regenerator@0.6.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/babel/babel-polyfills"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "balanced-match",
+      "version": "1.0.2",
+      "purl": "pkg:npm/balanced-match@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Julian Gruber",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/juliangruber/balanced-match"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "balanced-match",
+      "version": "4.0.4",
+      "purl": "pkg:npm/balanced-match@4.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/juliangruber/balanced-match"
         }
       ],
       "scope": "excluded",
@@ -2452,6 +5250,59 @@
     },
     {
       "type": "library",
+      "name": "brace-expansion",
+      "version": "2.1.8",
+      "purl": "pkg:npm/brace-expansion@2.1.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Julian Gruber",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/juliangruber/brace-expansion"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "brace-expansion",
+      "version": "5.0.13",
+      "purl": "pkg:npm/brace-expansion@5.0.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/juliangruber/brace-expansion"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "braces",
       "version": "3.0.3",
       "purl": "pkg:npm/braces@3.0.3",
@@ -2506,6 +5357,32 @@
     },
     {
       "type": "library",
+      "name": "buffer-from",
+      "version": "1.1.2",
+      "purl": "pkg:npm/buffer-from@1.1.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "LinusU/buffer-from"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "cac",
       "version": "6.7.14",
       "purl": "pkg:npm/cac@6.7.14",
@@ -2521,6 +5398,87 @@
         {
           "type": "vcs",
           "url": "egoist/cac"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "call-bind",
+      "version": "1.0.9",
+      "purl": "pkg:npm/call-bind@1.0.9",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/call-bind"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "call-bind-apply-helpers",
+      "version": "1.0.2",
+      "purl": "pkg:npm/call-bind-apply-helpers@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/call-bind-apply-helpers"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "call-bound",
+      "version": "1.0.4",
+      "purl": "pkg:npm/call-bound@1.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/call-bound"
         }
       ],
       "scope": "excluded",
@@ -2669,6 +5627,33 @@
     {
       "type": "library",
       "name": "commander",
+      "version": "2.20.3",
+      "purl": "pkg:npm/commander@2.20.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "TJ Holowaychuk",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/tj/commander.js"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "commander",
       "version": "4.1.1",
       "purl": "pkg:npm/commander@4.1.1",
       "licenses": [
@@ -2722,6 +5707,33 @@
     },
     {
       "type": "library",
+      "name": "common-tags",
+      "version": "1.8.2",
+      "purl": "pkg:npm/common-tags@1.8.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Declan de Wet",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/zspecza/common-tags"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "convert-source-map",
       "version": "2.0.0",
       "purl": "pkg:npm/convert-source-map@2.0.0",
@@ -2737,6 +5749,33 @@
         {
           "type": "vcs",
           "url": "git://github.com/thlorenz/convert-source-map"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "core-js-compat",
+      "version": "3.51.0",
+      "purl": "pkg:npm/core-js-compat@3.51.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Denis Pushkarev",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/zloirock/core-js"
         }
       ],
       "scope": "excluded",
@@ -2767,6 +5806,60 @@
         }
       ],
       "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "cross-spawn",
+      "version": "7.0.6",
+      "purl": "pkg:npm/cross-spawn@7.0.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "André Cruz",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git@github.com:moxystudio/node-cross-spawn"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "crypto-random-string",
+      "version": "2.0.0",
+      "purl": "pkg:npm/crypto-random-string@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/crypto-random-string"
+        }
+      ],
+      "scope": "excluded",
       "properties": [
         {
           "name": "desktopcam:status",
@@ -2830,6 +5923,87 @@
     },
     {
       "type": "library",
+      "name": "data-view-buffer",
+      "version": "1.0.2",
+      "purl": "pkg:npm/data-view-buffer@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/data-view-buffer"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "data-view-byte-length",
+      "version": "1.0.2",
+      "purl": "pkg:npm/data-view-byte-length@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/data-view-byte-length"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "data-view-byte-offset",
+      "version": "1.0.1",
+      "purl": "pkg:npm/data-view-byte-offset@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/data-view-byte-offset"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "debug",
       "version": "4.4.3",
       "purl": "pkg:npm/debug@4.4.3",
@@ -2872,6 +6046,86 @@
         {
           "type": "vcs",
           "url": "git@github.com:chaijs/deep-eql"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "deepmerge",
+      "version": "4.3.1",
+      "purl": "pkg:npm/deepmerge@4.3.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/TehShrike/deepmerge"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "define-data-property",
+      "version": "1.1.4",
+      "purl": "pkg:npm/define-data-property@1.1.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/define-data-property"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "define-properties",
+      "version": "1.2.1",
+      "purl": "pkg:npm/define-properties@1.2.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/ljharb/define-properties"
         }
       ],
       "scope": "excluded",
@@ -3019,6 +6273,60 @@
     },
     {
       "type": "library",
+      "name": "dunder-proto",
+      "version": "1.0.1",
+      "purl": "pkg:npm/dunder-proto@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/es-shims/dunder-proto"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ejs",
+      "version": "3.1.10",
+      "purl": "pkg:npm/ejs@3.1.10",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Matthew Eernisse",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/mde/ejs"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "electron-to-chromium",
       "version": "1.5.479",
       "purl": "pkg:npm/electron-to-chromium@1.5.479",
@@ -3034,6 +6342,87 @@
         {
           "type": "vcs",
           "url": "https://github.com/Kilian/electron-to-chromium"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "es-abstract",
+      "version": "1.24.2",
+      "purl": "pkg:npm/es-abstract@1.24.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/ljharb/es-abstract"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "es-abstract-get",
+      "version": "1.0.0",
+      "purl": "pkg:npm/es-abstract-get@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/es-abstract-get"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "es-define-property",
+      "version": "1.0.1",
+      "purl": "pkg:npm/es-define-property@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/es-define-property"
         }
       ],
       "scope": "excluded",
@@ -3100,6 +6489,87 @@
     },
     {
       "type": "library",
+      "name": "es-object-atoms",
+      "version": "1.1.2",
+      "purl": "pkg:npm/es-object-atoms@1.1.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/es-object-atoms"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "es-set-tostringtag",
+      "version": "2.1.0",
+      "purl": "pkg:npm/es-set-tostringtag@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/es-shims/es-set-tostringtag"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "es-to-primitive",
+      "version": "1.3.4",
+      "purl": "pkg:npm/es-to-primitive@1.3.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/ljharb/es-to-primitive"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "esbuild",
       "version": "0.21.5",
       "purl": "pkg:npm/esbuild@0.21.5",
@@ -3154,6 +6624,33 @@
     {
       "type": "library",
       "name": "estree-walker",
+      "version": "2.0.2",
+      "purl": "pkg:npm/estree-walker@2.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Rich Harris",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Rich-Harris/estree-walker"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "estree-walker",
       "version": "3.0.3",
       "purl": "pkg:npm/estree-walker@3.0.3",
       "licenses": [
@@ -3168,6 +6665,59 @@
         {
           "type": "vcs",
           "url": "https://github.com/Rich-Harris/estree-walker"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "esutils",
+      "version": "2.0.3",
+      "purl": "pkg:npm/esutils@2.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "http://github.com/estools/esutils"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "eta",
+      "version": "4.6.0",
+      "purl": "pkg:npm/eta@4.6.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Ben Gubler",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/bgub/eta"
         }
       ],
       "scope": "excluded",
@@ -3206,6 +6756,33 @@
     },
     {
       "type": "library",
+      "name": "fast-deep-equal",
+      "version": "3.1.3",
+      "purl": "pkg:npm/fast-deep-equal@3.1.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Evgeny Poberezkin",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/epoberezkin/fast-deep-equal"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "fast-glob",
       "version": "3.3.3",
       "purl": "pkg:npm/fast-glob@3.3.3",
@@ -3221,6 +6798,60 @@
         {
           "type": "vcs",
           "url": "mrmlnc/fast-glob"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "fast-json-stable-stringify",
+      "version": "2.1.0",
+      "purl": "pkg:npm/fast-json-stable-stringify@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "James Halliday",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/epoberezkin/fast-json-stable-stringify"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "fast-uri",
+      "version": "3.1.9",
+      "purl": "pkg:npm/fast-uri@3.1.9",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "author": "Vincent Le Goff",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/fastify/fast-uri"
         }
       ],
       "scope": "excluded",
@@ -3302,6 +6933,33 @@
         {
           "type": "vcs",
           "url": "https://github.com/101arrowz/fflate"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "filelist",
+      "version": "1.0.6",
+      "purl": "pkg:npm/filelist@1.0.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Matthew Eernisse",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/mde/filelist"
         }
       ],
       "scope": "excluded",
@@ -3611,6 +7269,60 @@
     },
     {
       "type": "library",
+      "name": "for-each",
+      "version": "0.3.5",
+      "purl": "pkg:npm/for-each@0.3.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Raynos",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Raynos/for-each"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "foreground-child",
+      "version": "3.3.1",
+      "purl": "pkg:npm/foreground-child@3.3.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/tapjs/foreground-child"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "fraction.js",
       "version": "4.3.7",
       "purl": "pkg:npm/fraction.js@4.3.7",
@@ -3626,6 +7338,33 @@
         {
           "type": "vcs",
           "url": "git://github.com/rawify/Fraction.js"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "fs-extra",
+      "version": "9.1.0",
+      "purl": "pkg:npm/fs-extra@9.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "JP Richardson",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/jprichardson/node-fs-extra"
         }
       ],
       "scope": "excluded",
@@ -3665,6 +7404,87 @@
     },
     {
       "type": "library",
+      "name": "function.prototype.name",
+      "version": "1.2.0",
+      "purl": "pkg:npm/function.prototype.name@1.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/es-shims/Function.prototype.name"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "functions-have-names",
+      "version": "1.2.3",
+      "purl": "pkg:npm/functions-have-names@1.2.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/functions-have-names"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "generator-function",
+      "version": "2.0.1",
+      "purl": "pkg:npm/generator-function@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harbamd",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/TimothyGu/generator-function"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "gensync",
       "version": "1.0.0-beta.2",
       "purl": "pkg:npm/gensync@1.0.0-beta.2",
@@ -3687,6 +7507,141 @@
         {
           "name": "desktopcam:status",
           "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "get-intrinsic",
+      "version": "1.3.0",
+      "purl": "pkg:npm/get-intrinsic@1.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/get-intrinsic"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "get-own-enumerable-property-symbols",
+      "version": "3.0.2",
+      "purl": "pkg:npm/get-own-enumerable-property-symbols@3.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Shahar Or",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mightyiam/get-own-enumerable-property-symbols"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "get-proto",
+      "version": "1.0.1",
+      "purl": "pkg:npm/get-proto@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/get-proto"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "get-symbol-description",
+      "version": "1.1.0",
+      "purl": "pkg:npm/get-symbol-description@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/get-symbol-description"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "glob",
+      "version": "11.1.0",
+      "purl": "pkg:npm/glob@11.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git@github.com:isaacs/node-glob"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
         }
       ]
     },
@@ -3746,6 +7701,221 @@
     },
     {
       "type": "library",
+      "name": "globalthis",
+      "version": "1.0.4",
+      "purl": "pkg:npm/globalthis@1.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/ljharb/System.global"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "gopd",
+      "version": "1.2.0",
+      "purl": "pkg:npm/gopd@1.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/gopd"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "graceful-fs",
+      "version": "4.2.12",
+      "purl": "pkg:npm/graceful-fs@4.2.12",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/isaacs/node-graceful-fs"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "has-bigints",
+      "version": "1.1.0",
+      "purl": "pkg:npm/has-bigints@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/has-bigints"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "has-property-descriptors",
+      "version": "1.0.2",
+      "purl": "pkg:npm/has-property-descriptors@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/has-property-descriptors"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "has-proto",
+      "version": "1.2.0",
+      "purl": "pkg:npm/has-proto@1.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/has-proto"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "has-symbols",
+      "version": "1.1.0",
+      "purl": "pkg:npm/has-symbols@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/has-symbols"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "has-tostringtag",
+      "version": "1.0.2",
+      "purl": "pkg:npm/has-tostringtag@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/has-tostringtag"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "hasown",
       "version": "2.0.4",
       "purl": "pkg:npm/hasown@2.0.4",
@@ -3764,6 +7934,33 @@
         }
       ],
       "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "idb",
+      "version": "7.1.1",
+      "purl": "pkg:npm/idb@7.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Jake Archibald",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/jakearchibald/idb"
+        }
+      ],
+      "scope": "required",
       "properties": [
         {
           "name": "desktopcam:status",
@@ -3800,6 +7997,114 @@
     },
     {
       "type": "library",
+      "name": "internal-slot",
+      "version": "1.1.0",
+      "purl": "pkg:npm/internal-slot@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/internal-slot"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-array-buffer",
+      "version": "3.0.5",
+      "purl": "pkg:npm/is-array-buffer@3.0.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-array-buffer"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-async-function",
+      "version": "2.1.1",
+      "purl": "pkg:npm/is-async-function@2.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-async-function"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-bigint",
+      "version": "1.1.0",
+      "purl": "pkg:npm/is-bigint@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-bigint"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "is-binary-path",
       "version": "2.1.0",
       "purl": "pkg:npm/is-binary-path@2.1.0",
@@ -3815,6 +8120,60 @@
         {
           "type": "vcs",
           "url": "sindresorhus/is-binary-path"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-boolean-object",
+      "version": "1.2.2",
+      "purl": "pkg:npm/is-boolean-object@1.2.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-boolean-object"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-callable",
+      "version": "1.2.7",
+      "purl": "pkg:npm/is-callable@1.2.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-callable"
         }
       ],
       "scope": "excluded",
@@ -3854,6 +8213,87 @@
     },
     {
       "type": "library",
+      "name": "is-data-view",
+      "version": "1.0.2",
+      "purl": "pkg:npm/is-data-view@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-data-view"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-date-object",
+      "version": "1.1.0",
+      "purl": "pkg:npm/is-date-object@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-date-object"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-document.all",
+      "version": "1.0.0",
+      "purl": "pkg:npm/is-document.all@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-document.all"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "is-extglob",
       "version": "2.1.1",
       "purl": "pkg:npm/is-extglob@2.1.1",
@@ -3869,6 +8309,60 @@
         {
           "type": "vcs",
           "url": "jonschlinkert/is-extglob"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-finalizationregistry",
+      "version": "1.1.1",
+      "purl": "pkg:npm/is-finalizationregistry@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-finalizationregistry"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-generator-function",
+      "version": "1.1.2",
+      "purl": "pkg:npm/is-generator-function@1.1.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-generator-function"
         }
       ],
       "scope": "excluded",
@@ -3908,6 +8402,87 @@
     },
     {
       "type": "library",
+      "name": "is-map",
+      "version": "2.0.3",
+      "purl": "pkg:npm/is-map@2.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-map"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-module",
+      "version": "1.0.0",
+      "purl": "pkg:npm/is-module@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jonathan Ong",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "component/is-module"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-negative-zero",
+      "version": "2.0.3",
+      "purl": "pkg:npm/is-negative-zero@2.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-negative-zero"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "is-number",
       "version": "7.0.0",
       "purl": "pkg:npm/is-number@7.0.0",
@@ -3923,6 +8498,465 @@
         {
           "type": "vcs",
           "url": "jonschlinkert/is-number"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-number-object",
+      "version": "1.1.1",
+      "purl": "pkg:npm/is-number-object@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-number-object"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-obj",
+      "version": "1.0.1",
+      "purl": "pkg:npm/is-obj@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/is-obj"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-regex",
+      "version": "1.2.1",
+      "purl": "pkg:npm/is-regex@1.2.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-regex"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-regexp",
+      "version": "1.0.0",
+      "purl": "pkg:npm/is-regexp@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/is-regexp"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-set",
+      "version": "2.0.3",
+      "purl": "pkg:npm/is-set@2.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-set"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-shared-array-buffer",
+      "version": "1.0.4",
+      "purl": "pkg:npm/is-shared-array-buffer@1.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-shared-array-buffer"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-stream",
+      "version": "2.0.1",
+      "purl": "pkg:npm/is-stream@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/is-stream"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-string",
+      "version": "1.1.1",
+      "purl": "pkg:npm/is-string@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-string"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-symbol",
+      "version": "1.1.1",
+      "purl": "pkg:npm/is-symbol@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-symbol"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-typed-array",
+      "version": "1.1.15",
+      "purl": "pkg:npm/is-typed-array@1.1.15",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/is-typed-array"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-weakmap",
+      "version": "2.0.2",
+      "purl": "pkg:npm/is-weakmap@2.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-weakmap"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-weakref",
+      "version": "1.1.1",
+      "purl": "pkg:npm/is-weakref@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-weakref"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "is-weakset",
+      "version": "2.0.4",
+      "purl": "pkg:npm/is-weakset@2.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/is-weakset"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "isarray",
+      "version": "2.0.5",
+      "purl": "pkg:npm/isarray@2.0.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Julian Gruber",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/juliangruber/isarray"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "isexe",
+      "version": "2.0.0",
+      "purl": "pkg:npm/isexe@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/isaacs/isexe"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "jackspeak",
+      "version": "4.2.3",
+      "purl": "pkg:npm/jackspeak@4.2.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/isaacs/jackspeak"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "jake",
+      "version": "10.9.4",
+      "purl": "pkg:npm/jake@10.9.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Matthew Eernisse",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/jakejs/jake"
         }
       ],
       "scope": "excluded",
@@ -4015,6 +9049,33 @@
     },
     {
       "type": "library",
+      "name": "json-schema-traverse",
+      "version": "1.0.0",
+      "purl": "pkg:npm/json-schema-traverse@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Evgeny Poberezkin",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/epoberezkin/json-schema-traverse"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "json5",
       "version": "2.2.3",
       "purl": "pkg:npm/json5@2.2.3",
@@ -4030,6 +9091,87 @@
         {
           "type": "vcs",
           "url": "https://github.com/json5/json5"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "jsonfile",
+      "version": "6.2.1",
+      "purl": "pkg:npm/jsonfile@6.2.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "JP Richardson",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git@github.com:jprichardson/node-jsonfile"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "jsonpointer",
+      "version": "5.0.1",
+      "purl": "pkg:npm/jsonpointer@5.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jan Lehnardt",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/janl/node-jsonpointer"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "leven",
+      "version": "3.1.0",
+      "purl": "pkg:npm/leven@3.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/leven"
         }
       ],
       "scope": "excluded",
@@ -4150,6 +9292,33 @@
     },
     {
       "type": "library",
+      "name": "lodash.debounce",
+      "version": "4.0.8",
+      "purl": "pkg:npm/lodash.debounce@4.0.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "John-David Dalton",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "lodash/lodash"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "loose-envify",
       "version": "1.4.0",
       "purl": "pkg:npm/loose-envify@1.4.0",
@@ -4199,6 +9368,33 @@
         {
           "name": "desktopcam:status",
           "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "lru-cache",
+      "version": "11.5.3",
+      "purl": "pkg:npm/lru-cache@11.5.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "ssh://git@github.com/isaacs/node-lru-cache"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
         }
       ]
     },
@@ -4273,6 +9469,33 @@
         {
           "type": "vcs",
           "url": "https://github.com/Rich-Harris/magic-string"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "math-intrinsics",
+      "version": "1.1.0",
+      "purl": "pkg:npm/math-intrinsics@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/es-shims/math-intrinsics"
         }
       ],
       "scope": "excluded",
@@ -4360,6 +9583,87 @@
         {
           "name": "desktopcam:status",
           "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "minimatch",
+      "version": "10.2.6",
+      "purl": "pkg:npm/minimatch@10.2.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git@github.com:isaacs/minimatch"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "minimatch",
+      "version": "5.1.9",
+      "purl": "pkg:npm/minimatch@5.1.9",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/isaacs/minimatch"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "minipass",
+      "version": "7.1.3",
+      "purl": "pkg:npm/minipass@7.1.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/isaacs/minipass"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
         }
       ]
     },
@@ -4606,6 +9910,87 @@
     },
     {
       "type": "library",
+      "name": "object-inspect",
+      "version": "1.14.0",
+      "purl": "pkg:npm/object-inspect@1.14.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "James Halliday",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "ssh://github.com/inspect-js/object-inspect"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "object-keys",
+      "version": "1.1.1",
+      "purl": "pkg:npm/object-keys@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/ljharb/object-keys"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "object.assign",
+      "version": "4.1.7",
+      "purl": "pkg:npm/object.assign@4.1.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/ljharb/object.assign"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "opentype.js",
       "version": "2.0.0",
       "purl": "pkg:npm/opentype.js@2.0.0",
@@ -4633,6 +10018,60 @@
     },
     {
       "type": "library",
+      "name": "own-keys",
+      "version": "1.0.2",
+      "purl": "pkg:npm/own-keys@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/own-keys"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "package-json-from-dist",
+      "version": "1.0.1",
+      "purl": "pkg:npm/package-json-from-dist@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/isaacs/package-json-from-dist"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "package-name-regex",
       "version": "2.0.6",
       "purl": "pkg:npm/package-name-regex@2.0.6",
@@ -4648,6 +10087,33 @@
         {
           "type": "vcs",
           "url": "dword-design/package-name-regex"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "path-key",
+      "version": "3.1.1",
+      "purl": "pkg:npm/path-key@3.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/path-key"
         }
       ],
       "scope": "excluded",
@@ -4682,6 +10148,33 @@
         {
           "name": "desktopcam:status",
           "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "path-scurry",
+      "version": "2.0.2",
+      "purl": "pkg:npm/path-scurry@2.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/isaacs/path-scurry"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "REVIEW REQUIRED"
         }
       ]
     },
@@ -4866,6 +10359,33 @@
         }
       ],
       "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "possible-typed-array-names",
+      "version": "1.1.0",
+      "purl": "pkg:npm/possible-typed-array-names@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/possible-typed-array-names"
+        }
+      ],
+      "scope": "excluded",
       "properties": [
         {
           "name": "desktopcam:status",
@@ -5063,6 +10583,60 @@
     },
     {
       "type": "library",
+      "name": "pretty-bytes",
+      "version": "5.6.0",
+      "purl": "pkg:npm/pretty-bytes@5.6.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/pretty-bytes"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pretty-bytes",
+      "version": "6.1.1",
+      "purl": "pkg:npm/pretty-bytes@6.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/pretty-bytes"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "queue-microtask",
       "version": "1.2.3",
       "purl": "pkg:npm/queue-microtask@1.2.3",
@@ -5210,6 +10784,222 @@
         {
           "type": "vcs",
           "url": "git://github.com/paulmillr/readdirp"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "reflect.getprototypeof",
+      "version": "1.0.10",
+      "purl": "pkg:npm/reflect.getprototypeof@1.0.10",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/es-shims/Reflect.getPrototypeOf"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "regenerate",
+      "version": "1.5.0",
+      "purl": "pkg:npm/regenerate@1.5.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/regenerate"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "regenerate-unicode-properties",
+      "version": "10.3.0",
+      "purl": "pkg:npm/regenerate-unicode-properties@10.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/regenerate-unicode-properties"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "regexp.prototype.flags",
+      "version": "1.5.4",
+      "purl": "pkg:npm/regexp.prototype.flags@1.5.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/es-shims/RegExp.prototype.flags"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "regexpu-core",
+      "version": "6.5.4",
+      "purl": "pkg:npm/regexpu-core@6.5.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/regexpu-core"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "regjsgen",
+      "version": "0.8.0",
+      "purl": "pkg:npm/regjsgen@0.8.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Benjamin Tan",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/bnjmnt4n/regjsgen"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "regjsparser",
+      "version": "0.14.1",
+      "purl": "pkg:npm/regjsparser@0.14.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ],
+      "author": "'Julian Viereck'",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "ssh://git@github.com/jviereck/regjsparser"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "require-from-string",
+      "version": "2.0.2",
+      "purl": "pkg:npm/require-from-string@2.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Vsevolod Strukchinsky",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "floatdrop/require-from-string"
         }
       ],
       "scope": "excluded",
@@ -5384,6 +11174,87 @@
     },
     {
       "type": "library",
+      "name": "safe-array-concat",
+      "version": "1.1.4",
+      "purl": "pkg:npm/safe-array-concat@1.1.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/safe-array-concat"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "safe-push-apply",
+      "version": "1.0.0",
+      "purl": "pkg:npm/safe-push-apply@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/safe-push-apply"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "safe-regex-test",
+      "version": "1.1.0",
+      "purl": "pkg:npm/safe-regex-test@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/safe-regex-test"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "scheduler",
       "version": "0.23.2",
       "purl": "pkg:npm/scheduler@0.23.2",
@@ -5437,6 +11308,276 @@
     },
     {
       "type": "library",
+      "name": "serialize-javascript",
+      "version": "7.1.4",
+      "purl": "pkg:npm/serialize-javascript@7.1.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "author": "Eric Ferraiuolo",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/yahoo/serialize-javascript"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "set-function-length",
+      "version": "1.2.2",
+      "purl": "pkg:npm/set-function-length@1.2.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/set-function-length"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "set-function-name",
+      "version": "2.0.2",
+      "purl": "pkg:npm/set-function-name@2.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/set-function-name"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "set-proto",
+      "version": "1.0.0",
+      "purl": "pkg:npm/set-proto@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/set-proto"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "shebang-command",
+      "version": "2.0.0",
+      "purl": "pkg:npm/shebang-command@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Kevin Mårtensson",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "kevva/shebang-command"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "shebang-regex",
+      "version": "3.0.0",
+      "purl": "pkg:npm/shebang-regex@3.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/shebang-regex"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "side-channel",
+      "version": "1.1.1",
+      "purl": "pkg:npm/side-channel@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/side-channel"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "side-channel-list",
+      "version": "1.0.1",
+      "purl": "pkg:npm/side-channel-list@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/side-channel-list"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "side-channel-map",
+      "version": "1.0.1",
+      "purl": "pkg:npm/side-channel-map@1.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/side-channel-map"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "side-channel-weakmap",
+      "version": "1.0.2",
+      "purl": "pkg:npm/side-channel-weakmap@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/side-channel-weakmap"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "siginfo",
       "version": "2.0.0",
       "purl": "pkg:npm/siginfo@2.0.0",
@@ -5464,6 +11605,114 @@
     },
     {
       "type": "library",
+      "name": "signal-exit",
+      "version": "4.1.0",
+      "purl": "pkg:npm/signal-exit@4.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Ben Coe",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/tapjs/signal-exit"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "smob",
+      "version": "1.6.2",
+      "purl": "pkg:npm/smob@1.6.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Peter Placzek",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Tada5hi/smob"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "source-map",
+      "version": "0.6.1",
+      "purl": "pkg:npm/source-map@0.6.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "author": "Nick Fitzgerald",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "http://github.com/mozilla/source-map"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "source-map",
+      "version": "0.8.0",
+      "purl": "pkg:npm/source-map@0.8.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "author": "Nick Fitzgerald",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "ssh://git@github.com/mozilla/source-map"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "source-map-js",
       "version": "1.2.2",
       "purl": "pkg:npm/source-map-js@1.2.2",
@@ -5479,6 +11728,32 @@
         {
           "type": "vcs",
           "url": "7rulnik/source-map-js"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "source-map-support",
+      "version": "0.5.21",
+      "purl": "pkg:npm/source-map-support@0.5.21",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/evanw/node-source-map-support"
         }
       ],
       "scope": "excluded",
@@ -5791,6 +12066,195 @@
     },
     {
       "type": "library",
+      "name": "stop-iteration-iterator",
+      "version": "1.1.0",
+      "purl": "pkg:npm/stop-iteration-iterator@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/stop-iteration-iterator"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "string.prototype.matchall",
+      "version": "4.1.0",
+      "purl": "pkg:npm/string.prototype.matchall@4.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/es-shims/String.prototype.matchAll"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "string.prototype.trim",
+      "version": "1.2.11",
+      "purl": "pkg:npm/string.prototype.trim@1.2.11",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/es-shims/String.prototype.trim"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "string.prototype.trimend",
+      "version": "1.0.10",
+      "purl": "pkg:npm/string.prototype.trimend@1.0.10",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/es-shims/String.prototype.trimEnd"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "string.prototype.trimstart",
+      "version": "1.0.8",
+      "purl": "pkg:npm/string.prototype.trimstart@1.0.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/es-shims/String.prototype.trimStart"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "stringify-object",
+      "version": "3.3.0",
+      "purl": "pkg:npm/stringify-object@3.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "yeoman/stringify-object"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "strip-comments",
+      "version": "2.0.1",
+      "purl": "pkg:npm/strip-comments@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jon Schlinkert",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "jonschlinkert/strip-comments"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "sucrase",
       "version": "3.35.1",
       "purl": "pkg:npm/sucrase@3.35.1",
@@ -5859,6 +12323,87 @@
         {
           "type": "vcs",
           "url": "https://github.com/tailwindlabs/tailwindcss"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "temp-dir",
+      "version": "2.0.0",
+      "purl": "pkg:npm/temp-dir@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/temp-dir"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "tempy",
+      "version": "0.6.0",
+      "purl": "pkg:npm/tempy@0.6.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/tempy"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "terser",
+      "version": "5.51.4",
+      "purl": "pkg:npm/terser@5.51.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ],
+      "author": "Mihai Bazon",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/terser/terser"
         }
       ],
       "scope": "excluded",
@@ -6191,6 +12736,139 @@
     },
     {
       "type": "library",
+      "name": "type-fest",
+      "version": "0.16.0",
+      "purl": "pkg:npm/type-fest@0.16.0",
+      "licenses": [
+        {
+          "expression": "(MIT OR CC0-1.0)"
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/type-fest"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "typed-array-buffer",
+      "version": "1.0.3",
+      "purl": "pkg:npm/typed-array-buffer@1.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/typed-array-buffer"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "typed-array-byte-length",
+      "version": "1.0.3",
+      "purl": "pkg:npm/typed-array-byte-length@1.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/typed-array-byte-length"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "typed-array-byte-offset",
+      "version": "1.0.5",
+      "purl": "pkg:npm/typed-array-byte-offset@1.0.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/typed-array-byte-offset"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "typed-array-length",
+      "version": "1.0.8",
+      "purl": "pkg:npm/typed-array-length@1.0.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/typed-array-length"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "typescript",
       "version": "5.6.2",
       "purl": "pkg:npm/typescript@5.6.2",
@@ -6206,6 +12884,222 @@
         {
           "type": "vcs",
           "url": "https://github.com/microsoft/TypeScript"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "unbox-primitive",
+      "version": "1.1.0",
+      "purl": "pkg:npm/unbox-primitive@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ljharb/unbox-primitive"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "unicode-canonical-property-names-ecmascript",
+      "version": "2.0.1",
+      "purl": "pkg:npm/unicode-canonical-property-names-ecmascript@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/unicode-canonical-property-names-ecmascript"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "unicode-match-property-ecmascript",
+      "version": "2.0.0",
+      "purl": "pkg:npm/unicode-match-property-ecmascript@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/unicode-match-property-ecmascript"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "unicode-match-property-value-ecmascript",
+      "version": "2.2.1",
+      "purl": "pkg:npm/unicode-match-property-value-ecmascript@2.2.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/unicode-match-property-value-ecmascript"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "unicode-property-aliases-ecmascript",
+      "version": "2.2.0",
+      "purl": "pkg:npm/unicode-property-aliases-ecmascript@2.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Mathias Bynens",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mathiasbynens/unicode-property-aliases-ecmascript"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "unique-string",
+      "version": "2.0.0",
+      "purl": "pkg:npm/unique-string@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Sindre Sorhus",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "sindresorhus/unique-string"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "universalify",
+      "version": "2.0.1",
+      "purl": "pkg:npm/universalify@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Ryan Zimmerman",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RyanZim/universalify"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "upath",
+      "version": "1.2.0",
+      "purl": "pkg:npm/upath@1.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Angelos Pikoulas",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/anodynos/upath"
         }
       ],
       "scope": "excluded",
@@ -6352,6 +13246,33 @@
     },
     {
       "type": "library",
+      "name": "vite-plugin-pwa",
+      "version": "2.0.0",
+      "purl": "pkg:npm/vite-plugin-pwa@2.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "antfu",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/vite-pwa/vite-plugin-pwa"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "vitest",
       "version": "2.1.9",
       "purl": "pkg:npm/vitest@2.1.9",
@@ -6367,6 +13288,141 @@
         {
           "type": "vcs",
           "url": "https://github.com/vitest-dev/vitest"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "which",
+      "version": "2.0.2",
+      "purl": "pkg:npm/which@2.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "author": "Isaac Z. Schlueter",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/isaacs/node-which"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "which-boxed-primitive",
+      "version": "1.1.1",
+      "purl": "pkg:npm/which-boxed-primitive@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/which-boxed-primitive"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "which-builtin-type",
+      "version": "1.2.1",
+      "purl": "pkg:npm/which-builtin-type@1.2.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/which-builtin-type"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "which-collection",
+      "version": "1.0.2",
+      "purl": "pkg:npm/which-collection@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/inspect-js/which-collection"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "which-typed-array",
+      "version": "1.1.24",
+      "purl": "pkg:npm/which-typed-array@1.1.24",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Jordan Harband",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "git://github.com/inspect-js/which-typed-array"
         }
       ],
       "scope": "excluded",
@@ -6397,6 +13453,438 @@
         }
       ],
       "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-background-sync",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-background-sync@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-broadcast-update",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-broadcast-update@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-build",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-build@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-cacheable-response",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-cacheable-response@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-core",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-core@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-expiration",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-expiration@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-google-analytics",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-google-analytics@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-navigation-preload",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-navigation-preload@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-precaching",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-precaching@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-range-requests",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-range-requests@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-recipes",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-recipes@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-routing",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-routing@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-strategies",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-strategies@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "required",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-streams",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-streams@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-sw",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-sw@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "workbox-window",
+      "version": "7.4.1",
+      "purl": "pkg:npm/workbox-window@7.4.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "Google's Web DevRel Team and Google's Aurora Team",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/googlechrome/workbox"
+        }
+      ],
+      "scope": "required",
       "properties": [
         {
           "name": "desktopcam:status",
