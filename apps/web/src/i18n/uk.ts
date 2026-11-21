@@ -102,6 +102,7 @@ export const uk: Dict = {
   },
 
   header: {
+    more: "Ще",
     beginnerMode: 'Режим новачка',
     toLight: 'Увімкнути світлий режим',
     toDark: 'Увімкнути темний режим',
@@ -114,6 +115,7 @@ export const uk: Dict = {
   },
 
   tabs: {
+    moreTools: "Більше інструментів",
     file: 'Файл',
     design: 'Дизайн',
     setup: 'Налаштування',
@@ -480,6 +482,7 @@ export const uk: Dict = {
   },
 
   viewport: {
+    views: "Види",
     length: 'Довжина',
     angle: 'Кут',
     addPoint: 'Додати точку (Enter)',

@@ -95,6 +95,7 @@ export const de: Dict = {
   },
 
   header: {
+    more: "Mehr",
     beginnerMode: 'Einsteigermodus',
     toLight: 'Zum hellen Modus wechseln',
     toDark: 'Zum dunklen Modus wechseln',
@@ -107,6 +108,7 @@ export const de: Dict = {
   },
 
   tabs: {
+    moreTools: "Weitere Werkzeuge",
     file: 'Datei',
     design: 'Design',
     setup: 'Einrichtung',
@@ -473,6 +475,7 @@ export const de: Dict = {
   },
 
   viewport: {
+    views: "Ansichten",
     length: 'Länge',
     angle: 'Winkel',
     addPoint: 'Punkt hinzufügen (Enter)',

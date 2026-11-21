@@ -3,9 +3,10 @@ import type { ReactNode } from 'react';
 /** En grupp i bandet: kontroller överst, namn underst, avdelare till höger (som i Office). */
 export function RibbonGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <section aria-label={label} className="flex shrink-0 flex-col border-r border-line px-2 last:border-r-0">
+    <section aria-label={label} className="flex shrink-0 flex-col border-r border-line px-1 last:border-r-0 sm:px-2">
       <div className="flex flex-1 items-start gap-0.5 pt-1.5">{children}</div>
-      <p className="pb-1 text-center text-2xs text-muted">{label}</p>
+      {/* Gruppnamnen tar plats på telefon – där räcker knapparnas egna namn. */}
+      <p className="hidden pb-1 text-center text-2xs text-muted sm:block">{label}</p>
     </section>
   );
 }

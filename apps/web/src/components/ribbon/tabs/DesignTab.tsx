@@ -65,7 +65,7 @@ export function DesignTab() {
         <RibbonButton icon={Magnet} label={b.snapGrid.label} active={snap.grid} onClick={() => setSnap({ grid: !snap.grid })} tooltip={tip(b.snapGrid, { illustration: <IlluSnap /> })} />
         <RibbonStack>
           <span className="text-2xs text-muted">{t.snap.step}</span>
-          <div className="w-20">
+          <div className="w-24 [@media(pointer:coarse)]:w-28">
             <Select
               value={String(snap.step)}
               onChange={(v) => setSnap({ step: Number(v), grid: true })}

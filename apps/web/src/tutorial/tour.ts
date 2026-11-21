@@ -19,8 +19,9 @@ const DONE_KEY = 'desktopcam.tourDone';
 
 /** Elementet om det syns (paneler är dolda på små skärmar) – annars visas rutan mitt på skärmen. */
 const visible = (selector: string) => () => {
-  const el = document.querySelector(selector);
-  return (el && (el as HTMLElement).offsetParent !== null ? el : undefined) as Element;
+  // Samma mål kan finnas i både dator- och telefonlayouten – ta det som syns.
+  const el = [...document.querySelectorAll(selector)].find((e) => (e as HTMLElement).offsetParent !== null);
+  return el as Element;
 };
 
 const html = (art: ComponentType, body: string) => `<div class="tour-art">${renderToStaticMarkup(createElement(art))}</div><p>${body}</p>`;

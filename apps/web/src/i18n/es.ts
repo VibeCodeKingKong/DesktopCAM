@@ -95,6 +95,7 @@ export const es: Dict = {
   },
 
   header: {
+    more: "Más",
     beginnerMode: 'Modo principiante',
     toLight: 'Cambiar a modo claro',
     toDark: 'Cambiar a modo oscuro',
@@ -107,6 +108,7 @@ export const es: Dict = {
   },
 
   tabs: {
+    moreTools: "Más herramientas",
     file: 'Archivo',
     design: 'Diseño',
     setup: 'Configuración',
@@ -473,6 +475,7 @@ export const es: Dict = {
   },
 
   viewport: {
+    views: "Vistas",
     length: 'Longitud',
     angle: 'Ángulo',
     addPoint: 'Añadir el punto (Intro)',

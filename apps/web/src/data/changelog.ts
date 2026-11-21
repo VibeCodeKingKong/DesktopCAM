@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.35.0',
+    date: '2026-11-21',
+    text: {
+      sv: ["Bättre på telefon: flikarna ligger längst ner nära tummen, verktygsbandet är kompaktare och visar en pil när fler verktyg finns åt sidan, och hjälp, feedback, nybörjarläge, tema och maskininställning finns i Mer-menyn (⋯). Vyns knappar är samlade under en knapp, och tipsrutan krockar inte längre med Egenskaper-knappen. På datorn ser allt ut som förut."],
+      en: ["Better on phones: the tabs sit at the bottom within thumb reach, the ribbon is more compact and shows an arrow when more tools are off to the side, and help, feedback, beginner mode, theme and machine setup are in the More menu (⋯). The view buttons are gathered under one button, and the hint no longer overlaps the Properties button. On a computer everything looks as before."],
+      fr: ["Mieux sur téléphone : les onglets sont en bas, à portée du pouce, le ruban est plus compact et affiche une flèche quand d’autres outils sont sur le côté, et l’aide, les commentaires, le mode débutant, le thème et la configuration de la machine sont dans le menu Plus (⋯). Les boutons de vue sont regroupés sous un bouton, et l’astuce ne chevauche plus le bouton Propriétés. Sur ordinateur, rien ne change."],
+      de: ["Besser auf dem Handy: die Reiter liegen unten in Daumennähe, das Menüband ist kompakter und zeigt einen Pfeil, wenn seitlich weitere Werkzeuge liegen, und Hilfe, Feedback, Einsteigermodus, Design und Maschineneinrichtung stehen im Mehr-Menü (⋯). Die Ansichtsknöpfe sind unter einem Knopf zusammengefasst, und der Hinweis überdeckt den Eigenschaften-Knopf nicht mehr. Am Computer sieht alles aus wie bisher."],
+      es: ["Mejor en el móvil: las pestañas están abajo, al alcance del pulgar, la cinta es más compacta y muestra una flecha cuando hay más herramientas a un lado, y la ayuda, los comentarios, el modo principiante, el tema y la configuración de la máquina están en el menú Más (⋯). Los botones de vista se agrupan bajo un botón y el consejo ya no tapa el botón Propiedades. En el ordenador todo se ve como antes."],
+      pl: ["Wygodniej na telefonie: karty są na dole, pod kciukiem, wstążka jest bardziej zwarta i pokazuje strzałkę, gdy z boku są kolejne narzędzia, a pomoc, opinie, tryb początkującego, motyw i ustawienia maszyny są w menu Więcej (⋯). Przyciski widoku zebrano pod jednym przyciskiem, a podpowiedź nie zasłania już przycisku Właściwości. Na komputerze wszystko wygląda jak dotąd."],
+      uk: ["Зручніше на телефоні: вкладки внизу, під великим пальцем, стрічка компактніша й показує стрілку, коли збоку є ще інструменти, а довідка, відгук, режим новачка, тема та налаштування верстата – у меню Ще (⋯). Кнопки виду зібрано під однією кнопкою, а підказка більше не перекриває кнопку Властивості. На комп’ютері все виглядає як раніше."],
+    },
+  },
+  {
     version: '0.34.0',
     date: '2026-11-21',
     text: {

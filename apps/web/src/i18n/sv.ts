@@ -43,6 +43,7 @@ export const sv = {
   },
 
   header: {
+    more: "Mer",
     beginnerMode: 'Nybörjarläge',
     toLight: 'Byt till ljust läge',
     toDark: 'Byt till mörkt läge',
@@ -55,6 +56,7 @@ export const sv = {
   },
 
   tabs: {
+    moreTools: "Fler verktyg",
     file: 'Arkiv',
     design: 'Design',
     setup: 'Inställning',
@@ -421,6 +423,7 @@ export const sv = {
   },
 
   viewport: {
+    views: "Vyer",
     length: 'Längd',
     angle: 'Vinkel',
     addPoint: 'Lägg till punkten (Enter)',

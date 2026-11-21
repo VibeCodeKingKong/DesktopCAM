@@ -1,4 +1,5 @@
 import { SlidersHorizontal } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 
@@ -16,6 +17,15 @@ export function ViewportOverlay() {
   const hasSelection = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedToolpathId || !!s.selectedReliefId);
   const panelOpen = useAppStore((s) => s.mobilePanel !== null);
   const openProps = () => useAppStore.getState().setMobilePanel('props');
+  // På pekskärm försvinner navigeringstipset efter en stund (det visas igen när verktyget byts).
+  const [navShown, setNavShown] = useState(true);
+  useEffect(() => {
+    setNavShown(true);
+    if (!coarse) return;
+    const id = setTimeout(() => setNavShown(false), 8000);
+    return () => clearTimeout(id);
+  }, [tool]);
+  const propsButton = hasSelection && !panelOpen;
   const nav = tool === 'select' ? (coarse ? t.viewport.navTouch : t.viewport.navMouse) : coarse ? t.viewport.navDrawTouch : t.viewport.navMouse;
 
   return (
@@ -35,7 +45,7 @@ export function ViewportOverlay() {
           ))}
         </div>
       )}
-      {hasSelection && !panelOpen && (
+      {propsButton && (
         <button
           onClick={openProps}
           className="absolute bottom-3 right-3 flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-medium text-white shadow-pop lg:hidden"
@@ -43,8 +53,8 @@ export function ViewportOverlay() {
           <SlidersHorizontal size={16} /> {t.header.properties}
         </button>
       )}
-      {beginner && !simActive && (
-        <p className="pointer-events-none absolute bottom-3 left-3 right-14 rounded-md bg-surface/85 px-2 py-1 text-2xs text-muted backdrop-blur sm:right-auto">{nav}</p>
+      {beginner && !simActive && navShown && (
+        <p className={`pointer-events-none absolute bottom-3 left-3 right-14 ${propsButton ? 'hidden lg:block' : ''} rounded-md bg-surface/85 px-2 py-1 text-2xs text-muted backdrop-blur sm:right-auto`}>{nav}</p>
       )}
     </>
   );

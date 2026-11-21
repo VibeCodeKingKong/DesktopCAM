@@ -102,6 +102,7 @@ export const pl: Dict = {
   },
 
   header: {
+    more: "Więcej",
     beginnerMode: 'Tryb początkującego',
     toLight: 'Przełącz na tryb jasny',
     toDark: 'Przełącz na tryb ciemny',
@@ -114,6 +115,7 @@ export const pl: Dict = {
   },
 
   tabs: {
+    moreTools: "Więcej narzędzi",
     file: 'Plik',
     design: 'Projektowanie',
     setup: 'Ustawienia',
@@ -480,6 +482,7 @@ export const pl: Dict = {
   },
 
   viewport: {
+    views: "Widoki",
     length: 'Długość',
     angle: 'Kąt',
     addPoint: 'Dodaj punkt (Enter)',

@@ -1,4 +1,5 @@
-import { CircleHelp, Heart, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { CircleHelp, Heart, Info, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, MoreHorizontal, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
@@ -42,7 +43,7 @@ export function AppHeader() {
         <Logo />
         <span className="hidden text-sm font-semibold tracking-tight sm:inline">desktopCAM</span>
         <button
-          className="rounded px-1 py-0.5 text-2xs tabular-nums text-muted hover:bg-app hover:text-ink"
+          className="hidden rounded px-1 py-0.5 text-2xs tabular-nums text-muted hover:bg-app hover:text-ink sm:inline-block"
           onClick={() => openDialog('about')}
           title={t.about.open}
           aria-label={t.about.open}
@@ -69,6 +70,8 @@ export function AppHeader() {
           <Heart size={16} />
         </button>
       )}
+      {/* På telefon ligger de här i Mer-menyn. */}
+      <div className="hidden sm:contents">
       <button className={iconBtn} onClick={() => openDialog('feedback')} aria-label={t.feedback.open} title={t.feedback.open}>
         <MessageSquarePlus size={16} />
       </button>
@@ -80,10 +83,11 @@ export function AppHeader() {
         <span className="hidden md:inline">{t.header.beginnerMode}</span>
         <Switch checked={beginner} onChange={toggleBeginner} label={t.header.beginnerMode} />
       </label>
+      </div>
       <label className="relative flex items-center" title={t.header.language}>
         <Languages size={16} className="pointer-events-none absolute left-1.5 text-muted" />
         <select
-          className="h-7 w-[3.75rem] cursor-pointer appearance-none truncate rounded-md bg-transparent pl-7 pr-1.5 text-xs font-medium text-ink sm:w-auto hover:bg-app focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="h-7 w-8 cursor-pointer appearance-none truncate rounded-md bg-transparent pl-7 pr-1.5 text-xs font-medium text-transparent sm:w-auto sm:text-ink [&>option]:text-ink hover:bg-app focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           value={language}
           onChange={(e) => setLanguage(e.target.value as Language)}
           aria-label={t.header.language}
@@ -106,9 +110,66 @@ export function AppHeader() {
       <button className={`${iconBtn} hidden sm:block`} onClick={() => openDialog('machineSetup')} aria-label={t.header.machineSetup} title={t.header.machineSetup}>
         <Settings size={16} />
       </button>
+      <MoreMenu />
       <button className={`${iconBtn} lg:hidden`} onClick={() => setMobilePanel('props')} aria-label={t.header.properties} title={t.header.properties}>
         <SlidersHorizontal size={17} />
       </button>
     </header>
+  );
+}
+
+/** Telefon: hjälp, feedback, nybörjarläge, tema och maskininställning samlade i en meny. */
+function MoreMenu() {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const theme = useAppStore((s) => s.theme);
+  const beginner = useAppStore((s) => s.beginnerMode);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener('pointerdown', close);
+    return () => window.removeEventListener('pointerdown', close);
+  }, [open]);
+  const s = useAppStore.getState;
+  const item = 'flex h-11 w-full items-center gap-3 px-3 text-left text-sm text-ink hover:bg-app';
+  const run = (f: () => void) => () => {
+    setOpen(false);
+    f();
+  };
+  return (
+    <div ref={ref} className="relative sm:hidden">
+      <button className={iconBtn} onClick={() => setOpen((o) => !o)} aria-label={t.header.more} title={t.header.more} aria-haspopup="menu" aria-expanded={open} data-tour="help">
+        <MoreHorizontal size={18} />
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 top-full z-50 mt-1 w-64 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop">
+          <button role="menuitem" className={item} onClick={run(() => s().openDialog('welcome'))}>
+            <CircleHelp size={17} className="text-muted" /> {t.welcome.menu}
+          </button>
+          <button role="menuitem" className={item} onClick={run(() => s().openDialog('feedback'))}>
+            <MessageSquarePlus size={17} className="text-muted" /> {t.feedback.open}
+          </button>
+          <button role="menuitemcheckbox" aria-checked={beginner} className={item} onClick={() => s().toggleBeginnerMode()}>
+            <GraduationCap size={17} className={beginner ? 'text-accent' : 'text-muted'} />
+            <span className="flex-1">{t.header.beginnerMode}</span>
+            <span aria-hidden="true" className={`relative inline-flex h-[18px] w-8 shrink-0 items-center rounded-full transition-colors ${beginner ? 'bg-accent' : 'bg-line'}`}>
+              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${beginner ? 'translate-x-4' : 'translate-x-0.5'}`} />
+            </span>
+          </button>
+          <button role="menuitem" className={item} onClick={run(() => s().setTheme(theme === 'dark' ? 'light' : 'dark'))}>
+            {theme === 'dark' ? <Sun size={17} className="text-muted" /> : <Moon size={17} className="text-muted" />} {theme === 'dark' ? t.header.toLight : t.header.toDark}
+          </button>
+          <button role="menuitem" className={item} onClick={run(() => s().openDialog('machineSetup'))}>
+            <Settings size={17} className="text-muted" /> {t.header.machineSetup}
+          </button>
+          <button role="menuitem" className={`${item} border-t border-line`} onClick={run(() => s().openDialog('about'))}>
+            <Info size={17} className="text-muted" /> {t.about.open} <span className="ml-auto text-2xs tabular-nums text-muted">v{APP_VERSION}</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

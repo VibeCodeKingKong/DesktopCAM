@@ -13,7 +13,7 @@ export function StatusBar() {
   const engineTitle = engine ? t.statusbar.engineTitle(engine.engine === 'wasm', engine.threads) : '';
 
   return (
-    <footer className="flex h-7 shrink-0 items-center gap-4 border-t border-line bg-surface px-3 pb-[env(safe-area-inset-bottom)] text-2xs text-muted box-content">
+    <footer className="flex h-7 shrink-0 items-center gap-4 border-t border-line bg-surface px-3 text-2xs sm:pb-[env(safe-area-inset-bottom)] text-muted box-content">
       <span className="min-w-0 flex-1 truncate" role="status" aria-live="polite">
         {status || t.status.ready}
       </span>
