@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.36.0',
+    date: '2026-11-21',
+    text: {
+      sv: ["Telefon: Egenskaper öppnas som ett ark nerifrån – halvhögt så att du ser formen ovanför, dra i greppet uppåt för hela panelen och nedåt för att stänga.", "Snabbknappar när något är markerat på telefon och surfplatta: vrid ±15°, räta upp, duplicera, ta bort och öppna egenskaperna."],
+      en: ["Phone: Properties opens as a sheet from the bottom – half height so you can see the shape above, drag the handle up for the full panel and down to close.", "Quick buttons when something is selected on phones and tablets: rotate ±15°, straighten, duplicate, delete and open the properties."],
+      fr: ["Téléphone : les Propriétés s’ouvrent en panneau depuis le bas – à mi-hauteur pour voir la forme au-dessus ; tirez la poignée vers le haut pour tout afficher, vers le bas pour fermer.", "Boutons rapides quand un élément est sélectionné sur téléphone et tablette : pivoter de ±15°, redresser, dupliquer, supprimer et ouvrir les propriétés."],
+      de: ["Handy: Eigenschaften öffnen sich als Blatt von unten – halbhoch, damit die Form darüber sichtbar bleibt; Griff nach oben ziehen für das ganze Feld, nach unten zum Schließen.", "Schnellknöpfe bei einer Auswahl auf Handy und Tablet: um ±15° drehen, gerade ausrichten, duplizieren, löschen und Eigenschaften öffnen."],
+      es: ["Móvil: Propiedades se abre como una hoja desde abajo, a media altura para ver la forma encima; arrastre el asa hacia arriba para el panel completo y hacia abajo para cerrar.", "Botones rápidos al seleccionar algo en móvil y tableta: girar ±15°, enderezar, duplicar, eliminar y abrir las propiedades."],
+      pl: ["Telefon: Właściwości otwierają się jako arkusz od dołu – do połowy wysokości, by widzieć kształt powyżej; przeciągnij uchwyt w górę, aby pokazać całość, w dół, aby zamknąć.", "Szybkie przyciski po zaznaczeniu na telefonie i tablecie: obrót o ±15°, wyprostuj, duplikuj, usuń i otwórz właściwości."],
+      uk: ["Телефон: Властивості відкриваються аркушем знизу – на пів висоти, щоб бачити фігуру над ним; потягніть ручку вгору для всієї панелі, вниз – щоб закрити.", "Швидкі кнопки, коли щось виділено на телефоні й планшеті: поворот на ±15°, вирівняти, дублювати, видалити та відкрити властивості."],
+    },
+  },
+  {
     version: '0.35.0',
     date: '2026-11-21',
     text: {

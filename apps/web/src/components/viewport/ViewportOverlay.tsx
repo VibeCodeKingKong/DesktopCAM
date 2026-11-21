@@ -1,5 +1,6 @@
-import { SlidersHorizontal } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AlignVerticalSpaceAround, Copy, RotateCcw, RotateCw, SlidersHorizontal, Trash2 } from 'lucide-react';
+import { deleteSelection, duplicateSelection, rotateSelection, straightenSelection } from '../../cam/commands';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 
@@ -14,7 +15,9 @@ export function ViewportOverlay() {
   const tool = useAppStore((s) => s.editTool);
   const simActive = useAppStore((s) => s.sim.active);
   const jobs = Object.entries(progress);
-  const hasSelection = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedToolpathId || !!s.selectedReliefId);
+  const hasSelection = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedToolpathId || !!s.selectedReliefId || !!s.selectedImageId);
+  const nShapes = useAppStore((s) => s.selectedShapeIds.length);
+  const imageSel = useAppStore((s) => !!s.selectedImageId);
   const panelOpen = useAppStore((s) => s.mobilePanel !== null);
   const openProps = () => useAppStore.getState().setMobilePanel('props');
   // På pekskärm försvinner navigeringstipset efter en stund (det visas igen när verktyget byts).
@@ -25,7 +28,7 @@ export function ViewportOverlay() {
     const id = setTimeout(() => setNavShown(false), 8000);
     return () => clearTimeout(id);
   }, [tool]);
-  const propsButton = hasSelection && !panelOpen;
+  const propsButton = hasSelection && !panelOpen && !simActive;
   const nav = tool === 'select' ? (coarse ? t.viewport.navTouch : t.viewport.navMouse) : coarse ? t.viewport.navDrawTouch : t.viewport.navMouse;
 
   return (
@@ -46,16 +49,52 @@ export function ViewportOverlay() {
         </div>
       )}
       {propsButton && (
-        <button
-          onClick={openProps}
-          className="absolute bottom-3 right-3 flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-medium text-white shadow-pop lg:hidden"
-        >
-          <SlidersHorizontal size={16} /> {t.header.properties}
-        </button>
+        // Telefon och surfplatta: snabbknappar för det vanligaste, utan att öppna panelen.
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1 shadow-pop backdrop-blur lg:hidden" role="toolbar" aria-label={t.header.properties}>
+          {(nShapes > 0 || imageSel) && (
+            <>
+              <QuickButton label={`${t.props.rotate} +15°`} onClick={() => rotateSelection(15)}>
+                <RotateCcw size={18} />
+              </QuickButton>
+              <QuickButton label={`${t.props.rotate} −15°`} onClick={() => rotateSelection(-15)}>
+                <RotateCw size={18} />
+              </QuickButton>
+            </>
+          )}
+          {nShapes > 0 && (
+            <>
+              <QuickButton label={t.contour.straighten} onClick={straightenSelection}>
+                <AlignVerticalSpaceAround size={18} />
+              </QuickButton>
+              <QuickButton label={t.buttons.duplicate.label} onClick={duplicateSelection}>
+                <Copy size={18} />
+              </QuickButton>
+            </>
+          )}
+          <QuickButton label={t.buttons.remove.label} onClick={deleteSelection}>
+            <Trash2 size={18} />
+          </QuickButton>
+          <button
+            onClick={openProps}
+            aria-label={t.header.properties}
+            title={t.header.properties}
+            className="ml-0.5 flex h-10 items-center gap-1.5 rounded-full bg-accent px-3.5 text-sm font-medium text-white"
+          >
+            <SlidersHorizontal size={16} /> <span className="hidden min-[400px]:inline">{t.header.properties}</span>
+          </button>
+        </div>
       )}
       {beginner && !simActive && navShown && (
         <p className={`pointer-events-none absolute bottom-3 left-3 right-14 ${propsButton ? 'hidden lg:block' : ''} rounded-md bg-surface/85 px-2 py-1 text-2xs text-muted backdrop-blur sm:right-auto`}>{nav}</p>
       )}
     </>
+  );
+}
+
+function QuickButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+  return (
+    <button onClick={onClick} aria-label={label} title={label} className="flex h-10 w-10 items-center justify-center rounded-full text-ink/80 hover:bg-app active:bg-line/60">
+      {children}
+    </button>
   );
 }
