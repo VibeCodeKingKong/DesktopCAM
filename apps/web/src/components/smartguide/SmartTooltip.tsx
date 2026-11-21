@@ -35,7 +35,10 @@ export function SmartTooltip({ content, children, delay, className = 'inline-fle
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<FloatingPosition | null>(null);
 
+  // Efter ett klick visas rutan inte igen (fokus från klicket) förrän musen lämnat knappen.
+  const suppressed = useRef(false);
   const show = () => {
+    if (suppressed.current) return;
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setOpen(true), delay ?? (beginner ? 350 : 700));
   };
@@ -57,10 +60,19 @@ export function SmartTooltip({ content, children, delay, className = 'inline-fle
       ref={anchorRef}
       className={className}
       onMouseEnter={show}
-      onMouseLeave={hide}
-      onMouseDown={hide}
+      onMouseLeave={() => {
+        suppressed.current = false;
+        hide();
+      }}
+      onPointerDown={() => {
+        suppressed.current = true;
+        hide();
+      }}
       onFocus={show}
-      onBlur={hide}
+      onBlur={() => {
+        suppressed.current = false;
+        hide();
+      }}
     >
       {children}
       {open &&

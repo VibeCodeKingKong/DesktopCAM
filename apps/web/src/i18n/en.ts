@@ -1091,6 +1091,9 @@ export const en: Dict = {
   },
 
   status: {
+    toolForDepth: (n: string, d: string) => `Chose ${n} – its cutting length reaches ${d} mm deep.`,
+    autosaveFull: "The project could not be saved automatically – the browser storage is full. Save the project as a file (File → Save).",
+    simDone: "Simulation finished",
     ready: 'Ready',
     newProject: 'New project created',
     shapeAdded: (name: string) => `${name} added`,

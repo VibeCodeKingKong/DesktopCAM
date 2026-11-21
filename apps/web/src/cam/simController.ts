@@ -122,6 +122,7 @@ function tick(now: number) {
     sim.seek(sim.currentTime + dt * rate);
     if (sim.currentTime >= sim.duration) {
       useAppStore.getState().setSim({ playing: false });
+      useAppStore.getState().setStatus(getT().status.simDone);
       syncUi(true);
     } else syncUi();
   }
@@ -192,6 +193,7 @@ export function seekSimulation(fraction: number) {
 export function showFinalResult() {
   if (!sim && !startSimulation(false)) return;
   useAppStore.getState().setSim({ playing: false });
+  useAppStore.getState().setStatus(getT().status.simDone);
   seekSimulation(1);
 }
 
@@ -204,6 +206,9 @@ export function stopSimulation() {
   scene?.setToolMarker(null);
   assembly = null;
   useAppStore.getState().setSim({ active: false, playing: false, progress: 0, duration: 0, job: '', inlays: 0, assembly: 'none', fit: [] });
+  // Simuleringens statustext gäller inte längre.
+  const st = useAppStore.getState(), tt = getT();
+  if (st.status === tt.sim.started || st.status === tt.status.simDone) st.setStatus('');
 }
 
 /** Simuleringen bygger på banorna när den startades – stäng den om något ändras. */

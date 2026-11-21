@@ -48,7 +48,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 
 <!-- GENERERAT AV scripts/license-audit.mjs – ändra inte för hand nedanför denna rad -->
 
-## Följer med appen (44)
+## Följer med appen (45)
 
 | Paket | Version | Licens | Upphovsrätt | Källa | Status |
 |---|---|---|---|---|---|
@@ -81,6 +81,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | flo-memoize | 2.0.1 | MIT | Floris Steenkamp | <https://github.com/FlorisSteenkamp/FloMemoize> | APPROVED |
 | flo-poly | 9.0.2 | MIT | Floris Steenkamp | <https://github.com/FlorisSteenkamp/FloPoly> | APPROVED |
 | flo-vector2d | 4.0.6 | MIT | Floris Steenkamp | <https://github.com/FlorisSteenkamp/FloVector2d> | APPROVED |
+| idb-keyval | 6.3.0 | Apache-2.0 | Jake Archibald | <https://github.com/jakearchibald/idb-keyval> | APPROVED |
 | js-tokens | 4.0.0 | MIT | Simon Lydell | <lydell/js-tokens> | APPROVED |
 | loose-envify | 1.4.0 | MIT | Andres Suarez | <git://github.com/zertosh/loose-envify> | APPROVED |
 | lucide-react | 0.441.0 | ISC | Eric Fennis | <https://github.com/lucide-icons/lucide> | APPROVED |

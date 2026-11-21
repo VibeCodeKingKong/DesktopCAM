@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "desktopCAM",
-      "version": "0.33.0",
+      "version": "0.37.0",
       "licenses": [
         {
           "license": {
@@ -3367,6 +3367,33 @@
         }
       ],
       "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "idb-keyval",
+      "version": "6.3.0",
+      "purl": "pkg:npm/idb-keyval@6.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "author": "Jake Archibald",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/jakearchibald/idb-keyval"
+        }
+      ],
+      "scope": "required",
       "properties": [
         {
           "name": "desktopcam:status",

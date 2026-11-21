@@ -56,7 +56,16 @@ import { computeToolpath } from './toolpathService';
 import { buildTextShape, ensureTextFont } from '../text/textShape';
 import { activeEditor } from '../editing/EditController';
 import machinesJson from '../data/machines.json';
-import { materialName } from '../i18n';
+import { decimalSep, materialName, toolName } from '../i18n';
+import { cuttingLength } from './toolReach';
+import { get as idbGet, set as idbSet } from 'idb-keyval';
+
+/** Räcker verktygets skärlängd (och utstick) till djupet? */
+function reaches(tool: ToolDefinition, depth: number): boolean {
+  const cut = cuttingLength(tool);
+  if (tool.stickout && depth > tool.stickout - 1) return false;
+  return !cut || depth <= cut + 0.01;
+}
 
 export const isLaserOperation = (op: OperationType) => op === 'laserCut' || op === 'laserRaster';
 /** Vilken sorts maskin en operation kräver. */
@@ -318,10 +327,17 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const id = uid('tp');
   const n = s.toolpaths.length + 1;
   const base = { id, shapeIds, visible: true };
-  const routerTool = (prefer: string[]) => {
+  const routerTool = (prefer: string[], depth?: number) => {
     const active = s.tools.find((x) => x.id === s.activeToolId);
-    if (active && prefer.includes(active.kind)) return active;
-    return s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma' && x.kind !== 'pen')!;
+    const first = active && prefer.includes(active.kind) ? active : (s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma' && x.kind !== 'pen')!);
+    if (depth === undefined || reaches(first, depth)) return first;
+    // Räcker inte skärlängden till djupet: närmast grövre verktyg av samma sort som gör det.
+    const better = s.tools
+      .filter((x) => x.kind === first.kind && x.diameter >= first.diameter - 1e-6 && x.diameter < 15 && reaches(x, depth))
+      .sort((a, b) => a.diameter - b.diameter)[0];
+    if (!better) return first;
+    status(t.status.toolForDepth(toolName(t, better.id, better.name), String(+depth.toFixed(1)).replace('.', decimalSep(t))));
+    return better;
   };
   // Materialets värden skalade efter maskinen, verktygets diameter och antal skär.
   const routerParams = (tool: ReturnType<typeof routerTool>) => ({ ...tool.defaults, ...(routerParamsFor(preset, tool, machine) ?? {}) });
@@ -410,7 +426,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
       break;
     }
     case 'profile': {
-      const tool = routerTool(['endmill', 'ballnose']);
+      const tool = routerTool(['endmill', 'ballnose'], s.material.thickness);
       tp = {
         ...base,
         operation,
@@ -426,7 +442,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
       break;
     }
     case 'pocket': {
-      const tool = routerTool(['endmill']);
+      const tool = routerTool(['endmill'], Math.min(3, s.material.thickness / 2));
       tp = {
         ...base,
         operation,
@@ -833,29 +849,63 @@ export function newProject() {
 }
 
 /** Återställer senaste arbetet och sparar sedan automatiskt vid varje ändring. */
+/**
+ * Autosparning. Hela projektet (med foton) sparas i IndexedDB, som rymmer
+ * betydligt mer än localStorage (~5 MB). En kopia utan bilder sparas också i
+ * localStorage som reserv – och som tecken på att användaren varit här förut.
+ * Får något inte plats sägs det till, i stället för att bilderna tyst försvinner.
+ */
 export function startAutosave() {
-  try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
-    if (raw && loadProject(JSON.parse(raw))) status(getT().status.restored);
-  } catch {
-    /* trasig autosparning ignoreras */
-  }
+  let ready = false;
+  let warned = false;
+  const restore = async () => {
+    try {
+      const data = await idbGet(AUTOSAVE_KEY);
+      if (data && loadProject(data)) return status(getT().status.restored);
+    } catch {
+      /* IndexedDB saknas (t.ex. vissa privata lägen) */
+    }
+    try {
+      const raw = localStorage.getItem(AUTOSAVE_KEY);
+      if (raw && loadProject(JSON.parse(raw))) status(getT().status.restored);
+    } catch {
+      /* trasig autosparning ignoreras */
+    }
+  };
+  void restore().finally(() => (ready = true));
+
+  const save = async () => {
+    const full = projectJson();
+    let fullSaved = false;
+    try {
+      await idbSet(AUTOSAVE_KEY, full);
+      fullSaved = true;
+    } catch {
+      /* fullt eller saknas – prova localStorage nedan */
+    }
+    try {
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(fullSaved ? projectJson(false) : full));
+      fullSaved = true;
+    } catch {
+      try {
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson(false)));
+      } catch {
+        /* privat läge */
+      }
+    }
+    if (!fullSaved && !warned) {
+      warned = true;
+      status(getT().status.autosaveFull);
+    }
+    if (fullSaved) warned = false;
+  };
+
   let timer: ReturnType<typeof setTimeout> | undefined;
   return useAppStore.subscribe((s, prev) => {
+    if (!ready) return;
     if (s.layers === prev.layers && s.reliefs === prev.reliefs && s.imageObjects === prev.imageObjects && s.toolpaths === prev.toolpaths && s.material === prev.material && s.tools === prev.tools && s.machineId === prev.machineId && s.projectName === prev.projectName) return;
     clearTimeout(timer);
-    timer = setTimeout(() => {
-      try {
-        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson()));
-      } catch {
-        // Fullt (stora bilder): spara resten utan bilderna.
-        try {
-          localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(projectJson(false)));
-        } catch {
-          /* privat läge */
-        }
-      }
-    }, 800);
+    timer = setTimeout(() => void save(), 800);
   });
 }
 

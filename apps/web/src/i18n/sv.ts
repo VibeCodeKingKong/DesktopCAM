@@ -1038,6 +1038,9 @@ export const sv = {
   },
 
   status: {
+    toolForDepth: (n: string, d: string) => `Valde ${n} – skärlängden räcker till ${d} mm djup.`,
+    autosaveFull: "Projektet kunde inte sparas automatiskt – webbläsarens lagring är full. Spara projektet som fil (Arkiv → Spara).",
+    simDone: "Simulering klar",
     ready: 'Klar',
     newProject: 'Nytt projekt skapat',
     shapeAdded: (name: string) => `${name} tillagd`,

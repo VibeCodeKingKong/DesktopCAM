@@ -1097,6 +1097,9 @@ export const pl: Dict = {
   },
 
   status: {
+    toolForDepth: (n: string, d: string) => `Wybrano ${n} – długość ostrza wystarcza na ${d} mm głębokości.`,
+    autosaveFull: "Nie udało się automatycznie zapisać projektu – pamięć przeglądarki jest pełna. Zapisz projekt jako plik (Plik → Zapisz).",
+    simDone: "Symulacja zakończona",
     ready: 'Gotowe',
     newProject: 'Utworzono nowy projekt',
     shapeAdded: (name: string) => `Dodano: ${name}`,

@@ -734,8 +734,9 @@ export class EditController {
     }
 
 
-    // Markeringsram
-    if (s.editTool === 'select' && s.selectedShapeIds.length && !s.sim.active) {
+    // Markeringsram – inte under Simulera och Export, där den bara skymmer resultatet.
+    const quiet = s.activeTab === 'simulate' || s.activeTab === 'output';
+    if (s.editTool === 'select' && s.selectedShapeIds.length && !s.sim.active && !quiet) {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const sh of this.selectedShapes()) {
         const g = shapeGeometry(sh);
@@ -1060,7 +1061,7 @@ export class EditController {
   /** Vridhandtagets läge (skärm) och vridpunkt (mm), eller null om inget är markerat. */
   private rotationHandle(): { pivot: Vec2; top: { x: number; y: number }; handle: { x: number; y: number } } | null {
     const s = useAppStore.getState();
-    if (s.editTool !== 'select' || s.sim.active || this.gesture.kind === 'move' || this.gesture.kind === 'image') return null;
+    if (s.editTool !== 'select' || s.activeTab !== 'design' || s.sim.active || this.gesture.kind === 'move' || this.gesture.kind === 'image') return null;
     let y1 = -Infinity;
     if (s.selectedShapeIds.length) {
       for (const sh of this.selectedShapes()) y1 = Math.max(y1, shapeGeometry(sh).max.y);
