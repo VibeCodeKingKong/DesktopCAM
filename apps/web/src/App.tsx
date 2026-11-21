@@ -1,5 +1,6 @@
 import { maybeWelcome } from './tutorial/tour';
 import { WelcomeDialog } from './components/dialogs/WelcomeDialog';
+import { TraceDialog } from './components/dialogs/TraceDialog';
 import { useEffect } from 'react';
 import { AppHeader } from './components/layout/AppHeader';
 import { ProjectTree } from './components/layout/ProjectTree';
@@ -89,6 +90,7 @@ export default function App() {
       <ExportDialog />
       <PatternDialog />
       <WelcomeDialog />
+      <TraceDialog />
     </div>
   );
 }

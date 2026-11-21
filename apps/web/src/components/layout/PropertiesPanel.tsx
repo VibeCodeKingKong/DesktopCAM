@@ -1,7 +1,7 @@
 import { FontPicker } from '../ui/FontPicker';
 import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Grid3x3, PenLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
+import { CircleDot, Grid3x3, PenLine, ScanLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
 import {
   defaultPocketStrategy,
   matchPocketPreset,
@@ -60,6 +60,9 @@ import {
   showInlayPart,
   updateReliefPlug,
   retoolPatch,
+  offsetSelection,
+  combineSelection,
+  separateSelection,
 } from '../../cam/commands';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
@@ -335,6 +338,8 @@ function ShapeEditor() {
         </button>
       </Group>
 
+      <ContourGroup anyClosed={anyClosed} count={shapes.length} multiPath={shapes.some((sh) => sh.paths.length > 1)} />
+
       <Group title={t.props.machining}>
         <p className="text-2xs text-muted">{anyClosed || machineKind !== 'router' ? t.props.operationsHint : t.props.openHint}</p>
         <div className="grid grid-cols-2 gap-2">
@@ -376,6 +381,50 @@ function ShapeEditor() {
         </div>
       </Group>
     </div>
+  );
+}
+
+/* ───────── Kontur ───────── */
+
+/** Förskjutning (offset) av slutna former, och slå ihop/dela upp banor. */
+function ContourGroup({ anyClosed, count, multiPath }: { anyClosed: boolean; count: number; multiPath: boolean }) {
+  const t = useT();
+  const c = t.contour;
+  const [dist, setDist] = useState(3);
+  const [inward, setInward] = useState(false);
+  return (
+    <Group title={c.title}>
+      {anyClosed && (
+        <>
+          <Segmented
+            label={c.direction}
+            value={inward ? 'in' : 'out'}
+            options={[{ value: 'out', label: c.outward }, { value: 'in', label: c.inward }]}
+            onChange={(v) => setInward(v === 'in')}
+          />
+          <div className="flex flex-wrap gap-1">
+            {[1.5, 3, 4.5].map((v) => (
+              <button key={v} className={`rounded-full px-2.5 py-0.5 text-xs ${dist === v ? 'bg-accent text-white' : 'bg-app hover:bg-line/60'}`} onClick={() => setDist(v)}>
+                {v.toLocaleString(t.locale)} mm
+              </button>
+            ))}
+          </div>
+          <NumberField label={c.distance} unit="mm" step={0.5} min={0.01} max={200} value={dist} onChange={setDist} />
+          <button className="btn w-full" onClick={() => offsetSelection(inward ? -dist : dist)}>
+            {c.apply}
+          </button>
+          <p className="text-2xs leading-relaxed text-muted">{c.offsetHint}</p>
+        </>
+      )}
+      <div className="grid grid-cols-2 gap-2">
+        <button className="btn" disabled={count < 2} onClick={combineSelection} title={c.combineHint}>
+          {c.combine}
+        </button>
+        <button className="btn" disabled={!multiPath} onClick={separateSelection} title={c.separateHint}>
+          {c.separate}
+        </button>
+      </div>
+    </Group>
   );
 }
 
@@ -540,6 +589,9 @@ function ImageEditor({ image }: { image: ImageObject }) {
             {t.image.draw}
           </button>
         )}
+        <button className="btn w-full" onClick={() => useAppStore.getState().openDialog('trace', image.id)}>
+          <ScanLine size={13} /> {t.buttons.traceImage.title}
+        </button>
         {machine.kind === 'router' && <p className="text-xs leading-relaxed text-muted">{t.image.routerNote}</p>}
         {machine.kind === 'plasma' && <p className="text-xs leading-relaxed text-muted">{t.image.plasmaNote}</p>}
         <div className="flex gap-2">

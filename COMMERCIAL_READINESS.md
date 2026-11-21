@@ -4,7 +4,7 @@
 juridisk granskning. Ingen komponent med status REVIEW REQUIRED eller
 REJECTED får ingå i en kommersiell release utan uttryckligt godkännande.
 
-Senast uppdaterad: 2026-11-21 (version 0.32.0).
+Senast uppdaterad: 2026-11-21 (version 0.32.0 + Smart Trace).
 
 > desktopCAM är **inte** juridiskt klar för kommersiell distribution. Att den
 > automatiska licenskontrollen går igenom (`node scripts/license-audit.mjs
@@ -33,6 +33,9 @@ Senast uppdaterad: 2026-11-21 (version 0.32.0).
 | 7 | **Skärdata** | Siffror sammanställda bl.a. ur tillverkares skärtabeller. Fakta, låg risk. | Dokumentera källa per material/maskin. |
 | 8 | **flo-paket utan licenstext** | Nio paket anger MIT i package.json men saknar licenstext. | Låg risk; alternativt be upphovsmannen lägga till LICENSE-filer. |
 | 9 | **Byggverktyg med CC-BY-licens** | caniuse-lite (CC-BY-4.0), spdx-exceptions m.fl. (CC-BY-3.0). Distribueras inte. | Ingen åtgärd för appen; formellt godkännande för byggmiljön. |
+| 11 | **AI-segmentering** | Inte införd. Kandidatmodeller (SAM, SAM 2, MobileSAM, EfficientSAM) uppges vara Apache-2.0 men måste verifieras mot källan; FastSAM/Ultralytics (AGPL) är uteslutna. | Godkännande krävs innan någon modell laddas ner, paketeras eller körs. Se `IP_COMPLIANCE.md` §3. |
+| 12 | **Pappersdetektering och perspektiv** | Allmänna metoder, men automatisk dokumentdetektering finns i patenterade kommersiella produkter. | Ingår i patentsökningen (punkt 5). |
+| 13 | **Gridfinity** (planerad) | Gridfinity-systemets licens och namn har inte granskats. | Granska innan Gridfinity-funktioner byggs. |
 | 10 | **PayPal-donationer** | Funktionen finns men är avstängd. Donationer i en kommersiell produkt kan ha skattemässiga och avtalsmässiga följder. | Avgör om donationer ska finnas kvar när produkten säljs. |
 
 ### REJECTED
@@ -48,7 +51,8 @@ Inga.
 | PayPal | Donationslänk (avstängd) | Hanteras av PayPal | Nej |
 | npm-registret, crates.io | Bygget | – | Bara vid utveckling |
 
-All CAM-beräkning, simulering och G-kod sker lokalt i webbläsaren. Appen
+All CAM-beräkning, simulering, G-kod och bildspårning (Smart Trace) sker
+lokalt i webbläsaren – foton och skisser laddas inte upp någonstans. Appen
 fungerar utan externa tjänster (utom att sidan måste levereras).
 
 ## Rutin vid ändringar

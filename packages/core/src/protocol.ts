@@ -1,3 +1,4 @@
+import type { TraceOptions } from './trace';
 /**
  * Meddelandeprotokoll mellan UI-tråden och CAM-workern.
  * Allt här måste vara strukturkloningsbart (inga funktioner/klasser).
@@ -122,6 +123,35 @@ export interface FacingJob {
   post: PostprocessorConfig;
 }
 
+/** Spåra en bild (Smart Trace). Gråskalan i pixlar, resultatet i mm. */
+export interface TraceJob {
+  gray: Uint8Array;
+  width: number;
+  height: number;
+  options: TraceOptions;
+  /** Kalibrering: mm per pixel i den här bilden. */
+  mmPerPx: number;
+  /** Förskjutning av konturerna (mm): positivt utåt, negativt inåt, 0 = ingen. */
+  offsetMm: number;
+}
+
+export interface TracedObjectMm {
+  id: number;
+  /** Slutna konturer i mm, y uppåt, bildens nedre vänstra hörn = (0, 0). */
+  loops: number[][];
+  /** Öppna linjer (mittlinje) i mm. */
+  lines: number[][];
+  /** Yta i mm² (före förskjutning). */
+  area: number;
+  /** Omslutande rektangel i mm: [x0, y0, x1, y1]. */
+  bbox: [number, number, number, number];
+}
+
+export interface TraceResultMm {
+  threshold: number;
+  objects: TracedObjectMm[];
+}
+
 export type CamRequest =
   | { type: 'ping' }
   | { type: 'profile'; job: ProfileJob }
@@ -135,7 +165,10 @@ export type CamRequest =
   | { type: 'vcarve'; job: VCarveJob }
   | { type: 'routerProfile'; job: RouterProfileJob }
   | { type: 'plasma'; job: PlasmaJob }
-  | { type: 'import'; format: ImportFormat; text: string; options: ImportOptions };
+  | { type: 'import'; format: ImportFormat; text: string; options: ImportOptions }
+  | { type: 'traceDetect'; gray: Uint8Array; width: number; height: number }
+  | { type: 'traceRectify'; rgba: Uint8ClampedArray; width: number; height: number; quad: [number, number][]; outW: number; outH: number }
+  | { type: 'trace'; job: TraceJob };
 
 export interface EngineInfo {
   engine: 'wasm' | 'typescript';
@@ -176,6 +209,9 @@ export interface CamResponseMap {
   routerProfile: ToolpathPayload;
   plasma: ToolpathPayload;
   import: ImportResult;
+  traceDetect: [number, number][] | null;
+  traceRectify: Uint8ClampedArray;
+  trace: TraceResultMm;
 }
 
 export interface WorkerInbound {

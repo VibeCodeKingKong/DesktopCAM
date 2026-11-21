@@ -7,6 +7,15 @@ export function downloadText(filename: string, text: string, mime = 'text/plain'
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+export function downloadBytes(filename: string, bytes: Uint8Array, mime: string) {
+  const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: mime }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export const slug = (s: string) =>
   s
     .toLowerCase()
@@ -15,11 +24,16 @@ export const slug = (s: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '') || 'desktopcam';
 
-export function pickFile(accept: string): Promise<File | null> {
+/**
+ * Låter användaren välja en fil. `capture` öppnar kameran direkt på mobiler
+ * ('environment' = bakre kameran); på datorer blir det en vanlig filväljare.
+ */
+export function pickFile(accept: string, capture?: 'environment' | 'user'): Promise<File | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = accept;
+    if (capture) input.setAttribute('capture', capture);
     input.onchange = () => resolve(input.files?.[0] ?? null);
     input.click();
   });

@@ -1,4 +1,4 @@
-import { Circle, Cog, Copy, FileUp, Image as ImageIcon, ImageUp, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { Circle, Cog, Copy, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
@@ -77,19 +77,17 @@ export function DesignTab() {
       <RibbonGroup label={t.groups.import}>
         <RibbonButton icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
         {/* Reliefer fräses – Bild till relief finns bara med fräs. */}
-        {isRouter ? (
-          <RibbonMenuButton
-            icon={ImageIcon}
-            label={b.importImage.label}
-            tooltip={tip(b.importImage, { illustration: <IlluImageRelief /> })}
-            items={[
-              { icon: ImageIcon, label: b.importImage.title, desc: b.importImage.desc, onClick: () => void importImage() },
-              { icon: ImageUp, label: b.imageRelief.label, desc: b.imageRelief.desc, onClick: () => void importImageRelief() },
-            ]}
-          />
-        ) : (
-          <RibbonButton icon={ImageIcon} label={b.importImage.label} onClick={() => void importImage()} tooltip={tip(b.importImage)} />
-        )}
+        <RibbonMenuButton
+          icon={ImageIcon}
+          label={b.importImage.label}
+          tooltip={tip(b.importImage, { illustration: <IlluImageRelief /> })}
+          items={[
+            { icon: ImageIcon, label: b.importImage.title, desc: b.importImage.desc, onClick: () => void importImage() },
+            { icon: ScanLine, label: b.traceImage.title, desc: b.traceImage.desc, onClick: () => openDialog('trace') },
+            // Reliefer fräses – Bild till relief bara med fräs.
+            ...(isRouter ? [{ icon: ImageUp, label: b.imageRelief.label, desc: b.imageRelief.desc, onClick: () => void importImageRelief() }] : []),
+          ]}
+        />
       </RibbonGroup>
       <RibbonGroup label={t.groups.library}>
         <RibbonButton icon={Shapes} label={b.shapeLibrary.label} onClick={() => openDialog('shapeLibrary')} tooltip={tip(b.shapeLibrary, { illustration: <IlluShapeLibrary /> })} />

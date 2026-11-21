@@ -23,3 +23,5 @@ export * from './plotter';
 export * from './plotterImage';
 export * from './cutData';
 export * from './gcodeOptimize';
+export * from './trace';
+export * from './vectorExport';

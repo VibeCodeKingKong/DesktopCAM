@@ -35,11 +35,18 @@ import {
   type OperationType,
   type ToolpathConfig,
   type VectorShape,
+  offsetShapes,
+  shapeToPolylines,
+  simplifyClosed,
+  exportSvg,
+  exportDxf,
+  exportPdf,
+  type ExportLayer,
 } from '@desktopcam/core';
 import { getT } from '../i18n';
 import toolsJson from '../data/tools.json';
 import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
-import { downloadText, pickFile, slug } from '../utils/download';
+import { downloadBytes, downloadText, pickFile, slug } from '../utils/download';
 import { decodeImageObjects, imageForNewToolpath } from './imageObjects';
 import { exampleUrl } from '../data/examples';
 import { fileGcode, planExport, type ExportOptions } from './exportGcode';
@@ -1020,4 +1027,108 @@ export function applyPattern(cfg: PatternConfig) {
   s.checkpoint();
   useAppStore.setState({ layers, selectedShapeIds: [...shapes.map((x) => x.id), ...copies.map((c) => c.id)] });
   status(t.pattern.created(transforms.length + 1));
+}
+
+/* ───────── Kontur: förskjutning, slå ihop, dela upp ───────── */
+
+const linePath = (pts: number[], closed: boolean): VectorShape['paths'][number] => ({
+  id: uid('path'),
+  start: { x: pts[0], y: pts[1] },
+  segments: Array.from({ length: pts.length / 2 - 1 }, (_, i) => ({ type: 'line' as const, to: { x: pts[2 * i + 2], y: pts[2 * i + 3] } })),
+  closed,
+});
+
+/**
+ * Förskjuter markerade formers slutna banor (positivt = utåt, negativt =
+ * inåt) och lägger till resultatet som nya former i samma lager. Avstånds-
+ * fältet ger giltiga konturer även där den ursprungliga konturen skär sig själv.
+ */
+export function offsetSelection(distance: number) {
+  const s = useAppStore.getState();
+  const t = getT();
+  const shapes = selected().filter(shapeHasArea);
+  if (!shapes.length) return status(t.status.needClosed);
+  // Varje ny form hamnar i samma lager som formen den kommer från.
+  const adds: { layerId: string; shape: VectorShape }[] = [];
+  for (const sh of shapes) {
+    const closed = shapeToPolylines(sh, 0.005).filter((p) => p.closed);
+    const loops = offsetShapes([closed], distance);
+    const layer = s.layers.find((l) => l.shapes.some((x) => x.id === sh.id));
+    if (!loops.length || !layer) continue;
+    adds.push({
+      layerId: layer.id,
+      shape: {
+        id: uid('shape'),
+        name: `${sh.name} ${t.contour.offsetSuffix(distance.toLocaleString(t.locale))}`,
+        kind: 'imported',
+        paths: loops.map((l) => linePath(simplifyClosed(l.points, 0.005), true)),
+      },
+    });
+  }
+  if (!adds.length) return status(t.contour.offsetEmpty);
+  const created = adds.map((a) => a.shape);
+  s.checkpoint();
+  useAppStore.setState((st) => ({
+    layers: st.layers.map((l) => {
+      const add = adds.filter((a) => a.layerId === l.id).map((a) => a.shape);
+      return add.length ? { ...l, shapes: [...l.shapes, ...add] } : l;
+    }),
+    selectedShapeIds: created.map((c) => c.id),
+  }));
+  status(t.contour.offsetDone(created.length));
+}
+
+/** Slår ihop markerade former till en form (alla banor i den första formens lager). */
+export function combineSelection() {
+  const s = useAppStore.getState();
+  const shapes = selected();
+  if (shapes.length < 2) return;
+  const first = shapes[0];
+  const merged: VectorShape = { id: first.id, name: first.name, kind: 'imported', paths: shapes.flatMap((sh) => sh.paths) };
+  const gone = new Set(shapes.slice(1).map((sh) => sh.id));
+  s.checkpoint();
+  useAppStore.setState((st) => ({
+    layers: st.layers.map((l) => ({ ...l, shapes: l.shapes.filter((sh) => !gone.has(sh.id)).map((sh) => (sh.id === first.id ? merged : sh)) })),
+    selectedShapeIds: [first.id],
+    toolpaths: st.toolpaths.map((tp) => (tp.shapeIds.some((id) => gone.has(id)) ? { ...tp, shapeIds: [...new Set(tp.shapeIds.map((id) => (gone.has(id) ? first.id : id)))] } : tp)),
+  }));
+  status(getT().contour.combined(shapes.length));
+}
+
+/** Delar upp markerade former med flera banor till en form per bana. */
+export function separateSelection() {
+  const s = useAppStore.getState();
+  const shapes = selected().filter((sh) => sh.paths.length > 1);
+  if (!shapes.length) return;
+  const parts = new Map(shapes.map((sh) => [sh.id, sh.paths.map((p, i) => ({ id: i ? uid('shape') : sh.id, name: i ? `${sh.name} ${i + 1}` : sh.name, kind: 'imported' as const, paths: [p] }))]));
+  s.checkpoint();
+  useAppStore.setState((st) => ({
+    layers: st.layers.map((l) => ({ ...l, shapes: l.shapes.flatMap((sh) => parts.get(sh.id) ?? [sh]) })),
+    selectedShapeIds: [...parts.values()].flat().map((x) => x.id),
+  }));
+  status(getT().contour.separated([...parts.values()].flat().length));
+}
+
+/* ───────── Export av vektorer ───────── */
+
+/** Markerade former, annars alla synliga lager. */
+function exportLayers(): ExportLayer[] {
+  const s = useAppStore.getState();
+  const sel = new Set(s.selectedShapeIds);
+  return s.layers
+    .filter((l) => l.visible)
+    .map((l) => ({ name: l.name, color: l.color, shapes: sel.size ? l.shapes.filter((sh) => sel.has(sh.id)) : l.shapes }))
+    .filter((l) => l.shapes.length);
+}
+
+export function exportVectors(format: 'svg' | 'dxf' | 'pdf') {
+  const s = useAppStore.getState();
+  const t = getT();
+  const layers = exportLayers();
+  if (!layers.length) return status(t.status.drawFirst);
+  const name = slug(s.projectName || t.common.untitledProject);
+  if (format === 'svg') downloadText(`${name}.svg`, exportSvg(layers), 'image/svg+xml');
+  else if (format === 'dxf') downloadText(`${name}.dxf`, exportDxf(layers), 'application/dxf');
+  else downloadBytes(`${name}.pdf`, exportPdf(layers, { title: s.projectName || 'desktopCAM', note: t.vectorExport.pdfNote, labels: true }), 'application/pdf');
+  status(t.vectorExport.saved(`${name}.${format}`));
 }

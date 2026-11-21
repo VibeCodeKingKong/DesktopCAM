@@ -1,4 +1,5 @@
-import { Download, FileCode } from 'lucide-react';
+import { Download, FileCode, FileImage, FileText, Shapes } from 'lucide-react';
+import { exportVectors } from '../../../cam/commands';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { useAppStore, useMachine } from '../../../store/useAppStore';
@@ -13,11 +14,17 @@ export function OutputTab() {
   const openDialog = useAppStore((s) => s.openDialog);
   const hasResult = useAppStore((s) => Object.keys(s.results).length > 0);
   const disabledReason = hasResult ? undefined : t.reasons.needsResult;
+  const hasShapes = useAppStore((s) => s.layers.some((l) => l.visible && l.shapes.length > 0));
   return (
     <>
       <RibbonGroup label={t.groups.gcode}>
         <RibbonButton icon={Download} label={b.saveGcode.label} disabled={!hasResult} onClick={() => openDialog('exportGcode')} tooltip={tip(b.saveGcode, { shortcut: '⌘E', illustration: <IlluExport />, disabledReason })} />
         <RibbonButton icon={FileCode} label={b.viewGcode.label} disabled={!hasResult} onClick={() => openDialog('gcodeViewer')} tooltip={tip(b.viewGcode, { illustration: <IlluGcode />,  disabledReason })} />
+      </RibbonGroup>
+      <RibbonGroup label={t.groups.vectors}>
+        <RibbonButton icon={FileImage} label={b.exportSvg.label} disabled={!hasShapes} onClick={() => exportVectors('svg')} tooltip={tip(b.exportSvg, { disabledReason: hasShapes ? undefined : t.reasons.needsShapes })} />
+        <RibbonButton icon={Shapes} label={b.exportDxf.label} disabled={!hasShapes} onClick={() => exportVectors('dxf')} tooltip={tip(b.exportDxf, { disabledReason: hasShapes ? undefined : t.reasons.needsShapes })} />
+        <RibbonButton icon={FileText} label={b.exportPdf.label} disabled={!hasShapes} onClick={() => exportVectors('pdf')} tooltip={tip(b.exportPdf, { disabledReason: hasShapes ? undefined : t.reasons.needsShapes })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.post}>
         <RibbonStack>

@@ -2,7 +2,7 @@
 
 Sammanfattning av immaterialrättsliga frågor och identifierade risker.
 Uppdateras när beroenden, algoritmer eller tjänster ändras. Senast granskat:
-2026-11-21 (version 0.32.0).
+2026-11-21 (version 0.32.0 + Smart Trace).
 
 > Detta är en teknisk genomgång, inte juridisk rådgivning. Automatiska
 > licenskontroller är en sållning och ersätter inte en juridisk granskning.
@@ -59,7 +59,21 @@ Fullständig förteckning: `THIRD_PARTY_LICENSES.md` och `SBOM.json`.
 ## 3. AI-modeller och data
 
 - Inga AI-modeller, modellvikter, ML-ramverk eller träningsdata används.
-- Ingen användardata skickas till AI-tjänster.
+- Ingen användardata skickas till AI-tjänster. Smart Trace körs helt i
+  webbläsaren; foton och skisser lämnar inte användarens dator.
+- **AI-segmentering (föreslagen, inte införd)** – kandidater att granska
+  innan något laddas ner eller paketeras (licenserna kunde inte kontrolleras
+  mot källan från utvecklingsmiljön och måste verifieras):
+
+  | Modell | Uppgiven licens (kod / vikter) | Bedömning |
+  |---|---|---|
+  | Segment Anything (SAM), Meta | Apache-2.0 / Apache-2.0 | Kandidat – verifiera vikternas licens, träningsdata (SA-1B) och villkor för utdata. |
+  | SAM 2, Meta | Apache-2.0 / Apache-2.0 | Kandidat – som ovan. |
+  | MobileSAM | Apache-2.0 | Kandidat (liten nog för webbläsaren) – verifiera. |
+  | EfficientSAM, Meta | Apache-2.0 | Kandidat – verifiera. |
+  | FastSAM (Ultralytics-baserad) | AGPL-3.0 | REJECTED – stark copyleft. |
+  | YOLO-modeller från Ultralytics | AGPL-3.0 eller kommersiell licens | REJECTED utan köpt licens. |
+  | onnxruntime-web (körmiljö) | MIT | Kandidat för att köra en modell i webbläsaren. |
 
 ## 4. Algoritmer och möjliga patent
 
@@ -80,6 +94,10 @@ tillämpningar i CAM-branschen kan omfattas av patent** och bör granskas.
 | G-kod | Bågpassning (G2/G3), Douglas–Peucker (1973), närmaste-granne-ordning | Fria metoder. |
 | Plasma | Anslag (lead-in), skärspalt, hörnfartsminskning | Allmänt kända tekniker; maskintillverkares egna funktioner är inte kopierade. |
 | Simulering | Höjdfält (z-buffer) med verktygsform | Vanlig metod. |
+| Spårning: papper och perspektiv | Ljusaste ytan (Otsu), konvext hölje, linjeanpassning (minsta kvadrat), homografi med fyra punkter (DLT) | Klassisk bildgeometri. Automatisk dokument-/pappersdetektering finns i kommersiella skannerappar och kan vara patenterad i specifika utföranden – REVIEW REQUIRED. |
+| Spårning: objekt och konturer | Tröskel, sammanhängande komponenter, morfologi, marching squares, Douglas–Peucker, avståndsfältets offset | Allmänna metoder; inga kända patent. Potrace (GPL) används inte. |
+| Spårning: mittlinje | Zhang–Suen-uttunning (1984), egen grafföljning och borttagning av utstickare | Publicerad 1984; inget känt patent. |
+| Vektorexport | SVG (W3C, royaltyfri), DXF R12 (Autodesks publicerade format), PDF 1.4 (ISO 32000) | Öppna/publicerade format; egen kod. DXF är Autodesks format – användning för utbyte bedöms tillåten, men "DXF" är ett varumärke att nämna med försiktighet. |
 
 ## 5. Varumärken
 
