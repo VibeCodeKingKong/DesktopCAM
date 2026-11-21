@@ -91,6 +91,34 @@ function morph(mask: Uint8Array, w: number, h: number, r: number, op: 'open' | '
   return Uint8Array.from(res);
 }
 
+/** Fyller hål (bakgrund helt omsluten av masken) som är mindre än maxArea px². */
+function fillHoles(mask: Uint8Array, w: number, h: number, maxArea: number): Uint8Array {
+  if (maxArea <= 0) return mask;
+  const out = Uint8Array.from(mask);
+  const seen = new Uint8Array(mask.length);
+  const stack: number[] = [], comp: number[] = [];
+  for (let s = 0; s < mask.length; s++) {
+    if (mask[s] || seen[s]) continue;
+    comp.length = 0;
+    let edge = false;
+    seen[s] = 1;
+    stack.push(s);
+    while (stack.length) {
+      const i = stack.pop()!;
+      comp.push(i);
+      const x = i % w, y = (i - x) / w;
+      if (x === 0 || y === 0 || x === w - 1 || y === h - 1) edge = true;
+      // 4-grannar: bakgrunden följer inte diagonalt mellan föremålets pixlar.
+      if (x > 0 && !mask[i - 1] && !seen[i - 1]) { seen[i - 1] = 1; stack.push(i - 1); }
+      if (x < w - 1 && !mask[i + 1] && !seen[i + 1]) { seen[i + 1] = 1; stack.push(i + 1); }
+      if (y > 0 && !mask[i - w] && !seen[i - w]) { seen[i - w] = 1; stack.push(i - w); }
+      if (y < h - 1 && !mask[i + w] && !seen[i + w]) { seen[i + w] = 1; stack.push(i + w); }
+    }
+    if (!edge && comp.length < maxArea) for (const i of comp) out[i] = 1;
+  }
+  return out;
+}
+
 /* ───────── Papper och perspektiv ───────── */
 
 /** Konvext hölje (Andrews monotona kedja), moturs i bildkoordinater. */
@@ -147,6 +175,9 @@ export function detectPaper(gray: Uint8Array, w: number, h: number): P2[] | null
     }
   let hull = convexHull(pts);
   if (hull.length < 4) return null;
+  // Höljets yta: föremål och tryck på papperet gör den ljusa ytan mindre, men inte höljet.
+  let hullArea = 0;
+  for (let i = 1; i + 1 < hull.length; i++) hullArea += triArea(hull[0], hull[i], hull[i + 1]);
   // Ta bort det hörn som förlorar minst yta tills fyra återstår.
   while (hull.length > 4) {
     let k = 0, least = Infinity;
@@ -157,9 +188,9 @@ export function detectPaper(gray: Uint8Array, w: number, h: number): P2[] | null
     hull.splice(k, 1);
   }
   const quad = refineQuad(orderQuad(hull), pts, Math.max(w, h));
-  // Rimlighet: fyrhörningen ska täcka större delen av den ljusa ytan.
+  // Rimlighet: fyrhörningen ska ha ungefär höljets yta (annars är det inte en rektangel).
   const quadArea = triArea(quad[0], quad[1], quad[2]) + triArea(quad[0], quad[2], quad[3]);
-  return quadArea > area[best] * 0.8 && quadArea < area[best] * 1.25 ? quad : null;
+  return quadArea > hullArea * 0.85 && quadArea < hullArea * 1.15 && hullArea > w * h * 0.05 ? quad : null;
 }
 
 /**
@@ -288,6 +319,10 @@ export interface TraceOptions {
   holes: boolean;
   /** Hoppa över det som rör bildens kant (t.ex. bordet utanför papperet). */
   ignoreEdge: boolean;
+  /** Tar bort tunnare detaljer än så (px, radie) – t.ex. tryckt text som rör föremålet. 0 = av. */
+  thinRemove?: number;
+  /** Hål mindre än så (px²) fylls igen – t.ex. knappar på en fjärrkontroll. */
+  minHoleArea?: number;
 }
 
 export interface TracedObject {
@@ -507,7 +542,14 @@ function simplifyOpen(pts: number[], tol: number): number[] {
 export function traceImage(gray: Uint8Array, w: number, h: number, o: TraceOptions): TraceResult {
   const { mask: raw, threshold } = traceMask(gray, w, h, o);
   // Brus bort och små glipor slutna (skisser: bara stängning, så tunna streck finns kvar).
-  let mask = o.mode === 'objects' ? morph(morph(raw, w, h, 1, 'open'), w, h, 1, 'close') : morph(raw, w, h, 1, 'close');
+  // Öppning med större radie tar bort tunna linjer (tryck, text, skuggkanter) som annars växer ihop med föremålet.
+  const thinR = Math.max(1, Math.round(o.thinRemove ?? 0));
+  // Objekt: först fylls små hål (t.ex. knappar), så att föremålet blir en hel
+  // siluett – sedan kan tunna detaljer (tryck, text) tas bort utan att äta av det.
+  let mask =
+    o.mode === 'objects'
+      ? morph(morph(fillHoles(morph(raw, w, h, Math.max(1, Math.round(thinR * 0.4)), 'open'), w, h, o.minHoleArea ?? 0), w, h, thinR, 'open'), w, h, 1, 'close')
+      : morph(raw, w, h, 1, 'close');
   const { labels, count, area, touches } = label(mask, w, h);
   const bboxes: [number, number, number, number][] = Array.from({ length: count + 1 }, () => [w, h, -1, -1]);
   for (let i = 0; i < labels.length; i++) {
@@ -546,7 +588,9 @@ export function traceImage(gray: Uint8Array, w: number, h: number, o: TraceOptio
   } else {
     for (let l = 1; l <= count; l++) {
       if (!keep(l)) continue;
-      const loops = componentLoops(labels, l, bboxes[l], w, o.smooth, Math.max(0.3, o.simplify), o.holes);
+      const loops = componentLoops(labels, l, bboxes[l], w, o.smooth, Math.max(0.3, o.simplify), o.holes).filter(
+        (pts) => signedArea(pts) > 0 || -signedArea(pts) >= (o.minHoleArea ?? 0),
+      );
       if (loops.length) objects.push({ id: l, loops, lines: [], area: area[l], bbox: bboxes[l] });
     }
   }

@@ -47,6 +47,8 @@ export function TraceDialog() {
   const [detail, setDetail] = useState(0.3);
   const [minAreaMm, setMinAreaMm] = useState(20);
   const [holes, setHoles] = useState(true);
+  const [thinMm, setThinMm] = useState(1);
+  const [minHoleMm, setMinHoleMm] = useState(100);
   const [offsetMm, setOffsetMm] = useState(0);
   const [result, setResult] = useState<TraceResultMm | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -89,8 +91,15 @@ export function TraceDialog() {
   const chooseFile = async (capture?: 'environment') => {
     const f = await pickFile(IMAGE_ACCEPT, capture);
     if (!f) return;
-    const id = await importImage(f);
-    if (id) setImageId(id);
+    setBusy(tr.reading);
+    setError(null);
+    try {
+      const id = await importImage(f);
+      if (id) setImageId(id);
+      else setError(t.imageRelief.unreadable(f.name));
+    } finally {
+      setBusy(null);
+    }
   };
 
   /** Kalibrera → bilden som ska spåras och dess skala. */
@@ -135,6 +144,8 @@ export function TraceDialog() {
           minArea: pxArea,
           holes,
           ignoreEdge: !!work.rectified,
+          thinRemove: mode === 'objects' ? thinMm / work.mmPerPx : 0,
+          minHoleArea: mode === 'centerline' ? 0 : minHoleMm / (work.mmPerPx * work.mmPerPx),
         },
         work.mmPerPx,
         mode === 'centerline' ? 0 : offsetMm,
@@ -149,7 +160,7 @@ export function TraceDialog() {
         .finally(() => setBusy(null));
     }, 250);
     return () => clearTimeout(timer);
-  }, [open, step, work, mode, autoThreshold, threshold, dark, smooth, detail, minAreaMm, holes, offsetMm]);
+  }, [open, step, work, mode, autoThreshold, threshold, dark, smooth, detail, minAreaMm, holes, thinMm, minHoleMm, offsetMm]);
 
   const add = async () => {
     if (!result || !work || !image) return;
@@ -204,6 +215,12 @@ export function TraceDialog() {
             </button>
           </div>
           <p className="text-xs text-muted">{tr.photoTips}</p>
+          {busy && (
+            <p className="flex items-center gap-1.5 text-xs text-muted">
+              <Loader2 size={14} className="animate-spin" /> {busy}
+            </p>
+          )}
+          {error && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{error}</p>}
         </div>
       ) : (
         <div className="flex flex-col gap-4 p-4 lg:flex-row">
@@ -274,14 +291,17 @@ export function TraceDialog() {
                   <Switch checked={autoThreshold} onChange={setAutoThreshold} label={tr.autoThreshold} />
                 </FieldRow>
                 {!autoThreshold && <NumberField label={tr.threshold} step={4} min={1} max={254} value={threshold} onChange={(v) => setThreshold(Math.round(v))} />}
+                {mode === 'objects' && <p className="text-2xs leading-relaxed text-muted">{tr.shadowHint}</p>}
                 {mode !== 'centerline' && <NumberField label={tr.smooth} unit="mm" step={0.25} min={0} max={10} value={smooth} onChange={setSmooth} />}
                 <NumberField label={tr.detail} unit="mm" step={0.1} min={0.05} max={5} value={detail} onChange={setDetail} />
                 <NumberField label={tr.minArea} unit="mm²" step={5} min={0} value={minAreaMm} onChange={setMinAreaMm} />
+                {mode === 'objects' && <NumberField label={tr.thinRemove} unit="mm" step={0.25} min={0} max={10} value={thinMm} onChange={setThinMm} />}
                 {mode !== 'centerline' && (
                   <>
                     <FieldRow label={tr.holes}>
                       <Switch checked={holes} onChange={setHoles} label={tr.holes} />
                     </FieldRow>
+                    {holes && <NumberField label={tr.minHole} unit="mm²" step={10} min={0} value={minHoleMm} onChange={setMinHoleMm} />}
                     <div>
                       <p className="mb-1 text-xs text-muted">{tr.offset}</p>
                       <div className="flex flex-wrap gap-1">

@@ -16,8 +16,25 @@ export const IMAGE_MAX_PX = 2000;
 export const IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp,image/bmp,image/gif';
 
 /** Läser bildfilen, skalar ner den och lägger genomskinliga partier på vit bakgrund. */
+/** Avkodar bilden; faller tillbaka på ett img-element om createImageBitmap inte klarar filen (äldre iOS). */
+async function decode(file: Blob): Promise<ImageBitmap | HTMLImageElement> {
+  try {
+    return await createImageBitmap(file);
+  } catch {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      return img;
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }
+}
+
 async function readImage(file: Blob) {
-  const src = await createImageBitmap(file);
+  const src = await decode(file);
   const k = Math.min(1, IMAGE_MAX_PX / Math.max(src.width, src.height));
   const w = Math.max(1, Math.round(src.width * k));
   const h = Math.max(1, Math.round(src.height * k));
@@ -29,7 +46,7 @@ async function readImage(file: Blob) {
   ctx.fillRect(0, 0, w, h);
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(src, 0, 0, w, h);
-  src.close();
+  if ('close' in src) src.close();
   const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
   const bitmap = await createImageBitmap(canvas);
   return { dataUrl, bitmap, w, h };

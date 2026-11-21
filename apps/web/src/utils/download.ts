@@ -34,7 +34,19 @@ export function pickFile(accept: string, capture?: 'environment' | 'user'): Prom
     input.type = 'file';
     input.accept = accept;
     if (capture) input.setAttribute('capture', capture);
-    input.onchange = () => resolve(input.files?.[0] ?? null);
+    // Måste ligga i dokumentet: iOS Safari kan annars slänga elementet medan
+    // kameran är öppen, och då kommer bilden aldrig fram ("Använd bild" gör inget).
+    input.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0';
+    document.body.appendChild(input);
+    let done = false;
+    const finish = (f: File | null) => {
+      if (done) return;
+      done = true;
+      input.remove();
+      resolve(f);
+    };
+    input.addEventListener('change', () => finish(input.files?.[0] ?? null));
+    input.addEventListener('cancel', () => finish(null));
     input.click();
   });
 }
