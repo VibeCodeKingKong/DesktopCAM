@@ -1,6 +1,7 @@
-import { Settings2, Wrench, Zap } from 'lucide-react';
+import { ChevronRight, Settings2, Wrench, X, Zap } from 'lucide-react';
+import { useContext } from 'react';
 import { RibbonButton } from '../RibbonButton';
-import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
+import { RibbonField, RibbonGroup, RibbonLayout, RibbonStack } from '../RibbonGroup';
 import { materialFitsMachine, toolFitsMachine, useAppStore, useMachine, favoritesFirst } from '../../../store/useAppStore';
 import { Select } from '../../ui/Field';
 import { IlluMachine, IlluToolLibrary } from '../../smartguide/illustrations';
@@ -48,9 +49,28 @@ export function SetupTab() {
   const openDialog = useAppStore((s) => s.openDialog);
   const machine = useMachine();
   const isLaser = machine.kind === 'laser';
+  const form = useContext(RibbonLayout) === 'form';
+  const preset = materials.find((m) => m.id === material.presetId);
 
   return (
     <>
+      {!form && (
+        // Telefon: en sammanfattning som öppnar inställningarna som ett ark (fälten får inte plats i bandet).
+        <button
+          onClick={() => useAppStore.getState().setMobilePanel('setup')}
+          className="my-1.5 ml-1 mr-2 flex min-w-0 max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-lg border border-line bg-surface px-3 text-left sm:hidden"
+        >
+          <Settings2 size={22} className="shrink-0 text-accent" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium">{machine.name}</span>
+            <span className="block truncate text-xs text-muted">
+              {preset ? materialName(t, preset.id, preset.name) : ''} · {material.thickness} mm · {material.width} × {material.height} mm
+            </span>
+          </span>
+          <ChevronRight size={18} className="shrink-0 text-muted" />
+        </button>
+      )}
+      <div className={form ? 'contents' : 'hidden sm:contents'}>
       <RibbonGroup label={t.groups.machine}>
         <RibbonButton
           icon={Settings2}
@@ -164,6 +184,33 @@ export function SetupTab() {
           </RibbonStack>
         </RibbonGroup>
       )}
+      </div>
     </>
+  );
+}
+
+/** Telefon: Inställning som ett ark nerifrån med samma fält som i bandet. */
+export function SetupSheet() {
+  const t = useT();
+  const open = useAppStore((s) => s.mobilePanel === 'setup');
+  if (!open) return null;
+  const close = () => useAppStore.getState().setMobilePanel(null);
+  return (
+    <div className="sm:hidden">
+      <div className="fixed inset-0 z-30 bg-black/25" onClick={close} aria-hidden="true" />
+      <section role="dialog" aria-label={t.tabs.setup} className="fixed inset-x-0 bottom-0 z-40 flex max-h-[85dvh] flex-col rounded-t-2xl bg-surface shadow-pop">
+        <div className="panel-heading">
+          <span>{t.tabs.setup}</span>
+          <button className="rounded p-1 text-muted hover:bg-app hover:text-ink" onClick={close} aria-label={t.common.close}>
+            <X size={18} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+          <RibbonLayout.Provider value="form">
+            <SetupTab />
+          </RibbonLayout.Provider>
+        </div>
+      </section>
+    </div>
   );
 }

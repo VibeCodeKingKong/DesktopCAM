@@ -7,6 +7,7 @@ import { ProjectTree } from './components/layout/ProjectTree';
 import { PropertiesPanel } from './components/layout/PropertiesPanel';
 import { StatusBar } from './components/layout/StatusBar';
 import { MobileTabBar, Ribbon } from './components/ribbon/Ribbon';
+import { SetupSheet } from './components/ribbon/tabs/SetupTab';
 import { Viewport } from './components/viewport/Viewport';
 import { MachineSetupDialog } from './components/dialogs/MachineSetupDialog';
 import { GcodeViewer } from './components/dialogs/GcodeViewer';
@@ -77,6 +78,7 @@ export default function App() {
       </div>
       <StatusBar />
       <MobileTabBar />
+      <SetupSheet />
       <MachineSetupDialog />
       <GcodeViewer />
       <ImportDialog />

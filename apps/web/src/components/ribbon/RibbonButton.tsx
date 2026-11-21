@@ -1,4 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
+import { useContext } from 'react';
+import { RibbonLayout } from './RibbonGroup';
 import { SmartTooltip, type SmartTooltipContent } from '../smartguide/SmartTooltip';
 
 interface Props {
@@ -18,6 +20,13 @@ const toneClass = { accent: 'text-accent', laser: 'text-laser', neutral: 'text-i
 export function RibbonButton({ icon: Icon, label, tooltip, onClick, size = 'large', disabled, active, tone = 'accent' }: Props) {
   const base =
     'select-none rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-35 disabled:hover:bg-transparent';
+  if (useContext(RibbonLayout) === 'form')
+    return (
+      <button type="button" onClick={onClick} disabled={disabled} aria-pressed={active} className="btn h-10 w-full justify-start gap-2 text-sm">
+        <Icon size={17} strokeWidth={1.8} className={toneClass[tone]} />
+        {label}
+      </button>
+    );
   const state = active ? 'bg-accent/10 ring-1 ring-inset ring-accent/30' : 'hover:bg-app active:bg-line/60';
 
   return (

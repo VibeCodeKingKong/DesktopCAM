@@ -327,6 +327,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
   const id = uid('tp');
   const n = s.toolpaths.length + 1;
   const base = { id, shapeIds, visible: true };
+  let toolNote: { toolId: string; text: string } | null = null;
   const routerTool = (prefer: string[], depth?: number) => {
     const active = s.tools.find((x) => x.id === s.activeToolId);
     const first = active && prefer.includes(active.kind) ? active : (s.tools.find((x) => prefer.includes(x.kind)) ?? s.tools.find((x) => x.kind !== 'laser' && x.kind !== 'plasma' && x.kind !== 'pen')!);
@@ -336,7 +337,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
       .filter((x) => x.kind === first.kind && x.diameter >= first.diameter - 1e-6 && x.diameter < 15 && reaches(x, depth))
       .sort((a, b) => a.diameter - b.diameter)[0];
     if (!better) return first;
-    status(t.status.toolForDepth(toolName(t, better.id, better.name), String(+depth.toFixed(1)).replace('.', decimalSep(t))));
+    toolNote = { toolId: better.id, text: t.status.toolForDepth(toolName(t, better.id, better.name), String(+depth.toFixed(1)).replace('.', decimalSep(t))) };
     return better;
   };
   // Materialets värden skalade efter maskinen, verktygets diameter och antal skär.
@@ -563,6 +564,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
 
   Object.assign(tp, extra);
   s.addToolpath(tp);
+  if (toolNote) s.setToolNote(tp.id, toolNote);
   s.setMobilePanel(window.matchMedia('(min-width: 1024px)').matches ? null : 'props');
   void computeToolpath(id);
   const matName = materialName(t, preset.id, preset.name);

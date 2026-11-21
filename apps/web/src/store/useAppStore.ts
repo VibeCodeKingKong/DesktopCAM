@@ -28,7 +28,7 @@ export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate'
 export type ViewCommand = 'fit' | 'fitStock' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
 export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace';
-export type MobilePanel = 'tree' | 'props' | null;
+export type MobilePanel = 'tree' | 'props' | 'setup' | null;
 
 export interface ToolpathResult {
   gcode: string;
@@ -158,6 +158,9 @@ interface AppState extends DocSnapshot {
   viewCommand: { kind: ViewCommand; nonce: number } | null;
   cursor: Vec3 | null;
   status: string;
+  /** Besked om automatiskt valt verktyg per bana (visas i egenskaperna, sparas inte). */
+  toolNotes: Record<string, { toolId: string; text: string }>;
+  setToolNote: (toolpathId: string, note: { toolId: string; text: string } | null) => void;
   engine: EngineInfo | null;
   dialog: DialogId | null;
   /** Vilket steg en dialog ska öppnas på (t.ex. 'tools' i maskininställningen). */
@@ -350,6 +353,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     viewCommand: null,
     cursor: null,
     status: '',
+    toolNotes: {},
     engine: null,
     dialog: null,
     dialogStep: null,
@@ -375,6 +379,13 @@ export const useAppStore = create<AppState>()((set, get) => {
     sendViewCommand: (kind) => set({ viewCommand: { kind, nonce: Date.now() } }),
     setCursor: (cursor) => set({ cursor }),
     setStatus: (status) => set({ status }),
+    setToolNote: (id, note) =>
+      set((s) => {
+        const toolNotes = { ...s.toolNotes };
+        if (note) toolNotes[id] = note;
+        else delete toolNotes[id];
+        return { toolNotes };
+      }),
     setEngine: (engine) => set({ engine }),
     openDialog: (dialog, step) => set({ dialog, dialogStep: step ?? null }),
 

@@ -98,7 +98,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | use-sync-external-store | 1.2.2 | MIT | – | <https://github.com/facebook/react> | APPROVED |
 | zustand | 4.5.5 | MIT | Paul Henschel | <https://github.com/pmndrs/zustand> | APPROVED |
 
-## Bara byggverktyg, typer och utveckling – följer inte med appen (168)
+## Bara byggverktyg, typer och utveckling – följer inte med appen (197)
 
 | Paket | Version | Licens | Upphovsrätt | Källa | Status |
 |---|---|---|---|---|---|
@@ -165,29 +165,44 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | @types/three | 0.169.0 | MIT | – | <https://github.com/DefinitelyTyped/DefinitelyTyped> | APPROVED |
 | @types/webxr | 0.5.24 | MIT | – | <https://github.com/DefinitelyTyped/DefinitelyTyped> | APPROVED |
 | @vitejs/plugin-react | 4.3.2 | MIT | Evan You | <https://github.com/vitejs/vite-plugin-react> | APPROVED |
+| @vitest/expect | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
+| @vitest/mocker | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
+| @vitest/pretty-format | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
+| @vitest/runner | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
+| @vitest/snapshot | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
+| @vitest/spy | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
+| @vitest/utils | 2.1.9 | MIT | – | <https://github.com/vitest-dev/vitest> | APPROVED |
 | @webgpu/types | 0.1.74 | BSD-3-Clause | – | <https://github.com/gpuweb/types> | APPROVED |
 | any-promise | 1.3.0 | MIT | Kevin Beaty | <https://github.com/kevinbeaty/any-promise> | APPROVED |
 | anymatch | 3.1.3 | ISC | Elan Shanker | <https://github.com/micromatch/anymatch> | APPROVED |
 | arg | 5.0.2 | MIT | Josh Junon | <vercel/arg> | APPROVED |
 | array-find-index | 1.0.2 | MIT | Sindre Sorhus | <sindresorhus/array-find-index> | APPROVED |
+| assertion-error | 2.0.1 | MIT | Jake Luer | <git@github.com:chaijs/assertion-error> | APPROVED |
 | autoprefixer | 10.4.20 | MIT | Andrey Sitnik | <postcss/autoprefixer> | APPROVED |
 | baseline-browser-mapping | 2.11.35 | Apache-2.0 | – | <https://github.com/web-platform-dx/baseline-browser-mapping> | APPROVED |
 | binary-extensions | 2.3.0 | MIT | Sindre Sorhus | <sindresorhus/binary-extensions> | APPROVED |
 | braces | 3.0.3 | MIT | Jon Schlinkert | <micromatch/braces> | APPROVED |
 | browserslist | 4.29.5 | MIT | Andrey Sitnik | <browserslist/browserslist> | APPROVED |
+| cac | 6.7.14 | MIT | egoist | <egoist/cac> | APPROVED |
 | camelcase-css | 2.0.1 | MIT | Steven Vachon | <stevenvachon/camelcase-css> | APPROVED |
 | caniuse-lite | 1.0.30001823 | CC-BY-4.0 | Ben Briggs | <browserslist/caniuse-lite> | REVIEW REQUIRED |
+| chai | 5.3.3 | MIT | Jake Luer | <https://github.com/chaijs/chai> | APPROVED |
+| check-error | 2.1.3 | MIT | Jake Luer | <ssh://git@github.com/chaijs/check-error> | APPROVED |
 | chokidar | 3.6.0 | MIT | Paul Miller | <https://github.com/paulmillr/chokidar> | APPROVED |
 | commander | 4.1.1 | MIT | TJ Holowaychuk | <https://github.com/tj/commander.js> | APPROVED |
 | commenting | 1.1.0 | MIT | Arnout Kazemier | <https://github.com/3rd-Eden/commenting> | APPROVED |
 | convert-source-map | 2.0.0 | MIT | Thorsten Lorenz | <git://github.com/thlorenz/convert-source-map> | APPROVED |
 | debug | 4.4.3 | MIT | Josh Junon | <git://github.com/debug-js/debug> | APPROVED |
+| deep-eql | 5.0.2 | MIT | Jake Luer | <git@github.com:chaijs/deep-eql> | APPROVED |
 | didyoumean | 1.2.2 | Apache-2.0 | Dave Porter | <https://github.com/dcporter/didyoumean.js> | APPROVED |
 | dlv | 1.1.3 | MIT | Jason Miller | <developit/dlv> | APPROVED |
 | electron-to-chromium | 1.5.479 | ISC | Kilian Valkhof | <https://github.com/Kilian/electron-to-chromium> | APPROVED |
 | es-errors | 1.3.0 | MIT | Jordan Harband | <https://github.com/ljharb/es-errors> | APPROVED |
+| es-module-lexer | 1.7.0 | MIT | Guy Bedford | <https://github.com/guybedford/es-module-lexer> | APPROVED |
 | esbuild | 0.21.5 | MIT | – | <https://github.com/evanw/esbuild> | APPROVED |
 | escalade | 3.2.0 | MIT | Luke Edwards | <lukeed/escalade> | APPROVED |
+| estree-walker | 3.0.3 | MIT | Rich Harris | <https://github.com/Rich-Harris/estree-walker> | APPROVED |
+| expect-type | 1.4.0 | Apache-2.0 | – | <https://github.com/mmkal/expect-type> | APPROVED |
 | fast-glob | 3.3.3 | MIT | Denis Malinochkin | <mrmlnc/fast-glob> | APPROVED |
 | fastq | 1.20.3 | ISC | Matteo Collina | <https://github.com/mcollina/fastq> | APPROVED |
 | fdir | 6.5.0 | MIT | thecodrr | <https://github.com/thecodrr/fdir> | APPROVED |
@@ -211,6 +226,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | lilconfig | 3.1.5 | MIT | antonk52 | <https://github.com/antonk52/lilconfig> | APPROVED |
 | lines-and-columns | 1.2.4 | MIT | Brian Donovan | <https://github.com/eventualbuddha/lines-and-columns> | APPROVED |
 | lodash | 4.18.1 | MIT | John-David Dalton | <lodash/lodash> | APPROVED |
+| loupe | 3.2.1 | MIT | Veselin Todorov | <https://github.com/chaijs/loupe> | APPROVED |
 | lru-cache | 5.1.1 | ISC | Isaac Z. Schlueter | <git://github.com/isaacs/node-lru-cache> | APPROVED |
 | magic-string | 0.30.21 | MIT | Rich Harris | <https://github.com/Rich-Harris/magic-string> | APPROVED |
 | merge2 | 1.4.1 | MIT | – | <git@github.com:teambition/merge2> | APPROVED |
@@ -227,6 +243,8 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | object-hash | 3.0.0 | MIT | Scott Puleo | <https://github.com/puleos/object-hash> | APPROVED |
 | package-name-regex | 2.0.6 | MIT | Sebastian Landwehr | <dword-design/package-name-regex> | APPROVED |
 | path-parse | 1.0.7 | MIT | Javier Blanco | <https://github.com/jbgutierrez/path-parse> | APPROVED |
+| pathe | 1.1.2 | MIT | – | <unjs/pathe> | APPROVED |
+| pathval | 2.0.1 | MIT | Veselin Todorov | <ssh://git@github.com/chaijs/pathval> | APPROVED |
 | picocolors | 1.1.1 | ISC | Alexey Raspopov | <alexeyraspopov/picocolors> | APPROVED |
 | picomatch | 2.3.2 | MIT | Jon Schlinkert | <micromatch/picomatch> | APPROVED |
 | picomatch | 4.0.7 | MIT | Jon Schlinkert | <micromatch/picomatch> | APPROVED |
@@ -248,6 +266,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | rollup-plugin-license | 3.7.2 | MIT | Mickael Jeanroy | <https://github.com/mjeanroy/rollup-plugin-license> | APPROVED |
 | run-parallel | 1.2.0 | MIT | Feross Aboukhadijeh | <git://github.com/feross/run-parallel> | APPROVED |
 | semver | 6.3.2 | ISC | GitHub Inc. | <https://github.com/npm/node-semver> | APPROVED |
+| siginfo | 2.0.0 | ISC | Emil Bay | <https://github.com/emilbayes/siginfo> | APPROVED |
 | source-map-js | 1.2.2 | BSD-3-Clause | Valentin 7rulnik Semirulnik | <7rulnik/source-map-js> | APPROVED |
 | spdx-compare | 1.0.0 | MIT | Kyle E. Mitchell | <kemitchell/spdx-compare.js> | APPROVED |
 | spdx-exceptions | 2.5.0 | CC-BY-3.0 | The Linux Foundation | <kemitchell/spdx-exceptions.json> | REVIEW REQUIRED |
@@ -256,17 +275,27 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | spdx-license-ids | 3.0.24 | CC0-1.0 | Shinnosuke Watanabe | <jslicense/spdx-license-ids> | APPROVED |
 | spdx-ranges | 2.1.1 | (MIT AND CC-BY-3.0) | The Linux Foundation | <kemitchell/spdx-ranges.js> | REVIEW REQUIRED |
 | spdx-satisfies | 5.0.1 | MIT | Kyle E. Mitchell | <kemitchell/spdx-satisfies.js> | APPROVED |
+| stackback | 0.0.2 | MIT | Roman Shtylman | <git://github.com/shtylman/node-stackback> | APPROVED |
+| std-env | 3.10.0 | MIT | – | <unjs/std-env> | APPROVED |
 | sucrase | 3.35.1 | MIT | Alan Pierce | <https://github.com/alangpierce/sucrase> | APPROVED |
 | supports-preserve-symlinks-flag | 1.0.0 | MIT | Jordan Harband | <https://github.com/inspect-js/node-supports-preserve-symlinks-flag> | APPROVED |
 | tailwindcss | 3.4.13 | MIT | – | <https://github.com/tailwindlabs/tailwindcss> | APPROVED |
 | thenify | 3.3.1 | MIT | Jonathan Ong | <thenables/thenify> | APPROVED |
 | thenify-all | 1.6.0 | MIT | Jonathan Ong | <thenables/thenify-all> | APPROVED |
+| tinybench | 2.9.0 | MIT | – | <tinylibs/tinybench> | APPROVED |
+| tinyexec | 0.3.2 | MIT | James Garbutt | <https://github.com/tinylibs/tinyexec> | APPROVED |
 | tinyglobby | 0.2.17 | MIT | Superchupu | <https://github.com/SuperchupuDev/tinyglobby> | APPROVED |
+| tinypool | 1.1.1 | MIT | – | <https://github.com/tinylibs/tinypool> | APPROVED |
+| tinyrainbow | 1.2.0 | MIT | – | <https://github.com/tinylibs/tinyrainbow> | APPROVED |
+| tinyspy | 3.0.2 | MIT | – | <https://github.com/tinylibs/tinyspy> | APPROVED |
 | to-regex-range | 5.0.1 | MIT | Jon Schlinkert | <micromatch/to-regex-range> | APPROVED |
 | ts-interface-checker | 0.1.13 | Apache-2.0 | Dmitry S, Grist Labs | <https://github.com/gristlabs/ts-interface-checker> | APPROVED |
 | typescript | 5.6.2 | Apache-2.0 | Microsoft Corp. | <https://github.com/microsoft/TypeScript> | APPROVED |
 | update-browserslist-db | 1.3.4 | MIT | Andrey Sitnik | <browserslist/update-db> | APPROVED |
 | util-deprecate | 1.0.2 | MIT | Nathan Rajlich | <git://github.com/TooTallNate/util-deprecate> | APPROVED |
 | vite | 5.4.8 | MIT | Evan You | <https://github.com/vitejs/vite> | APPROVED |
+| vite-node | 2.1.9 | MIT | Anthony Fu | <https://github.com/vitest-dev/vitest> | APPROVED |
+| vitest | 2.1.9 | MIT | Anthony Fu | <https://github.com/vitest-dev/vitest> | APPROVED |
+| why-is-node-running | 2.3.0 | MIT | Mathias Buus | <https://github.com/mafintosh/why-is-node-running> | APPROVED |
 | yallist | 3.1.1 | ISC | Isaac Z. Schlueter | <https://github.com/isaacs/yallist> | APPROVED |
 | yaml | 2.9.1 | ISC | Eemeli Aro | <https://github.com/eemeli/yaml> | APPROVED |

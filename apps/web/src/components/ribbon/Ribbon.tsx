@@ -130,7 +130,14 @@ export function MobileTabBar() {
             key={id}
             role="tab"
             aria-selected={selected}
-            onClick={() => (selected ? toggle() : setTab(id))}
+            onClick={() => {
+              // Inställningarna får inte plats i bandet på telefon – öppna arket direkt.
+              if (id === 'setup') {
+                setTab(id);
+                useAppStore.getState().setMobilePanel('setup');
+              } else if (selected) toggle();
+              else setTab(id);
+            }}
             className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-[10px] leading-tight ${selected ? 'font-semibold text-accent' : 'text-muted'}`}
           >
             <span className={`flex h-7 w-12 items-center justify-center rounded-full ${selected && !collapsed ? 'bg-accent/10' : ''}`}>

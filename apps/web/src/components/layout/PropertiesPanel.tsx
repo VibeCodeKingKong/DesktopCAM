@@ -656,6 +656,7 @@ function ImageSourceGroup({ imageId, onChange }: { imageId: string; onChange: (i
 /* ───────── Verktygsbanor ───────── */
 
 function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
+  const toolNote = useAppStore((s) => s.toolNotes[tp.id]);
   const expert = useExpert();
   const t = useT();
   const tools = useAppStore((s) => s.tools);
@@ -739,6 +740,9 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
           options={toolOptions}
           onChange={(toolId) => patch(retoolPatch(tp, toolId))}
         />
+        {toolNote && toolNote.toolId === tp.toolId && (
+          <p className="rounded-md bg-accent/10 px-2 py-1.5 text-xs leading-relaxed text-accent">{toolNote.text}</p>
+        )}
         {!toolOk && currentTool && (
           <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs leading-relaxed text-warn">{t.toolRules.why(tp.operation, currentTool.kind, tp.operation === 'profile' ? tp.side : undefined)}</p>
         )}

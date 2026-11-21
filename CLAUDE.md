@@ -15,6 +15,10 @@ vilket bibliotek som valts och varför, eller varför egen kod behövdes.
 ## Bygg och test
 
 - `pnpm install`, `pnpm build`, `pnpm typecheck` i roten.
+- `pnpm test`: regressionstester för G-koden (exempelprojektens jobb mot facit
+  och säkerhetsregler). Körs också av `pnpm build`. Ändras G-koden med avsikt:
+  kontrollera i simuleringen och kör `pnpm test:update`. Ändras jobbformatet
+  eller exemplen: `node scripts/capture-gcode-fixtures.cjs` med dev-servern igång.
 - Projektstruktur: `apps/web` (React/Vite), `packages/core` (CAM-kärna i
   TypeScript), `crates/cam-engine` (Rust/Wasm).
 - Verifiera ändringar i webbläsaren (Playwright) och, för verktygsbanor, genom
