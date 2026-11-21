@@ -48,7 +48,13 @@ async function readImage(file: Blob) {
   ctx.drawImage(src, 0, 0, w, h);
   if ('close' in src) src.close();
   const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-  const bitmap = await createImageBitmap(canvas);
+  // Äldre iOS: createImageBitmap från canvas saknas ibland – canvasen duger lika bra att rita från.
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(canvas);
+  } catch {
+    bitmap = canvas as unknown as ImageBitmap;
+  }
   return { dataUrl, bitmap, w, h };
 }
 

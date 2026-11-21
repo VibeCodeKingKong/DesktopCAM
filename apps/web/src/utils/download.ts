@@ -46,7 +46,8 @@ export function pickFile(accept: string, capture?: 'environment' | 'user'): Prom
       resolve(f);
     };
     input.addEventListener('change', () => finish(input.files?.[0] ?? null));
-    input.addEventListener('cancel', () => finish(null));
+    // iOS kan skicka cancel innan bilden från kameran är klar – vänta en stund på change.
+    input.addEventListener('cancel', () => setTimeout(() => finish(input.files?.[0] ?? null), 1500));
     input.click();
   });
 }

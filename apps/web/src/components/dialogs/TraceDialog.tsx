@@ -5,7 +5,6 @@ import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
-import { pickFile } from '../../utils/download';
 import { IMAGE_ACCEPT, importImage } from '../../cam/imageObjects';
 import { addTraceToDrawing, detectPaperQuad, loadImageRgba, PAPERS, rectifyPaper, runTrace, type P2, type PaperId, type TraceImage } from '../../cam/traceService';
 
@@ -88,8 +87,8 @@ export function TraceDialog() {
   const image = images.find((im) => im.id === imageId) ?? null;
   const paperMm: [number, number] = paper === 'custom' ? custom : [PAPERS[paper][0], PAPERS[paper][1]];
 
-  const chooseFile = async (capture?: 'environment') => {
-    const f = await pickFile(IMAGE_ACCEPT, capture);
+  /** Bilden från filfältet (riktiga input-element i fönstret – pålitligast på iOS). */
+  const handleFile = async (f: File | null | undefined) => {
     if (!f) return;
     setBusy(tr.reading);
     setError(null);
@@ -97,6 +96,8 @@ export function TraceDialog() {
       const id = await importImage(f);
       if (id) setImageId(id);
       else setError(t.imageRelief.unreadable(f.name));
+    } catch (e) {
+      setError(`${t.imageRelief.unreadable(f.name)} (${e instanceof Error ? e.message : String(e)})`);
     } finally {
       setBusy(null);
     }
@@ -207,12 +208,14 @@ export function TraceDialog() {
             <SelectField label={tr.image} value={imageId ?? ''} options={[{ value: '', label: '–' }, ...images.map((im) => ({ value: im.id, label: im.name }))]} onChange={(v) => setImageId(v || null)} />
           )}
           <div className="flex flex-wrap gap-2">
-            <button className="btn btn-primary" onClick={() => void chooseFile()}>
+            <label className="btn btn-primary cursor-pointer">
               <ImagePlus size={15} /> {tr.chooseImage}
-            </button>
-            <button className="btn" onClick={() => void chooseFile('environment')}>
+              <input type="file" accept={IMAGE_ACCEPT} className="sr-only" onChange={(e) => { void handleFile(e.target.files?.[0]); e.target.value = ''; }} />
+            </label>
+            <label className="btn cursor-pointer">
               <Camera size={15} /> {tr.takePhoto}
-            </button>
+              <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => { void handleFile(e.target.files?.[0]); e.target.value = ''; }} />
+            </label>
           </div>
           <p className="text-xs text-muted">{tr.photoTips}</p>
           {busy && (
