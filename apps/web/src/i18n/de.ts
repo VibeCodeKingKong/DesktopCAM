@@ -897,6 +897,13 @@ export const de: Dict = {
   },
 
   contour: {
+    angle: "Winkel",
+    straighten: "Gerade ausrichten",
+    straightenHint: "Dreht die Form um den kleinsten nötigen Winkel, damit sie gerade liegt (nach dem kleinsten umschließenden Rechteck). Nachgezeichnete Fotos drehen sich mit.",
+    rotateHandleHint: "Oder den runden Griff über der Auswahl ziehen, um frei zu drehen (Umschalt für 15°-Schritte).",
+    alreadyStraight: "Die Form liegt bereits gerade.",
+    straightened: (v: string) => `Ausgerichtet: um ${v}° gedreht`,
+    rotated: (v: string) => `Um ${v}° gedreht`,
     title: "Kontur",
     direction: "Richtung",
     outward: "Nach außen",

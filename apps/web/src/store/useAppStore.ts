@@ -64,6 +64,8 @@ export interface ImageObject {
   x: number;
   y: number;
   widthMm: number;
+  /** Vridning i grader (moturs) runt bildens mitt. */
+  rotation?: number;
   visible: boolean;
 }
 
@@ -577,9 +579,12 @@ export const useAppStore = create<AppState>()((set, get) => {
         const place = { origin: { x: im.x, y: im.y }, widthMm: im.widthMm };
         const moved = (t: ToolpathConfig) =>
           (t.operation === 'laserRaster' || t.operation === 'penImage') && t.imageId === id && (t.origin.x !== im.x || t.origin.y !== im.y || t.widthMm !== im.widthMm);
+        // Ändrad vridning: banorna som ritar bilden räknas om (ny instans = ändrad).
+        const turned = (t: ToolpathConfig) => 'rotation' in patch && (t.operation === 'laserRaster' || t.operation === 'penImage') && t.imageId === id;
+        const changed = (t: ToolpathConfig) => moved(t) || turned(t);
         return {
           imageObjects,
-          toolpaths: s.toolpaths.some(moved) ? s.toolpaths.map((t) => (moved(t) ? ({ ...t, ...place } as ToolpathConfig) : t)) : s.toolpaths,
+          toolpaths: s.toolpaths.some(changed) ? s.toolpaths.map((t) => (changed(t) ? ({ ...t, ...place } as ToolpathConfig) : t)) : s.toolpaths,
         };
       }),
     removeImageObject: (id) =>

@@ -3,11 +3,12 @@
  * spårar i workern och lägger in resultatet i ritningen. Algoritmerna finns i
  * @desktopcam/core (trace.ts); här är bara flödet och kopplingen till store.
  */
-import { downscaleGray, rgbaToGray, uid, type PathSegment, type TraceOptions, type TraceResultMm, type VectorPath, type VectorShape } from '@desktopcam/core';
+import { downscaleGray, multiply, rgbaToGray, rotate, transformShape, translate, uid, type PathSegment, type TraceOptions, type TraceResultMm, type VectorPath, type VectorShape } from '@desktopcam/core';
 import { camClient } from '../engine/camClient';
 import { useAppStore } from '../store/useAppStore';
 import { getT } from '../i18n';
 import { importImage } from './imageObjects';
+import { imageFrame } from '../utils/imageFrame';
 
 export type P2 = [number, number];
 
@@ -107,10 +108,13 @@ export async function addTraceToDrawing(
   const objects = result.objects.filter((o) => selected.has(o.id));
   if (!objects.length) return 0;
   const orig = s.imageObjects.find((im) => im.id === source.imageId);
+  const rotation = orig?.rotation ?? 0;
+  let linkedImageId = orig?.id;
   if (source.rectified) {
     const id = await importImage(await rgbaToFile(source.rectified.image, `${orig?.name ?? 'trace'} (${t.trace.rectifiedName})`));
     if (id) {
-      useAppStore.getState().updateImageObject(id, { x: placement.x, y: placement.y, widthMm: source.rectified.widthMm });
+      linkedImageId = id;
+      useAppStore.getState().updateImageObject(id, { x: placement.x, y: placement.y, widthMm: source.rectified.widthMm, rotation: rotation || undefined });
       if (orig) useAppStore.getState().updateImageObject(orig.id, { visible: false });
     }
   } else if (orig && Math.abs(orig.widthMm - source.widthMm) > 1e-6) {
@@ -120,12 +124,20 @@ export async function addTraceToDrawing(
   }
   const st = useAppStore.getState();
   const n = st.layers.filter((l) => l.name.startsWith(t.trace.layerName)).length + 1;
-  const shapes: VectorShape[] = objects.map((o, i) => ({
+  let shapes: VectorShape[] = objects.map((o, i) => ({
     id: uid('shape'),
     name: `${t.trace.objectName} ${i + 1}`,
     kind: 'imported',
+    linkedImageId,
     paths: [...o.loops.map((l) => toPath(l, true, placement.x, placement.y)), ...o.lines.map((l) => toPath(l, false, placement.x, placement.y))],
   }));
+  // Vridet foto: spårningen gjordes i bildens egna (ovridna) koordinater – vrid formerna likadant runt bildens mitt.
+  const linked = st.imageObjects.find((im) => im.id === linkedImageId);
+  if (rotation && linked) {
+    const f = imageFrame(linked);
+    const m = multiply(translate(f.cx, f.cy), multiply(rotate(rotation), translate(-f.cx, -f.cy)));
+    shapes = shapes.map((sh) => transformShape(sh, m));
+  }
   st.addLayers([{ id: uid('layer'), name: `${t.trace.layerName} ${n}`, color: '#d4572a', visible: true, locked: false, shapes }]);
   st.setStatus(t.trace.added(shapes.length));
   return shapes.length;

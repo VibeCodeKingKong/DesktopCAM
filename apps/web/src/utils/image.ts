@@ -1,5 +1,5 @@
 /** Ritar om en bild till given pixelstorlek och returnerar gråskala (0 = svart). */
-export function rasterizeGray(bitmap: ImageBitmap, width: number, height: number): Uint8Array {
+export function rasterizeGray(bitmap: CanvasImageSource, width: number, height: number): Uint8Array {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;

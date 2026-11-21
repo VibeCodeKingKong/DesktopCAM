@@ -1,7 +1,7 @@
 import { FontPicker } from '../ui/FontPicker';
 import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { CircleDot, Grid3x3, PenLine, ScanLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
+import { AlignVerticalSpaceAround, CircleDot, Grid3x3, PenLine, ScanLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
 import {
   defaultPocketStrategy,
   matchPocketPreset,
@@ -61,6 +61,7 @@ import {
   updateReliefPlug,
   retoolPatch,
   offsetSelection,
+  straightenSelection,
   combineSelection,
   separateSelection,
 } from '../../cam/commands';
@@ -293,6 +294,10 @@ function ShapeEditor() {
             </SmartTooltip>
           </div>
         </FieldRow>
+        <button className="btn w-full" onClick={straightenSelection} title={t.contour.straightenHint}>
+          <AlignVerticalSpaceAround size={13} /> {t.contour.straighten}
+        </button>
+        <p className="-mt-1 text-2xs leading-relaxed text-muted">{t.contour.rotateHandleHint}</p>
         <div className="grid grid-cols-2 gap-2">
           <SmartTooltip className="flex [&>*]:min-w-0 [&>*]:flex-1" content={tip(t.hover.mirrorH, { illustration: <IlluFlip /> })}>
           <button className="btn" onClick={() => mirrorSelection('h')} title={t.props.mirrorH}>
@@ -539,6 +544,7 @@ function ImagePlacement({ image }: { image: ImageObject }) {
       />
       <NumberField label={t.props.posX} unit="mm" step={1} value={image.x} onChange={(x) => patch({ x })} />
       <NumberField label={t.props.posY} unit="mm" step={1} value={image.y} onChange={(y) => patch({ y })} />
+      <NumberField label={t.contour.angle} unit="°" step={1} min={-180} max={180} value={+(image.rotation ?? 0).toFixed(2)} onChange={(rotation) => patch({ rotation })} />
       <button className="btn w-full" onClick={() => patch({ x: +((material.width - image.widthMm) / 2).toFixed(2), y: +((material.height - h) / 2).toFixed(2) })}>
         {t.props.centerOnStock}
       </button>

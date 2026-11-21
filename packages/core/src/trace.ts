@@ -610,3 +610,33 @@ export function traceToMm(pts: number[], mmPerPx: number, heightPx: number): num
   }
   return out;
 }
+
+/**
+ * Vinkeln (grader) som rätar upp punkterna: minsta omslutande rektangel med
+ * "rotating calipers" över det konvexa höljet (en rektangelsida ligger alltid
+ * längs en höljessida). Svaret ligger i (−45°, 45°] – den minsta vridning som
+ * gör rektangeln axelparallell.
+ */
+export function straightenAngle(pts: number[]): number {
+  const p: P2[] = [];
+  for (let i = 0; i + 1 < pts.length; i += 2) p.push([pts[i], pts[i + 1]]);
+  const hull = convexHull(p);
+  if (hull.length < 3) return 0;
+  let best = 0, bestArea = Infinity;
+  for (let i = 0; i < hull.length; i++) {
+    const a = hull[i], b = hull[(i + 1) % hull.length];
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    const c = Math.cos(-ang), s = Math.sin(-ang);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (const q of hull) {
+      const x = q[0] * c - q[1] * s, y = q[0] * s + q[1] * c;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    const area = (x1 - x0) * (y1 - y0);
+    if (area < bestArea - 1e-9) (bestArea = area), (best = ang);
+  }
+  // Vrid med −vinkeln, minsta vridning modulo 90°.
+  let deg = (-best * 180) / Math.PI;
+  deg = ((((deg + 45) % 90) + 90) % 90) - 45;
+  return Math.abs(deg) < 1e-6 ? 0 : deg;
+}

@@ -92,7 +92,7 @@ export function Viewport() {
       ? []
       : imageObjects
           .filter((im) => im.visible && imageCache[im.id])
-          .map((im) => ({ bitmap: imageCache[im.id].bitmap, x: im.x, y: im.y, width: im.widthMm, height: imageHeightMm(im), opacity: drawn(im.id) ? 0.35 : 1 }));
+          .map((im) => ({ bitmap: imageCache[im.id].bitmap, x: im.x, y: im.y, width: im.widthMm, height: imageHeightMm(im), opacity: drawn(im.id) ? 0.35 : 1, rotation: ((im.rotation ?? 0) * Math.PI) / 180 }));
     ctlRef.current?.setImages(display);
   }, [theme, imageObjects, imageCache, simActive, toolpaths, results, view.showToolpaths]);
 

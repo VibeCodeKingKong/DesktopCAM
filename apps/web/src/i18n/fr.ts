@@ -897,6 +897,13 @@ export const fr: Dict = {
   },
 
   contour: {
+    angle: "Angle",
+    straighten: "Redresser",
+    straightenHint: "Fait pivoter la forme du plus petit angle nécessaire pour la mettre droite (selon son rectangle englobant minimal). Les photos tracées suivent.",
+    rotateHandleHint: "Ou faites glisser le bouton rond au-dessus de la sélection pour pivoter librement (Maj pour des pas de 15°).",
+    alreadyStraight: "La forme est déjà droite.",
+    straightened: (v: string) => `Redressée : pivotée de ${v}°`,
+    rotated: (v: string) => `Pivotée de ${v}°`,
     title: "Contour",
     direction: "Sens",
     outward: "Vers l’extérieur",

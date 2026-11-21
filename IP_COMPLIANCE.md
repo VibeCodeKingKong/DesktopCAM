@@ -97,6 +97,7 @@ tillämpningar i CAM-branschen kan omfattas av patent** och bör granskas.
 | Spårning: papper och perspektiv | Ljusaste ytan (Otsu), konvext hölje, linjeanpassning (minsta kvadrat), homografi med fyra punkter (DLT) | Klassisk bildgeometri. Automatisk dokument-/pappersdetektering finns i kommersiella skannerappar och kan vara patenterad i specifika utföranden – REVIEW REQUIRED. |
 | Spårning: objekt och konturer | Tröskel, sammanhängande komponenter, morfologi, marching squares, Douglas–Peucker, avståndsfältets offset | Allmänna metoder; inga kända patent. Potrace (GPL) används inte. |
 | Spårning: mittlinje | Zhang–Suen-uttunning (1984), egen grafföljning och borttagning av utstickare | Publicerad 1984; inget känt patent. |
+| Räta upp | Minsta omslutande rektangel via konvext hölje och roterande skjutmått (Freeman–Shapira 1975, Toussaint 1983) | Klassisk beräkningsgeometri; inget känt patent. |
 | Vektorexport | SVG (W3C, royaltyfri), DXF R12 (Autodesks publicerade format), PDF 1.4 (ISO 32000) | Öppna/publicerade format; egen kod. DXF är Autodesks format – användning för utbyte bedöms tillåten, men "DXF" är ett varumärke att nämna med försiktighet. |
 
 ## 5. Varumärken

@@ -81,6 +81,8 @@ export interface ImageDisplay {
   width: number;
   height: number;
   opacity: number;
+  /** Vridning (radianer, moturs) runt bildens mitt. */
+  rotation?: number;
 }
 
 export class SceneController {
@@ -281,6 +283,7 @@ export class SceneController {
       const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: im.opacity, depthWrite: false, toneMapped: false });
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(im.width, im.height), mat);
       mesh.position.set(im.x + im.width / 2, im.y + im.height / 2, 0.03);
+      mesh.rotation.z = im.rotation ?? 0;
       this.imageGroup.add(mesh);
     }
     for (const [bm, tex] of this.imageTextures) {

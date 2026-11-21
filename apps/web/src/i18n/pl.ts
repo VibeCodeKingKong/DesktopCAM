@@ -904,6 +904,13 @@ export const pl: Dict = {
   },
 
   contour: {
+    angle: "Kąt",
+    straighten: "Wyprostuj",
+    straightenHint: "Obraca kształt o najmniejszy kąt potrzebny, by leżał prosto (według minimalnego prostokąta otaczającego). Obrysowane zdjęcia obracają się razem z nim.",
+    rotateHandleHint: "Albo przeciągnij okrągły uchwyt nad zaznaczeniem, aby obracać swobodnie (Shift – co 15°).",
+    alreadyStraight: "Kształt jest już prosty.",
+    straightened: (v: string) => `Wyprostowano: obrót o ${v}°`,
+    rotated: (v: string) => `Obrócono o ${v}°`,
     title: "Kontur",
     direction: "Kierunek",
     outward: "Na zewnątrz",

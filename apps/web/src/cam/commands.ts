@@ -42,10 +42,12 @@ import {
   exportDxf,
   exportPdf,
   type ExportLayer,
+  straightenAngle,
 } from '@desktopcam/core';
+import { imageFrame } from '../utils/imageFrame';
 import { getT } from '../i18n';
 import toolsJson from '../data/tools.json';
-import { allShapes, getEffectiveMaterial, getMachine, useAppStore } from '../store/useAppStore';
+import { allShapes, getEffectiveMaterial, getMachine, useAppStore, type ImageObject } from '../store/useAppStore';
 import { downloadBytes, downloadText, pickFile, slug } from '../utils/download';
 import { decodeImageObjects, imageForNewToolpath } from './imageObjects';
 import { exampleUrl } from '../data/examples';
@@ -150,11 +152,72 @@ export function setSelectionBox(x: number, y: number, w: number, h: number) {
   transformSelection(m);
 }
 
-export function rotateSelection(deg: number) {
+/**
+ * Bilder som följer med när markeringen vrids: den markerade bilden, och
+ * bilder som någon markerad form är spårad från (linkedImageId).
+ */
+export function imagesFollowingSelection(): ImageObject[] {
+  const s = useAppStore.getState();
+  const sel = new Set(s.selectedShapeIds);
+  const all = allShapes(s.layers);
+  return s.imageObjects.filter((im) => {
+    if (im.id === s.selectedImageId) return true;
+    return all.some((sh) => sh.linkedImageId === im.id && sel.has(sh.id));
+  });
+}
+
+/** Bilden vriden `deg` grader runt punkten (bildens egen vinkel ökar lika mycket). */
+export function rotatedImage(im: ImageObject, deg: number, pivot: { x: number; y: number }): Partial<ImageObject> {
+  const f = imageFrame(im);
+  const a = (deg * Math.PI) / 180, c = Math.cos(a), sn = Math.sin(a);
+  const dx = f.cx - pivot.x, dy = f.cy - pivot.y;
+  const cx = pivot.x + dx * c - dy * sn, cy = pivot.y + dx * sn + dy * c;
+  const rot = ((((im.rotation ?? 0) + deg) % 360) + 540) % 360 - 180;
+  return { x: +(cx - f.w / 2).toFixed(4), y: +(cy - f.h / 2).toFixed(4), rotation: +rot.toFixed(4) };
+}
+
+/** Mittpunkten som markeringen vrids runt: formernas mitt, annars den markerade bildens. */
+export function rotationPivot(): { x: number; y: number } | null {
+  const s = useAppStore.getState();
   const b = selectionBounds();
-  if (!b) return;
-  const cx = (b.min.x + b.max.x) / 2, cy = (b.min.y + b.max.y) / 2;
-  transformSelection(multiply(translate(cx, cy), multiply(rotate(deg), translate(-cx, -cy))));
+  if (b && s.selectedShapeIds.length) return { x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2 };
+  const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
+  if (!im) return null;
+  const f = imageFrame(im);
+  return { x: f.cx, y: f.cy };
+}
+
+/**
+ * Vrider utgångsläget (former och bilder) `deg` grader runt `pivot` utan
+ * historik – för vridhandtaget, som tar en checkpoint när det börjar dras.
+ */
+export function applyRotation(deg: number, pivot: { x: number; y: number }, shapes: VectorShape[], images: ImageObject[]) {
+  const s = useAppStore.getState();
+  const m = multiply(translate(pivot.x, pivot.y), multiply(rotate(deg), translate(-pivot.x, -pivot.y)));
+  if (shapes.length) s.replaceShapes(shapes.map((sh) => ({ ...transformShape(sh, m), text: undefined })), false);
+  for (const im of images) s.updateImageObject(im.id, rotatedImage(im, deg, pivot));
+}
+
+export function rotateSelection(deg: number) {
+  const pivot = rotationPivot();
+  if (!pivot) return;
+  useAppStore.getState().checkpoint();
+  applyRotation(deg, pivot, selected(), imagesFollowingSelection());
+}
+
+/**
+ * Rätar upp markerade former: vrider dem minsta möjliga vinkel så att deras
+ * minsta omslutande rektangel blir axelparallell. Spårade bilder följer med.
+ */
+export function straightenSelection() {
+  const t = getT();
+  const shapes = selected();
+  const pts: number[] = [];
+  for (const sh of shapes) for (const p of shapeToPolylines(sh, 0.1)) for (const v of p.points) pts.push(v);
+  const deg = straightenAngle(pts);
+  if (!shapes.length || Math.abs(deg) < 0.05) return status(t.contour.alreadyStraight);
+  rotateSelection(deg);
+  status(t.contour.straightened(deg.toLocaleString(t.locale, { maximumFractionDigits: 1 })));
 }
 
 export function mirrorSelection(axis: 'h' | 'v') {

@@ -16,6 +16,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.34.0',
+    date: '2026-11-21',
+    text: {
+      sv: ["Vrid former och bilder: dra i den runda knappen ovanför markeringen (steg om 1°, håll Shift för 15°), eller ange vinkeln i egenskaperna. Bilder har nu också en vinkel.", "Räta upp: vrider en sned form den minsta vinkel som behövs för att den ska ligga rakt. Det spårade fotot följer med när formerna vrids."],
+      en: ["Rotate shapes and images: drag the round knob above the selection (1° steps, hold Shift for 15°), or enter the angle in the properties. Images now have an angle too.", "Straighten: rotates a skewed shape by the smallest angle needed to make it straight. The traced photo follows when the shapes are rotated."],
+      fr: ["Faire pivoter formes et images : faites glisser le bouton rond au-dessus de la sélection (pas de 1°, Maj pour 15°) ou saisissez l’angle dans les propriétés. Les images ont désormais aussi un angle.", "Redresser : fait pivoter une forme de travers du plus petit angle nécessaire pour la mettre droite. La photo tracée suit quand les formes pivotent."],
+      de: ["Formen und Bilder drehen: den runden Griff über der Auswahl ziehen (1°-Schritte, Umschalt für 15°) oder den Winkel in den Eigenschaften eingeben. Bilder haben jetzt auch einen Winkel.", "Gerade ausrichten: dreht eine schiefe Form um den kleinsten nötigen Winkel, damit sie gerade liegt. Das nachgezeichnete Foto dreht sich mit."],
+      es: ["Girar formas e imágenes: arrastre el botón redondo sobre la selección (pasos de 1°, Mayús para 15°) o escriba el ángulo en las propiedades. Las imágenes ahora también tienen ángulo.", "Enderezar: gira una forma torcida el ángulo mínimo necesario para que quede recta. La foto trazada acompaña a las formas al girarlas."],
+      pl: ["Obracanie kształtów i obrazów: przeciągnij okrągły uchwyt nad zaznaczeniem (co 1°, Shift – co 15°) albo wpisz kąt we właściwościach. Obrazy mają teraz także kąt.", "Wyprostuj: obraca krzywo leżący kształt o najmniejszy potrzebny kąt. Obrysowane zdjęcie obraca się razem z kształtami."],
+      uk: ["Поворот фігур і зображень: перетягніть круглу ручку над виділенням (крок 1°, Shift – 15°) або введіть кут у властивостях. Зображення тепер теж мають кут.", "Вирівняти: повертає косу фігуру на найменший потрібний кут, щоб вона лежала рівно. Обведене фото повертається разом із фігурами."],
+    },
+  },
+  {
     version: '0.33.0',
     date: '2026-11-21',
     text: {

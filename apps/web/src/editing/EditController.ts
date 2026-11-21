@@ -22,11 +22,11 @@ import {
 import type { SceneController } from '../components/viewport/SceneController';
 import { getT } from '../i18n';
 import { onContour, setTabPositions, tabContext } from './tabs';
-import { defaultMeasureRef, measure } from '../cam/commands';
+import { applyRotation, defaultMeasureRef, imagesFollowingSelection, measure, rotationPivot } from '../cam/commands';
 import { buildTextShape } from '../text/textShape';
 import { isOutlineFont } from '../text/fonts';
-import { imageHeightMm } from '../cam/imageObjects';
-import { allShapes, useAppStore, type EditTool, type NodeRef } from '../store/useAppStore';
+import { imageFrame, insideImage } from '../utils/imageFrame';
+import { allShapes, useAppStore, type EditTool, type ImageObject, type NodeRef } from '../store/useAppStore';
 import { useDraft } from './draftStore';
 import { hitShape, shapeGeometry } from './hitTest';
 import { deleteNode, getNode, handlesOf, insertNode, moveHandle, moveNode, nearestOnPath, nodeCount, normalizeShape, pointOnSegment } from './nodes';
@@ -46,7 +46,8 @@ type Gesture =
   | { kind: 'curveNode'; p: Vec2; handle: Vec2 | null; x0: number; y0: number }
   | { kind: 'tab'; index: number; x0: number; y0: number; moved: boolean; added: boolean }
   | { kind: 'relief'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean }
-  | { kind: 'image'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean };
+  | { kind: 'image'; id: string; start: Vec2; ox: number; oy: number; x0: number; y0: number; moved: boolean }
+  | { kind: 'rotate'; pivot: Vec2; a0: number; shapes: VectorShape[]; images: ImageObject[]; deg: number; moved: boolean };
 
 const DRAW_TOOLS: EditTool[] = ['line', 'curve', 'rect', 'circle', 'text'];
 
@@ -327,6 +328,13 @@ export class EditController {
         return;
       }
       case 'select': {
+        // Vridhandtaget ovanför markeringen.
+        const rh = this.rotationHandle();
+        if (rh && Math.hypot(x0 - rh.handle.x, y0 - rh.handle.y) < 16) {
+          this.stop(e);
+          this.gesture = { kind: 'rotate', pivot: rh.pivot, a0: Math.atan2(w.y - rh.pivot.y, w.x - rh.pivot.x), shapes: this.selectedShapes(), images: imagesFollowingSelection(), deg: 0, moved: false };
+          return;
+        }
         // Reliefer: tryck inuti för att markera, dra för att flytta. Över en relief
         // träffas former bara på sin linje (som i vanliga CAM-program) – annars vore reliefen
         // omöjlig att markera där en sluten form ligger ovanpå.
@@ -439,6 +447,20 @@ export class EditController {
 
     if (tool === 'tabs' || tool === 'fillet') this.cursor = w;
     switch (g.kind) {
+      case 'rotate': {
+        let deg = ((Math.atan2(w.y - g.pivot.y, w.x - g.pivot.x) - g.a0) * 180) / Math.PI;
+        deg = ((deg + 540) % 360) - 180;
+        // Hela grader; med Shift i steg om 15°.
+        deg = e.shiftKey ? Math.round(deg / 15) * 15 : Math.round(deg);
+        if (deg === g.deg) return;
+        if (!g.moved) {
+          g.moved = true;
+          s.checkpoint();
+        }
+        g.deg = deg;
+        applyRotation(deg, g.pivot, g.shapes, g.images);
+        return;
+      }
       case 'relief': {
         if (!g.moved && Math.hypot(p.x - g.x0, p.y - g.y0) < 5) return;
         if (!g.moved) {
@@ -546,6 +568,9 @@ export class EditController {
     const t = getT();
 
     switch (g.kind) {
+      case 'rotate':
+        if (g.moved) s.setStatus(t.contour.rotated(g.deg.toLocaleString(t.locale)));
+        return;
       case 'tab': {
         const ctx = tabContext();
         if (ctx && !g.moved && !g.added) {
@@ -759,8 +784,7 @@ export class EditController {
     if (s.selectedImageId && s.editTool === 'select' && !s.sim.active) {
       const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
       if (im) {
-        const h = imageHeightMm(im);
-        const c = [{ x: im.x, y: im.y }, { x: im.x + im.widthMm, y: im.y }, { x: im.x + im.widthMm, y: im.y + h }, { x: im.x, y: im.y + h }].map(P);
+        const c = imageFrame(im).corners.map(P);
         ctx.strokeStyle = accent;
         ctx.lineWidth = 1.5;
         ctx.setLineDash([6, 4]);
@@ -775,6 +799,28 @@ export class EditController {
         const f = (n: number) => n.toLocaleString(loc, { maximumFractionDigits: 1 });
         this.label(`${im.name}  X ${f(im.x)}  Y ${f(im.y)}`, { x: Math.min(...c.map((q) => q.x)), y: Math.max(...c.map((q) => q.y)) });
       }
+    }
+
+    // Vridhandtag ovanför markeringen (former eller bild).
+    const rh = this.rotationHandle();
+    if (rh) {
+      const g = this.gesture;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(rh.top.x, rh.top.y);
+      ctx.lineTo(rh.handle.x, rh.handle.y + 8);
+      ctx.stroke();
+      ctx.fillStyle = surface;
+      ctx.beginPath();
+      ctx.arc(rh.handle.x, rh.handle.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Pil runt: en båge med en spets.
+      ctx.beginPath();
+      ctx.arc(rh.handle.x, rh.handle.y, 4, -Math.PI * 0.9, Math.PI * 0.4);
+      ctx.stroke();
+      if (g.kind === 'rotate' && g.moved) this.label(`${g.deg.toLocaleString(getT().locale)}°`, { x: rh.handle.x + 12, y: rh.handle.y - 8 });
     }
 
     // Måttlinje mellan två markerade former: från punkten på den fasta formen till den rörliga
@@ -1011,12 +1057,32 @@ export class EditController {
     this.polarPreview = p;
   }
 
+  /** Vridhandtagets läge (skärm) och vridpunkt (mm), eller null om inget är markerat. */
+  private rotationHandle(): { pivot: Vec2; top: { x: number; y: number }; handle: { x: number; y: number } } | null {
+    const s = useAppStore.getState();
+    if (s.editTool !== 'select' || s.sim.active || this.gesture.kind === 'move' || this.gesture.kind === 'image') return null;
+    let y1 = -Infinity;
+    if (s.selectedShapeIds.length) {
+      for (const sh of this.selectedShapes()) y1 = Math.max(y1, shapeGeometry(sh).max.y);
+    } else if (s.selectedImageId) {
+      const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
+      if (im) y1 = imageFrame(im).bbox.y1;
+    }
+    const pivot = rotationPivot();
+    if (!pivot || !Number.isFinite(y1)) return null;
+    // Under en pågående vridning ligger handtaget kvar där den började.
+    const g = this.gesture;
+    const pv = g.kind === 'rotate' ? g.pivot : pivot;
+    const top = this.scene.worldToScreen(pv.x, y1 + 4 * this.scene.worldPerPixel(pv.x, y1));
+    return { pivot: pv, top, handle: { x: top.x, y: top.y - 26 } };
+  }
+
   /** Översta synliga bild under punkten. */
   private imageAt(w: Vec2) {
     const ims = useAppStore.getState().imageObjects;
     for (let i = ims.length - 1; i >= 0; i--) {
       const im = ims[i];
-      if (im.visible && w.x >= im.x && w.x <= im.x + im.widthMm && w.y >= im.y && w.y <= im.y + imageHeightMm(im)) return im;
+      if (im.visible && insideImage(im, w.x, w.y)) return im;
     }
     return null;
   }

@@ -898,6 +898,13 @@ export const en: Dict = {
   },
 
   contour: {
+    angle: "Angle",
+    straighten: "Straighten",
+    straightenHint: "Rotates the shape by the smallest angle needed to make it straight (by its minimum bounding rectangle). Traced photos follow.",
+    rotateHandleHint: "Or drag the round knob above the selection to rotate freely (hold Shift for 15° steps).",
+    alreadyStraight: "The shape is already straight.",
+    straightened: (v: string) => `Straightened: rotated ${v}°`,
+    rotated: (v: string) => `Rotated ${v}°`,
     title: "Contour",
     direction: "Direction",
     outward: "Outward",

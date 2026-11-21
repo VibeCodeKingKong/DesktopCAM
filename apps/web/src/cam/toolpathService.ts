@@ -30,6 +30,7 @@ import { DEFAULT_PLUG_MATERIAL, mirrorInPlace, PLUG_BLANK_GAP, plugBlank, type P
 import { errorText, getT } from '../i18n';
 import { allShapes, getMachine, useAppStore } from '../store/useAppStore';
 import { rasterizeGray } from '../utils/image';
+import { renderImage } from '../utils/imageFrame';
 import { heightmapFor } from './reliefs';
 import { toolReachWarnings, vbitConeHeight } from './toolReach';
 import { toolFits } from './toolRules';
@@ -240,17 +241,32 @@ function buildPlotterJob(tp: ToolpathConfig): PlotterJob {
   };
 }
 
+/**
+ * Bilden som en bild-bana ska rita: den vridna bilden (omslutande rektangel)
+ * om bildobjektet är vridet, annars bilden som den är med banans läge.
+ */
+function imageForToolpath(imageId: string, origin: { x: number; y: number }, widthMm: number) {
+  const s = useAppStore.getState();
+  const img = s.images[imageId];
+  if (!img) throw new Error('IMAGE_MISSING');
+  const obj = s.imageObjects.find((im) => im.id === imageId);
+  if (obj && obj.rotation) {
+    const { canvas, frame } = renderImage(img.bitmap, obj, Math.min(20, 4000 / Math.max(frame0(obj).w, frame0(obj).h)));
+    return { source: canvas as CanvasImageSource, aspect: canvas.height / canvas.width, origin: { x: frame.bbox.x0, y: frame.bbox.y0 }, widthMm: frame.bbox.x1 - frame.bbox.x0 };
+  }
+  return { source: img.bitmap as CanvasImageSource, aspect: img.bitmap.height / img.bitmap.width, origin, widthMm };
+}
+const frame0 = (o: { widthMm: number; pxWidth: number; pxHeight: number }) => ({ w: o.widthMm, h: (o.widthMm * o.pxHeight) / o.pxWidth });
+
 /** Bild till linjer: bilden i lagom upplösning för metoden (ungefär tre bildpunkter per linjeavstånd). */
 function buildPenImageJob(tp: ToolpathConfig): PlotterImageJob {
   if (tp.operation !== 'penImage') throw new Error('NOT_IMPLEMENTED');
-  const s = useAppStore.getState();
   const machine = getMachine();
-  const img = s.images[tp.imageId];
-  if (!img) throw new Error('IMAGE_MISSING');
-  const width = Math.max(40, Math.min(800, Math.round((tp.widthMm * 3) / Math.max(0.2, tp.image.spacing))));
-  const height = Math.max(2, Math.round((width * img.bitmap.height) / img.bitmap.width));
+  const src = imageForToolpath(tp.imageId, tp.origin, tp.widthMm);
+  const width = Math.max(40, Math.min(800, Math.round((src.widthMm * 3) / Math.max(0.2, tp.image.spacing))));
+  const height = Math.max(2, Math.round(width * src.aspect));
   return {
-    input: { gray: rasterizeGray(img.bitmap, width, height), width, height, x: tp.origin.x, y: tp.origin.y, widthMm: tp.widthMm, settings: tp.image },
+    input: { gray: rasterizeGray(src.source, width, height), width, height, x: src.origin.x, y: src.origin.y, widthMm: src.widthMm, settings: tp.image },
     optimize: tp.optimize,
     settings: machine.plotter ?? defaultPlotterSettings(),
     feedRate: tp.params.feedRate,
@@ -446,21 +462,19 @@ function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
 
 function buildRasterJob(tp: ToolpathConfig): RasterJob {
   if (tp.operation !== 'laserRaster') throw new Error('NOT_IMPLEMENTED');
-  const s = useAppStore.getState();
   const machine = getMachine();
-  const img = s.images[tp.imageId];
-  if (!img) throw new Error('IMAGE_MISSING');
-  const width = Math.max(1, Math.round(tp.widthMm / tp.lineIntervalMm));
-  const height = Math.max(1, Math.round((width * img.bitmap.height) / img.bitmap.width));
+  const src = imageForToolpath(tp.imageId, tp.origin, tp.widthMm);
+  const width = Math.max(1, Math.round(src.widthMm / tp.lineIntervalMm));
+  const height = Math.max(1, Math.round(width * src.aspect));
   return {
-    gray: rasterizeGray(img.bitmap, width, height),
+    gray: rasterizeGray(src.source, width, height),
     width,
     height,
     method: tp.dither,
     threshold: tp.threshold,
     pixelSizeMm: tp.lineIntervalMm,
-    originX: tp.origin.x,
-    originY: tp.origin.y,
+    originX: src.origin.x,
+    originY: src.origin.y,
     feedRate: tp.params.feedRate,
     laserS: ((tp.params.laserPowerPct ?? 30) / 100) * (machine.laser?.sMax ?? 1000),
     post: machine.postprocessor,
