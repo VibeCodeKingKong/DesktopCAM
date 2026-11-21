@@ -1354,6 +1354,8 @@ export const de: Dict = {
     sMax: 'Max. S-Wert',
     decimals: 'Dezimalstellen',
     safeZ: 'Sicherheitshöhe',
+    shortHop: "Kurzer Hub zwischen nahen Bahnen",
+    shortHopHint: "Der Fräser hebt nur 1 mm über das Material, wenn die nächste Bahn oder Bohrung höchstens 25 mm entfernt ist (V-Gravur, Bohren) – die Z-Achse ist oft langsam, das spart viel Zeit. Ausschalten, wenn Schrauben oder Spannpratzen zwischen den Teilen sitzen. Taschen und Reliefs heben innerhalb ihres Bereichs immer nur kurz.",
     dynamicPower: 'Dynamische Leistung (M4)',
     postHint: 'Start- und Endcode werden in jede Datei geschrieben. Nur ändern, wenn Sie wissen, was Ihre Maschine braucht, z. B. Referenzfahrt oder Motoren abschalten.',
     header: 'Startcode',

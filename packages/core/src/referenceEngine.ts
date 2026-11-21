@@ -123,6 +123,12 @@ export function createReferenceEngine(): CamEngine {
       if (bits.length !== w * h) throw new Error('Bildens storlek stämmer inte med bitmappen');
       const out: string[] = ['; desktopCAM laser raster', ...p.header, 'G21', 'G90', `${p.laserDynamicPower ? 'M4' : 'M3'} S0`];
       let firstFeed = true;
+      let curX = job.originX;
+      /**
+       * Korta glapp i en rad körs med G1 och lasern av (S0): jämn fart utan
+       * inbromsning, jämnare bränning och kortare tid. Längre glapp med G0.
+       */
+      const GAP_FEED = 10;
       for (let row = 0; row < h; row++) {
         const y = job.originY + (h - 1 - row) * ps;
         const runs: [number, number][] = [];
@@ -135,16 +141,21 @@ export function createReferenceEngine(): CamEngine {
           } else col++;
         }
         if (!runs.length) continue;
-        const ltr = row % 2 === 0;
+        // Raden börjar från den sida som ligger närmast (tomma rader hoppas över).
+        const left = job.originX + runs[0][0] * ps;
+        const right = job.originX + runs[runs.length - 1][1] * ps;
+        const ltr = Math.abs(curX - left) <= Math.abs(curX - right);
         if (!ltr) runs.reverse();
-        for (const [a, b] of runs) {
+        runs.forEach(([a, b], i) => {
           const xa = job.originX + a * ps;
           const xb = job.originX + b * ps;
           const [from, to] = ltr ? [xa, xb] : [xb, xa];
-          out.push(`G0 X${f(from)} Y${f(y)} S0`);
+          if (i === 0 || Math.abs(from - curX) > GAP_FEED) out.push(`G0 X${f(from)} Y${f(y)} S0`);
+          else out.push(`G1 X${f(from)} S0${firstFeed ? ` F${f(job.feedRate)}` : ''}`);
           out.push(`G1 X${f(to)} S${f(job.laserS)}${firstFeed ? ` F${f(job.feedRate)}` : ''}`);
           firstFeed = false;
-        }
+          curX = to;
+        });
       }
       out.push('M5', ...p.footer);
       return out.join('\n') + '\n';

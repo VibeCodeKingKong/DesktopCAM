@@ -246,6 +246,14 @@ export function MachineSetupDialog() {
               </>
             )}
             {draft.kind !== 'laser' && draft.kind !== 'plotter' && <NumberField label={t.machine.safeZ} unit="mm" value={draft.postprocessor.safeZ} min={0} hint="safeZ" onChange={(safeZ) => setPost({ safeZ })} />}
+            {draft.kind === 'router' && (
+              <>
+                <FieldRow label={t.machine.shortHop}>
+                  <Switch checked={draft.postprocessor.shortHop !== false} onChange={(shortHop) => setPost({ shortHop })} label={t.machine.shortHop} />
+                </FieldRow>
+                <p className="text-2xs leading-relaxed text-muted">{t.machine.shortHopHint}</p>
+              </>
+            )}
             {draft.kind === 'laser' && (
               <FieldRow label={t.machine.dynamicPower}>
                 <Switch checked={draft.postprocessor.laserDynamicPower} onChange={(laserDynamicPower) => setPost({ laserDynamicPower })} label={t.machine.dynamicPower} />

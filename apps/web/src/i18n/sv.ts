@@ -1302,6 +1302,8 @@ export const sv = {
     sMax: 'Max S-värde',
     decimals: 'Decimaler',
     safeZ: 'Säker höjd',
+    shortHop: "Kort lyft mellan närliggande spår",
+    shortHopHint: "Fräsen lyfts bara 1 mm över materialet när nästa spår eller hål ligger inom 25 mm (V-gravyr, borrning) – Z-axeln är ofta långsam, så det sparar mycket tid. Stäng av om skruvar eller klämmor sitter mellan delarna. Fickor och reliefer lyfter alltid kort inom sitt eget område.",
     dynamicPower: 'Dynamisk effekt (M4)',
     postHint: 'Start- och slutkoden skrivs in i varje fil. Ändra bara om du vet vad din maskin behöver, t.ex. hemkörning eller att stänga av motorerna.',
     header: 'Startkod',

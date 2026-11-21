@@ -66,6 +66,37 @@ function segmentInside(f: DistanceField, ax: number, ay: number, bx: number, by:
 
 const loopLength = (p: number[]) => new Track(p, true).length;
 
+/** Area för en sluten polygon [x, y, …] (absolutvärde). */
+function flatArea(p: number[]): number {
+  let a = 0;
+  for (let i = 0; i < p.length; i += 2) {
+    const j = (i + 2) % p.length;
+    a += p[i] * p[j + 1] - p[j] * p[i + 1];
+  }
+  return Math.abs(a / 2);
+}
+
+/** Ligger punkten inuti polygonen [x, y, …]? */
+function inside(p: number[], x: number, y: number): boolean {
+  let c = false;
+  for (let i = 0, j = p.length - 2; i < p.length; j = i, i += 2) {
+    const xi = p[i], yi = p[i + 1], xj = p[j], yj = p[j + 1];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+
+/** Ringen börjar i hörnet närmast (x, y) – samma riktning. */
+function startNear(loop: number[], x: number, y: number): number[] {
+  if (!Number.isFinite(x)) return loop;
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < loop.length; i += 2) {
+    const d = (loop[i] - x) ** 2 + (loop[i + 1] - y) ** 2;
+    if (d < bestD) (bestD = d), (best = i);
+  }
+  return best ? [...loop.slice(best), ...loop.slice(0, best)] : loop;
+}
+
 /* ───────── Raster ───────── */
 
 interface Seg { ax: number; ay: number; bx: number; by: number; line: number; u0: number; u1: number }
@@ -183,9 +214,30 @@ export function pocketStrategyGcode(job: PocketJob): string {
     out.push(`G1 X${f(x)} Y${f(y)} Z${f(z)}${feed(rate)}`);
     cur = { x, y, z };
   };
+  /** Korta förflyttningar inom ett område sker strax ovanför materialet (inget sticker upp där). */
+  const hopZ = Math.min(p.safeZ, 1);
+  const lift = (z: number) => {
+    if (cur.z < z - 1e-9) out.push(`G0 Z${f(z)}`);
+    cur = { ...cur, z: Math.max(cur.z, z) };
+  };
   const travel = (x: number, y: number, top: number) => {
-    out.push(`G0 Z${f(p.safeZ)}`, `G0 X${f(x)} Y${f(y)}`, `G0 Z${f(top + 0.5)}`);
+    // Inom området (rakt över fickan): kort lyft. Annars säker höjd.
+    const near = Number.isFinite(cur.x) && segmentInside(field, cur.x, cur.y, x, y, 0);
+    lift(near ? hopZ : p.safeZ);
+    if (Math.abs(cur.x - x) > 1e-9 || Math.abs(cur.y - y) > 1e-9) out.push(`G0 X${f(x)} Y${f(y)}`);
+    out.push(`G0 Z${f(top + 0.5)}`);
     cur = { x, y, z: top + 0.5 };
+  };
+  /**
+   * Fortsätter på djupet till (x, y) om sträckan dit ligger inom fickan och är
+   * kort – annars false (lyft och ny nedgång behövs).
+   */
+  const stayDown = (x: number, y: number, z: number, level: number, rate: number) => {
+    if (!Number.isFinite(cur.x) || Math.abs(cur.z - z) > 1e-6) return false;
+    const d = Math.hypot(x - cur.x, y - cur.y);
+    if (d > Math.max(2.5 * step, 2 * r) || !segmentInside(field, cur.x, cur.y, x, y, level)) return false;
+    g1(x, y, z, rate);
+    return true;
   };
 
   /**
@@ -245,60 +297,98 @@ export function pocketStrategyGcode(job: PocketJob): string {
   };
 
   /** Kör en sluten ring på djupet z (inklusive nedgång). */
-  const cutLoop = (loop: number[], zTop: number, z: number, level: number, rate: number) => {
-    travel(loop[0], loop[1], zTop);
-    enter(loop[0], loop[1], zTop, z, level, new Track(loop, true));
+  const cutLoop = (raw: number[], zTop: number, z: number, level: number, rate: number) => {
+    const loop = startNear(raw, cur.x, cur.y);
+    if (!stayDown(loop[0], loop[1], z, level, rate)) {
+      travel(loop[0], loop[1], zTop);
+      enter(loop[0], loop[1], zTop, z, level, new Track(loop, true));
+    }
     for (let i = 2; i <= loop.length; i += 2) {
       const k = i % loop.length;
       g1(loop[k], loop[k + 1], z, rate);
     }
-    out.push(`G0 Z${f(p.safeZ)}`);
-    cur = { ...cur, z: p.safeZ };
   };
 
   /** Kör en öppen kedja (raster) på djupet z. */
   const cutChain = (pts: number[], zTop: number, z: number, level: number, rate: number) => {
-    travel(pts[0], pts[1], zTop);
-    enter(pts[0], pts[1], zTop, z, level, new Track(pts, false));
+    if (!stayDown(pts[0], pts[1], z, level, rate)) {
+      travel(pts[0], pts[1], zTop);
+      enter(pts[0], pts[1], zTop, z, level, new Track(pts, false));
+    }
     for (let i = 2; i < pts.length; i += 2) g1(pts[i], pts[i + 1], z, rate);
-    out.push(`G0 Z${f(p.safeZ)}`);
-    cur = { ...cur, z: p.safeZ };
   };
 
   /** Rensar området (ringar eller raster) på ett djup, med `level` som gräns mot väggen. */
-  const clear = (zTop: number, z: number, level: number, rate: number, dir: typeof st.direction) => {
+  const clear = (region: number, zTop: number, z: number, level: number, rate: number, dir: typeof st.direction) => {
     if (st.pattern === 'raster') {
-      for (const chain of cached(`raster:${level}`, () => rasterChains(field, level, step, st.rasterAngle))) cutChain(chain, zTop, z, level, rate);
+      for (const chain of cached(`raster:${level}`, () => rasterChains(field, level, step, st.rasterAngle))) if (regionOf(chain) === region) cutChain(chain, zTop, z, level, rate);
       // Ett varv längs väggen tar bort rasterns trappsteg.
-      for (const loop of wallLoops(level)) cutLoop(orient(loop, 'inside', dir), zTop, z, level, rate);
+      for (const loop of wallLoops(level)) if (regionOf(loop) === region) cutLoop(orient(loop, 'inside', dir), zTop, z, level, rate);
     } else {
-      for (const loops of offsetRings(level)) for (const loop of loops) cutLoop(orient(loop, 'inside', dir), zTop, z, level, rate);
+      for (const loops of offsetRings(level)) for (const loop of loops) if (regionOf(loop) === region) cutLoop(orient(loop, 'inside', dir), zTop, z, level, rate);
     }
   };
 
-  // Grovpass: lager för lager.
-  let zPrev = 0;
-  for (const depth of depthPasses(roughDepth, job.stepDown)) {
-    clear(zPrev, -depth, roughLevel, job.feedRate, st.direction);
-    zPrev = -depth;
-  }
+  /**
+   * Områden: varje yttre kontur (med sina öar) bearbetas färdigt – alla djup
+   * och finpass – innan nästa påbörjas, i stället för att växla mellan dem
+   * för varje djup.
+   */
+  const bounds = isolines(field, 0, 0.01).filter((l) => l.length >= 6);
+  const depthIn = (l: number[]) => bounds.filter((o) => o !== l && inside(o, l[0], l[1])).length;
+  const outer = bounds.filter((l) => depthIn(l) % 2 === 0).map((l) => ({ l, area: flatArea(l) }));
+  const regionOf = (pts: number[]) => {
+    let best = -1, bestA = Infinity;
+    outer.forEach((o, i) => {
+      if (o.area < bestA && inside(o.l, pts[0], pts[1])) (best = i), (bestA = o.area);
+    });
+    return best;
+  };
+  const regions = outer.length ? outer.map((_, i) => i) : [-1];
+  const left = regions.slice();
+  const centre = (i: number) => {
+    if (i < 0) return [0, 0];
+    const l = outer[i].l;
+    let sx = 0, sy = 0;
+    for (let k = 0; k < l.length; k += 2) (sx += l[k]), (sy += l[k + 1]);
+    return [(2 * sx) / l.length, (2 * sy) / l.length];
+  };
 
-  if (finish) {
-    const rate = job.feedRate * Math.max(0.2, Math.min(1.5, st.finishFeedFactor));
-    if (floor > 0) {
-      out.push('; finish floor');
-      clear(zPrev, -job.cutDepth, roughLevel, rate, st.finishDirection);
+  while (left.length) {
+    // Närmaste område härnäst.
+    let pick = 0, pd = Infinity;
+    left.forEach((reg, i) => {
+      const [cx, cy] = centre(reg);
+      const d = Number.isFinite(cur.x) ? (cx - cur.x) ** 2 + (cy - cur.y) ** 2 : cx * cx + cy * cy;
+      if (d < pd) (pd = d), (pick = i);
+    });
+    const region = left.splice(pick, 1)[0];
+
+    // Grovpass: lager för lager.
+    let zPrev = 0;
+    for (const depth of depthPasses(roughDepth, job.stepDown)) {
+      clear(region, zPrev, -depth, roughLevel, job.feedRate, st.direction);
+      zPrev = -depth;
     }
-    if (wall > 0) {
-      out.push('; finish walls');
-      // Väggarna i få, djupa steg – huden är tunn.
-      let zw = 0;
-      for (const depth of depthPasses(job.cutDepth, Math.max(job.stepDown * 3, job.cutDepth / 3))) {
-        for (const loop of wallLoops(-r)) cutLoop(orient(loop, 'inside', st.finishDirection), zw, -depth, -r, rate);
-        zw = -depth;
+
+    if (finish) {
+      const rate = job.feedRate * Math.max(0.2, Math.min(1.5, st.finishFeedFactor));
+      if (floor > 0) {
+        out.push('; finish floor');
+        clear(region, zPrev, -job.cutDepth, roughLevel, rate, st.finishDirection);
+      }
+      if (wall > 0) {
+        out.push('; finish walls');
+        // Väggarna i få, djupa steg – huden är tunn.
+        let zw = 0;
+        for (const depth of depthPasses(job.cutDepth, Math.max(job.stepDown * 3, job.cutDepth / 3))) {
+          for (const loop of wallLoops(-r)) if (regionOf(loop) === region) cutLoop(orient(loop, 'inside', st.finishDirection), zw, -depth, -r, rate);
+          zw = -depth;
+        }
       }
     }
   }
+  lift(p.safeZ);
   out.push('M5', ...p.footer);
   return out.join('\n') + '\n';
 }

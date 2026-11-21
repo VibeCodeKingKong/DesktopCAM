@@ -1354,6 +1354,8 @@ export const fr: Dict = {
     sMax: 'Valeur S max',
     decimals: 'Décimales',
     safeZ: 'Hauteur de sécurité',
+    shortHop: "Levée courte entre passes proches",
+    shortHopHint: "La fraise ne monte que de 1 mm au-dessus du matériau quand la passe ou le trou suivant est à moins de 25 mm (gravure en V, perçage) – l’axe Z est souvent lent, cela fait gagner beaucoup de temps. Désactivez-la si des vis ou brides se trouvent entre les pièces. Les poches et reliefs lèvent toujours peu dans leur propre zone.",
     dynamicPower: 'Puissance dynamique (M4)',
     postHint: 'Le code de début et de fin est écrit dans chaque fichier. Ne le modifiez que si vous savez ce dont votre machine a besoin, par ex. prise d’origine ou coupure des moteurs.',
     header: 'Code de début',

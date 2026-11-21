@@ -146,7 +146,7 @@ export function startSimulation(autoplay = true): boolean {
   const t = getT();
   const blanks = plugBlankLayout();
   const plugs = new Map([...blanks].map(([id, b]) => [id, { x: b.displayX, y: b.displayY, color: b.color, width: b.width, height: b.height, thickness: b.thickness }]));
-  const next = buildSimulator(s.material, s.toolpaths, s.results, s.tools, getMachine().laser?.sMax ?? 1000, getMaterialPreset().color, plugs);
+  const next = buildSimulator(s.material, s.toolpaths, s.results, s.tools, getMachine().laser?.sMax ?? 1000, getMaterialPreset().color, plugs, getMachine().maxFeed);
   const shapes = allShapes(s.layers);
   placements = new Map(
     [...blanks].map(([id, b]) => {

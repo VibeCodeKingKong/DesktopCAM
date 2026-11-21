@@ -13,7 +13,7 @@
  *           Väggen skär Z = −S exakt på formens kant, så pluggen sjunker ner
  *           S i fickan. Limspalt = fickdjup − S, överskott = pluggdjup − S.
  */
-import { formatNumber } from './gcode';
+import { formatNumber, SHORT_HOP } from './gcode';
 import type { PostprocessorConfig } from './types';
 import type { PolylineInput } from './protocol';
 import { depthPasses } from './referenceEngine';
@@ -305,9 +305,11 @@ export function vcarveGcode(job: VCarveJob): string {
       // Snabbt ner till strax ovanför ytan, sedan matning (spåren under är redan fräsade).
       out.push(`G0 X${f(st[0])} Y${f(st[1])}`, `G0 Z${f(Math.min(p.safeZ, 0.5))}`, `G1 Z${f(z0)} F${f(job.plungeRate)}`);
       for (let i = 2; i < st.length; i += 2) out.push(`G1 X${f(st[i])} Y${f(st[i + 1])}${zs ? ` Z${f(zs[i / 2])}` : ''}${i === 2 ? ` F${f(job.feedRate)}` : ''}`);
-      out.push(`G0 Z${f(p.safeZ)}`);
       x = st[st.length - 2];
       y = st[st.length - 1];
+      // Nära nästa spår: lyft bara strax över materialet (Z-axeln är ofta långsam).
+      const next = strokes[k + 1];
+      out.push(`G0 Z${f(p.shortHop !== false && next && Math.hypot(next[0] - x, next[1] - y) <= SHORT_HOP ? Math.min(p.safeZ, 1) : p.safeZ)}`);
     });
     prev = level;
   }

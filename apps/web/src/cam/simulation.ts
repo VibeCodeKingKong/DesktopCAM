@@ -9,7 +9,18 @@
 import { arcPoints, type MaterialSetup, type ToolDefinition, type ToolpathConfig } from '@desktopcam/core';
 import type { ToolpathResult } from '../store/useAppStore';
 
-const RAPID_RATE = 3000; // mm/min, samma antagande som tidsuppskattningen
+const RAPID_RATE = 3000; // mm/min, om maskinens gränser saknas
+
+/** Maskinens högsta hastigheter per axel (som tidsberäkningen i G-koden). */
+let axisLimits: { xy: number; z: number } | undefined;
+function moveTime(dxy: number, dz: number, rate: number): number {
+  let t = Math.hypot(dxy, dz) / rate;
+  if (axisLimits) {
+    if (axisLimits.xy > 0) t = Math.max(t, dxy / axisLimits.xy);
+    if (axisLimits.z > 0) t = Math.max(t, Math.abs(dz) / axisLimits.z);
+  }
+  return t * 60;
+}
 const WORD = /([A-Za-z])\s*([-+]?(?:\d+\.?\d*|\.\d+))/g;
 
 export type SimToolShape = { kind: 'endmill' | 'ballnose' | 'vbit' | 'drill' | 'laser' | 'plasma' | 'pen'; radius: number; angle: number };
@@ -77,7 +88,7 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
     for (const [qx, qy, qz] of targets) {
       const len = Math.hypot(qx - x, qy - y, qz - z);
       if (len > 0) {
-        const dt = (len / (mode === 0 ? RAPID_RATE : feed)) * 60;
+        const dt = moveTime(Math.hypot(qx - x, qy - y), qz - z, mode === 0 ? (axisLimits ? Math.max(axisLimits.xy, axisLimits.z) : RAPID_RATE) : feed);
         moves.push({ x0: x, y0: y, z0: z, x1: qx, y1: qy, z1: qz, cut, power: laser ? Math.min(1, s / sMax) : 0, t0: t, t1: t + dt, job });
         t += dt;
       }
@@ -88,7 +99,8 @@ function parseMoves(gcode: string, job: number, startTime: number, sMax: number,
 }
 
 /** Tolkar alla banors G-kod till en gemensam tidslinje. */
-export function parseJobs(jobs: { job: SimJob; gcode: string }[], sMax: number): { moves: Move[]; duration: number } {
+export function parseJobs(jobs: { job: SimJob; gcode: string }[], sMax: number, limits?: { xy: number; z: number }): { moves: Move[]; duration: number } {
+  if (limits) axisLimits = limits;
   const all: Move[] = [];
   let t = 0;
   jobs.forEach((j, i) => {
@@ -403,7 +415,10 @@ export function buildSimulator(
   sMax: number,
   baseColor = '#d9b98c',
   plugs: Map<string, PlugPlacement & { width: number; height: number; thickness: number }> = new Map(),
+  /** Maskinens högsta hastigheter per axel – maskintiden blir då verklig. */
+  limits?: { xy: number; z: number },
 ): SimulationSet | null {
+  axisLimits = limits;
   const jobs: { job: SimJob; gcode: string }[] = [];
   const jobStock: number[] = [];
   const ids: string[] = [];

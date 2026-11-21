@@ -16,7 +16,25 @@ export const formatNumber = (n: number, decimals: number): string => {
  * och statistik. G-koden är "sanningen" – förhandsvisningen visar exakt det
  * som exporteras, oavsett vilken motor som skapade den.
  */
-export function parseGcode(src: string): GcodePreview {
+/** Förflyttningar kortare än så (mm) inom en bana kan ske med kort lyft (se PostprocessorConfig.shortHop). */
+export const SHORT_HOP = 25;
+
+/**
+ * Tid för en rörelse: axlarna begränsar hastigheten var för sig (Z är ofta
+ * mycket långsammare än X/Y). Utan gränser: angiven matning, snabbförflyttning
+ * med RAPID_RATE.
+ */
+function moveSeconds(dxy: number, dz: number, rate: number, limits?: { xy: number; z: number }) {
+  const len = Math.hypot(dxy, dz);
+  let t = len / rate;
+  if (limits) {
+    if (limits.xy > 0) t = Math.max(t, dxy / limits.xy);
+    if (limits.z > 0) t = Math.max(t, Math.abs(dz) / limits.z);
+  }
+  return t * 60;
+}
+
+export function parseGcode(src: string, limits?: { xy: number; z: number }): GcodePreview {
   const rapids: number[] = [];
   const cuts: number[] = [];
   let x = 0;
@@ -80,7 +98,7 @@ export function parseGcode(src: string): GcodePreview {
         cuts.push(px, py, pz, qx, qy, qz);
         const l = Math.hypot(qx - px, qy - py, qz - pz);
         cutLen += l;
-        seconds += (l / feed) * 60;
+        seconds += moveSeconds(Math.hypot(qx - px, qy - py), qz - pz, feed, limits);
         grow(px, py, pz);
         grow(qx, qy, qz);
         px = qx; py = qy; pz = qz;
@@ -93,11 +111,11 @@ export function parseGcode(src: string): GcodePreview {
       if (mode === 0) {
         rapids.push(x, y, z, nx, ny, nz);
         rapidLen += len;
-        seconds += (len / RAPID_RATE) * 60;
+        seconds += moveSeconds(Math.hypot(nx - x, ny - y), nz - z, limits ? Math.max(limits.xy, limits.z) : RAPID_RATE, limits);
       } else {
         cuts.push(x, y, z, nx, ny, nz);
         cutLen += len;
-        seconds += (len / feed) * 60;
+        seconds += moveSeconds(Math.hypot(nx - x, ny - y), nz - z, feed, limits);
         grow(x, y, z);
         grow(nx, ny, nz);
       }

@@ -2,7 +2,7 @@
  * Ficka och borrning. Geometrin (offsetkonturer) beräknas med avståndsfältet,
  * G-koden skrivs här. Körs i workern.
  */
-import { formatNumber } from './gcode';
+import { formatNumber, SHORT_HOP } from './gcode';
 import type { PolylineInput, PocketJob, DrillJob, FacingJob } from './protocol';
 import { buildDistanceField, isolines } from './sdf';
 import { depthPasses } from './referenceEngine';
@@ -58,15 +58,30 @@ export function drillGcode(job: DrillJob): string {
   if (!job.points.length) throw new Error('NO_HOLES');
   const out: string[] = ['; desktopCAM drill', ...p.header, 'G21', 'G90', `M3 S${Math.round(job.spindleRpm)}`, `G0 Z${f(p.safeZ)}`];
   const pecks = depthPasses(job.depth, job.peckDepth > 0 ? job.peckDepth : job.depth);
-  for (const pt of job.points) {
+  // Hålen i närmaste-granne-ordning från nollpunkten (kortare förflyttningar).
+  const left = job.points.slice();
+  const holes: { x: number; y: number }[] = [];
+  let at = { x: 0, y: 0 };
+  while (left.length) {
+    let bi = 0, bd = Infinity;
+    left.forEach((q, i) => {
+      const d = (q.x - at.x) ** 2 + (q.y - at.y) ** 2;
+      if (d < bd) (bd = d), (bi = i);
+    });
+    at = left.splice(bi, 1)[0];
+    holes.push(at);
+  }
+  holes.forEach((pt, h) => {
     out.push(`G0 X${f(pt.x)} Y${f(pt.y)}`, 'G0 Z0.5');
     pecks.forEach((d, i) => {
       if (i > 0) out.push(`G0 Z${f(-pecks[i - 1] + 0.3)}`);
       out.push(`G1 Z${f(-d)} F${f(job.plungeRate)}`);
-      // Lyft ur hålet mellan hacken för att få bort spånen.
-      out.push(i < pecks.length - 1 ? 'G0 Z0.5' : `G0 Z${f(p.safeZ)}`);
+      if (i < pecks.length - 1) out.push('G0 Z0.5'); // ur hålet mellan hacken för att få bort spånen
     });
-  }
+    // Nära nästa hål: lyft bara strax över materialet.
+    const next = holes[h + 1];
+    out.push(`G0 Z${f(p.shortHop !== false && next && Math.hypot(next.x - pt.x, next.y - pt.y) <= SHORT_HOP ? Math.min(p.safeZ, 1) : p.safeZ)}`);
+  });
   out.push('M5', ...p.footer);
   return out.join('\n') + '\n';
 }
@@ -95,23 +110,32 @@ export function facingGcode(job: FacingJob): string {
 
   const out: string[] = ['; desktopCAM facing', ...p.header, 'G21', 'G90', `M3 S${Math.round(job.spindleRpm)}`, `G0 Z${f(p.safeZ)}`];
   const passes = depthPasses(job.depth, job.stepDown);
+  // Varje pass börjar där det förra slutade (raderna i omvänd ordning) – ingen
+  // tom körning tillbaka till startraden, och bara 1 mm lyft mellan passen.
+  let side: 'start' | 'end' = 'start';
+  let rowOrder = rows;
   passes.forEach((depth, k) => {
     // Returen i enkelriktat läge går 1 mm över förra passets nivå (ännu ej planad yta).
     const lift = Math.min(p.safeZ, -(k > 0 ? passes[k - 1] : 0) + 1);
-    out.push(`G0 ${xy(start, rows[0])}`, `G1 Z${f(-depth)} F${f(job.plungeRate)}`);
-    rows.forEach((b, i) => {
+    if (job.pattern !== 'zigzag') side = 'start';
+    const from = side === 'start' ? start : end;
+    if (k > 0) out.push(`G0 Z${f(lift)}`);
+    out.push(`G0 ${xy(from, rowOrder[0])}`, `G1 Z${f(-depth)} F${f(job.plungeRate)}`);
+    rowOrder.forEach((b, i) => {
       if (job.pattern === 'zigzag') {
-        const forward = i % 2 === 0;
         // Byte av rad sker utanför ytan, på djupet.
-        if (i > 0) out.push(`G1 ${xy(forward ? start : end, b)}`);
-        out.push(`G1 ${xy(forward ? end : start, b)}${i === 0 ? ` F${f(job.feedRate)}` : ''}`);
+        if (i > 0) out.push(`G1 ${xy(side === 'start' ? start : end, b)}`);
+        const to = side === 'start' ? end : start;
+        out.push(`G1 ${xy(to, b)}${i === 0 ? ` F${f(job.feedRate)}` : ''}`);
+        side = side === 'start' ? 'end' : 'start';
       } else {
         if (i > 0) out.push(`G0 Z${f(lift)}`, `G0 ${xy(start, b)}`, `G1 Z${f(-depth)} F${f(job.plungeRate)}`);
         out.push(`G1 ${xy(end, b)} F${f(job.feedRate)}`);
       }
     });
-    out.push(`G0 Z${f(p.safeZ)}`);
+    rowOrder = [...rowOrder].reverse();
   });
+  out.push(`G0 Z${f(p.safeZ)}`);
   out.push('M5', ...p.footer);
   return out.join('\n') + '\n';
 }

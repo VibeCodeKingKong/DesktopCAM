@@ -1355,6 +1355,8 @@ export const en: Dict = {
     sMax: 'Max S value',
     decimals: 'Decimals',
     safeZ: 'Safe height',
+    shortHop: "Short lift between nearby cuts",
+    shortHopHint: "The cutter is lifted only 1 mm above the material when the next cut or hole is within 25 mm (V-carving, drilling) – the Z axis is often slow, so this saves a lot of time. Turn off if screws or clamps sit between the parts. Pockets and reliefs always lift briefly within their own area.",
     dynamicPower: 'Dynamic power (M4)',
     postHint: 'The start and end code is written into every file. Only change it if you know what your machine needs, e.g. homing or turning the motors off.',
     header: 'Start code',

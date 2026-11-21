@@ -24,6 +24,8 @@ import {
   type ToolDefinition,
   type ToolpathConfig,
   type VectorShape,
+  type MachineProfile,
+  type PostprocessorConfig,
 } from '@desktopcam/core';
 import { camClient } from '../engine/camClient';
 import { DEFAULT_PLUG_MATERIAL, mirrorInPlace, PLUG_BLANK_GAP, plugBlank, type PlugBlank } from './inlayBlank';
@@ -34,6 +36,9 @@ import { renderImage } from '../utils/imageFrame';
 import { heightmapFor } from './reliefs';
 import { toolReachWarnings, vbitConeHeight } from './toolReach';
 import { toolFits } from './toolRules';
+
+/** Postprocessorn med maskinens högsta hastigheter (för tidsberäkningen). */
+const postFor = (m: MachineProfile): PostprocessorConfig => ({ ...m.postprocessor, maxFeed: m.maxFeed });
 
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -169,7 +174,7 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
       spindleRpm: tp.params.spindleRpm ?? 18000,
       laserS: 0,
       passes: 1,
-      post: machine.postprocessor,
+      post: postFor(machine),
     };
   }
   if (tp.operation === 'laserCut') {
@@ -186,7 +191,7 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
       spindleRpm: 0,
       laserS: ((tp.params.laserPowerPct ?? 100) / 100) * sMax,
       passes: tp.passes,
-      post: machine.postprocessor,
+      post: postFor(machine),
     };
   }
   throw new Error('NOT_IMPLEMENTED');
@@ -206,7 +211,7 @@ function buildPlasmaJob(tp: ToolpathConfig): PlasmaJob {
     zAxis: machine.plasma?.zAxis ?? true,
     thickness: s.material.thickness,
     post: {
-      ...machine.postprocessor,
+      ...postFor(machine),
       // Strömstyrkan ställs in på aggregatet – skriv den i filen som påminnelse.
       header: [`; Plasma: ${tp.amps} A, kerf ${tp.kerf} mm`, ...machine.postprocessor.header],
     },
@@ -237,7 +242,7 @@ function buildPlotterJob(tp: ToolpathConfig): PlotterJob {
     settings: machine.plotter ?? defaultPlotterSettings(),
     feedRate: tp.params.feedRate,
     plungeRate: tp.params.plungeRate || 600,
-    post: machine.postprocessor,
+    post: postFor(machine),
   };
 }
 
@@ -271,7 +276,7 @@ function buildPenImageJob(tp: ToolpathConfig): PlotterImageJob {
     settings: machine.plotter ?? defaultPlotterSettings(),
     feedRate: tp.params.feedRate,
     plungeRate: tp.params.plungeRate || 600,
-    post: machine.postprocessor,
+    post: postFor(machine),
   };
 }
 
@@ -304,7 +309,7 @@ function buildRouterProfileJob(tp: ToolpathConfig): RouterProfileJob {
     spindleRpm: tp.params.spindleRpm ?? 18000,
     strategy,
     tabs,
-    post: getMachine().postprocessor,
+    post: postFor(getMachine()),
   };
 }
 
@@ -324,7 +329,7 @@ function buildPocketJob(tp: ToolpathConfig): PocketJob {
     feedRate: tp.params.feedRate,
     plungeRate: tp.params.plungeRate,
     spindleRpm: tp.params.spindleRpm ?? 18000,
-    post: getMachine().postprocessor,
+    post: postFor(getMachine()),
     strategy: resolvePocket(tp),
   };
 }
@@ -354,7 +359,7 @@ function buildDrillJob(tp: ToolpathConfig): DrillJob {
     peckDepth: tp.peckDepth,
     plungeRate: tp.params.plungeRate,
     spindleRpm: tp.params.spindleRpm ?? 12000,
-    post: getMachine().postprocessor,
+    post: postFor(getMachine()),
   };
 }
 
@@ -384,7 +389,7 @@ function buildFacingJob(tp: ToolpathConfig): FacingJob {
     pattern: tp.pattern,
     direction: tp.direction,
     overhang: tp.overhang,
-    post: getMachine().postprocessor,
+    post: postFor(getMachine()),
   };
 }
 
@@ -441,7 +446,7 @@ function buildVCarveJob(tp: ToolpathConfig): VCarveJob {
     feedRate: tp.params.feedRate,
     plungeRate: tp.params.plungeRate,
     spindleRpm: tp.params.spindleRpm ?? 18000,
-    post: getMachine().postprocessor,
+    post: postFor(getMachine()),
   };
   if (tp.operation === 'vcarve') {
     // Aldrig djupare än konen: där bortom blir det plan botten i stället.
@@ -477,7 +482,7 @@ function buildRasterJob(tp: ToolpathConfig): RasterJob {
     originY: src.origin.y,
     feedRate: tp.params.feedRate,
     laserS: ((tp.params.laserPowerPct ?? 30) / 100) * (machine.laser?.sMax ?? 1000),
-    post: machine.postprocessor,
+    post: postFor(machine),
   };
 }
 
@@ -508,7 +513,7 @@ function buildReliefJob(tp: ToolpathConfig): ReliefJob {
     feedRate: tp.params.feedRate,
     plungeRate: tp.params.plungeRate,
     spindleRpm: tp.params.spindleRpm ?? 18000,
-    post: getMachine().postprocessor,
+    post: postFor(getMachine()),
   };
 }
 

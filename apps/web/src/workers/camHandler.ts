@@ -46,6 +46,11 @@ function compact(gcode: string, request: CamRequest): string {
   return optimizeGcode(gcode, { arcs: post.arcs !== false, tolerance: 0.01, decimals: post.decimals });
 }
 
+/** Maskinens hastighetsgränser för tidsberäkningen (om jobbet har dem). */
+function limitsOf(request: CamRequest): { xy: number; z: number } | undefined {
+  return 'job' in request && request.job && 'post' in request.job ? request.job.post.maxFeed : undefined;
+}
+
 export async function handle(engine: CamEngine, request: CamRequest, progress: Progress): Promise<Handled> {
   switch (request.type) {
     case 'ping': {
@@ -72,7 +77,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       const gcode = engine.profileGcode(job);
       progress(0.75, 'preview');
       const small = compact(gcode, request);
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -81,7 +86,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       const gcode = engine.reliefGcode(request.job);
       progress(0.75, 'preview');
       const small = compact(gcode, request);
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -90,7 +95,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       const gcode = plasmaGcode(request.job);
       progress(0.8, 'preview');
       const small = compact(gcode, request);
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -101,7 +106,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.6, 'gcode');
       const small = compact(plotterGcode({ ...rest, paths }), request);
       progress(0.85, 'preview');
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -109,7 +114,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.1, 'gcode');
       const small = compact(plotterGcode(request.job), request);
       progress(0.8, 'preview');
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -117,7 +122,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.1, 'gcode');
       const small = compact(facingGcode(request.job), request);
       progress(0.8, 'preview');
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -138,7 +143,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
               : routerProfileGcode(request.job);
       progress(0.8, 'preview');
       const small = compact(gcode, request);
-      const preview = parseGcode(small);
+      const preview = parseGcode(small, limitsOf(request));
       const result: ToolpathPayload = { gcode: small, preview };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
@@ -187,7 +192,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.45, 'gcode');
       const gcode = engine.rasterGcode(bits, job);
       progress(0.8, 'preview');
-      const preview = parseGcode(gcode);
+      const preview = parseGcode(gcode, limitsOf(request));
       const result: RasterPayload = { gcode, preview, bits, width: job.width, height: job.height };
       return {
         result,

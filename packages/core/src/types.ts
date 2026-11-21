@@ -30,6 +30,15 @@ export interface PostprocessorConfig {
   decimals: number;
   /** Säker Z-höjd för snabbförflyttningar, mm över materialets nollpunkt. */
   safeZ: number;
+  /**
+   * Kort lyft (1 mm över materialet) i stället för säker höjd när nästa spår
+   * eller hål ligger nära (V-gravyr, borrning). Standard på. Stäng av om
+   * skruvar eller klämmor sitter mellan delarna. Fickor och reliefer lyfter
+   * alltid kort inom sitt eget område.
+   */
+  shortHop?: boolean;
+  /** Maskinens högsta hastigheter (mm/min) – fylls i av appen för tidsberäkningen. */
+  maxFeed?: { xy: number; z: number };
   /** Laser: M4 (dynamisk effekt, rekommenderas för GRBL) i stället för M3. */
   laserDynamicPower: boolean;
   /** Skriv cirkelbågar som G2/G3 (standard). Av för styrsystem utan bågar. */

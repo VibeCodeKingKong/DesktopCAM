@@ -1361,6 +1361,8 @@ export const pl: Dict = {
     sMax: 'Maks. wartość S',
     decimals: 'Miejsca dziesiętne',
     safeZ: 'Wysokość bezpieczna',
+    shortHop: "Krótki podnos między bliskimi ścieżkami",
+    shortHopHint: "Frez unosi się tylko 1 mm nad materiał, gdy następna ścieżka lub otwór jest w odległości do 25 mm (grawerowanie V, wiercenie) – oś Z bywa wolna, więc oszczędza to dużo czasu. Wyłącz, jeśli między częściami są wkręty lub dociski. Kieszenie i reliefy zawsze podnoszą się nisko w obrębie własnego obszaru.",
     dynamicPower: 'Moc dynamiczna (M4)',
     postHint: 'Kod startowy i końcowy jest zapisywany w każdym pliku. Zmieniaj go tylko, jeśli wiesz, czego potrzebuje twoja maszyna, np. bazowania lub wyłączenia silników.',
     header: 'Kod startowy',

@@ -1354,6 +1354,8 @@ export const es: Dict = {
     sMax: 'Valor S máx.',
     decimals: 'Decimales',
     safeZ: 'Altura segura',
+    shortHop: "Elevación corta entre cortes cercanos",
+    shortHopHint: "La fresa solo sube 1 mm sobre el material cuando el siguiente corte o agujero está a menos de 25 mm (grabado en V, taladrado): el eje Z suele ser lento y así se ahorra mucho tiempo. Desactívela si hay tornillos o mordazas entre las piezas. Las cajeras y los relieves siempre suben poco dentro de su propia zona.",
     dynamicPower: 'Potencia dinámica (M4)',
     postHint: 'El código de inicio y fin se escribe en cada archivo. Cámbialo solo si sabes lo que necesita tu máquina, p. ej. búsqueda de origen o apagar los motores.',
     header: 'Código de inicio',
