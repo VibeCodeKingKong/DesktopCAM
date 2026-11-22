@@ -143,9 +143,12 @@ export function transformSelection(m: Mat2D) {
   const isTranslate = m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1;
   // Flytt: spårade foton följer med (vridning sköts av applyRotation).
   const images = isTranslate ? imagesFollowingSelection() : [];
+  // Ramens vinkel: oförändrad vid flytt, speglas vid spegling, rak efter skalning.
+  const mirror = m[1] === 0 && m[2] === 0 && Math.abs(Math.abs(m[0]) - 1) < 1e-12 && Math.abs(Math.abs(m[3]) - 1) < 1e-12;
+  const angleAfter = (a: number | undefined) => (isTranslate ? a : mirror && a ? normDeg(-a) || undefined : undefined);
   useAppStore.getState().replaceShapes(
     shapes.map((sh) => {
-      const out = transformShape(sh, m);
+      const out = { ...transformShape(sh, m), frameAngle: angleAfter(sh.frameAngle) };
       if (sh.text && isTranslate) return { ...out, text: { ...sh.text, x: sh.text.x + m[4], y: sh.text.y + m[5] } };
       return { ...out, text: undefined };
     }),
@@ -163,7 +166,9 @@ export function groupSelection() {
   if (ids.length < 2) return status(t.group.needTwo);
   const groupId = uid('group');
   s.checkpoint();
-  s.replaceShapes(selected().map((sh) => ({ ...sh, groupId })), false);
+  const sel = selected();
+  const angle = frameAngleOf(sel) || undefined;
+  s.replaceShapes(sel.map((sh) => ({ ...sh, groupId, frameAngle: angle })), false);
   status(t.group.grouped(ids.length));
 }
 
@@ -191,6 +196,57 @@ export function selectAllShapes(layerId?: string) {
 
 export function selectionBounds() {
   return shapesBounds(selected());
+}
+
+const normDeg = (d: number) => {
+  const r = ((((d + 180) % 360) + 360) % 360) - 180;
+  return Math.abs(r) < 1e-9 ? 0 : +r.toFixed(6);
+};
+
+/** Ramens vinkel för formerna: gemensam vinkel om alla har samma, annars 0. */
+export function frameAngleOf(shapes: VectorShape[]): number {
+  if (!shapes.length) return 0;
+  const a = shapes[0].frameAngle ?? 0;
+  return shapes.every((sh) => Math.abs((sh.frameAngle ?? 0) - a) < 1e-6) ? a : 0;
+}
+
+let frameCache: { shapes: VectorShape[]; frame: SelectionFrame | null } | null = null;
+export interface SelectionFrame {
+  /** Mitt (mm), halva bredd och höjd i ramens egen riktning, vinkel (grader). */
+  cx: number;
+  cy: number;
+  hw: number;
+  hh: number;
+  angle: number;
+  /** Hörnen (mm), moturs från nedre vänstra i ramens riktning. */
+  corners: { x: number; y: number }[];
+}
+
+/**
+ * Markeringsramen: minsta rektangel runt formerna i ramens vinkel. Den vrids
+ * alltså med formerna när de vrids med handtaget.
+ */
+export function selectionFrame(shapes: VectorShape[] = selected()): SelectionFrame | null {
+  if (!shapes.length) return null;
+  if (frameCache && frameCache.shapes.length === shapes.length && frameCache.shapes.every((sh, i) => sh === shapes[i])) return frameCache.frame;
+  const angle = frameAngleOf(shapes);
+  const rad = (angle * Math.PI) / 180, c = Math.cos(rad), si = Math.sin(rad);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const sh of shapes)
+    for (const p of shapeToPolylines(sh, 0.1))
+      for (let i = 0; i + 1 < p.points.length; i += 2) {
+        // Till ramens koordinater (vrid −vinkel).
+        const u = c * p.points[i] + si * p.points[i + 1], v = -si * p.points[i] + c * p.points[i + 1];
+        if (u < x0) x0 = u; if (u > x1) x1 = u; if (v < y0) y0 = v; if (v > y1) y1 = v;
+      }
+  let frame: SelectionFrame | null = null;
+  if (Number.isFinite(x0)) {
+    const back = (u: number, v: number) => ({ x: c * u - si * v, y: si * u + c * v });
+    const m = back((x0 + x1) / 2, (y0 + y1) / 2);
+    frame = { cx: m.x, cy: m.y, hw: (x1 - x0) / 2, hh: (y1 - y0) / 2, angle, corners: [back(x0, y0), back(x1, y0), back(x1, y1), back(x0, y1)] };
+  }
+  frameCache = { shapes, frame };
+  return frame;
 }
 
 /** Sätter markeringens läge och storlek (mm). */
@@ -232,8 +288,8 @@ export function rotatedImage(im: ImageObject, deg: number, pivot: { x: number; y
 /** Mittpunkten som markeringen vrids runt: formernas mitt, annars den markerade bildens. */
 export function rotationPivot(): { x: number; y: number } | null {
   const s = useAppStore.getState();
-  const b = selectionBounds();
-  if (b && s.selectedShapeIds.length) return { x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2 };
+  const fr = s.selectedShapeIds.length ? selectionFrame() : null;
+  if (fr) return { x: fr.cx, y: fr.cy };
   const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
   if (!im) return null;
   const f = imageFrame(im);
@@ -247,7 +303,9 @@ export function rotationPivot(): { x: number; y: number } | null {
 export function applyRotation(deg: number, pivot: { x: number; y: number }, shapes: VectorShape[], images: ImageObject[]) {
   const s = useAppStore.getState();
   const m = multiply(translate(pivot.x, pivot.y), multiply(rotate(deg), translate(-pivot.x, -pivot.y)));
-  if (shapes.length) s.replaceShapes(shapes.map((sh) => ({ ...transformShape(sh, m), text: undefined })), false);
+  // Ramen vrids med: vinkeln räknas från formernas gemensamma ramvinkel.
+  const base = frameAngleOf(shapes);
+  if (shapes.length) s.replaceShapes(shapes.map((sh) => ({ ...transformShape(sh, m), text: undefined, frameAngle: normDeg(base + deg) || undefined })), false);
   for (const im of images) s.updateImageObject(im.id, rotatedImage(im, deg, pivot));
 }
 
@@ -270,6 +328,9 @@ export function straightenSelection() {
   const deg = straightenAngle(pts);
   if (!shapes.length || Math.abs(deg) < 0.05) return status(t.contour.alreadyStraight);
   rotateSelection(deg);
+  // Uppräta former får en rak ram.
+  const st = useAppStore.getState();
+  st.replaceShapes(selected().map((sh) => ({ ...sh, frameAngle: undefined })), false);
   status(t.contour.straightened(deg.toLocaleString(t.locale, { maximumFractionDigits: 1 })));
 }
 

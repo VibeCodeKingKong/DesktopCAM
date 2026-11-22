@@ -224,6 +224,11 @@ export interface VectorShape {
   linkedImageId?: string;
   /** Grupp: former med samma id markeras och flyttas tillsammans. */
   groupId?: string;
+  /**
+   * Markeringsramens vinkel (grader): hur mycket formen vridits med
+   * vridhandtaget, så att ramen vrids med formen (och med gruppen).
+   */
+  frameAngle?: number;
   /** Avrundade hörn: radien och banorna med skarpa hörn (för att kunna ändra radien). */
   corner?: {
     /** Radie för alla hörn (0 = bara de enskilda). */

@@ -25,7 +25,7 @@ import { getT } from '../i18n';
 import { FEATURE_COLORS } from '../cam/featureCheck';
 import type { FeatureIssue } from '@desktopcam/core';
 import { onContour, setTabPositions, tabContext } from './tabs';
-import { applyRotation, defaultMeasureRef, imagesFollowingSelection, measure, rotationPivot } from '../cam/commands';
+import { applyRotation, defaultMeasureRef, imagesFollowingSelection, measure, rotationPivot, selectionFrame } from '../cam/commands';
 import { buildTextShape } from '../text/textShape';
 import { isOutlineFont } from '../text/fonts';
 import { imageFrame, insideImage } from '../utils/imageFrame';
@@ -883,23 +883,20 @@ export class EditController {
     // Markeringsram – inte under Simulera och Export, där den bara skymmer resultatet.
     const quiet = s.activeTab === 'simulate' || s.activeTab === 'output';
     if (s.editTool === 'select' && s.selectedShapeIds.length && !s.sim.active && !quiet) {
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const sh of this.selectedShapes()) {
-        const g = shapeGeometry(sh);
-        minX = Math.min(minX, g.min.x); minY = Math.min(minY, g.min.y);
-        maxX = Math.max(maxX, g.max.x); maxY = Math.max(maxY, g.max.y);
-      }
-      if (Number.isFinite(minX)) {
-        const pad = 4 * this.scene.worldPerPixel((minX + maxX) / 2, (minY + maxY) / 2);
-        const corners = [
-          { x: minX - pad, y: minY - pad }, { x: maxX + pad, y: minY - pad },
-          { x: maxX + pad, y: maxY + pad }, { x: minX - pad, y: maxY + pad },
-        ].map(P);
+      // Ramen följer formernas vinkel (vrids med när de vrids).
+      const f = selectionFrame(this.selectedShapes());
+      if (f) {
+        const pad = 4 * this.scene.worldPerPixel(f.cx, f.cy);
+        const rad = (f.angle * Math.PI) / 180, c = Math.cos(rad), si = Math.sin(rad);
+        const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => {
+          const u = a * (f.hw + pad), v = b * (f.hh + pad);
+          return P({ x: f.cx + c * u - si * v, y: f.cy + si * u + c * v });
+        });
         ctx.strokeStyle = accent;
         ctx.lineWidth = 1;
         ctx.setLineDash([5, 4]);
         ctx.beginPath();
-        corners.forEach((c, i) => (i ? ctx.lineTo(c.x, c.y) : ctx.moveTo(c.x, c.y)));
+        corners.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
         ctx.closePath();
         ctx.stroke();
         ctx.setLineDash([]);
@@ -958,7 +955,9 @@ export class EditController {
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(rh.top.x, rh.top.y);
-      ctx.lineTo(rh.handle.x, rh.handle.y + 8);
+      // Skaftet går från ramen fram till handtagets kant (handtaget kan sitta snett).
+      const hl = Math.hypot(rh.handle.x - rh.top.x, rh.handle.y - rh.top.y) || 1;
+      ctx.lineTo(rh.handle.x - ((rh.handle.x - rh.top.x) / hl) * 8, rh.handle.y - ((rh.handle.y - rh.top.y) / hl) * 8);
       ctx.stroke();
       ctx.fillStyle = surface;
       ctx.beginPath();
@@ -1210,18 +1209,28 @@ export class EditController {
   private rotationHandle(): { pivot: Vec2; top: { x: number; y: number }; handle: { x: number; y: number } } | null {
     const s = useAppStore.getState();
     if (s.editTool !== 'select' || s.activeTab !== 'design' || s.sim.active || this.gesture.kind === 'move' || this.gesture.kind === 'image') return null;
-    let y1 = -Infinity;
-    if (s.selectedShapeIds.length) {
-      for (const sh of this.selectedShapes()) y1 = Math.max(y1, shapeGeometry(sh).max.y);
-    } else if (s.selectedImageId) {
-      const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
-      if (im) y1 = imageFrame(im).bbox.y1;
-    }
-    const pivot = rotationPivot();
-    if (!pivot || !Number.isFinite(y1)) return null;
-    // Under en pågående vridning ligger handtaget kvar där den började.
     const g = this.gesture;
+    const pivot = rotationPivot();
+    if (!pivot) return null;
+    // Under en pågående vridning ligger vridpunkten kvar där den började.
     const pv = g.kind === 'rotate' ? g.pivot : pivot;
+    if (s.selectedShapeIds.length) {
+      // Handtaget sitter mitt över ramens överkant och vrids med ramen.
+      const f = selectionFrame(this.selectedShapes());
+      if (!f) return null;
+      const rad = (f.angle * Math.PI) / 180;
+      const up = { x: -Math.sin(rad), y: Math.cos(rad) };
+      const d = f.hh + 4 * this.scene.worldPerPixel(f.cx, f.cy);
+      const top = this.scene.worldToScreen(f.cx + up.x * d, f.cy + up.y * d);
+      const c = this.scene.worldToScreen(f.cx, f.cy);
+      const len = Math.hypot(top.x - c.x, top.y - c.y) || 1;
+      const dir = { x: (top.x - c.x) / len, y: (top.y - c.y) / len };
+      return { pivot: pv, top, handle: { x: top.x + dir.x * 26, y: top.y + dir.y * 26 } };
+    }
+    let y1 = -Infinity;
+    const im = s.imageObjects.find((x) => x.id === s.selectedImageId);
+    if (im) y1 = imageFrame(im).bbox.y1;
+    if (!Number.isFinite(y1)) return null;
     const top = this.scene.worldToScreen(pv.x, y1 + 4 * this.scene.worldPerPixel(pv.x, y1));
     return { pivot: pv, top, handle: { x: top.x, y: top.y - 26 } };
   }
