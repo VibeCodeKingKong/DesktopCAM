@@ -1,4 +1,5 @@
 import { FontPicker } from '../ui/FontPicker';
+import { FeatureList } from './FeatureList';
 import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Group as GroupIcon, Ungroup, AlignVerticalSpaceAround, CircleDot, Grid3x3, PenLine, ScanLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
@@ -25,6 +26,7 @@ import {
   type PlasmaSettings,
   plasmaDataFor,
   withPlasmaDefaults,
+  minHoleDiameter,
   type ProfileStrategy,
   type ProfileToolpath,
   type ReliefInstance,
@@ -1039,6 +1041,7 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
             <TriangleAlert size={13} className="mt-0.5 shrink-0" /> {w}
           </p>
         ))}
+        {result && <FeatureList tp={tp} features={result.features} />}
         {result && (
           <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
             <dt className="text-muted">{t.props.cutLength}</dt>
@@ -1175,6 +1178,13 @@ function PlasmaEditor({
             </FieldRow>
           )}
           {expert && s.thcOffInHoles && !machine.postprocessor.thcOff && <p className="text-2xs leading-relaxed text-muted">{pl.thcNoCodes}</p>}
+          <SelectField
+            label={t.featureCheck.smallHoles}
+            value={s.smallHoles}
+            options={(['mark', 'cut', 'skip'] as const).map((value) => ({ value, label: t.featureCheck.smallHolesOpts[value] }))}
+            onChange={(smallHoles) => set({ smallHoles })}
+          />
+          <p className="text-2xs leading-relaxed text-muted">{t.featureCheck.smallHolesNote(minHoleDiameter('plasma', tp.kerf, thickness))}</p>
           <p className="text-2xs leading-relaxed text-muted">{pl.orderNote}</p>
         </Group>
       )}

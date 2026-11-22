@@ -128,6 +128,7 @@ export async function computeToolpath(id: string): Promise<void> {
       rapids: payload.preview.rapids,
       cuts: payload.preview.cuts,
       stats: payload.preview.stats,
+      features: payload.features,
       engine: st.engine?.engine ?? 'typescript',
       computedAt: Date.now(),
     });
@@ -184,6 +185,7 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
       groups,
       offset: tp.side === 'outside' ? half : tp.side === 'inside' ? -half : 0,
       mode: 'laser',
+      materialThickness: s.material.thickness,
       cutDepth: 0,
       stepDown: 0,
       feedRate: tp.params.feedRate,
@@ -300,6 +302,7 @@ function buildRouterProfileJob(tp: ToolpathConfig): RouterProfileJob {
   const { strategy, tabs } = resolveProfile(tp);
   return {
     groups: groupsOf(shapesOf(tp)),
+    materialThickness: s.material.thickness,
     side: tp.side,
     toolDiameter: tool.diameter,
     cutDepth: tp.cutDepth,
@@ -322,6 +325,7 @@ function buildPocketJob(tp: ToolpathConfig): PocketJob {
   if (!groups.length) throw new Error('NO_CLOSED');
   return {
     groups,
+    materialThickness: useAppStore.getState().material.thickness,
     toolDiameter: tool.diameter,
     stepOver: tp.params.stepOver,
     cutDepth: tp.cutDepth,

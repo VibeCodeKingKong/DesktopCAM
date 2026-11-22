@@ -3,6 +3,7 @@ import { deleteSelection, duplicateSelection, groupSelection, rotateSelection, s
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
+import { FeatureLegend } from './FeatureLegend';
 
 const coarse = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
 
@@ -39,6 +40,7 @@ export function ViewportOverlay() {
 
   return (
     <>
+      <FeatureLegend />
       {jobs.length > 0 && (
         <div className="absolute left-1/2 top-3 w-64 -translate-x-1/2 space-y-1.5 rounded-lg border border-line bg-surface/95 p-3 shadow-sm backdrop-blur" role="status">
           {jobs.map(([id, p]) => (

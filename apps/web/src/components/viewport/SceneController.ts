@@ -502,6 +502,16 @@ export class SceneController {
     }
   }
 
+  /** Uppifrån mot en punkt, så att ett område på ungefär span mm syns. */
+  focusOn(x: number, y: number, span: number) {
+    const tanV = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2);
+    const dist = Math.max(15, span / tanV / Math.max(0.2, Math.min(1, this.camera.aspect)));
+    this.controls.target.set(x, y, 0);
+    this.camera.position.set(x, y - 0.001, dist);
+    this.controls.update();
+    this.framed = true;
+  }
+
   command(kind: ViewCommand) {
     if (kind === 'fit') this.framing = 'bed';
     if (kind === 'fitStock') this.framing = 'stock';

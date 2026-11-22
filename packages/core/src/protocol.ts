@@ -1,3 +1,4 @@
+import type { FeatureIssue } from './features';
 import type { TraceOptions } from './trace';
 /**
  * Meddelandeprotokoll mellan UI-tråden och CAM-workern.
@@ -29,6 +30,8 @@ export interface ProfileJob {
   /** Positiv = utåt, negativ = inåt, 0 = på linjen. */
   offset: number;
   mode: 'router' | 'laser';
+  /** Materialets tjocklek (för kontrollen av små detaljer). */
+  materialThickness?: number;
   cutDepth: number;
   stepDown: number;
   feedRate: number;
@@ -81,6 +84,8 @@ export interface ReliefJob {
 export interface PocketJob {
   /** En grupp per form; slutna banor i en grupp fylls jämn-udda (hål blir hål). */
   groups: PolylineInput[][];
+  /** Materialets tjocklek (för kontrollen av små detaljer). */
+  materialThickness?: number;
   toolDiameter: number;
   /** Andel av diametern. */
   stepOver: number;
@@ -189,6 +194,8 @@ export interface GcodePreview {
 export interface ToolpathPayload {
   gcode: string;
   preview: GcodePreview;
+  /** Detaljer som är för små för verktyget (plasma, laser, fräsprofil, ficka). */
+  features?: FeatureIssue[];
 }
 
 export interface RasterPayload extends ToolpathPayload {

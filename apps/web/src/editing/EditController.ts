@@ -22,6 +22,8 @@ import {
 } from '@desktopcam/core';
 import type { SceneController } from '../components/viewport/SceneController';
 import { getT } from '../i18n';
+import { FEATURE_COLORS } from '../cam/featureCheck';
+import type { FeatureIssue } from '@desktopcam/core';
 import { onContour, setTabPositions, tabContext } from './tabs';
 import { applyRotation, defaultMeasureRef, imagesFollowingSelection, measure, rotationPivot } from '../cam/commands';
 import { buildTextShape } from '../text/textShape';
@@ -66,6 +68,7 @@ export class EditController {
   /** Hjälplinje när en linje fäst vid en vinkel (från senaste punkten). */
   private guide: { from: Vec2; angle: number } | null = null;
   private lastTap = { time: 0, x: 0, y: 0 };
+  private featureHovered = false;
   private accent = '0 113 227';
   private ink = '29 29 31';
   private surface = '255 255 255';
@@ -286,6 +289,17 @@ export class EditController {
     const { x: x0, y: y0 } = this.local(e);
     const t0 = getT();
 
+    // Klick på en markering för en liten detalj: visa raden i egenskaperna.
+    if (tool === 'select') {
+      const fi = this.featureAt(x0, y0);
+      if (fi !== null) {
+        this.stop(e);
+        s.pickFeature(fi, 'view');
+        if (s.mobilePanel !== 'props' && window.matchMedia?.('(max-width: 1023px)').matches) s.setMobilePanel('props');
+        return;
+      }
+    }
+
     switch (tool) {
       case 'fillet': {
         const hit = this.cornerAt(w, tol);
@@ -453,6 +467,14 @@ export class EditController {
     if (this.pointers.size > 1) return;
     const g = this.gesture;
     const p = this.local(e);
+
+    // Pekaren över en markering för en liten detalj: lys upp raden i egenskaperna.
+    if (e.pointerType === 'mouse' && g.kind === 'none' && tool === 'select') {
+      const fi = this.featureAt(p.x, p.y);
+      if (fi !== s.featureHover && (fi !== null || this.featureHovered)) s.setFeatureHover(fi);
+      this.featureHovered = fi !== null;
+      this.scene.element.style.cursor = fi !== null ? 'pointer' : '';
+    }
 
     if (tool === 'tabs' || tool === 'fillet') this.cursor = w;
     switch (g.kind) {
@@ -747,6 +769,78 @@ export class EditController {
     this.surface = cs.getPropertyValue('--c-raised').trim() || this.surface;
   }
 
+  /** Små detaljer i den markerade banan: färgad ring med nummer (samma som i egenskaperna). */
+  private featureMarks(): { i: number; x: number; y: number; hw: number; hh: number; rr: number; bx: number; by: number; f: FeatureIssue }[] {
+    const s = useAppStore.getState();
+    if (!s.selectedToolpathId || !s.view.showToolpaths) return [];
+    const features = s.results[s.selectedToolpathId]?.features;
+    if (!features?.length) return [];
+    return features.map((f, i) => {
+      const c = this.scene.worldToScreen(f.x, f.y);
+      const wpp = this.scene.worldPerPixel(f.x, f.y);
+      // Runt för hål, avlångt för spår och smala delar.
+      const hw = Math.max(9, (f.hx ?? f.r) / wpp + 5);
+      const hh = Math.max(9, (f.hy ?? f.r) / wpp + 5);
+      const rr = Math.min(hw, hh);
+      const k = 1 - 0.72;
+      return { i, x: c.x, y: c.y, hw, hh, rr, bx: c.x + hw - rr * k, by: c.y - hh + rr * k, f };
+    });
+  }
+
+  private drawFeatures() {
+    const marks = this.featureMarks();
+    if (!marks.length) return;
+    const s = useAppStore.getState();
+    const ctx = this.ctx;
+    const pick = s.featurePick;
+    const flash = pick ? Date.now() - pick.nonce : Infinity;
+    // Allvarligast överst: rita i omvänd ordning.
+    for (const m of [...marks].reverse()) {
+      const col = FEATURE_COLORS[m.f.severity];
+      const hot = s.featureHover === m.i || (pick?.index === m.i && flash < 4000);
+      const grow = pick?.index === m.i && flash < 1800 ? 6 * Math.abs(Math.sin((flash / 1800) * Math.PI * 3)) : 0;
+      const hw = m.hw + grow, hh = m.hh + grow, rr = m.rr + grow;
+      ctx.beginPath();
+      ctx.moveTo(m.x - hw + rr, m.y - hh);
+      ctx.arcTo(m.x + hw, m.y - hh, m.x + hw, m.y + hh, rr);
+      ctx.arcTo(m.x + hw, m.y + hh, m.x - hw, m.y + hh, rr);
+      ctx.arcTo(m.x - hw, m.y + hh, m.x - hw, m.y - hh, rr);
+      ctx.arcTo(m.x - hw, m.y - hh, m.x + hw, m.y - hh, rr);
+      ctx.closePath();
+      ctx.fillStyle = col.fill + (hot ? '40' : '1f');
+      ctx.fill();
+      ctx.lineWidth = hot ? 3 : 2;
+      ctx.strokeStyle = col.fill;
+      ctx.stroke();
+      // Nummerbricka uppe till höger.
+      const br = hot ? 9 : 8;
+      ctx.beginPath();
+      ctx.arc(m.bx, m.by, br, 0, Math.PI * 2);
+      ctx.fillStyle = col.fill;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.fillStyle = col.text;
+      ctx.font = `600 ${hot ? 11 : 10}px system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(m.i + 1), m.bx, m.by + 0.5);
+    }
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  /** Markering under pekaren (för klick och hovring); brickan och den minsta markeringen först. */
+  private featureAt(x: number, y: number): number | null {
+    const marks = this.featureMarks();
+    for (const m of marks) if (Math.hypot(x - m.bx, y - m.by) <= 10) return m.i;
+    let best: number | null = null, bestArea = Infinity;
+    for (const m of marks)
+      if (Math.abs(x - m.x) <= m.hw + 3 && Math.abs(y - m.y) <= m.hh + 3 && m.hw * m.hh < bestArea) (best = m.i), (bestArea = m.hw * m.hh);
+    return best;
+  }
+
   private draw() {
     const host = this.scene.element;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -811,6 +905,8 @@ export class EditController {
         ctx.setLineDash([]);
       }
     }
+
+    this.drawFeatures();
 
     // Markerad relief: ram och namn
     if (s.selectedReliefId && s.editTool === 'select' && !s.sim.active) {

@@ -18,6 +18,34 @@ export type GuideKey =
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
+  featureCheck: {
+    title: 'Små detaljer',
+    allOk: 'Alla detaljer är stora nog för verktyget.',
+    legend: 'Små detaljer',
+    hint: 'Klicka på en rad för att visa detaljen i vyn.',
+    severity: { fail: 'Skärs inte', poor: 'Blir dålig', thin: 'Kan brännas bort', thinRouter: 'Kan brytas av' },
+    kind: {
+      hole: (d: number) => `Hål Ø${mm(d)}`,
+      gap: (d: number) => `Spalt ${mm(d)}`,
+      part: (d: number) => `Smal del ${mm(d)}`,
+    },
+    advice: {
+      plasmaHoleMark: (a: number) => `Märks ut med en kort tändning – borra upp hålet efteråt. Plasman ger bra hål från Ø${mm(a)}.`,
+      plasmaHoleCut: (a: number) => `Bara ett genomstick i mitten – hålet blir ojämnt och inte måttriktigt. Bra hål från Ø${mm(a)}.`,
+      plasmaHoleSkip: 'Hoppas över – borra hålet efteråt.',
+      plasmaGapFail: (a: number, b: number) => `Smalare än snittbredden (${mm(a)}) – spalten blir inte till. Gör den minst ${mm(b)} bred, eller fräs den efteråt.`,
+      plasmaGapPoor: (a: number) => `Kanterna blir ojämna och kan smälta ihop. Gör spalten minst ${mm(a)} bred.`,
+      plasmaThin: (a: number) => `Tunnare än ${mm(a)} – kan brännas bort eller slå sig av värmen. Gör delen bredare.`,
+      laserFail: (a: number) => `Smalare än strålen (${mm(a)}) – blir inte till. Gör detaljen större.`,
+      laserPoor: (a: number) => `Kanterna kan bli brända. Gör detaljen minst ${mm(a)}.`,
+      laserThin: (a: number) => `Tunnare än ${mm(a)} – kan brännas bort eller bli skör. Gör delen bredare.`,
+      routerFail: (a: number) => `Fräsen (Ø${mm(a)}) får inte plats – material blir kvar här. Välj en mindre fräs eller gör detaljen större.`,
+      routerThin: (a: number) => `Tunnare än ${mm(a)} – kan brytas av eller vibrera. Gör delen bredare eller lägg till flikar.`,
+    },
+    smallHoles: 'Små hål',
+    smallHolesOpts: { mark: 'Borrmärke', cut: 'Bara genomstick', skip: 'Hoppa över' },
+    smallHolesNote: (a: number) => `Gäller hål mindre än Ø${mm(a)}. Borrmärke ger en liten prick att borra i.`,
+  },
   code: 'sv' as Language,
   name: 'Svenska',
   locale: 'sv-SE',

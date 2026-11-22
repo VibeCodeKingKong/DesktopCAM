@@ -71,6 +71,34 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const en: Dict = {
+  featureCheck: {
+    title: 'Small details',
+    allOk: 'All details are large enough for the tool.',
+    legend: 'Small details',
+    hint: 'Click a row to show the detail in the view.',
+    severity: { fail: 'Will not cut', poor: 'Poor result', thin: 'May burn away', thinRouter: 'May break off' },
+    kind: {
+      hole: (d: number) => `Hole Ø${mm(d)}`,
+      gap: (d: number) => `Slot ${mm(d)}`,
+      part: (d: number) => `Narrow part ${mm(d)}`,
+    },
+    advice: {
+      plasmaHoleMark: (a: number) => `Marked with a short torch fire – drill the hole afterwards. Plasma gives good holes from Ø${mm(a)}.`,
+      plasmaHoleCut: (a: number) => `Only a pierce in the centre – the hole will be ragged and not to size. Good holes from Ø${mm(a)}.`,
+      plasmaHoleSkip: 'Skipped – drill the hole afterwards.',
+      plasmaGapFail: (a: number, b: number) => `Narrower than the kerf (${mm(a)}) – the slot will not appear. Make it at least ${mm(b)} wide, or mill it afterwards.`,
+      plasmaGapPoor: (a: number) => `The edges will be rough and may fuse together. Make the slot at least ${mm(a)} wide.`,
+      plasmaThin: (a: number) => `Thinner than ${mm(a)} – may burn away or warp from the heat. Make the part wider.`,
+      laserFail: (a: number) => `Narrower than the beam (${mm(a)}) – will not appear. Make the detail larger.`,
+      laserPoor: (a: number) => `The edges may get burnt. Make the detail at least ${mm(a)}.`,
+      laserThin: (a: number) => `Thinner than ${mm(a)} – may burn away or become fragile. Make the part wider.`,
+      routerFail: (a: number) => `The bit (Ø${mm(a)}) does not fit – material is left here. Choose a smaller bit or make the detail larger.`,
+      routerThin: (a: number) => `Thinner than ${mm(a)} – may break off or vibrate. Make the part wider or add tabs.`,
+    },
+    smallHoles: 'Small holes',
+    smallHolesOpts: { mark: 'Drill mark', cut: 'Pierce only', skip: 'Skip' },
+    smallHolesNote: (a: number) => `Applies to holes smaller than Ø${mm(a)}. Drill mark leaves a small dot to drill in.`,
+  },
   code: 'en',
   name: 'English',
   locale: 'en-GB',

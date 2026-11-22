@@ -25,3 +25,4 @@ export * from './cutData';
 export * from './gcodeOptimize';
 export * from './trace';
 export * from './vectorExport';
+export * from './features';

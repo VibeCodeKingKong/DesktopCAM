@@ -18,7 +18,8 @@
  */
 import { formatNumber } from './gcode';
 import type { PolylineInput } from './protocol';
-import { offsetShapes } from './sdf';
+import { nestGroups, offsetShapes } from './sdf';
+import { minHoleDiameter } from './features';
 import type { CutSide, PlasmaCutChartRow, PostprocessorConfig } from './types';
 
 export type PlasmaLead = 'arc' | 'line' | 'none';
@@ -62,7 +63,16 @@ export interface PlasmaSettings {
   cornerDistance: number;
   /** Matning i hörnen, procent av skärmatningen. */
   cornerFeedPct: number;
+  /**
+   * Hål som är för små för att skäras bra: mark = kort tändning i mitten
+   * (körnmärke för borrning), cut = genomstickning i mitten, skip = hoppas över.
+   */
+  smallHoles: PlasmaSmallHoles;
+  /** Hur länge brännaren tänds för ett borrmärke (s). */
+  markTime: number;
 }
+
+export type PlasmaSmallHoles = 'mark' | 'cut' | 'skip';
 
 export interface PlasmaJob {
   groups: PolylineInput[][];
@@ -102,7 +112,62 @@ export const defaultPlasmaSettings = (): PlasmaSettings => ({
   cornerAngle: 45,
   cornerDistance: 3,
   cornerFeedPct: 60,
+  smallHoles: 'mark',
+  markTime: 0.1,
 });
+
+/** Hål som är mindre än plasman klarar (mitt och diameter), i jobbets formgrupper. */
+export interface SmallHole {
+  group: number;
+  loop: number;
+  x: number;
+  y: number;
+  diameter: number;
+}
+
+const inside = (x: number, y: number, pts: number[]) => {
+  let c = false;
+  for (let i = 0, j = pts.length - 2; i < pts.length; j = i, i += 2) {
+    const yi = pts[i + 1], yj = pts[j + 1];
+    if (yi > y !== yj > y && x < ((pts[j] - pts[i]) * (y - yi)) / (yj - yi) + pts[i]) c = !c;
+  }
+  return c;
+};
+
+/**
+ * Små runda hål: slutna banor som tar bort material (hål i en detalj vid
+ * utsida, eller hela formen vid insida), utan öar i sig, som är ungefär
+ * runda och mindre än minsta hål som blir bra för snittbredden.
+ */
+export function findSmallHoles(groups: PolylineInput[][], side: CutSide, kerf: number, thickness: number): SmallHole[] {
+  if (side === 'on') return [];
+  const limit = minHoleDiameter('plasma', kerf, thickness);
+  const out: SmallHole[] = [];
+  groups.forEach((g, gi) => {
+    const loops = g.map((x, li) => ({ x, li })).filter(({ x }) => x.closed && x.points.length >= 6);
+    for (const { x, li } of loops) {
+      const pts = x.points;
+      const a = Math.abs(area(pts));
+      if (a < 1e-9) continue;
+      const depth = loops.filter((o) => o.x !== x && inside(pts[0], pts[1], o.x.points)).length;
+      const removes = side === 'outside' ? depth % 2 === 1 : depth % 2 === 0;
+      if (!removes) continue;
+      if (loops.some((o) => o.x !== x && inside(o.x.points[0], o.x.points[1], pts))) continue;
+      let per = 0, cx = 0, cy = 0;
+      const n = pts.length / 2;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        per += Math.hypot(pts[2 * j] - pts[2 * i], pts[2 * j + 1] - pts[2 * i + 1]);
+        cx += pts[2 * i];
+        cy += pts[2 * i + 1];
+      }
+      const d = 2 * Math.sqrt(a / Math.PI);
+      if (d >= limit || (4 * Math.PI * a) / (per * per) < 0.7) continue;
+      out.push({ group: gi, loop: li, x: cx / n, y: cy / n, diameter: d });
+    }
+  });
+  return out;
+}
 
 /** Inställningar från äldre projekt får standardvärden för nya fält. */
 export const withPlasmaDefaults = (s: Partial<PlasmaSettings>): PlasmaSettings => ({ ...defaultPlasmaSettings(), ...s });
@@ -208,7 +273,12 @@ export function plasmaGcode(job: PlasmaJob): string {
   const side: CutSide = job.side;
   const half = job.kerf / 2;
 
-  const closedGroups = job.groups.map((g) => g.filter((x) => x.closed)).filter((g) => g.length);
+  // Små hål skärs inte som kontur (blir dåliga eller försvinner i offseten).
+  // Former inuti andra former blir hål i dem (samma regel som offseten).
+  const nested = nestGroups(job.groups.map((g) => g.filter((x) => x.closed)).filter((g) => g.length));
+  const smallHoles = findSmallHoles(nested, side, job.kerf, job.thickness);
+  const removed = new Set(smallHoles.map((h) => `${h.group}:${h.loop}`));
+  const closedGroups = nested.map((g, gi) => g.filter((x, li) => x.closed && !removed.has(`${gi}:${li}`))).filter((g) => g.length);
   const open = job.groups.flat().filter((x) => !x.closed);
   const loops: PolylineInput[] = side === 'on' ? closedGroups.flat() : closedGroups.length ? offsetShapes(closedGroups, side === 'outside' ? half : -half) : [];
   if (closedGroups.length && !loops.length) throw new Error('TOOL_TOO_LARGE');
@@ -266,6 +336,35 @@ export function plasmaGcode(job: PlasmaJob): string {
     return ` F${f(v)}`;
   };
   const line = (q: P, rate: number) => out.push(`G1 X${f(q[0])} Y${f(q[1])}${feed(rate)}`);
+
+  // Små hål först: borrmärke (kort tändning) eller genomstickning i mitten.
+  if (s.smallHoles !== 'skip' && smallHoles.length) {
+    out.push(`; ${smallHoles.length} small hole(s): ${s.smallHoles === 'mark' ? 'drill marks' : 'pierce only'}`);
+    // Närmaste hål i tur och ordning (korta förflyttningar).
+    const left = [...smallHoles], order: SmallHole[] = [];
+    let at: P = [0, 0];
+    while (left.length) {
+      let bi = 0;
+      for (let i = 1; i < left.length; i++)
+        if (Math.hypot(left[i].x - at[0], left[i].y - at[1]) < Math.hypot(left[bi].x - at[0], left[bi].y - at[1])) bi = i;
+      const h = left.splice(bi, 1)[0];
+      order.push(h);
+      at = [h.x, h.y];
+    }
+    for (const h of order) {
+      out.push(`G0 X${f(h.x)} Y${f(h.y)}`);
+      if (job.zAxis && s.ihs) out.push(`G38.2 Z${f(-(job.thickness + 25))} F300`, `G92 Z${f(-s.ihsSwitchOffset)}`);
+      z(s.pierceHeight);
+      if (p.thcOff) out.push(p.thcOff);
+      out.push(torchOn);
+      const wait = s.smallHoles === 'mark' ? s.markTime : s.pierceDelay;
+      if (wait > 0) out.push(`G4 P${f(wait)}`);
+      out.push(torchOff);
+      if (p.thcOn) out.push(p.thcOn);
+      z(p.safeZ);
+    }
+    lastF = -1;
+  }
 
   for (const c of [...openCuts, ...cuts]) {
     const small = c.closed && c.hole && c.diameter < s.holeDiameter;

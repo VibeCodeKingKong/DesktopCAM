@@ -77,6 +77,34 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const pl: Dict = {
+  featureCheck: {
+    title: 'Małe detale',
+    allOk: 'Wszystkie detale są wystarczająco duże dla narzędzia.',
+    legend: 'Małe detale',
+    hint: 'Kliknij wiersz, aby pokazać detal w widoku.',
+    severity: { fail: 'Nie zostanie wycięte', poor: 'Słaby wynik', thin: 'Może się wypalić', thinRouter: 'Może się odłamać' },
+    kind: {
+      hole: (d: number) => `Otwór Ø${mm(d)}`,
+      gap: (d: number) => `Szczelina ${mm(d)}`,
+      part: (d: number) => `Wąska część ${mm(d)}`,
+    },
+    advice: {
+      plasmaHoleMark: (a: number) => `Zaznaczony krótkim zapłonem palnika – nawierć otwór później. Plazma daje dobre otwory od Ø${mm(a)}.`,
+      plasmaHoleCut: (a: number) => `Tylko przebicie w środku – otwór będzie nierówny i niewymiarowy. Dobre otwory od Ø${mm(a)}.`,
+      plasmaHoleSkip: 'Pominięty – nawierć otwór później.',
+      plasmaGapFail: (a: number, b: number) => `Węższa niż szerokość cięcia (${mm(a)}) – szczelina nie powstanie. Zrób ją szeroką na co najmniej ${mm(b)} albo wyfrezuj później.`,
+      plasmaGapPoor: (a: number) => `Krawędzie będą nierówne i mogą się zlać. Zrób szczelinę szeroką na co najmniej ${mm(a)}.`,
+      plasmaThin: (a: number) => `Cieńsza niż ${mm(a)} – może się wypalić lub odkształcić od ciepła. Poszerz część.`,
+      laserFail: (a: number) => `Węższy niż wiązka (${mm(a)}) – nie powstanie. Powiększ detal.`,
+      laserPoor: (a: number) => `Krawędzie mogą się przypalić. Zrób detal co najmniej ${mm(a)}.`,
+      laserThin: (a: number) => `Cieńsza niż ${mm(a)} – może się wypalić lub stać krucha. Poszerz część.`,
+      routerFail: (a: number) => `Frez (Ø${mm(a)}) się nie mieści – zostaje tu materiał. Wybierz mniejszy frez lub powiększ detal.`,
+      routerThin: (a: number) => `Cieńsza niż ${mm(a)} – może się odłamać lub drgać. Poszerz część lub dodaj mostki.`,
+    },
+    smallHoles: 'Małe otwory',
+    smallHolesOpts: { mark: 'Znacznik wiercenia', cut: 'Tylko przebicie', skip: 'Pomiń' },
+    smallHolesNote: (a: number) => `Dotyczy otworów mniejszych niż Ø${mm(a)}. Znacznik wiercenia zostawia małą kropkę do wiercenia.`,
+  },
   code: 'pl',
   name: 'Polski',
   locale: 'pl-PL',

@@ -44,6 +44,8 @@ export const defaultTabs = (throughCut: boolean, thickness: number): TabSettings
 export interface RouterProfileJob {
   /** En grupp per form. */
   groups: PolylineInput[][];
+  /** Materialets tjocklek (för kontrollen av små detaljer). */
+  materialThickness?: number;
   side: CutSide;
   toolDiameter: number;
   cutDepth: number;

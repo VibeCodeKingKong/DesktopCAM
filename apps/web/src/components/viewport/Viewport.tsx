@@ -134,6 +134,15 @@ export function Viewport() {
     if (viewCommand) ctlRef.current?.command(viewCommand.kind);
   }, [viewCommand]);
 
+  // Vald liten detalj i egenskaperna: zooma in på den uppifrån.
+  const featurePick = useAppStore((s) => s.featurePick);
+  useEffect(() => {
+    if (!featurePick || featurePick.from !== 'list') return;
+    const s = useAppStore.getState();
+    const f = s.selectedToolpathId ? s.results[s.selectedToolpathId]?.features?.[featurePick.index] : undefined;
+    if (f) ctlRef.current?.focusOn(f.x, f.y, Math.max(30, f.r * 6));
+  }, [featurePick]);
+
   return (
     <div
       className="relative h-full w-full overflow-hidden"

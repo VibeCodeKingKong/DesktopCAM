@@ -21,6 +21,9 @@ import {
   warpQuad,
   traceImage,
   traceToMm,
+  analyzeFeatures,
+  type FeatureCheckInput,
+  type FeatureIssue,
   type TracedObjectMm,
   type TraceResultMm,
   type CamEngine,
@@ -51,6 +54,33 @@ function limitsOf(request: CamRequest): { xy: number; z: number } | undefined {
   return 'job' in request && request.job && 'post' in request.job ? request.job.post.maxFeed : undefined;
 }
 
+/** Kontroll av små detaljer; får aldrig stoppa själva banberäkningen. */
+function featuresOf(request: CamRequest): FeatureIssue[] | undefined {
+  let input: FeatureCheckInput | null = null;
+  if (request.type === 'plasma') {
+    const j = request.job;
+    input = { groups: j.groups, side: j.side, width: j.kerf, thickness: j.thickness, machine: 'plasma' };
+  } else if (request.type === 'profile' && request.job.mode === 'laser' && request.job.groups) {
+    const j = request.job;
+    if (Math.abs(j.offset) > 1e-9)
+      input = { groups: j.groups!, side: j.offset > 0 ? 'outside' : 'inside', width: 2 * Math.abs(j.offset), thickness: j.materialThickness ?? 3, machine: 'laser' };
+  } else if (request.type === 'routerProfile') {
+    const j = request.job;
+    input = { groups: j.groups, side: j.side, width: j.toolDiameter, thickness: j.materialThickness ?? 10, machine: 'router' };
+  } else if (request.type === 'pocket') {
+    const j = request.job;
+    input = { groups: j.groups, side: 'inside', width: j.toolDiameter, thickness: j.materialThickness ?? 10, machine: 'router' };
+  }
+  if (!input) return undefined;
+  try {
+    const closed = input.groups.map((g) => g.filter((p) => p.closed)).filter((g) => g.length);
+    if (!closed.length) return [];
+    return analyzeFeatures({ ...input, groups: closed });
+  } catch {
+    return undefined;
+  }
+}
+
 export async function handle(engine: CamEngine, request: CamRequest, progress: Progress): Promise<Handled> {
   switch (request.type) {
     case 'ping': {
@@ -78,7 +108,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.75, 'preview');
       const small = compact(gcode, request);
       const preview = parseGcode(small, limitsOf(request));
-      const result: ToolpathPayload = { gcode: small, preview };
+      const result: ToolpathPayload = { gcode: small, preview, features: featuresOf(request) };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'relief': {
@@ -96,7 +126,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.8, 'preview');
       const small = compact(gcode, request);
       const preview = parseGcode(small, limitsOf(request));
-      const result: ToolpathPayload = { gcode: small, preview };
+      const result: ToolpathPayload = { gcode: small, preview, features: featuresOf(request) };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'plotterImage': {
@@ -144,7 +174,7 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
       progress(0.8, 'preview');
       const small = compact(gcode, request);
       const preview = parseGcode(small, limitsOf(request));
-      const result: ToolpathPayload = { gcode: small, preview };
+      const result: ToolpathPayload = { gcode: small, preview, features: featuresOf(request) };
       return { result, transfer: [preview.rapids.buffer as ArrayBuffer, preview.cuts.buffer as ArrayBuffer] };
     }
     case 'traceDetect': {

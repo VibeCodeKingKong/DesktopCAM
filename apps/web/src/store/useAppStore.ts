@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
-import { effectiveMaterial, uid } from '@desktopcam/core';
+import { effectiveMaterial, uid, type FeatureIssue } from '@desktopcam/core';
 import type {
   EngineInfo,
   ImportFormat,
@@ -39,6 +39,8 @@ export interface ToolpathResult {
   computedAt: number;
   /** Varningar från kontrollerna efter beräkningen (t.ex. verktyget når inte). */
   warnings?: string[];
+  /** Detaljer som är för små för verktyget (markeras i vyn och listas i egenskaper). */
+  features?: FeatureIssue[];
 }
 
 export interface RasterSource {
@@ -156,6 +158,11 @@ interface AppState extends DocSnapshot {
   measureSwapped: boolean;
   setMeasureSwapped: (v: boolean) => void;
   viewCommand: { kind: ViewCommand; nonce: number } | null;
+  /** Små detaljer: raden/markeringen som pekas på, och den som valts (vyn zoomar och blinkar). */
+  featureHover: number | null;
+  featurePick: { index: number; from: 'list' | 'view'; nonce: number } | null;
+  setFeatureHover: (i: number | null) => void;
+  pickFeature: (i: number | null, from: 'list' | 'view') => void;
   cursor: Vec3 | null;
   /** Projektets id i listan Senaste projekt (sparas inte i ångra-historiken). */
   projectId: string;
@@ -361,6 +368,10 @@ export const useAppStore = create<AppState>()((set, get) => {
     measureSwapped: false,
     setMeasureSwapped: (measureSwapped) => set({ measureSwapped }),
     viewCommand: null,
+    featureHover: null,
+    featurePick: null,
+    setFeatureHover: (featureHover) => set({ featureHover }),
+    pickFeature: (i, from) => set({ featurePick: i === null ? null : { index: i, from, nonce: Date.now() } }),
     cursor: null,
     projectId: uid('proj'),
     status: '',

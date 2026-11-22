@@ -127,7 +127,7 @@ function edt1d(f: Float64Array, n: number, out: Float64Array, v: Int32Array, z: 
 }
 
 /** Avstånd (i rutor) från varje ruta till närmaste ruta där mask = target. */
-function edt2d(mask: Uint8Array, nx: number, ny: number, target: number): Float32Array {
+export function edt2d(mask: Uint8Array, nx: number, ny: number, target: number): Float32Array {
   const n = Math.max(nx, ny);
   const f = new Float64Array(n);
   const out = new Float64Array(n);

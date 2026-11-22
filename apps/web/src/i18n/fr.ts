@@ -70,6 +70,34 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const fr: Dict = {
+  featureCheck: {
+    title: 'Petits détails',
+    allOk: 'Tous les détails sont assez grands pour l\'outil.',
+    legend: 'Petits détails',
+    hint: 'Cliquez sur une ligne pour afficher le détail dans la vue.',
+    severity: { fail: 'Ne sera pas découpé', poor: 'Mauvais résultat', thin: 'Peut brûler', thinRouter: 'Peut casser' },
+    kind: {
+      hole: (d: number) => `Trou Ø${mm(d)}`,
+      gap: (d: number) => `Fente ${mm(d)}`,
+      part: (d: number) => `Partie étroite ${mm(d)}`,
+    },
+    advice: {
+      plasmaHoleMark: (a: number) => `Marqué par un bref allumage de la torche – percez le trou ensuite. Le plasma donne de bons trous à partir de Ø${mm(a)}.`,
+      plasmaHoleCut: (a: number) => `Seulement un perçage au centre – le trou sera irrégulier et pas à la cote. Bons trous à partir de Ø${mm(a)}.`,
+      plasmaHoleSkip: 'Ignoré – percez le trou ensuite.',
+      plasmaGapFail: (a: number, b: number) => `Plus étroite que la saignée (${mm(a)}) – la fente n'apparaîtra pas. Faites-la d'au moins ${mm(b)}, ou fraisez-la ensuite.`,
+      plasmaGapPoor: (a: number) => `Les bords seront irréguliers et peuvent se souder. Faites la fente d'au moins ${mm(a)}.`,
+      plasmaThin: (a: number) => `Plus fin que ${mm(a)} – peut brûler ou se déformer à la chaleur. Élargissez la partie.`,
+      laserFail: (a: number) => `Plus étroit que le faisceau (${mm(a)}) – n'apparaîtra pas. Agrandissez le détail.`,
+      laserPoor: (a: number) => `Les bords peuvent brûler. Faites le détail d'au moins ${mm(a)}.`,
+      laserThin: (a: number) => `Plus fin que ${mm(a)} – peut brûler ou devenir fragile. Élargissez la partie.`,
+      routerFail: (a: number) => `La fraise (Ø${mm(a)}) ne passe pas – de la matière reste ici. Choisissez une fraise plus petite ou agrandissez le détail.`,
+      routerThin: (a: number) => `Plus fin que ${mm(a)} – peut casser ou vibrer. Élargissez la partie ou ajoutez des attaches.`,
+    },
+    smallHoles: 'Petits trous',
+    smallHolesOpts: { mark: 'Marque de perçage', cut: 'Perçage seul', skip: 'Ignorer' },
+    smallHolesNote: (a: number) => `Concerne les trous de moins de Ø${mm(a)}. Marque de perçage laisse un petit point pour percer.`,
+  },
   code: 'fr',
   name: 'Français',
   locale: 'fr-FR',

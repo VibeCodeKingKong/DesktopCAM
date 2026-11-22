@@ -70,6 +70,34 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const de: Dict = {
+  featureCheck: {
+    title: 'Kleine Details',
+    allOk: 'Alle Details sind groß genug für das Werkzeug.',
+    legend: 'Kleine Details',
+    hint: 'Klicken Sie auf eine Zeile, um das Detail in der Ansicht zu zeigen.',
+    severity: { fail: 'Wird nicht geschnitten', poor: 'Schlechtes Ergebnis', thin: 'Kann wegbrennen', thinRouter: 'Kann abbrechen' },
+    kind: {
+      hole: (d: number) => `Loch Ø${mm(d)}`,
+      gap: (d: number) => `Schlitz ${mm(d)}`,
+      part: (d: number) => `Schmaler Teil ${mm(d)}`,
+    },
+    advice: {
+      plasmaHoleMark: (a: number) => `Mit kurzem Zünden markiert – bohren Sie das Loch danach. Plasma ergibt gute Löcher ab Ø${mm(a)}.`,
+      plasmaHoleCut: (a: number) => `Nur ein Einstich in der Mitte – das Loch wird unsauber und nicht maßhaltig. Gute Löcher ab Ø${mm(a)}.`,
+      plasmaHoleSkip: 'Wird übersprungen – bohren Sie das Loch danach.',
+      plasmaGapFail: (a: number, b: number) => `Schmaler als die Schnittfuge (${mm(a)}) – der Schlitz entsteht nicht. Mindestens ${mm(b)} breit machen oder danach fräsen.`,
+      plasmaGapPoor: (a: number) => `Die Kanten werden unsauber und können verschmelzen. Den Schlitz mindestens ${mm(a)} breit machen.`,
+      plasmaThin: (a: number) => `Dünner als ${mm(a)} – kann wegbrennen oder sich durch die Hitze verziehen. Den Teil breiter machen.`,
+      laserFail: (a: number) => `Schmaler als der Strahl (${mm(a)}) – entsteht nicht. Das Detail größer machen.`,
+      laserPoor: (a: number) => `Die Kanten können verbrennen. Das Detail mindestens ${mm(a)} groß machen.`,
+      laserThin: (a: number) => `Dünner als ${mm(a)} – kann wegbrennen oder brüchig werden. Den Teil breiter machen.`,
+      routerFail: (a: number) => `Der Fräser (Ø${mm(a)}) passt nicht – hier bleibt Material stehen. Einen kleineren Fräser wählen oder das Detail größer machen.`,
+      routerThin: (a: number) => `Dünner als ${mm(a)} – kann abbrechen oder schwingen. Den Teil breiter machen oder Haltestege hinzufügen.`,
+    },
+    smallHoles: 'Kleine Löcher',
+    smallHolesOpts: { mark: 'Bohrmarke', cut: 'Nur Einstich', skip: 'Überspringen' },
+    smallHolesNote: (a: number) => `Gilt für Löcher unter Ø${mm(a)}. Bohrmarke hinterlässt einen kleinen Punkt zum Bohren.`,
+  },
   code: 'de',
   name: 'Deutsch',
   locale: 'de-DE',

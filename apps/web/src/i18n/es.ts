@@ -70,6 +70,34 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const es: Dict = {
+  featureCheck: {
+    title: 'Detalles pequeños',
+    allOk: 'Todos los detalles son lo bastante grandes para la herramienta.',
+    legend: 'Detalles pequeños',
+    hint: 'Haz clic en una fila para ver el detalle en la vista.',
+    severity: { fail: 'No se cortará', poor: 'Mal resultado', thin: 'Puede quemarse', thinRouter: 'Puede romperse' },
+    kind: {
+      hole: (d: number) => `Agujero Ø${mm(d)}`,
+      gap: (d: number) => `Ranura ${mm(d)}`,
+      part: (d: number) => `Parte estrecha ${mm(d)}`,
+    },
+    advice: {
+      plasmaHoleMark: (a: number) => `Se marca con un encendido breve de la antorcha – taladra el agujero después. El plasma da buenos agujeros desde Ø${mm(a)}.`,
+      plasmaHoleCut: (a: number) => `Solo una perforación en el centro – el agujero quedará irregular y fuera de medida. Buenos agujeros desde Ø${mm(a)}.`,
+      plasmaHoleSkip: 'Se omite – taladra el agujero después.',
+      plasmaGapFail: (a: number, b: number) => `Más estrecha que el ancho de corte (${mm(a)}) – la ranura no aparecerá. Hazla de al menos ${mm(b)}, o fresala después.`,
+      plasmaGapPoor: (a: number) => `Los bordes quedarán irregulares y pueden fundirse. Haz la ranura de al menos ${mm(a)}.`,
+      plasmaThin: (a: number) => `Más fina que ${mm(a)} – puede quemarse o deformarse por el calor. Haz la parte más ancha.`,
+      laserFail: (a: number) => `Más estrecho que el haz (${mm(a)}) – no aparecerá. Haz el detalle más grande.`,
+      laserPoor: (a: number) => `Los bordes pueden quemarse. Haz el detalle de al menos ${mm(a)}.`,
+      laserThin: (a: number) => `Más fina que ${mm(a)} – puede quemarse o volverse frágil. Haz la parte más ancha.`,
+      routerFail: (a: number) => `La fresa (Ø${mm(a)}) no cabe – aquí queda material. Elige una fresa más pequeña o haz el detalle más grande.`,
+      routerThin: (a: number) => `Más fina que ${mm(a)} – puede romperse o vibrar. Haz la parte más ancha o añade pestañas.`,
+    },
+    smallHoles: 'Agujeros pequeños',
+    smallHolesOpts: { mark: 'Marca de taladro', cut: 'Solo perforación', skip: 'Omitir' },
+    smallHolesNote: (a: number) => `Afecta a agujeros menores de Ø${mm(a)}. Marca de taladro deja un pequeño punto para taladrar.`,
+  },
   code: 'es',
   name: 'Español',
   locale: 'es-ES',
