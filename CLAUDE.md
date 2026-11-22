@@ -46,6 +46,24 @@ Varje uppdatering som ändrar appen ska:
   ordlista i `i18n/` registrerad i `i18n/index.ts`, och i varje post i
   `changelog.ts`.
 
+### Så skrivs nyheterna
+
+Nyheterna är till för användaren, som vill veta vilken ny funktionalitet som
+finns och hur den används – inte hur den är byggd.
+
+- Börja med vad användaren kan göra, inte med vad som ändrats i programmet.
+- En funktion per punkt, som börjar med en kort rubrik i fetstil:
+  `**Gruppera former** Håll ihop delar som …` (appen visar rubriken i fetstil).
+- Säg var funktionen finns och hur man kommer igång (t.ex. "Design → Gruppera
+  (⌘G)"), gärna med ett konkret exempel.
+- Inga tekniska ord (t.ex. länkning, närmaste granne, postprocessor-fält,
+  avståndsfält, IndexedDB) och inga interna namn.
+- Förbättringar av befintliga funktioner beskrivs som en nytta (går snabbare,
+  blir jämnare, stämmer bättre) och kommer efter de nya funktionerna.
+- Högst 3–5 punkter. Småfixar samlas i en avslutande punkt eller utelämnas;
+  rena interna ändringar (tester, licensdokument) nämns inte.
+- Samma innehåll på alla språk, skrivet naturligt på varje språk.
+
 ## Licenser och immaterialrätt (kommersiell produkt)
 
 desktopCAM ska bli en proprietär kommersiell produkt. Kommersiell gångbarhet
