@@ -58,6 +58,7 @@ function OpenDialog() {
 }
 
 const SEEN_KEY = 'desktopcam.seenVersion';
+const NEWS_SINCE_KEY = 'desktopcam.newsSince';
 
 /** Efter en uppdatering: visa nyheterna en gång. Nya användare får dem inte direkt. */
 function useNewsAfterUpdate() {
@@ -67,6 +68,8 @@ function useNewsAfterUpdate() {
       const returning = seen !== null || localStorage.getItem('desktopcam.autosave.v1') !== null;
       if (seen !== APP_VERSION) {
         localStorage.setItem(SEEN_KEY, APP_VERSION);
+        // Nyheterna märker det som tillkommit sedan användarens förra version.
+        if (seen) localStorage.setItem(NEWS_SINCE_KEY, seen);
         if (returning) useAppStore.getState().openDialog('about');
       }
     } catch {

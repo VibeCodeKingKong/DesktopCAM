@@ -3,13 +3,21 @@ import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 import { Heart } from 'lucide-react';
 import { DONATE_URL } from '../../config/donate';
-import { APP_VERSION, CHANGELOG } from '../../data/changelog';
+import { APP_VERSION, CHANGELOG, compareVersions } from '../../data/changelog';
 
 /** Om desktopCAM: version och nyheter i varje uppdatering. */
 export function AboutDialog() {
   const t = useT();
   const open = useAppStore((s) => s.dialog === 'about');
   const close = () => useAppStore.getState().openDialog(null);
+  // Versionen användaren hade före senaste uppdateringen (sätts i App).
+  let since: string | null = null;
+  try {
+    since = localStorage.getItem('desktopcam.newsSince');
+  } catch {
+    /* privat läge */
+  }
+  const isNew = (v: string) => !!since && compareVersions(v, since) > 0 && compareVersions(v, APP_VERSION) <= 0;
 
   return (
     <Dialog open={open} onClose={close} title={t.about.title} width="max-w-lg" footer={<><div className="flex-1" /><button className="btn btn-primary" onClick={close}>{t.common.close}</button></>}>
@@ -28,11 +36,12 @@ export function AboutDialog() {
                 {e.version === APP_VERSION && <span className="rounded bg-accent/10 px-1.5 py-0.5 text-2xs font-medium text-accent">{t.about.current}</span>}
               </p>
               <ul className="list-disc space-y-0.5 pl-5 text-xs leading-relaxed">
-                {e.text[t.code].map((x) => {
+                {e.text[t.code].map((x, i) => {
                   // "**Rubrik** text": rubriken i fetstil.
                   const m = /^\*\*(.+?)\*\*\s*(.*)$/s.exec(x);
                   return (
                     <li key={x}>
+                      {isNew(e.since?.[i] ?? e.version) && <span className="mr-1.5 rounded bg-accent px-1.5 py-px text-2xs font-semibold text-white">{t.about.newBadge}</span>}
                       {m ? (
                         <>
                           <span className="font-semibold">{m[1]}</span> {m[2]}

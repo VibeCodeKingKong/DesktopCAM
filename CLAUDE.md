@@ -47,6 +47,10 @@ Varje uppdatering som ändrar appen ska:
   skriv om texten så att den täcker alla dagens nyheter (fortfarande högst
   3–5 punkter, det viktigaste först). En ny post läggs bara till första
   uppdateringen en ny dag.
+- Fältet `since` anger för varje punkt i vilken version den tillkom (samma
+  ordning som texten). När dagens post uppdateras behåller gamla punkter sin
+  version och nya punkter får den nya – appen märker då det som tillkommit
+  sedan användarens förra version med "Ny".
 - Ett nytt språk läggs till i `i18n/initial.ts` (`LANGUAGE_CODES`), som ny
   ordlista i `i18n/` registrerad i `i18n/index.ts`, och i varje post i
   `changelog.ts`.

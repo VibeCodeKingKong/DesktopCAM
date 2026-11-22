@@ -720,6 +720,7 @@ export const pl: Dict = {
   },
 
   about: {
+    newBadge: "Nowe",
     title: 'O desktopCAM',
     open: 'Wersja i nowości',
     version: (v: string) => `wersja ${v}`,

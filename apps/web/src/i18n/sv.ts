@@ -661,6 +661,7 @@ export const sv = {
   },
 
   about: {
+    newBadge: "Ny",
     title: 'Om desktopCAM',
     open: 'Version och nyheter',
     version: (v: string) => `version ${v}`,
