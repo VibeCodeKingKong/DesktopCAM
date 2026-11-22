@@ -1,4 +1,16 @@
 import { chainRapids } from '../../cam/rapidChain';
+
+/** Samma linjer med Z = 0 (minns resultatet per array). */
+const flatCache = new WeakMap<Float32Array, Float32Array>();
+function flatZ(a: Float32Array): Float32Array {
+  let out = flatCache.get(a);
+  if (!out) {
+    out = new Float32Array(a);
+    for (let i = 2; i < out.length; i += 3) out[i] = 0;
+    flatCache.set(a, out);
+  }
+  return out;
+}
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FileUp } from 'lucide-react';
 import { shapeToPolylines } from '@desktopcam/core';
@@ -113,8 +125,10 @@ export function Viewport() {
       ? toolpaths
           .filter((t) => (t.visible || t.id === selectedToolpathId) && results[t.id])
           .map((t) => ({
-            cuts: results[t.id].cuts,
-            rapids: results[t.id].rapids,
+            // Plasma: brännarens höjd över plåten saknar betydelse för var den skär –
+            // rita banan i plåtens plan, annars förskjuts den i perspektiv och ser sned ut.
+            cuts: t.operation === 'plasmaCut' ? flatZ(results[t.id].cuts) : results[t.id].cuts,
+            rapids: t.operation === 'plasmaCut' ? flatZ(results[t.id].rapids) : results[t.id].rapids,
             laser: t.operation === 'laserCut' || t.operation === 'laserRaster',
             highlighted: !selectedToolpathId || selectedToolpathId === t.id,
             color: tools.find((x) => x.id === t.toolId && x.kind === 'pen')?.color,
