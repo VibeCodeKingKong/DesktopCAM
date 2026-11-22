@@ -92,8 +92,9 @@ export function ShapeLibraryDialog() {
     setWidth(Math.round(item.size.w * k));
     setHeight(Math.round(item.size.h * k));
     setParams({ band: Math.max(2, Math.round(Math.min(item.size.w, item.size.h) * k * 0.08)), spacing: Math.max(3, Math.round(Math.min(item.size.w, item.size.h) * k * 0.09)) });
-    setValues(Object.fromEntries((item.controls ?? []).map((c) => [c.key, c.def])));
-  }, [item, material.width, material.height]);
+    // Materialtjocklek: arbetsstyckets som standard (går att ändra).
+    setValues(Object.fromEntries((item.controls ?? []).map((c) => [c.key, 'fromMaterial' in c && c.fromMaterial ? Math.min(c.max, Math.max(c.min, material.thickness)) : c.def])));
+  }, [item, material.width, material.height, material.thickness]);
   const full = useMemo(() => ({ ...params, values }), [params, values]);
   // Verklig storlek (för motiv vars mått styrs av reglagen).
   const size = useMemo(() => {

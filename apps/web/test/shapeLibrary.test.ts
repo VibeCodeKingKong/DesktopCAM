@@ -1,6 +1,6 @@
 /** Formbiblioteket: varje motiv ger giltig geometri som går att skära. */
 import { describe, expect, it } from 'vitest';
-import { buildLibraryShape, DEFAULT_SHAPE_PARAMS, fingerBox, offsetShapes, SHAPE_LIBRARY, shapeToPolylines, type ShapeLibraryItem } from '@desktopcam/core';
+import { buildLibraryShape, DEFAULT_SHAPE_PARAMS, fingerBox, fingerSide, offsetShapes, SHAPE_LIBRARY, shapeToPolylines, type ShapeLibraryItem } from '@desktopcam/core';
 
 const area = (pts: number[]) => {
   let a = 0;
@@ -93,6 +93,39 @@ describe('formbiblioteket', () => {
           }
       expect(bad, lid ? 'med lock' : 'utan lock').toBe(0);
     }
+  });
+
+  it('lådsidor: hane+hona och fyra hane–hona bildar en ram utan glapp eller överlapp', () => {
+    const inside = (pts: { x: number; y: number }[], x: number, y: number) => {
+      let c = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const a = pts[i], b = pts[j];
+        if (a.y > y !== b.y > y && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) c = !c;
+      }
+      return c;
+    };
+    const S = 90, H = 50, t = 6;
+    for (const set of [['male', 'female', 'male', 'female'], ['malefemale', 'malefemale', 'malefemale', 'malefemale']]) {
+      const [a, b, c, d] = set.map((ty) => fingerSide(S, H, t, 10, ty));
+      // Runt ramen utifrån sett: varje dels högra kant möter nästa dels vänstra.
+      const parts = [
+        (x: number, y: number, z: number) => y < t && inside(a, x, z),
+        (x: number, y: number, z: number) => x > S - t && inside(b, y, z),
+        (x: number, y: number, z: number) => y > S - t && inside(c, S - x, z),
+        (x: number, y: number, z: number) => x < t && inside(d, S - y, z),
+      ];
+      let bad = 0;
+      for (let x = 0.31; x < S; x += 1.37)
+        for (let y = 0.29; y < S; y += 1.37)
+          for (let z = 0.23; z < H; z += 1.37) {
+            const shell = x < t || x > S - t || y < t || y > S - t;
+            if (parts.filter((f) => f(x, y, z)).length !== (shell ? 1 : 0)) bad++;
+          }
+      expect(bad, set.join(',')).toBe(0);
+    }
+    // Fyra hanar passar inte ihop (hörnen krockar).
+    const m = fingerSide(S, H, t, 10, 'male');
+    expect(inside(m, 1, 1) && inside(m, S - 1, 1)).toBe(true);
   });
 
   it('mått från reglagen: fläns, fästplatta, fingerskarv', () => {

@@ -23,7 +23,7 @@ export interface ShapeLibraryParams {
 
 /** Reglage för ett motiv: ett tal (dragreglage) eller ett val bland alternativ. */
 export type ShapeLibraryControl =
-  | { key: string; min: number; max: number; step?: number; def: number; unit?: 'mm' | '%' }
+  | { key: string; min: number; max: number; step?: number; def: number; unit?: 'mm' | '%'; /** Standardvärdet är arbetsstyckets tjocklek. */ fromMaterial?: boolean }
   | { key: string; options: string[]; def: string };
 
 export interface ShapeLibraryItem {
@@ -236,6 +236,18 @@ function fingerPanel(w: number, h: number, t: number, edges: [FingerEdge, Finger
     const r = pts[(i + 1) % pts.length];
     return Math.hypot(q.x - r.x, q.y - r.y) > 1e-9;
   });
+}
+
+/**
+ * En lådsida med fingerskarv på sidokanterna. male = fingrar ytterst på båda,
+ * female = urtag ytterst på båda, malefemale = fingrar ytterst till vänster och
+ * urtag ytterst till höger (fyra likadana passar ihop runt om).
+ */
+export function fingerSide(w: number, h: number, t: number, f: number, type: string): Vec2[] {
+  const n = fingerCount(h, f);
+  const left: FingerEdge = { len: h, kind: type === 'female' ? 'gaps' : 'ends', n };
+  const right: FingerEdge = { len: h, kind: type === 'male' ? 'ends' : 'gaps', n };
+  return fingerPanel(w, h, t, [{ len: w, kind: 'flat', n: 1 }, right, { len: w, kind: 'flat', n: 1 }, left]);
 }
 
 /** Alla delar till en låda med yttermåtten L × W × H (botten, valfritt lock). */
@@ -790,6 +802,25 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
 
   /* ───────── Sammanfogning ───────── */
   {
+    id: 'finger-joint',
+    category: 'joinery',
+    kind: 'area',
+    size: { w: 160, h: 80 },
+    fixedSize: true,
+    controls: [
+      { key: 'jointType', options: ['male', 'female', 'malefemale'], def: 'male' },
+      { key: 'width', min: 30, max: 600, def: 160, unit: 'mm' },
+      { key: 'height', min: 20, max: 400, def: 80, unit: 'mm' },
+      { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 12, unit: 'mm' },
+      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm', fromMaterial: true },
+    ],
+    build: (_w, _h, p) => {
+      const w = num(p, 'width'), h = num(p, 'height');
+      const pts = fingerSide(w, h, Math.min(num(p, 'thickness'), w / 4), num(p, 'fingerWidth'), opt(p, 'jointType'));
+      return [poly(pts.map((v) => P(v.x - w / 2, v.y - h / 2)))];
+    },
+  },
+  {
     id: 'finger-box',
     category: 'joinery',
     kind: 'area',
@@ -800,7 +831,7 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       { key: 'width', min: 40, max: 600, def: 80, unit: 'mm' },
       { key: 'height', min: 20, max: 400, def: 40, unit: 'mm' },
       { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 10, unit: 'mm' },
-      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm' },
+      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm', fromMaterial: true },
       { key: 'lid', options: ['open', 'closed'], def: 'open' },
     ],
     build: (_w, _h, p) => {
@@ -840,7 +871,7 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       { key: 'height', min: 20, max: 300, def: 50, unit: 'mm' },
       { key: 'tabCount', min: 1, max: 6, def: 3 },
       { key: 'tabWidth', min: 5, max: 60, step: 0.5, def: 20, unit: 'mm' },
-      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm' },
+      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm', fromMaterial: true },
     ],
     build: (_w, _h, p) => {
       // Överst plattan med tappar (nedåt), under den plattan med matchande slitsar.
