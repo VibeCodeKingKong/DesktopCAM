@@ -110,11 +110,15 @@ export function duplicateSelection() {
   if (!shapes.length) return;
   const t = getT();
   const off = 5;
+  // Kopior av en grupp blir en egen, ny grupp.
+  const newGroup = new Map<string, string>();
+  const groupFor = (g?: string) => (g ? (newGroup.get(g) ?? (newGroup.set(g, uid('group')), newGroup.get(g)!)) : undefined);
   const copies = new Map(
     shapes.map((sh) => {
       const moved = transformShape(sh, translate(off, -off));
       const copy: VectorShape = {
         ...moved,
+        groupId: groupFor(sh.groupId),
         id: uid('shape'),
         name: `${sh.name} ${t.shapeNames.copy}`,
         paths: moved.paths.map((p) => ({ ...p, id: uid('path') })),
@@ -137,6 +141,8 @@ export function transformSelection(m: Mat2D) {
   const shapes = selected();
   if (!shapes.length) return;
   const isTranslate = m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1;
+  // Flytt: spårade foton följer med (vridning sköts av applyRotation).
+  const images = isTranslate ? imagesFollowingSelection() : [];
   useAppStore.getState().replaceShapes(
     shapes.map((sh) => {
       const out = transformShape(sh, m);
@@ -144,6 +150,43 @@ export function transformSelection(m: Mat2D) {
       return { ...out, text: undefined };
     }),
   );
+  for (const im of images) useAppStore.getState().updateImageObject(im.id, { x: +(im.x + m[4]).toFixed(4), y: +(im.y + m[5]).toFixed(4) });
+}
+
+/* ───────── Grupper och markering ───────── */
+
+/** Grupperar de markerade formerna (minst två). Befintliga grupper slås ihop. */
+export function groupSelection() {
+  const s = useAppStore.getState();
+  const t = getT();
+  const ids = s.selectedShapeIds;
+  if (ids.length < 2) return status(t.group.needTwo);
+  const groupId = uid('group');
+  s.checkpoint();
+  s.replaceShapes(selected().map((sh) => ({ ...sh, groupId })), false);
+  status(t.group.grouped(ids.length));
+}
+
+/** Tar bort grupperingen för de markerade formerna (formerna finns kvar). */
+export function ungroupSelection() {
+  const s = useAppStore.getState();
+  const t = getT();
+  const grouped = selected().filter((sh) => sh.groupId);
+  if (!grouped.length) return status(t.group.noGroup);
+  s.checkpoint();
+  s.replaceShapes(grouped.map((sh) => ({ ...sh, groupId: undefined })), false);
+  // Behåll markeringen som den är (utan att den växer igen till grupper).
+  useAppStore.setState({ selectedShapeIds: s.selectedShapeIds });
+  status(t.group.ungrouped(grouped.length));
+}
+
+/** Markerar alla synliga och olåsta former (i ett lager, eller i alla). */
+export function selectAllShapes(layerId?: string) {
+  const s = useAppStore.getState();
+  const ids = s.layers.filter((l) => (layerId ? l.id === layerId : l.visible && !l.locked)).flatMap((l) => l.shapes.map((sh) => sh.id));
+  if (!ids.length) return;
+  s.setSelection(ids);
+  status(getT().group.selected(ids.length));
 }
 
 export function selectionBounds() {

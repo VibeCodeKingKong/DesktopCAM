@@ -11,6 +11,7 @@ import {
   makeCircle,
   makeRect,
   cornerVertices,
+  shapeToPolylines,
   setVertexRadius,
   transformShape,
   translate,
@@ -36,7 +37,8 @@ type DraftNode = { p: Vec2; hin?: Vec2; hout?: Vec2 };
 type Gesture =
   | { kind: 'none' }
   | { kind: 'empty'; x0: number; y0: number; moved: boolean }
-  | { kind: 'move'; x0: number; y0: number; start: Vec2; originals: VectorShape[]; moved: boolean; hitId: string; wasSelected: boolean; additive: boolean }
+  | { kind: 'box'; x0: number; y0: number; x1: number; y1: number; additive: boolean }
+  | { kind: 'move'; x0: number; y0: number; start: Vec2; originals: VectorShape[]; images: ImageObject[]; moved: boolean; hitId: string; wasSelected: boolean; additive: boolean }
   | { kind: 'node'; ref: NodeRef; moved: boolean }
   | { kind: 'handle'; shapeId: string; pathIndex: number; segment: number; which: 'c1' | 'c2'; moved: boolean }
   | { kind: 'shapeTap'; shapeId: string; x0: number; y0: number; w: Vec2 }
@@ -335,6 +337,13 @@ export class EditController {
           this.gesture = { kind: 'rotate', pivot: rh.pivot, a0: Math.atan2(w.y - rh.pivot.y, w.x - rh.pivot.x), shapes: this.selectedShapes(), images: imagesFollowingSelection(), deg: 0, moved: false };
           return;
         }
+        // Markeringsruta: Shift + dra över tom yta (dator), eller dra när
+        // Markera flera är på (telefon). Annars vrider en dragning vyn.
+        if ((e.shiftKey || s.multiSelect) && !hitShape(s.layers, w, tol, false)) {
+          this.stop(e);
+          this.gesture = { kind: 'box', x0, y0, x1: x0, y1: y0, additive: true };
+          return;
+        }
         // Reliefer: tryck inuti för att markera, dra för att flytta. Över en relief
         // träffas former bara på sin linje (som i vanliga CAM-program) – annars vore reliefen
         // omöjlig att markera där en sluten form ligger ovanpå.
@@ -362,10 +371,10 @@ export class EditController {
           return;
         }
         this.stop(e);
-        const additive = e.shiftKey || e.metaKey || e.ctrlKey;
+        const additive = e.shiftKey || e.metaKey || e.ctrlKey || s.multiSelect;
         const wasSelected = s.selectedShapeIds.includes(hit);
         if (!wasSelected) s.selectShape(hit, additive);
-        this.gesture = { kind: 'move', x0, y0, start: w, originals: this.selectedShapes(), moved: false, hitId: hit, wasSelected, additive };
+        this.gesture = { kind: 'move', x0, y0, start: w, originals: this.selectedShapes(), images: imagesFollowingSelection(), moved: false, hitId: hit, wasSelected, additive };
         return;
       }
       case 'nodes': {
@@ -501,6 +510,10 @@ export class EditController {
       case 'empty':
         if (Math.hypot(p.x - g.x0, p.y - g.y0) > 5) g.moved = true;
         return;
+      case 'box':
+        g.x1 = p.x;
+        g.y1 = p.y;
+        return;
       case 'tap':
         if (Math.hypot(p.x - g.x0, p.y - g.y0) > 10) g.moved = true;
         return;
@@ -524,6 +537,8 @@ export class EditController {
           }),
           false,
         );
+        // Spårade foton följer med.
+        for (const im of g.images) s.updateImageObject(im.id, { x: +(im.x + dx).toFixed(4), y: +(im.y + dy).toFixed(4) });
         return;
       }
       case 'node': {
@@ -579,8 +594,33 @@ export class EditController {
         } else if (ctx && g.added) s.setStatus(t.tabsEdit.added);
         return;
       }
+      case 'box': {
+        // Former med någon punkt inom rutan (i skärmen – fungerar i alla vyvinklar).
+        const xa = Math.min(g.x0, g.x1), xb = Math.max(g.x0, g.x1), ya = Math.min(g.y0, g.y1), yb = Math.max(g.y0, g.y1);
+        if (xb - xa < 4 && yb - ya < 4) {
+          if (!s.multiSelect) s.clearSelection();
+          return;
+        }
+        const ids: string[] = [];
+        for (const layer of s.layers) {
+          if (!layer.visible || layer.locked) continue;
+          for (const sh of layer.shapes) {
+            const inBox = shapeToPolylines(sh, 0.5).some((pl) => {
+              for (let i = 0; i < pl.points.length; i += 2) {
+                const q = this.scene.worldToScreen(pl.points[i], pl.points[i + 1]);
+                if (q.x >= xa && q.x <= xb && q.y >= ya && q.y <= yb) return true;
+              }
+              return false;
+            });
+            if (inBox) ids.push(sh.id);
+          }
+        }
+        s.setSelection(g.additive ? [...new Set([...s.selectedShapeIds, ...ids])] : ids);
+        s.setStatus(t.group.selected(useAppStore.getState().selectedShapeIds.length));
+        return;
+      }
       case 'empty':
-        if (!g.moved && !(e.shiftKey || e.metaKey)) {
+        if (!g.moved && !(e.shiftKey || e.metaKey || s.multiSelect)) {
           if (s.editTool === 'nodes' && s.selectedNode) s.selectNode(null);
           else {
             s.clearSelection();
@@ -592,7 +632,7 @@ export class EditController {
       case 'move':
         if (!g.moved && g.wasSelected) {
           if (g.additive) s.selectShape(g.hitId, true);
-          else if (s.selectedShapeIds.length > 1) s.setSelection([g.hitId]);
+          else if (s.selectedShapeIds.length > 1) s.selectShape(g.hitId, false);
         }
         return;
       case 'shapeTap': {
@@ -733,6 +773,18 @@ export class EditController {
       this.snapKind = 'axis';
     }
 
+
+    // Markeringsruta under dragning.
+    if (this.gesture.kind === 'box') {
+      const g = this.gesture;
+      ctx.fillStyle = accent.replace('rgb(', 'rgba(').replace(')', ',0.08)');
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.fillRect(Math.min(g.x0, g.x1), Math.min(g.y0, g.y1), Math.abs(g.x1 - g.x0), Math.abs(g.y1 - g.y0));
+      ctx.strokeRect(Math.min(g.x0, g.x1), Math.min(g.y0, g.y1), Math.abs(g.x1 - g.x0), Math.abs(g.y1 - g.y0));
+      ctx.setLineDash([]);
+    }
 
     // Markeringsram – inte under Simulera och Export, där den bara skymmer resultatet.
     const quiet = s.activeTab === 'simulate' || s.activeTab === 'output';

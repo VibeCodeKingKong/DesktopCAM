@@ -1,5 +1,5 @@
-import { AlignVerticalSpaceAround, Copy, RotateCcw, RotateCw, SlidersHorizontal, Trash2 } from 'lucide-react';
-import { deleteSelection, duplicateSelection, rotateSelection, straightenSelection } from '../../cam/commands';
+import { AlignVerticalSpaceAround, Copy, Group, ListChecks, RotateCcw, RotateCw, SlidersHorizontal, Trash2, Ungroup, X } from 'lucide-react';
+import { deleteSelection, duplicateSelection, groupSelection, rotateSelection, straightenSelection, ungroupSelection } from '../../cam/commands';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
@@ -18,6 +18,12 @@ export function ViewportOverlay() {
   const hasSelection = useAppStore((s) => s.selectedShapeIds.length > 0 || !!s.selectedToolpathId || !!s.selectedReliefId || !!s.selectedImageId);
   const nShapes = useAppStore((s) => s.selectedShapeIds.length);
   const imageSel = useAppStore((s) => !!s.selectedImageId);
+  const multi = useAppStore((s) => s.multiSelect);
+  const hasGroup = useAppStore((s) => s.layers.some((l) => l.shapes.some((sh) => sh.groupId && s.selectedShapeIds.includes(sh.id))));
+  const setMulti = (on: boolean) => {
+    useAppStore.getState().setMultiSelect(on);
+    if (on) useAppStore.getState().setStatus(t.group.multiHint);
+  };
   const panelOpen = useAppStore((s) => s.mobilePanel !== null);
   const openProps = () => useAppStore.getState().setMobilePanel('props');
   // På pekskärm försvinner navigeringstipset efter en stund (det visas igen när verktyget byts).
@@ -29,7 +35,7 @@ export function ViewportOverlay() {
     return () => clearTimeout(id);
   }, [tool]);
   const propsButton = hasSelection && !panelOpen && !simActive;
-  const nav = tool === 'select' ? (coarse ? t.viewport.navTouch : t.viewport.navMouse) : coarse ? t.viewport.navDrawTouch : t.viewport.navMouse;
+  const nav = tool === 'select' ? (coarse ? t.viewport.navTouch : `${t.viewport.navMouse} ${t.group.boxHint}`) : coarse ? t.viewport.navDrawTouch : t.viewport.navMouse;
 
   return (
     <>
@@ -48,6 +54,15 @@ export function ViewportOverlay() {
           ))}
         </div>
       )}
+      {multi && (
+        <div className="absolute left-1/2 top-2 z-10 flex max-w-[calc(100%-5rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-accent/40 bg-surface/95 py-1 pl-3 pr-1 text-xs shadow-sm backdrop-blur" role="status">
+          <ListChecks size={14} className="shrink-0 text-accent" />
+          <span className="truncate" title={t.group.multiHint}>{t.group.multi}</span>
+          <button className="rounded-full p-1 text-muted hover:bg-app hover:text-ink" onClick={() => setMulti(false)} aria-label={`${t.group.multi}: ${t.common.close}`}>
+            <X size={14} />
+          </button>
+        </div>
+      )}
       {propsButton && (
         // Telefon och surfplatta: snabbknappar för det vanligaste, utan att öppna panelen.
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1 shadow-pop backdrop-blur lg:hidden" role="toolbar" aria-label={t.header.properties}>
@@ -63,6 +78,19 @@ export function ViewportOverlay() {
           )}
           {nShapes > 0 && (
             <>
+              <QuickButton label={t.group.multi} onClick={() => setMulti(!multi)} pressed={multi}>
+                <ListChecks size={18} />
+              </QuickButton>
+              {nShapes > 1 && !hasGroup && (
+                <QuickButton label={t.buttons.group.label} onClick={groupSelection}>
+                  <Group size={18} />
+                </QuickButton>
+              )}
+              {hasGroup && (
+                <QuickButton label={t.buttons.ungroup.label} onClick={ungroupSelection}>
+                  <Ungroup size={18} />
+                </QuickButton>
+              )}
               <QuickButton label={t.contour.straighten} onClick={straightenSelection}>
                 <AlignVerticalSpaceAround size={18} />
               </QuickButton>
@@ -91,9 +119,15 @@ export function ViewportOverlay() {
   );
 }
 
-function QuickButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+function QuickButton({ label, onClick, children, pressed }: { label: string; onClick: () => void; children: ReactNode; pressed?: boolean }) {
   return (
-    <button onClick={onClick} aria-label={label} title={label} className="flex h-10 w-10 items-center justify-center rounded-full text-ink/80 hover:bg-app active:bg-line/60">
+    <button
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      aria-pressed={pressed}
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-app active:bg-line/60 ${pressed ? 'bg-accent/15 text-accent' : 'text-ink/80'}`}
+    >
       {children}
     </button>
   );

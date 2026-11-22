@@ -220,8 +220,10 @@ export interface VectorShape {
   paths: VectorPath[];
   /** Finns för text som fortfarande kan redigeras som text. */
   text?: TextParams;
-  /** Spårad ur en bild: bildens id. Vrids hela gruppen följer bilden med. */
+  /** Spårad ur en bild: bildens id. Flyttas eller vrids formen följer bilden med. */
   linkedImageId?: string;
+  /** Grupp: former med samma id markeras och flyttas tillsammans. */
+  groupId?: string;
   /** Avrundade hörn: radien och banorna med skarpa hörn (för att kunna ändra radien). */
   corner?: {
     /** Radie för alla hörn (0 = bara de enskilda). */

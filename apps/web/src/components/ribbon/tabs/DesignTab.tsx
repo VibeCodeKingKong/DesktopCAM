@@ -1,11 +1,11 @@
-import { Circle, Cog, Copy, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
 import { RibbonMenuButton } from '../RibbonMenuButton';
 import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
-import { deleteSelection, duplicateSelection, importVectorFile, redo, undo } from '../../../cam/commands';
+import { deleteSelection, duplicateSelection, groupSelection, importVectorFile, redo, selectAllShapes, undo, ungroupSelection } from '../../../cam/commands';
 import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
@@ -26,6 +26,8 @@ export function DesignTab() {
   const isRouter = useMachine().kind === 'router';
   const snap = useAppStore((s) => s.snap);
   const setSnap = useAppStore((s) => s.setSnap);
+  const selCount = useAppStore((s) => s.selectedShapeIds.length);
+  const hasGroup = useAppStore((s) => s.layers.some((l) => l.shapes.some((sh) => sh.groupId && s.selectedShapeIds.includes(sh.id))));
   const pick = (x: EditTool) => () => setTool(tool === x && x !== 'select' ? 'select' : x);
 
   return (
@@ -37,6 +39,11 @@ export function DesignTab() {
           <RibbonButton size="small" icon={Copy} label={b.duplicate.label} disabled={!hasSelection} onClick={duplicateSelection} tooltip={tip(b.duplicate, { illustration: <IlluDuplicate />,  shortcut: '⌘D', disabledReason: hasSelection ? undefined : t.reasons.needsSelection })} tone="neutral" />
         </RibbonStack>
         <RibbonButton icon={Trash2} label={b.remove.label} disabled={!canDelete} onClick={deleteSelection} tooltip={tip(b.remove, { illustration: <IlluDelete />,  shortcut: '⌫', disabledReason: canDelete ? undefined : t.reasons.needsSelection })} tone="neutral" />
+        <RibbonStack>
+          <RibbonButton size="small" icon={Group} label={b.group.label} disabled={selCount < 2} onClick={groupSelection} tooltip={tip(b.group, { shortcut: '⌘G', disabledReason: selCount < 2 ? t.group.needTwo : undefined })} tone="neutral" />
+          <RibbonButton size="small" icon={Ungroup} label={b.ungroup.label} disabled={!hasGroup} onClick={ungroupSelection} tooltip={tip(b.ungroup, { shortcut: '⇧⌘G', disabledReason: hasGroup ? undefined : t.group.noGroup })} tone="neutral" />
+          <RibbonButton size="small" icon={BoxSelect} label={b.selectAll.label} onClick={() => selectAllShapes()} tooltip={tip(b.selectAll, { shortcut: '⌘A' })} tone="neutral" />
+        </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t.groups.select}>
         <RibbonButton icon={MousePointer2} label={b.select.label} active={tool === 'select'} onClick={pick('select')} tooltip={tip(b.select, { illustration: <IlluSelect />,  shortcut: 'V' })} />

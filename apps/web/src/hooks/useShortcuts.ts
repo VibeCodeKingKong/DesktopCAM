@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppStore, type EditTool } from '../store/useAppStore';
-import { createToolpath, deleteSelection, duplicateSelection, importVectorFile, openProject, redo, saveProject, undo } from '../cam/commands';
+import { createToolpath, deleteSelection, duplicateSelection, groupSelection, importVectorFile, openProject, redo, saveProject, selectAllShapes, undo, ungroupSelection } from '../cam/commands';
 import { activeEditor } from '../editing/EditController';
 import { useDraft } from '../editing/draftStore';
 
@@ -26,7 +26,8 @@ export function useShortcuts() {
           s: saveProject,
           o: () => void openProject(),
           d: duplicateSelection,
-          a: () => s.setSelection(s.layers.filter((l) => l.visible).flatMap((l) => l.shapes.map((x) => x.id))),
+          a: () => selectAllShapes(),
+          g: () => (e.shiftKey ? ungroupSelection() : groupSelection()),
         };
         if (actions[key]) {
           e.preventDefault();

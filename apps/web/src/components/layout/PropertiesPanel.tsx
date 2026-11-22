@@ -1,7 +1,7 @@
 import { FontPicker } from '../ui/FontPicker';
 import { isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { AlignVerticalSpaceAround, CircleDot, Grid3x3, PenLine, ScanLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
+import { Group as GroupIcon, Ungroup, AlignVerticalSpaceAround, CircleDot, Grid3x3, PenLine, ScanLine, Copy, Crosshair, Download, FlipHorizontal2, FlipVertical2, Flame, Layers, Lock, RefreshCw, RotateCcw, RotateCw, Scissors, Square, Trash2, TriangleAlert, Unlock, MousePointerClick, ArrowLeftRight, Combine, Zap } from 'lucide-react';
 import {
   defaultPocketStrategy,
   matchPocketPreset,
@@ -48,6 +48,8 @@ import {
   exportSelectedGcode,
   mirrorSelection,
   rotateSelection,
+  groupSelection,
+  ungroupSelection,
   setSelectionBox,
   updateText,
   measure,
@@ -140,6 +142,8 @@ function EmptyState() {
 /* ───────── Former ───────── */
 
 function ShapeEditor() {
+  const selectedCount = useAppStore((st) => st.selectedShapeIds.length);
+  const selectionHasGroup = useAppStore((st) => st.layers.some((l) => l.shapes.some((sh) => sh.groupId && st.selectedShapeIds.includes(sh.id))));
   const t = useT();
   const layers = useAppStore((s) => s.layers);
   const ids = useAppStore((s) => s.selectedShapeIds);
@@ -323,6 +327,16 @@ function ShapeEditor() {
           </button>
           </SmartTooltip>
         </div>
+        {(selectedCount > 1 || selectionHasGroup) && (
+          <div className="grid grid-cols-2 gap-2">
+            <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" disabled={selectedCount < 2} onClick={groupSelection} title={t.buttons.group.title}>
+              <GroupIcon size={13} className="shrink-0" /> <span>{t.buttons.group.label}</span>
+            </button>
+            <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" disabled={!selectionHasGroup} onClick={ungroupSelection} title={t.buttons.ungroup.title}>
+              <Ungroup size={13} className="shrink-0" /> <span>{t.buttons.ungroup.label}</span>
+            </button>
+          </div>
+        )}
         {single && single.paths.length === 1 && nodeCount(single.paths[0]) < 3 && !shapeHasArea(single) && (
           <FieldRow label={t.props.pathStatus}>
             <p className="text-xs">{t.props.lineOnly}</p>

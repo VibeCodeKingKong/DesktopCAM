@@ -3,7 +3,9 @@ import { DndContext, KeyboardSensor, PointerSensor, TouchSensor, closestCenter, 
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
+  BoxSelect,
   ChevronDown,
+  Group as GroupIcon,
   ChevronRight,
   Circle,
   CircleDot,
@@ -41,6 +43,7 @@ import { shapeHasArea, type OperationType, type ShapeKind } from '@desktopcam/co
 import { useAppStore, useMachine, useMaterialPreset } from '../../store/useAppStore';
 import { materialName, useT } from '../../i18n';
 import { SidePanel } from './SidePanel';
+import { selectAllShapes } from '../../cam/commands';
 
 const SHAPE_ICONS: Partial<Record<ShapeKind, LucideIcon>> = {
   rect: Square,
@@ -179,6 +182,18 @@ export function ProjectTree() {
   const layers = useAppStore((s) => s.layers);
   const selected = useAppStore((s) => s.selectedShapeIds);
   const selectShape = useAppStore((s) => s.selectShape);
+  const multiSelect = useAppStore((s) => s.multiSelect);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = (id: string) =>
+    setOpenGroups((g) => {
+      const n = new Set(g);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  // Grupperna numreras i den ordning de förekommer i projektet.
+  const groupOrder = [...new Set(layers.flatMap((l) => l.shapes.map((x) => x.groupId).filter(Boolean)))] as string[];
+  const groupNumber = (id: string) => groupOrder.indexOf(id) + 1;
   const toggleLayer = useAppStore((s) => s.toggleLayer);
   const reliefs = useAppStore((s) => s.reliefs);
   const selectedRelief = useAppStore((s) => s.selectedReliefId);
@@ -249,6 +264,11 @@ export function ProjectTree() {
                   labelNode={<LayerName id={layer.id} name={layer.name} active={isActive && layers.length > 1} count={layer.shapes.length} />}
                   trailing={
                     <div className="flex">
+                      {layer.shapes.length > 0 && (
+                        <button className={rowBtn} onClick={() => selectAllShapes(layer.id)} aria-label={`${t.group.selectLayer}: ${layer.name}`} title={t.group.selectLayer}>
+                          <BoxSelect size={13} />
+                        </button>
+                      )}
                       <button className={rowBtn} onClick={() => toggleLayer(layer.id)} aria-label={layer.visible ? t.tree.hideLayer : t.tree.showLayer} title={layer.visible ? t.tree.hideLayer : t.tree.showLayer}>
                         {layer.visible ? <Eye size={13} /> : <EyeOff size={13} />}
                       </button>
@@ -261,28 +281,60 @@ export function ProjectTree() {
                   }
                 >
                   {layer.shapes.length === 0 && <p className="px-2 py-1 text-2xs text-muted">{t.tree.emptyLayer}</p>}
-                  {layer.shapes.map((sh) => {
-                    const Icon = SHAPE_ICONS[sh.kind] ?? Shapes;
-                    const isSel = selected.includes(sh.id);
-                    const open = !shapeHasArea(sh);
-                    return (
-                      <div key={sh.id} className={`group ${row} pr-1 ${isSel ? 'bg-accent/10 text-accent' : 'hover:bg-app'} ${layer.visible ? '' : 'opacity-50'}`}>
-                        <button
-                          onClick={(e) => selectShape(sh.id, e.shiftKey || e.metaKey || e.ctrlKey)}
-                          aria-pressed={isSel}
-                          title={open ? t.tree.openPath : undefined}
-                          className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
-                        >
-                          <Icon size={13} className="shrink-0" style={{ color: isSel ? undefined : layer.color }} />
-                          <span className="truncate">{sh.name}</span>
-                          {open && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full border border-muted" />}
-                        </button>
-                        <button className={trashBtn} onClick={() => deleteShapes([sh.id])} aria-label={`${t.common.remove} ${sh.name}`} title={t.common.remove}>
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    );
-                  })}
+                  {(() => {
+                    // Former i en grupp visas under gruppens rad (där gruppens första form ligger).
+                    const shown = new Set<string>();
+                    const shapeRow = (sh: (typeof layer.shapes)[number], inGroup: boolean) => {
+                      const Icon = SHAPE_ICONS[sh.kind] ?? Shapes;
+                      const isSel = selected.includes(sh.id);
+                      const open = !shapeHasArea(sh);
+                      return (
+                        <div key={sh.id} className={`group ${row} pr-1 ${inGroup ? 'pl-6' : ''} ${isSel ? 'bg-accent/10 text-accent' : 'hover:bg-app'} ${layer.visible ? '' : 'opacity-50'}`}>
+                          <button
+                            // I en grupp: bara just den här formen (för att ändra en del av gruppen).
+                            onClick={(e) => selectShape(sh.id, e.shiftKey || e.metaKey || e.ctrlKey || multiSelect, inGroup)}
+                            aria-pressed={isSel}
+                            title={open ? t.tree.openPath : undefined}
+                            className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                          >
+                            <Icon size={13} className="shrink-0" style={{ color: isSel ? undefined : layer.color }} />
+                            <span className="truncate">{sh.name}</span>
+                            {open && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full border border-muted" />}
+                          </button>
+                          <button className={trashBtn} onClick={() => deleteShapes([sh.id])} aria-label={`${t.common.remove} ${sh.name}`} title={t.common.remove}>
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      );
+                    };
+                    return layer.shapes.map((sh) => {
+                      if (shown.has(sh.id)) return null;
+                      if (!sh.groupId) return shapeRow(sh, false);
+                      const members = layer.shapes.filter((x) => x.groupId === sh.groupId);
+                      members.forEach((x) => shown.add(x.id));
+                      const allSel = members.every((x) => selected.includes(x.id));
+                      const isOpen = openGroups.has(sh.groupId);
+                      return (
+                        <div key={`g-${sh.groupId}`}>
+                          <div className={`group ${row} pr-1 ${allSel ? 'bg-accent/10 text-accent' : 'hover:bg-app'} ${layer.visible ? '' : 'opacity-50'}`}>
+                            <button className={rowBtn} onClick={() => toggleGroup(sh.groupId!)} aria-expanded={isOpen} aria-label={t.group.name(groupNumber(sh.groupId!))}>
+                              {isOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                            </button>
+                            <button
+                              onClick={(e) => selectShape(sh.id, e.shiftKey || e.metaKey || e.ctrlKey || multiSelect)}
+                              aria-pressed={allSel}
+                              className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                            >
+                              <GroupIcon size={13} className="shrink-0" style={{ color: allSel ? undefined : layer.color }} />
+                              <span className="truncate">{t.group.name(groupNumber(sh.groupId!))}</span>
+                              <span className="ml-auto shrink-0 text-2xs text-muted">{members.length}</span>
+                            </button>
+                          </div>
+                          {isOpen && members.map((x) => shapeRow(x, true))}
+                        </div>
+                      );
+                    });
+                  })()}
                 </Section>
               );
             })}

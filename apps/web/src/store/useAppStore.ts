@@ -220,7 +220,14 @@ interface AppState extends DocSnapshot {
   removeLayer: (id: string) => void;
   setActiveLayer: (id: string) => void;
   moveShapesToLayer: (ids: string[], layerId: string) => void;
-  selectShape: (id: string, additive: boolean) => void;
+  /**
+   * Markerar en form. Grupper markeras hela (exact: bara just den formen,
+   * t.ex. från projektträdet). additive: lägg till eller ta bort.
+   */
+  selectShape: (id: string, additive: boolean, exact?: boolean) => void;
+  /** Telefon: varje tryck lägger till eller tar bort ur markeringen (ingen Shift-tangent). */
+  multiSelect: boolean;
+  setMultiSelect: (on: boolean) => void;
   setSelection: (ids: string[]) => void;
   clearSelection: () => void;
   selectNode: (n: NodeRef | null) => void;
@@ -560,16 +567,19 @@ export const useAppStore = create<AppState>()((set, get) => {
           layers: s.layers.map((l) => (l.id === layerId ? { ...l, shapes: [...l.shapes, ...moving] } : { ...l, shapes: l.shapes.filter((sh) => !moving.includes(sh)) })),
         };
       }),
-    selectShape: (id, additive) =>
+    selectShape: (id, additive, exact = false) =>
       set((s) => {
         const base = { selectedToolpathId: null, selectedReliefId: null, selectedImageId: null, selectedNode: null };
-        if (!additive) return { ...base, selectedShapeIds: [id] };
+        const ids = exact ? [id] : withGroups([id], s.layers);
+        if (!additive) return { ...base, selectedShapeIds: ids };
         return {
           ...base,
-          selectedShapeIds: s.selectedShapeIds.includes(id) ? s.selectedShapeIds.filter((x) => x !== id) : [...s.selectedShapeIds, id],
+          selectedShapeIds: s.selectedShapeIds.includes(id) ? s.selectedShapeIds.filter((x) => !ids.includes(x)) : [...new Set([...s.selectedShapeIds, ...ids])],
         };
       }),
-    setSelection: (ids) => set({ selectedShapeIds: ids, selectedNode: null, selectedToolpathId: null, selectedReliefId: null, selectedImageId: null }),
+    multiSelect: false,
+    setMultiSelect: (multiSelect) => set({ multiSelect }),
+    setSelection: (ids) => set((s) => ({ selectedShapeIds: withGroups(ids, s.layers), selectedNode: null, selectedToolpathId: null, selectedReliefId: null, selectedImageId: null })),
     clearSelection: () => set({ selectedShapeIds: [], selectedNode: null }),
     selectNode: (selectedNode) => set({ selectedNode }),
     setPendingImport: (pendingImport) => set({ pendingImport }),
@@ -694,6 +704,14 @@ export function machineClass(m: MachineProfile): MachineClass {
 
 /** Avancerade inställningar visas bara när nybörjarläget är av. */
 export const useExpert = () => !useAppStore((s) => s.beginnerMode);
+
+/** Utökar id:na med alla former i samma grupper. */
+export function withGroups(ids: string[], layers: VectorLayer[]): string[] {
+  const all = layers.flatMap((l) => l.shapes);
+  const groups = new Set(all.filter((sh) => ids.includes(sh.id) && sh.groupId).map((sh) => sh.groupId));
+  if (!groups.size) return ids;
+  return [...new Set([...ids, ...all.filter((sh) => sh.groupId && groups.has(sh.groupId)).map((sh) => sh.id)])];
+}
 
 export const getMachine = () => {
   const s = useAppStore.getState();
