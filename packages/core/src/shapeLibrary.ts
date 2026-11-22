@@ -199,6 +199,55 @@ function seeded(seed: number) {
 
 const range = (n: number) => Array.from({ length: Math.max(0, n) }, (_, i) => i);
 
+/**
+ * Fingerskarv: kanten delas i ett udda antal lika delar. 'ends' = finger i
+ * båda ändarna (jämna delar är fingrar), 'gaps' = det omvända, 'flat' = rak.
+ * Ett urtag går t in från kanten.
+ */
+type FingerEdge = { len: number; kind: 'ends' | 'gaps' | 'flat'; n: number };
+const fingerCount = (len: number, f: number) => {
+  let n = Math.max(3, Math.round(len / Math.max(1, f)));
+  if (n % 2 === 0) n++;
+  return n;
+};
+
+/** Kontur (moturs) för en platta w × h med fyra kanter: under, höger, över, vänster. */
+function fingerPanel(w: number, h: number, t: number, edges: [FingerEdge, FingerEdge, FingerEdge, FingerEdge]): Vec2[] {
+  const corners = [P(0, 0), P(w, 0), P(w, h), P(0, h)];
+  const dirs = [P(1, 0), P(0, 1), P(-1, 0), P(0, -1)];
+  const segs = edges.map((e) => range(e.kind === 'flat' ? 1 : e.n).map((i) => {
+    const cut = e.kind === 'ends' ? i % 2 === 1 : e.kind === 'gaps' ? i % 2 === 0 : false;
+    const n = e.kind === 'flat' ? 1 : e.n;
+    return { a: (i * e.len) / n, b: ((i + 1) * e.len) / n, d: cut ? t : 0 };
+  }));
+  const pts: Vec2[] = [];
+  for (let k = 0; k < 4; k++) {
+    const sg = segs[k], prev = segs[(k + 3) % 4], next = segs[(k + 1) % 4];
+    const c = corners[k], u = dirs[k], nrm = P(-u.y, u.x);
+    const at = (along: number, d: number) => P(c.x + u.x * along + nrm.x * d, c.y + u.y * along + nrm.y * d);
+    pts.push(at(prev[prev.length - 1].d, sg[0].d));
+    for (let j = 0; j + 1 < sg.length; j++) {
+      if (sg[j].d === sg[j + 1].d) continue;
+      pts.push(at(sg[j].b, sg[j].d), at(sg[j].b, sg[j + 1].d));
+    }
+    pts.push(at(edges[k].len - next[0].d, sg[sg.length - 1].d));
+  }
+  return pts.filter((q, i) => {
+    const r = pts[(i + 1) % pts.length];
+    return Math.hypot(q.x - r.x, q.y - r.y) > 1e-9;
+  });
+}
+
+/** Alla delar till en låda med yttermåtten L × W × H (botten, valfritt lock). */
+export function fingerBox(L: number, W: number, H: number, t: number, f: number, lid: boolean) {
+  const nL = fingerCount(L, f), nW = fingerCount(W, f), nH = fingerCount(H, f);
+  const top = (n: number, len: number): FingerEdge => (lid ? { len, kind: 'ends', n } : { len, kind: 'flat', n: 1 });
+  const longSide = { w: L, h: H, pts: fingerPanel(L, H, t, [{ len: L, kind: 'ends', n: nL }, { len: H, kind: 'ends', n: nH }, top(nL, L), { len: H, kind: 'ends', n: nH }]) };
+  const shortSide = { w: W, h: H, pts: fingerPanel(W, H, t, [{ len: W, kind: 'ends', n: nW }, { len: H, kind: 'gaps', n: nH }, top(nW, W), { len: H, kind: 'gaps', n: nH }]) };
+  const base = { w: L, h: W, pts: fingerPanel(L, W, t, [{ len: L, kind: 'gaps', n: nL }, { len: W, kind: 'gaps', n: nW }, { len: L, kind: 'gaps', n: nL }, { len: W, kind: 'gaps', n: nW }]) };
+  return [longSide, longSide, shortSide, shortSide, base, ...(lid ? [base] : [])];
+}
+
 /* ───────── Motiven ───────── */
 
 export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
@@ -741,39 +790,43 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
 
   /* ───────── Sammanfogning ───────── */
   {
-    id: 'finger-joint',
+    id: 'finger-box',
     category: 'joinery',
     kind: 'area',
-    size: { w: 180, h: 100 },
+    size: { w: 400, h: 300 },
     fixedSize: true,
     controls: [
-      { key: 'width', min: 30, max: 600, def: 180, unit: 'mm' },
-      { key: 'height', min: 30, max: 600, def: 100, unit: 'mm' },
-      { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 15, unit: 'mm' },
+      { key: 'length', min: 40, max: 600, def: 120, unit: 'mm' },
+      { key: 'width', min: 40, max: 600, def: 80, unit: 'mm' },
+      { key: 'height', min: 20, max: 400, def: 40, unit: 'mm' },
+      { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 10, unit: 'mm' },
       { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm' },
+      { key: 'lid', options: ['open', 'closed'], def: 'open' },
     ],
     build: (_w, _h, p) => {
-      // Fingrar på vänster och höger kant; ett udda antal så att båda ändarna blir fingrar.
-      const w = num(p, 'width'), h = num(p, 'height'), t = Math.min(num(p, 'thickness'), w / 4);
-      let n = Math.max(3, Math.round(h / num(p, 'fingerWidth')));
-      if (n % 2 === 0) n++;
-      const seg = h / n, hw = w / 2, hh = h / 2;
-      const pts: Vec2[] = [P(-hw, -hh), P(hw, -hh)];
-      for (const i of range(n)) {
-        const x = i % 2 ? hw - t : hw;
-        pts.push(P(x, -hh + i * seg), P(x, -hh + (i + 1) * seg));
+      // Lådans yttermått. Långsidorna äger hörnen (fingrar ytterst), kortsidorna
+      // och botten har urtag där – så att alla kanter griper i varandra.
+      const L = num(p, 'length'), W = num(p, 'width'), H = num(p, 'height');
+      const t = Math.min(num(p, 'thickness'), L / 4, W / 4, H / 3);
+      const f = num(p, 'fingerWidth'), lid = opt(p, 'lid') === 'closed';
+      const panels = fingerBox(L, W, H, t, f, lid);
+      // Delarna i två kolumner med 10 mm mellanrum.
+      const gap = 10, out: VectorPath[] = [];
+      const colW = Math.max(L, W);
+      let y = 0;
+      const rows: { w: number; h: number; pts: Vec2[] }[][] = [];
+      for (let i = 0; i < panels.length; i += 2) rows.push(panels.slice(i, i + 2));
+      const totalH = rows.reduce((acc, r) => acc + Math.max(...r.map((q) => q.h)), 0) + gap * (rows.length - 1);
+      const totalW = 2 * colW + gap;
+      for (const r of rows) {
+        const rh = Math.max(...r.map((q) => q.h));
+        r.forEach((q, c) => {
+          const ox = -totalW / 2 + c * (colW + gap) + (colW - q.w) / 2, oy = totalH / 2 - y - rh + (rh - q.h) / 2;
+          out.push(poly(q.pts.map((v) => P(v.x + ox, v.y + oy))));
+        });
+        y += rh + gap;
       }
-      pts.push(P(-hw, hh));
-      for (const i of range(n).reverse()) {
-        const x = i % 2 ? -hw + t : -hw;
-        pts.push(P(x, -hh + (i + 1) * seg), P(x, -hh + i * seg));
-      }
-      // Ta bort punkter som ligger på samma ställe.
-      const clean = pts.filter((q, i) => {
-        const r = pts[(i + 1) % pts.length];
-        return Math.hypot(q.x - r.x, q.y - r.y) > 1e-6;
-      });
-      return [poly(clean)];
+      return out;
     },
   },
   {

@@ -2,7 +2,7 @@
   "name": "@desktopcam/web",
   "private": true,
   "license": "UNLICENSED",
-  "version": "0.44.0",
+  "version": "0.44.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
