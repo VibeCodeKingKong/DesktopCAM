@@ -278,6 +278,20 @@ export function plasmaGcode(job: PlasmaJob): string {
   const nested = nestGroups(job.groups.map((g) => g.filter((x) => x.closed)).filter((g) => g.length));
   const smallHoles = findSmallHoles(nested, side, job.kerf, job.thickness);
   const removed = new Set(smallHoles.map((h) => `${h.group}:${h.loop}`));
+  // Borrmärken/genomstick: närmaste hål i tur och ordning, före konturerna.
+  const markOrder: SmallHole[] = [];
+  if (s.smallHoles !== 'skip') {
+    const left = [...smallHoles];
+    let mx = 0, my = 0;
+    while (left.length) {
+      let bi = 0;
+      for (let i = 1; i < left.length; i++) if (Math.hypot(left[i].x - mx, left[i].y - my) < Math.hypot(left[bi].x - mx, left[bi].y - my)) bi = i;
+      const h = left.splice(bi, 1)[0];
+      markOrder.push(h);
+      mx = h.x;
+      my = h.y;
+    }
+  }
   const closedGroups = nested.map((g, gi) => g.filter((x, li) => x.closed && !removed.has(`${gi}:${li}`))).filter((g) => g.length);
   const open = job.groups.flat().filter((x) => !x.closed);
   const loops: PolylineInput[] = side === 'on' ? closedGroups.flat() : closedGroups.length ? offsetShapes(closedGroups, side === 'outside' ? half : -half) : [];
@@ -312,8 +326,60 @@ export function plasmaGcode(job: PlasmaJob): string {
     const left: P = [-T[1], T[0]];
     cuts.push({ path, closed: true, hole, diameter: 2 * Math.sqrt(Math.abs(a) / Math.PI), scrap: scrapLeft ? left : [-left[0], -left[1]], tangent: T });
   }
-  // Hål först (minst först), sedan ytterkonturer – detaljen lossnar sist.
-  cuts.sort((x, y) => (x.hole === y.hole ? x.diameter - y.diameter : x.hole ? -1 : 1));
+  // Ordning: detalj för detalj, närmaste först. Inom en detalj skärs hålen
+  // först (närmaste först) och ytterkonturen sist – detaljen lossnar sist.
+  const inPath = (q: P, path: P[]) => {
+    let c = false;
+    for (let i = 0, j = path.length - 1; i < path.length; j = i++) {
+      const [xi, yi] = path[i], [xj, yj] = path[j];
+      if (yi > q[1] !== yj > q[1] && q[0] < ((xj - xi) * (q[1] - yi)) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  };
+  const outers = cuts.filter((c) => !c.hole).sort((a, b) => a.diameter - b.diameter);
+  const holes = cuts.filter((c) => c.hole);
+  // Varje hål hör till den minsta ytterkontur som omsluter det.
+  const owned = new Map<Cut, Cut[]>(outers.map((o) => [o, []]));
+  const loose: Cut[] = [];
+  for (const h of holes) {
+    const o = outers.find((x) => inPath(h.path[0], x.path));
+    if (o) owned.get(o)!.push(h);
+    else loose.push(h);
+  }
+  const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const nearestOrder = (list: Cut[], from: P): { order: Cut[]; at: P } => {
+    const left = list.slice(), order: Cut[] = [];
+    let at = from;
+    while (left.length) {
+      let bi = 0;
+      for (let i = 1; i < left.length; i++) if (dist(left[i].path[0], at) < dist(left[bi].path[0], at)) bi = i;
+      const c = left.splice(bi, 1)[0];
+      order.push(c);
+      at = c.path[c.path.length - 1];
+    }
+    return { order, at };
+  };
+  const ordered: Cut[] = [];
+  {
+    // Lösa hål (utan detalj runt sig) räknas som egna detaljer.
+    const units: { first: P; cuts: Cut[] }[] = [
+      ...outers.map((o) => ({ first: (owned.get(o)![0] ?? o).path[0], cuts: [...owned.get(o)!, o] })),
+      ...loose.map((h) => ({ first: h.path[0], cuts: [h] })),
+    ];
+    const lastMark = markOrder[markOrder.length - 1];
+    let at: P = lastMark ? [lastMark.x, lastMark.y] : [0, 0];
+    while (units.length) {
+      let bi = 0;
+      for (let i = 1; i < units.length; i++) if (dist(units[i].first, at) < dist(units[bi].first, at)) bi = i;
+      const u = units.splice(bi, 1)[0];
+      const hs = u.cuts.filter((c) => c.hole);
+      const o = u.cuts.filter((c) => !c.hole);
+      const r = nearestOrder(hs, at);
+      ordered.push(...r.order, ...o);
+      at = (o[0] ?? r.order[r.order.length - 1]).path[0];
+    }
+  }
+  cuts.splice(0, cuts.length, ...ordered);
   const openCuts: Cut[] = open
     .map((o) => toPoints(o.points))
     .filter((pts) => pts.length >= 2)
@@ -338,20 +404,9 @@ export function plasmaGcode(job: PlasmaJob): string {
   const line = (q: P, rate: number) => out.push(`G1 X${f(q[0])} Y${f(q[1])}${feed(rate)}`);
 
   // Små hål först: borrmärke (kort tändning) eller genomstickning i mitten.
-  if (s.smallHoles !== 'skip' && smallHoles.length) {
-    out.push(`; ${smallHoles.length} small hole(s): ${s.smallHoles === 'mark' ? 'drill marks' : 'pierce only'}`);
-    // Närmaste hål i tur och ordning (korta förflyttningar).
-    const left = [...smallHoles], order: SmallHole[] = [];
-    let at: P = [0, 0];
-    while (left.length) {
-      let bi = 0;
-      for (let i = 1; i < left.length; i++)
-        if (Math.hypot(left[i].x - at[0], left[i].y - at[1]) < Math.hypot(left[bi].x - at[0], left[bi].y - at[1])) bi = i;
-      const h = left.splice(bi, 1)[0];
-      order.push(h);
-      at = [h.x, h.y];
-    }
-    for (const h of order) {
+  if (markOrder.length) {
+    out.push(`; ${markOrder.length} small hole(s): ${s.smallHoles === 'mark' ? 'drill marks' : 'pierce only'}`);
+    for (const h of markOrder) {
       out.push(`G0 X${f(h.x)} Y${f(h.y)}`);
       if (job.zAxis && s.ihs) out.push(`G38.2 Z${f(-(job.thickness + 25))} F300`, `G92 Z${f(-s.ihsSwitchOffset)}`);
       z(s.pierceHeight);

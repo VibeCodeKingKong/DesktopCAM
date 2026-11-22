@@ -1,3 +1,4 @@
+import { chainRapids } from '../../cam/rapidChain';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FileUp } from 'lucide-react';
 import { shapeToPolylines } from '@desktopcam/core';
@@ -127,6 +128,9 @@ export function Viewport() {
                   : undefined,
           }))
       : [];
+    // Banor utan egen förskjutning körs efter varandra: koppla ihop förflyttningarna.
+    const chained = display.filter((d) => !d.offset || (d.offset.x === 0 && d.offset.y === 0));
+    chainRapids(chained.map((d) => d.rapids)).forEach((r, i) => (chained[i].rapids = r));
     ctlRef.current.setToolpaths(display, view.showRapids);
   }, [theme, toolpaths, results, selectedToolpathId, view.showToolpaths, view.showRapids, simActive, blanks, tools]);
 
