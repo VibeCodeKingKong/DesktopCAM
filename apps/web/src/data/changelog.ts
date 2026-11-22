@@ -1,8 +1,11 @@
 /**
  * Versionshistorik som visas i appen (Om desktopCAM → Nyheter).
- * Lägg till en ny post överst och höj versionen i apps/web/package.json
- * (och i roten) vid varje uppdatering. Den översta posten ska ha samma
- * version som package.json – det kontrolleras när appen startar i dev-läge.
+ * En post per dag: görs en ny version samma dag som den översta posten,
+ * uppdateras den posten (versionen och texten, som då täcker hela dagens
+ * nyheter) i stället för att en ny läggs till. Höj versionen i
+ * apps/web/package.json (och i roten) vid varje uppdatering. Den översta
+ * posten ska ha samma version som package.json – det kontrolleras när appen
+ * startar i dev-läge.
  *
  * Varje post måste ha text på alla språk i appen – typen kräver det.
  *
@@ -20,7 +23,7 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    version: '0.42.0',
+    version: '0.42.1',
     date: '2026-11-22',
     text: {
       sv: ["**Gruppera former** Håll ihop delar som hör till samma detalj, till exempel en skylt med text och ram. Markera formerna och välj Design → Gruppera (⌘G). Sedan flyttas, vrids och rätas de upp tillsammans. I projektträdet kan du fortfarande välja en enskild del, och med Dela upp blir de fristående igen.", "**Markera flera former på telefonen** Tryck på Markera flera i knappraden längst ner. Varje tryck på en form lägger till den, och drar du med fingret över en tom yta markeras allt inom rutan.", "**Markera med en ruta på datorn** Håll ned Shift och dra över en tom yta. ⌘A markerar allt, och i projektträdet kan du markera alla former i ett lager.", "**Fotot följer med** Flyttar du former som du spårat från ett foto flyttas fotot med, så att de fortsätter ligga rätt."],

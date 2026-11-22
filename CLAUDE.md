@@ -42,6 +42,11 @@ Varje uppdatering som ändrar appen ska:
 - få en post överst i `apps/web/src/data/changelog.ts` på **alla** språk i
   appen (sv, en, fr, de, es, pl, uk) – den visas i appen under Om desktopCAM →
   Nyheter. Typen `Record<Language, string[]>` kräver alla språk.
+- **En post per dag**: har den översta posten dagens datum, uppdatera den i
+  stället för att lägga till en ny – sätt `version` till den nya versionen och
+  skriv om texten så att den täcker alla dagens nyheter (fortfarande högst
+  3–5 punkter, det viktigaste först). En ny post läggs bara till första
+  uppdateringen en ny dag.
 - Ett nytt språk läggs till i `i18n/initial.ts` (`LANGUAGE_CODES`), som ny
   ordlista i `i18n/` registrerad i `i18n/index.ts`, och i varje post i
   `changelog.ts`.

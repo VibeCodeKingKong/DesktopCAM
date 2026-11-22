@@ -22,8 +22,9 @@ export function AboutDialog() {
           {CHANGELOG.map((e) => (
             <li key={e.version}>
               <p className="mb-1 flex items-baseline gap-2 text-sm">
-                <span className="font-semibold tabular-nums">{e.version}</span>
-                <span className="text-2xs text-muted">{new Date(e.date).toLocaleDateString(t.locale, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                {/* En post per dag: datumet som rubrik, dagens senaste version bredvid. */}
+                <span className="font-semibold">{new Date(e.date).toLocaleDateString(t.locale, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <span className="text-2xs tabular-nums text-muted">v{e.version}</span>
                 {e.version === APP_VERSION && <span className="rounded bg-accent/10 px-1.5 py-0.5 text-2xs font-medium text-accent">{t.about.current}</span>}
               </p>
               <ul className="list-disc space-y-0.5 pl-5 text-xs leading-relaxed">
