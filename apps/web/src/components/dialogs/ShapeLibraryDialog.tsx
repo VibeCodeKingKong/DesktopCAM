@@ -1,31 +1,67 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Lock, Unlock } from 'lucide-react';
-import { buildLibraryShape, DEFAULT_SHAPE_PARAMS, SHAPE_LIBRARY, shapeToPolylines, type ShapeLibraryCategory, type ShapeLibraryItem, type ShapeLibraryParams } from '@desktopcam/core';
+import { buildLibraryShape, DEFAULT_SHAPE_PARAMS, SHAPE_LIBRARY, shapeToPolylines, type ShapeLibraryCategory, type ShapeLibraryControl, type ShapeLibraryItem, type ShapeLibraryParams } from '@desktopcam/core';
 import { useT } from '../../i18n';
 import { useAppStore } from '../../store/useAppStore';
 import { Dialog } from '../ui/Dialog';
-import { FieldRow, NumberField, Segmented } from '../ui/Field';
+import { FieldRow, NumberField, SelectField } from '../ui/Field';
 
-const CATEGORIES: (ShapeLibraryCategory | 'all')[] = ['all', 'frames', 'banners', 'ornaments', 'textures'];
+const CATEGORIES: (ShapeLibraryCategory | 'all')[] = ['all', 'basic', 'frames', 'banners', 'ornaments', 'mechanical', 'joinery', 'textures'];
+
+/** Motivets polylinjer och omslutande ruta (mm). */
+function geometry(item: ShapeLibraryItem, w: number, h: number, params: ShapeLibraryParams) {
+  const shape = buildLibraryShape(item, '', w, h, params, 0, 0);
+  let path = '';
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const pl of shapeToPolylines(shape)) {
+    const pts: string[] = [];
+    for (let i = 0; i + 1 < pl.points.length; i += 2) {
+      const x = pl.points[i], y = pl.points[i + 1];
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      pts.push(`${x.toFixed(2)},${(-y).toFixed(2)}`);
+    }
+    path += `M${pts.join('L')}${pl.closed ? 'Z' : ''}`;
+  }
+  if (!Number.isFinite(x0)) (x0 = -w / 2), (x1 = w / 2), (y0 = -h / 2), (y1 = h / 2);
+  return { d: path, x0, y0, x1, y1 };
+}
 
 /** SVG-förhandsvisning av ett motiv i given storlek. */
 function Preview({ item, w, h, params, className }: { item: ShapeLibraryItem; w: number; h: number; params: ShapeLibraryParams; className?: string }) {
-  const { d, vb } = useMemo(() => {
-    const shape = buildLibraryShape(item, '', w, h, params, 0, 0);
-    let path = '';
-    for (const pl of shapeToPolylines(shape)) {
-      const pts: string[] = [];
-      for (let i = 0; i + 1 < pl.points.length; i += 2) pts.push(`${pl.points[i].toFixed(2)},${(-pl.points[i + 1]).toFixed(2)}`);
-      path += `M${pts.join('L')}${pl.closed ? 'Z' : ''}`;
-    }
-    const m = Math.max(w, h) * 0.06;
-    return { d: path, vb: `${-w / 2 - m} ${-h / 2 - m} ${w + 2 * m} ${h + 2 * m}` };
-  }, [item, w, h, params]);
-  const sw = Math.max(w, h) / 160;
+  const g = useMemo(() => geometry(item, w, h, params), [item, w, h, params]);
+  const gw = g.x1 - g.x0, gh = g.y1 - g.y0, m = Math.max(gw, gh) * 0.06;
+  const vb = `${g.x0 - m} ${-g.y1 - m} ${gw + 2 * m} ${gh + 2 * m}`;
+  const sw = Math.max(gw, gh) / 160;
   return (
     <svg viewBox={vb} className={className} aria-hidden="true">
-      <path d={d} fillRule="evenodd" className={item.kind === 'lines' ? 'fill-none stroke-ink' : 'fill-wood stroke-ink/70'} strokeWidth={item.kind === 'lines' ? sw * 1.4 : sw} strokeLinejoin="round" strokeLinecap="round" />
+      <path d={g.d} fillRule="evenodd" className={item.kind === 'lines' ? 'fill-none stroke-ink' : 'fill-wood stroke-ink/70'} strokeWidth={item.kind === 'lines' ? sw * 1.4 : sw} strokeLinejoin="round" strokeLinecap="round" />
     </svg>
+  );
+}
+
+/** Ett reglage: dragreglage med värde (eller val bland alternativ). */
+function ControlField({ control, value, onChange }: { control: ShapeLibraryControl; value: number | string; onChange: (v: number | string) => void }) {
+  const t = useT();
+  const L = t.shapeLib;
+  const label = L.controls[control.key] ?? control.key;
+  if ('options' in control)
+    return (
+      <SelectField label={label} value={String(value)} options={control.options.map((o) => ({ value: o, label: L.choices[o] ?? o }))} onChange={onChange} />
+    );
+  const v = Number(value);
+  const id = `shapelib-${control.key}`;
+  const unit = control.unit === 'mm' ? ' mm' : control.unit === '%' ? ' %' : '';
+  return (
+    <div className="space-y-0.5">
+      <div className="flex items-baseline justify-between gap-2 text-xs">
+        <label htmlFor={id}>{label}</label>
+        <output htmlFor={id} className="tabular-nums text-muted">
+          {v.toLocaleString(t.locale, { maximumFractionDigits: 1 })}
+          {unit}
+        </output>
+      </div>
+      <input id={id} type="range" className="w-full accent-[rgb(var(--c-accent))]" min={control.min} max={control.max} step={control.step ?? 1} value={v} onChange={(e) => onChange(Number(e.target.value))} />
+    </div>
   );
 }
 
@@ -41,9 +77,13 @@ export function ShapeLibraryDialog() {
   const [height, setHeight] = useState(60);
   const [lock, setLock] = useState(true);
   const [params, setParams] = useState<ShapeLibraryParams>(DEFAULT_SHAPE_PARAMS);
+  const [values, setValues] = useState<Record<string, number | string>>({});
 
   const item = SHAPE_LIBRARY.find((x) => x.id === selectedId) ?? SHAPE_LIBRARY[0];
-  const items = SHAPE_LIBRARY.filter((x) => category === 'all' || x.category === category);
+  const items = SHAPE_LIBRARY.filter((x) => category === 'all' || x.category === category)
+    .map((x, i) => ({ x, i }))
+    .sort((a, b) => CATEGORIES.indexOf(a.x.category) - CATEGORIES.indexOf(b.x.category) || a.i - b.i)
+    .map(({ x }) => x);
   const aspect = item.size.w / item.size.h;
 
   // Standardstorlek: motivets egen, nedskalad så att den ryms på materialet.
@@ -52,19 +92,26 @@ export function ShapeLibraryDialog() {
     setWidth(Math.round(item.size.w * k));
     setHeight(Math.round(item.size.h * k));
     setParams({ band: Math.max(2, Math.round(Math.min(item.size.w, item.size.h) * k * 0.08)), spacing: Math.max(3, Math.round(Math.min(item.size.w, item.size.h) * k * 0.09)) });
+    setValues(Object.fromEntries((item.controls ?? []).map((c) => [c.key, c.def])));
   }, [item, material.width, material.height]);
+  const full = useMemo(() => ({ ...params, values }), [params, values]);
+  // Verklig storlek (för motiv vars mått styrs av reglagen).
+  const size = useMemo(() => {
+    const g = geometry(item, width, height, full);
+    return { w: g.x1 - g.x0, h: g.y1 - g.y0 };
+  }, [item, width, height, full]);
 
   const close = () => useAppStore.getState().openDialog(null);
   const add = () => {
     const s = useAppStore.getState();
     const name = L.items[item.id] ?? item.id;
     const n = s.layers.flatMap((l) => l.shapes).filter((x) => x.name.startsWith(name)).length + 1;
-    s.addShape(buildLibraryShape(item, `${name} ${n}`, width, height, params, material.width / 2, material.height / 2));
+    s.addShape(buildLibraryShape(item, `${name} ${n}`, width, height, full, material.width / 2, material.height / 2));
     s.setEditTool('select');
     s.setStatus(L.added(name));
     close();
   };
-  const tooBig = width > material.width || height > material.height;
+  const tooBig = size.w > material.width + 1e-6 || size.h > material.height + 1e-6;
 
   return (
     <Dialog
@@ -73,8 +120,18 @@ export function ShapeLibraryDialog() {
       title={L.title}
       width="max-w-5xl"
       actions={
-        <div className="w-full sm:ml-2 sm:w-[26rem]">
-          <Segmented label={L.title} value={category} onChange={setCategory} options={CATEGORIES.map((c) => ({ value: c, label: L.categories[c] }))} />
+        <div className="flex w-full flex-wrap gap-1 sm:ml-2" role="radiogroup" aria-label={L.title}>
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              role="radio"
+              aria-checked={category === c}
+              onClick={() => setCategory(c)}
+              className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${category === c ? 'border-accent bg-accent text-white' : 'border-line hover:border-muted/60'}`}
+            >
+              {L.categories[c]}
+            </button>
+          ))}
         </div>
       }
       footer={
@@ -116,39 +173,48 @@ export function ShapeLibraryDialog() {
 
         <aside className="space-y-3 border-t border-line p-4 md:border-l md:border-t-0">
           <div className="flex h-40 justify-center rounded-lg bg-app p-3">
-            <Preview item={item} w={width} h={height} params={params} className="h-full w-full" />
+            <Preview item={item} w={width} h={height} params={full} className="h-full w-full" />
           </div>
           <div>
             <h3 className="text-sm font-semibold">{L.items[item.id] ?? item.id}</h3>
-            <p className="mt-0.5 text-xs leading-relaxed text-muted">{L.kindDesc[item.kind]}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted">{L.hints[item.id] ?? L.kindDesc[item.kind]}</p>
           </div>
           <div className="space-y-2">
-            <NumberField
-              label={t.props.width}
-              unit="mm"
-              min={5}
-              value={width}
-              onChange={(w) => {
-                setWidth(w);
-                if (lock) setHeight(Math.round((w / aspect) * 10) / 10);
-              }}
-            />
-            <NumberField
-              label={t.props.height}
-              unit="mm"
-              min={5}
-              value={height}
-              onChange={(h) => {
-                setHeight(h);
-                if (lock) setWidth(Math.round(h * aspect * 10) / 10);
-              }}
-            />
-            <FieldRow label={t.props.lockAspect}>
-              <button className="btn h-6 px-2" onClick={() => setLock((l) => !l)} aria-pressed={lock}>
-                {lock ? <Lock size={12} /> : <Unlock size={12} />}
-                {lock ? t.common.locked : t.common.free}
-              </button>
-            </FieldRow>
+            {item.fixedSize ? (
+              <p className="text-xs tabular-nums text-muted">{L.size(size.w.toLocaleString(t.locale, { maximumFractionDigits: 1 }), size.h.toLocaleString(t.locale, { maximumFractionDigits: 1 }))}</p>
+            ) : (
+              <>
+                <NumberField
+                  label={t.props.width}
+                  unit="mm"
+                  min={5}
+                  value={width}
+                  onChange={(w) => {
+                    setWidth(w);
+                    if (lock) setHeight(Math.round((w / aspect) * 10) / 10);
+                  }}
+                />
+                <NumberField
+                  label={t.props.height}
+                  unit="mm"
+                  min={5}
+                  value={height}
+                  onChange={(h) => {
+                    setHeight(h);
+                    if (lock) setWidth(Math.round(h * aspect * 10) / 10);
+                  }}
+                />
+                <FieldRow label={t.props.lockAspect}>
+                  <button className="btn h-6 px-2" onClick={() => setLock((l) => !l)} aria-pressed={lock}>
+                    {lock ? <Lock size={12} /> : <Unlock size={12} />}
+                    {lock ? t.common.locked : t.common.free}
+                  </button>
+                </FieldRow>
+              </>
+            )}
+            {(item.controls ?? []).map((c) => (
+              <ControlField key={c.key} control={c} value={values[c.key] ?? c.def} onChange={(v) => setValues((o) => ({ ...o, [c.key]: v }))} />
+            ))}
             {item.param === 'band' && <NumberField label={L.band} unit="mm" min={1} step={0.5} value={params.band} onChange={(band) => setParams((p) => ({ ...p, band }))} />}
             {item.param === 'spacing' && <NumberField label={L.spacing} unit="mm" min={2} step={0.5} value={params.spacing} onChange={(spacing) => setParams((p) => ({ ...p, spacing }))} />}
             {tooBig && <p className="text-xs text-warn">{L.tooBig}</p>}

@@ -950,8 +950,21 @@ export const pl: Dict = {
 
   shapeLib: {
     title: 'Biblioteka kształtów',
-    categories: { all: 'Wszystkie', frames: 'Ramki', banners: 'Banery', ornaments: 'Ornamenty', textures: 'Wzory' },
+    categories: { all: 'Wszystkie', basic: 'Kształty podstawowe', mechanical: 'Części mechaniczne', joinery: 'Złącza', frames: 'Ramki', banners: 'Banery', ornaments: 'Ornamenty', textures: 'Wzory' },
     items: {
+      'polygon': 'Wielokąt',
+      'corner-plate': 'Tabliczka z narożnikami',
+      'speech-bubble': 'Dymek',
+      'scallop-frame': 'Ramka falista',
+      'flower': 'Kwiat',
+      'flange': 'Kołnierz',
+      'mount-plate': 'Płyta montażowa',
+      'slot': 'Otwór podłużny',
+      'keyhole': 'Otwór do zawieszenia',
+      'finger-joint': 'Bok pudełka na wczepy',
+      'tab-slot': 'Czop i gniazdo',
+      'puzzle': 'Puzzle',
+      'vent': 'Kratka wentylacyjna',
       'frame-rect': 'Ramka zaokrąglona',
       'frame-oval': 'Ramka owalna',
       'frame-plaque': 'Tabliczka z wklęsłymi narożnikami',
@@ -978,6 +991,10 @@ export const pl: Dict = {
     add: 'Dodaj',
     added: (n: string) => `Dodano: ${n} – wybierz obróbkę we Właściwościach`,
     tooBig: 'Motyw jest większy niż materiał.',
+    controls: { points: 'Ramiona', innerRadius: 'Promień wewnętrzny', rounding: 'Zaokrąglenie', sides: 'Boki', cornerRadius: 'Promień narożnika', cornerSize: 'Rozmiar narożnika', cornerStyle: 'Narożniki', tailPos: 'Położenie strzałki', tailLength: 'Długość strzałki', arcs: 'Liczba łuków', arcDepth: 'Głębokość łuków', petals: 'Płatki', petalDepth: 'Głębokość płatków', centerHole: 'Otwór w środku', outerDia: 'Średnica zewnętrzna', innerDia: 'Średnica wewnętrzna', holeCount: 'Liczba otworów', holeDia: 'Średnica otworu', width: 'Szerokość', height: 'Wysokość', cols: 'Otwory w poziomie', rows: 'Otwory w pionie', edgeDist: 'Odległość od krawędzi', slotLength: 'Długość (rozstaw osi)', slotWidth: 'Szerokość', headDia: 'Otwór na łeb wkrętu', fingerWidth: 'Szerokość wczepu', thickness: 'Grubość materiału', tabCount: 'Liczba czopów', tabWidth: 'Szerokość czopa', knob: 'Rozmiar wypustki', seed: 'Wzór nr', slotCount: 'Liczba szczelin', gap: 'Odstęp' } as Record<string, string>,
+    choices: { round: 'Zaokrąglone', chamfer: 'Fazowane', inward: 'Wklęsłe' } as Record<string, string>,
+    hints: { 'keyhole': 'Frezuj jako kieszeń z tyłu tabliczki, na mniej więcej połowę grubości. Łeb wkrętu wchodzi w okrągły otwór, a tabliczka wisi w szczelinie.', 'finger-joint': 'Wytnij cztery boki i co drugi obróć, aby wczepy się zazębiały. Ustaw grubość jak grubość materiału.', 'tab-slot': 'Czopy górnej płyty pasują do gniazd w dolnej – do półek i stojaków składanych bez wkrętów.', 'flange': 'Otwory na śruby leżą w połowie drogi między otworem wewnętrznym a krawędzią.', 'puzzle': 'Zmień numer wzoru, aby dostać nowe puzzle. Tnij wzdłuż linii laserem lub frezarką.' } as Record<string, string>,
+    size: (w: string, h: string) => `Rozmiar ${w} × ${h} mm`,
   },
 
   contour: {

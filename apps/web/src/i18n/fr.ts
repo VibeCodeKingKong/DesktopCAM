@@ -943,8 +943,21 @@ export const fr: Dict = {
 
   shapeLib: {
     title: 'Bibliothèque de formes',
-    categories: { all: 'Tous', frames: 'Cadres', banners: 'Bannières', ornaments: 'Ornements', textures: 'Motifs' },
+    categories: { all: 'Tous', basic: 'Formes de base', mechanical: 'Pièces mécaniques', joinery: 'Assemblages', frames: 'Cadres', banners: 'Bannières', ornaments: 'Ornements', textures: 'Motifs' },
     items: {
+      'polygon': 'Polygone',
+      'corner-plate': 'Plaque à coins',
+      'speech-bubble': 'Bulle',
+      'scallop-frame': 'Cadre festonné',
+      'flower': 'Fleur',
+      'flange': 'Bride',
+      'mount-plate': 'Platine de fixation',
+      'slot': 'Trou oblong',
+      'keyhole': 'Trou de serrure (accroche)',
+      'finger-joint': 'Côté de boîte à entures',
+      'tab-slot': 'Tenon et fente',
+      'puzzle': 'Puzzle',
+      'vent': 'Grille d’aération',
       'frame-rect': 'Cadre arrondi',
       'frame-oval': 'Cadre ovale',
       'frame-plaque': 'Plaque à coins incurvés',
@@ -971,6 +984,10 @@ export const fr: Dict = {
     add: 'Ajouter',
     added: (n: string) => `${n} ajouté – choisissez l’usinage dans Propriétés`,
     tooBig: 'Le motif est plus grand que le matériau.',
+    controls: { points: 'Branches', innerRadius: 'Rayon intérieur', rounding: 'Arrondi', sides: 'Côtés', cornerRadius: 'Rayon des coins', cornerSize: 'Taille des coins', cornerStyle: 'Coins', tailPos: 'Position de la pointe', tailLength: 'Longueur de la pointe', arcs: 'Nombre d’arcs', arcDepth: 'Profondeur des arcs', petals: 'Pétales', petalDepth: 'Profondeur des pétales', centerHole: 'Trou central', outerDia: 'Diamètre extérieur', innerDia: 'Diamètre intérieur', holeCount: 'Nombre de trous', holeDia: 'Diamètre des trous', width: 'Largeur', height: 'Hauteur', cols: 'Trous en largeur', rows: 'Trous en hauteur', edgeDist: 'Distance au bord', slotLength: 'Longueur (entraxe)', slotWidth: 'Largeur', headDia: 'Trou pour tête de vis', fingerWidth: 'Largeur des doigts', thickness: 'Épaisseur du matériau', tabCount: 'Nombre de tenons', tabWidth: 'Largeur des tenons', knob: 'Taille des tenons', seed: 'Motif n°', slotCount: 'Nombre de fentes', gap: 'Espacement' } as Record<string, string>,
+    choices: { round: 'Arrondis', chamfer: 'Chanfreinés', inward: 'Concaves' } as Record<string, string>,
+    hints: { 'keyhole': 'Usinez en poche au dos du panneau, environ la moitié de l’épaisseur. La tête de vis entre dans le trou rond et le panneau s’accroche dans la fente.', 'finger-joint': 'Découpez quatre côtés et retournez-en un sur deux pour que les doigts s’emboîtent. Réglez l’épaisseur comme celle du matériau.', 'tab-slot': 'Les tenons de la plaque supérieure entrent dans les fentes de la plaque inférieure – pour étagères et supports sans vis.', 'flange': 'Les trous de fixation se trouvent à mi-chemin entre le trou central et le bord.', 'puzzle': 'Changez le numéro de motif pour un nouveau puzzle. Découpez le long des lignes au laser ou à la fraiseuse.' } as Record<string, string>,
+    size: (w: string, h: string) => `Taille ${w} × ${h} mm`,
   },
 
   contour: {

@@ -10,14 +10,21 @@
 import { uid } from './geometry';
 import type { PathSegment, Vec2, VectorPath, VectorShape } from './types';
 
-export type ShapeLibraryCategory = 'frames' | 'banners' | 'ornaments' | 'textures';
+export type ShapeLibraryCategory = 'basic' | 'frames' | 'banners' | 'ornaments' | 'mechanical' | 'joinery' | 'textures';
 
 export interface ShapeLibraryParams {
   /** Ramens bredd (mm). */
   band: number;
   /** Avstånd mellan linjer eller celler (mm). */
   spacing: number;
+  /** Värden för motivets reglage (se ShapeLibraryItem.controls). */
+  values?: Record<string, number | string>;
 }
+
+/** Reglage för ett motiv: ett tal (dragreglage) eller ett val bland alternativ. */
+export type ShapeLibraryControl =
+  | { key: string; min: number; max: number; step?: number; def: number; unit?: 'mm' | '%' }
+  | { key: string; options: string[]; def: string };
 
 export interface ShapeLibraryItem {
   id: string;
@@ -26,7 +33,11 @@ export interface ShapeLibraryItem {
   kind: 'area' | 'lines' | 'holes';
   size: { w: number; h: number };
   /** Vilken extra inställning motivet har. */
-  param?: keyof ShapeLibraryParams;
+  param?: 'band' | 'spacing';
+  /** Reglage som ändrar motivets form. */
+  controls?: ShapeLibraryControl[];
+  /** Måtten styrs av reglagen (t.ex. en fläns) – inga fält för bredd och höjd. */
+  fixedSize?: boolean;
   build: (w: number, h: number, p: ShapeLibraryParams) => VectorPath[];
 }
 
@@ -114,6 +125,76 @@ function scallopRect(hw: number, hh: number, c: number, inset: number): VectorPa
       arc(P(-hw + dx, -ey), corner(-1, -1)),
     ],
   };
+}
+
+/** Värdet för ett reglage (standardvärdet fylls i av buildLibraryShape). */
+const num = (p: ShapeLibraryParams, k: string) => Number(p.values?.[k] ?? 0);
+const opt = (p: ShapeLibraryParams, k: string) => String(p.values?.[k] ?? '');
+
+/** Moturs ordning (positiv area). */
+function ccw(pts: Vec2[]): Vec2[] {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i], q = pts[(i + 1) % pts.length];
+    a += p.x * q.y - q.x * p.y;
+  }
+  return a < 0 ? pts.slice().reverse() : pts;
+}
+
+/** Sluten månghörning med hörnen rundade med radien r (bågar, även inåtgående hörn). */
+function filletPoly(input: Vec2[], r: number): VectorPath {
+  const pts = ccw(input);
+  if (!(r > 0)) return poly(pts);
+  const n = pts.length;
+  const corners = pts.map((p, i) => {
+    const a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    const la = Math.hypot(a.x - p.x, a.y - p.y), lb = Math.hypot(b.x - p.x, b.y - p.y);
+    const u1 = P((a.x - p.x) / la, (a.y - p.y) / la), u2 = P((b.x - p.x) / lb, (b.y - p.y) / lb);
+    const cos = Math.max(-1, Math.min(1, u1.x * u2.x + u1.y * u2.y));
+    const th = Math.acos(cos);
+    if (th < 1e-3 || Math.PI - th < 1e-3) return null;
+    let t = r / Math.tan(th / 2);
+    t = Math.min(t, la / 2 - 1e-6, lb / 2 - 1e-6);
+    const re = t * Math.tan(th / 2);
+    const bl = Math.hypot(u1.x + u2.x, u1.y + u2.y);
+    const dc = re / Math.sin(th / 2);
+    const c = P(p.x + ((u1.x + u2.x) / bl) * dc, p.y + ((u1.y + u2.y) / bl) * dc);
+    // Inåtgående hörn (högersväng i en moturs kontur) rundas medurs.
+    const turn = (p.x - a.x) * (b.y - p.y) - (p.y - a.y) * (b.x - p.x);
+    return { s: P(p.x + u1.x * t, p.y + u1.y * t), e: P(p.x + u2.x * t, p.y + u2.y * t), c, cw: turn < 0 };
+  });
+  const startOf = (i: number) => corners[i]?.s ?? pts[i];
+  const segs: PathSegment[] = [];
+  for (let i = 0; i < n; i++) {
+    const k = corners[i];
+    if (k) segs.push({ type: 'arc', to: k.e, center: k.c, clockwise: k.cw });
+    segs.push({ type: 'line', to: startOf((i + 1) % n) });
+  }
+  return { id: uid('path'), start: startOf(0), segments: segs, closed: true };
+}
+
+const circlePath = (cx: number, cy: number, d: number) => ellipse(cx, cy, d / 2, d / 2);
+
+/** Långhål (moturs) från (x0, y) till (x1, y) med bredden w. */
+function slotPath(x0: number, x1: number, y: number, w: number): VectorPath {
+  const r = w / 2;
+  return {
+    id: uid('path'),
+    start: P(x0, y - r),
+    closed: true,
+    segments: [
+      { type: 'line', to: P(x1, y - r) },
+      { type: 'arc', to: P(x1, y + r), center: P(x1, y), clockwise: false },
+      { type: 'line', to: P(x0, y + r) },
+      { type: 'arc', to: P(x0, y - r), center: P(x0, y), clockwise: false },
+    ],
+  };
+}
+
+/** Förutsägbar slump (samma frö ger samma mönster). */
+function seeded(seed: number) {
+  let x = (Math.floor(seed) * 16807 + 13) % 2147483647 || 1;
+  return () => ((x = (x * 16807) % 2147483647) - 1) / 2147483646;
 }
 
 const range = (n: number) => Array.from({ length: Math.max(0, n) }, (_, i) => i);
@@ -236,16 +317,22 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
   },
   {
     id: 'star',
-    category: 'ornaments',
+    category: 'basic',
     kind: 'area',
     size: { w: 80, h: 80 },
-    build: (w, h) => {
-      const pts = range(10).map((i) => {
-        const a = Math.PI / 2 + (i * Math.PI) / 5;
-        const r = i % 2 ? 0.4 : 1;
-        return P(Math.cos(a) * r * (w / 2), Math.sin(a) * r * (h / 2) - h * 0.05);
+    controls: [
+      { key: 'points', min: 3, max: 16, def: 5 },
+      { key: 'innerRadius', min: 15, max: 90, def: 40, unit: '%' },
+      { key: 'rounding', min: 0, max: 10, step: 0.5, def: 0, unit: 'mm' },
+    ],
+    build: (w, h, p) => {
+      const n = num(p, 'points'), q = num(p, 'innerRadius') / 100;
+      const pts = range(2 * n).map((i) => {
+        const a = Math.PI / 2 + (i * Math.PI) / n;
+        const r = i % 2 ? q : 1;
+        return P(Math.cos(a) * r * (w / 2), Math.sin(a) * r * (h / 2));
       });
-      return [poly(pts)];
+      return [filletPoly(pts, num(p, 'rounding'))];
     },
   },
   {
@@ -435,6 +522,342 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       return out;
     },
   },
+  /* ───────── Grundformer ───────── */
+  {
+    id: 'polygon',
+    category: 'basic',
+    kind: 'area',
+    size: { w: 100, h: 100 },
+    controls: [
+      { key: 'sides', min: 3, max: 12, def: 6 },
+      { key: 'cornerRadius', min: 0, max: 20, step: 0.5, def: 3, unit: 'mm' },
+    ],
+    build: (w, h, p) => {
+      const n = num(p, 'sides');
+      const pts = range(n).map((i) => {
+        const a = Math.PI / 2 + (i * 2 * Math.PI) / n;
+        return P((Math.cos(a) * w) / 2, (Math.sin(a) * h) / 2);
+      });
+      return [filletPoly(pts, num(p, 'cornerRadius'))];
+    },
+  },
+  {
+    id: 'corner-plate',
+    category: 'basic',
+    kind: 'area',
+    size: { w: 200, h: 90 },
+    controls: [
+      { key: 'cornerSize', min: 0, max: 40, step: 0.5, def: 16, unit: 'mm' },
+      { key: 'cornerStyle', options: ['round', 'chamfer', 'inward'], def: 'inward' },
+    ],
+    build: (w, h, p) => {
+      const c = Math.min(num(p, 'cornerSize'), w / 2 - 0.5, h / 2 - 0.5);
+      const hw = w / 2, hh = h / 2, style = opt(p, 'cornerStyle');
+      if (c <= 0) return [poly([P(-hw, -hh), P(hw, -hh), P(hw, hh), P(-hw, hh)])];
+      if (style === 'round') return [roundRect(-hw, -hh, hw, hh, c)];
+      if (style === 'chamfer') return [poly([P(-hw + c, -hh), P(hw - c, -hh), P(hw, -hh + c), P(hw, hh - c), P(hw - c, hh), P(-hw + c, hh), P(-hw, hh - c), P(-hw, -hh + c)])];
+      return [scallopRect(hw, hh, c, 0)];
+    },
+  },
+
+  /* ───────── Dekor ───────── */
+  {
+    id: 'speech-bubble',
+    category: 'ornaments',
+    kind: 'area',
+    size: { w: 180, h: 128 },
+    controls: [
+      { key: 'cornerRadius', min: 0, max: 40, step: 0.5, def: 18, unit: 'mm' },
+      { key: 'tailPos', min: 15, max: 85, def: 30, unit: '%' },
+      { key: 'tailLength', min: 10, max: 40, def: 22, unit: '%' },
+    ],
+    build: (w, h, p) => {
+      const tl = (h * num(p, 'tailLength')) / 100;
+      const hw = w / 2, top = h / 2, bot = -h / 2 + tl;
+      const r = Math.min(num(p, 'cornerRadius'), hw - 1, (top - bot) / 2 - 1);
+      const tw = Math.min(w * 0.12, 24);
+      const px = Math.max(-hw + r + tw, Math.min(hw - r - tw / 2, -hw + (w * num(p, 'tailPos')) / 100));
+      const arc = (to: Vec2, center: Vec2): PathSegment => ({ type: 'arc', to, center, clockwise: false });
+      const segs: PathSegment[] = [
+        { type: 'line', to: P(px - tw / 2, bot) },
+        { type: 'line', to: P(px - tw, -h / 2) },
+        { type: 'line', to: P(px + tw / 2, bot) },
+        { type: 'line', to: P(hw - r, bot) },
+      ];
+      if (r > 0) segs.push(arc(P(hw, bot + r), P(hw - r, bot + r)));
+      segs.push({ type: 'line', to: P(hw, top - r) });
+      if (r > 0) segs.push(arc(P(hw - r, top), P(hw - r, top - r)));
+      segs.push({ type: 'line', to: P(-hw + r, top) });
+      if (r > 0) segs.push(arc(P(-hw, top - r), P(-hw + r, top - r)));
+      segs.push({ type: 'line', to: P(-hw, bot + r) });
+      if (r > 0) segs.push(arc(P(-hw + r, bot), P(-hw + r, bot + r)));
+      return [{ id: uid('path'), start: P(-hw + r, bot), segments: segs, closed: true }];
+    },
+  },
+  {
+    id: 'scallop-frame',
+    category: 'frames',
+    kind: 'area',
+    size: { w: 200, h: 140 },
+    controls: [
+      { key: 'arcs', min: 8, max: 40, def: 18 },
+      { key: 'arcDepth', min: 1, max: 15, step: 0.5, def: 5, unit: 'mm' },
+    ],
+    build: (w, h, p) => {
+      const n = num(p, 'arcs'), a = Math.min(num(p, 'arcDepth'), w / 4, h / 4);
+      const N = Math.max(240, n * 24);
+      const pts = range(N).map((i) => {
+        const t = (i / N) * 2 * Math.PI;
+        const k = Math.abs(Math.sin((t * n) / 2));
+        return P((w / 2 - a + a * k) * Math.cos(t), (h / 2 - a + a * k) * Math.sin(t));
+      });
+      return [poly(pts)];
+    },
+  },
+  {
+    id: 'flower',
+    category: 'ornaments',
+    kind: 'area',
+    size: { w: 120, h: 120 },
+    controls: [
+      { key: 'petals', min: 4, max: 14, def: 8 },
+      { key: 'petalDepth', min: 10, max: 60, def: 35, unit: '%' },
+      { key: 'centerHole', min: 0, max: 40, def: 15, unit: '%' },
+    ],
+    build: (w, h, p) => {
+      const n = num(p, 'petals'), q = num(p, 'petalDepth') / 100, N = Math.max(240, n * 40);
+      const pts = range(N).map((i) => {
+        const t = (i / N) * 2 * Math.PI;
+        const k = 1 - q * (1 - Math.abs(Math.cos((t * n) / 2)));
+        return P((k * w * Math.cos(t)) / 2, (k * h * Math.sin(t)) / 2);
+      });
+      const hole = num(p, 'centerHole') / 100;
+      return hole > 0 ? [poly(pts), ellipse(0, 0, (w * hole) / 2, (h * hole) / 2)] : [poly(pts)];
+    },
+  },
+
+  /* ───────── Mekaniska delar (måtten styrs av reglagen) ───────── */
+  {
+    id: 'flange',
+    category: 'mechanical',
+    kind: 'area',
+    size: { w: 160, h: 160 },
+    fixedSize: true,
+    controls: [
+      { key: 'outerDia', min: 20, max: 600, def: 160, unit: 'mm' },
+      { key: 'innerDia', min: 0, max: 500, def: 70, unit: 'mm' },
+      { key: 'holeCount', min: 0, max: 24, def: 6 },
+      { key: 'holeDia', min: 2, max: 40, step: 0.5, def: 12, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      const R = num(p, 'outerDia') / 2, hd = num(p, 'holeDia');
+      const ri = Math.max(0, Math.min(num(p, 'innerDia') / 2, R - hd - 4));
+      const bc = (R + ri) / 2;
+      const out = [circlePath(0, 0, 2 * R)];
+      if (ri > 0) out.push(circlePath(0, 0, 2 * ri));
+      const n = num(p, 'holeCount');
+      if (hd < R - ri - 1)
+        for (const i of range(n)) {
+          const a = Math.PI / 2 + (i * 2 * Math.PI) / n;
+          out.push(circlePath(bc * Math.cos(a), bc * Math.sin(a), hd));
+        }
+      return out;
+    },
+  },
+  {
+    id: 'mount-plate',
+    category: 'mechanical',
+    kind: 'area',
+    size: { w: 160, h: 100 },
+    fixedSize: true,
+    controls: [
+      { key: 'width', min: 20, max: 600, def: 160, unit: 'mm' },
+      { key: 'height', min: 20, max: 600, def: 100, unit: 'mm' },
+      { key: 'cols', min: 1, max: 8, def: 3 },
+      { key: 'rows', min: 1, max: 6, def: 2 },
+      { key: 'holeDia', min: 2, max: 30, step: 0.5, def: 8, unit: 'mm' },
+      { key: 'edgeDist', min: 3, max: 60, step: 0.5, def: 14, unit: 'mm' },
+      { key: 'cornerRadius', min: 0, max: 50, step: 0.5, def: 10, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      const w = num(p, 'width'), h = num(p, 'height'), hd = num(p, 'holeDia');
+      const e = Math.min(num(p, 'edgeDist'), w / 2, h / 2);
+      const out = [roundRect(-w / 2, -h / 2, w / 2, h / 2, num(p, 'cornerRadius'))];
+      const nc = num(p, 'cols'), nr = num(p, 'rows');
+      for (const i of range(nc))
+        for (const j of range(nr)) {
+          const x = nc === 1 ? 0 : -w / 2 + e + (i * (w - 2 * e)) / (nc - 1);
+          const y = nr === 1 ? 0 : -h / 2 + e + (j * (h - 2 * e)) / (nr - 1);
+          out.push(circlePath(x, y, hd));
+        }
+      return out;
+    },
+  },
+  {
+    id: 'slot',
+    category: 'mechanical',
+    kind: 'area',
+    size: { w: 70, h: 10 },
+    fixedSize: true,
+    controls: [
+      { key: 'slotLength', min: 0, max: 300, step: 0.5, def: 60, unit: 'mm' },
+      { key: 'slotWidth', min: 2, max: 60, step: 0.5, def: 10, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      const L = num(p, 'slotLength') / 2, wd = num(p, 'slotWidth');
+      return [L > 0 ? slotPath(-L, L, 0, wd) : circlePath(0, 0, wd)];
+    },
+  },
+  {
+    id: 'keyhole',
+    category: 'mechanical',
+    kind: 'area',
+    size: { w: 10, h: 24 },
+    fixedSize: true,
+    controls: [
+      { key: 'headDia', min: 5, max: 20, step: 0.5, def: 10, unit: 'mm' },
+      { key: 'slotWidth', min: 2, max: 10, step: 0.5, def: 5, unit: 'mm' },
+      { key: 'slotLength', min: 4, max: 40, step: 0.5, def: 14, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      const R = num(p, 'headDia') / 2, r = Math.min(num(p, 'slotWidth') / 2, R - 0.5), L = Math.max(num(p, 'slotLength'), R);
+      const y0 = Math.sqrt(R * R - r * r), oy = -(L - R) / 2;
+      const Q = (x: number, y: number) => P(x, y + oy);
+      return [
+        {
+          id: uid('path'),
+          start: Q(r, y0),
+          closed: true,
+          segments: [
+            { type: 'line', to: Q(r, L) },
+            { type: 'arc', to: Q(-r, L), center: Q(0, L), clockwise: false },
+            { type: 'line', to: Q(-r, y0) },
+            { type: 'arc', to: Q(r, y0), center: Q(0, 0), clockwise: false },
+          ],
+        },
+      ];
+    },
+  },
+
+  /* ───────── Sammanfogning ───────── */
+  {
+    id: 'finger-joint',
+    category: 'joinery',
+    kind: 'area',
+    size: { w: 180, h: 100 },
+    fixedSize: true,
+    controls: [
+      { key: 'width', min: 30, max: 600, def: 180, unit: 'mm' },
+      { key: 'height', min: 30, max: 600, def: 100, unit: 'mm' },
+      { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 15, unit: 'mm' },
+      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      // Fingrar på vänster och höger kant; ett udda antal så att båda ändarna blir fingrar.
+      const w = num(p, 'width'), h = num(p, 'height'), t = Math.min(num(p, 'thickness'), w / 4);
+      let n = Math.max(3, Math.round(h / num(p, 'fingerWidth')));
+      if (n % 2 === 0) n++;
+      const seg = h / n, hw = w / 2, hh = h / 2;
+      const pts: Vec2[] = [P(-hw, -hh), P(hw, -hh)];
+      for (const i of range(n)) {
+        const x = i % 2 ? hw - t : hw;
+        pts.push(P(x, -hh + i * seg), P(x, -hh + (i + 1) * seg));
+      }
+      pts.push(P(-hw, hh));
+      for (const i of range(n).reverse()) {
+        const x = i % 2 ? -hw + t : -hw;
+        pts.push(P(x, -hh + (i + 1) * seg), P(x, -hh + i * seg));
+      }
+      // Ta bort punkter som ligger på samma ställe.
+      const clean = pts.filter((q, i) => {
+        const r = pts[(i + 1) % pts.length];
+        return Math.hypot(q.x - r.x, q.y - r.y) > 1e-6;
+      });
+      return [poly(clean)];
+    },
+  },
+  {
+    id: 'tab-slot',
+    category: 'joinery',
+    kind: 'area',
+    size: { w: 160, h: 130 },
+    fixedSize: true,
+    controls: [
+      { key: 'width', min: 40, max: 600, def: 160, unit: 'mm' },
+      { key: 'height', min: 20, max: 300, def: 50, unit: 'mm' },
+      { key: 'tabCount', min: 1, max: 6, def: 3 },
+      { key: 'tabWidth', min: 5, max: 60, step: 0.5, def: 20, unit: 'mm' },
+      { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      // Överst plattan med tappar (nedåt), under den plattan med matchande slitsar.
+      const W = num(p, 'width'), H = num(p, 'height'), t = num(p, 'thickness'), n = num(p, 'tabCount');
+      const tw = Math.min(num(p, 'tabWidth'), W / n - 4), gap = 10;
+      const y0 = gap / 2 + t; // tapparnas underkant ligger på gap/2
+      const cxs = range(n).map((i) => -W / 2 + ((i + 0.5) * W) / n);
+      const top: Vec2[] = [P(-W / 2, y0)];
+      for (const cx of cxs) top.push(P(cx - tw / 2, y0), P(cx - tw / 2, gap / 2), P(cx + tw / 2, gap / 2), P(cx + tw / 2, y0));
+      top.push(P(W / 2, y0), P(W / 2, y0 + H), P(-W / 2, y0 + H));
+      const yb = -gap / 2;
+      const out = [poly(top), poly([P(-W / 2, yb - H), P(W / 2, yb - H), P(W / 2, yb), P(-W / 2, yb)])];
+      const ys = yb - H / 2;
+      for (const cx of cxs) out.push(poly([P(cx - tw / 2, ys - t / 2), P(cx + tw / 2, ys - t / 2), P(cx + tw / 2, ys + t / 2), P(cx - tw / 2, ys + t / 2)]));
+      return out;
+    },
+  },
+
+  /* ───────── Mönster ───────── */
+  {
+    id: 'puzzle',
+    category: 'textures',
+    kind: 'lines',
+    size: { w: 200, h: 140 },
+    controls: [
+      { key: 'cols', min: 2, max: 20, def: 5 },
+      { key: 'rows', min: 2, max: 20, def: 4 },
+      { key: 'knob', min: 10, max: 30, def: 20, unit: '%' },
+      { key: 'seed', min: 1, max: 99, def: 7 },
+    ],
+    build: (w, h, p) => {
+      const nc = num(p, 'cols'), nr = num(p, 'rows'), cw = w / nc, ch = h / nr, rand = seeded(num(p, 'seed') * 97 + 13);
+      const x0 = -w / 2, y0 = -h / 2;
+      const out: VectorPath[] = [poly([P(x0, y0), P(x0 + w, y0), P(x0 + w, y0 + h), P(x0, y0 + h)])];
+      const edge = (ax: number, ay: number, bx: number, by: number) => {
+        const L = Math.hypot(bx - ax, by - ay), dx = (bx - ax) / L, dy = (by - ay) / L;
+        const sgn = rand() < 0.5 ? 1 : -1, k = (num(p, 'knob') / 100) * L, m = L / 2;
+        const Q = (u: number, v: number) => P(ax + dx * u - dy * v * sgn, ay + dy * u + dx * v * sgn);
+        const segs: PathSegment[] = [
+          { type: 'line', to: Q(m - k * 0.6, 0) },
+          { type: 'cubic', c1: Q(m - k * 0.2, k * 0.2), c2: Q(m - k * 1.1, k * 0.6), to: Q(m - k * 0.9, k * 0.95) },
+          { type: 'cubic', c1: Q(m - k * 0.7, k * 1.35), c2: Q(m + k * 0.7, k * 1.35), to: Q(m + k * 0.9, k * 0.95) },
+          { type: 'cubic', c1: Q(m + k * 1.1, k * 0.6), c2: Q(m + k * 0.2, k * 0.2), to: Q(m + k * 0.6, 0) },
+          { type: 'line', to: Q(L, 0) },
+        ];
+        out.push({ id: uid('path'), start: Q(0, 0), segments: segs, closed: false });
+      };
+      for (const i of range(nc - 1)) for (const j of range(nr)) edge(x0 + (i + 1) * cw, y0 + j * ch, x0 + (i + 1) * cw, y0 + (j + 1) * ch);
+      for (const j of range(nr - 1)) for (const i of range(nc)) edge(x0 + i * cw, y0 + (j + 1) * ch, x0 + (i + 1) * cw, y0 + (j + 1) * ch);
+      return out;
+    },
+  },
+  {
+    id: 'vent',
+    category: 'textures',
+    kind: 'area',
+    size: { w: 70, h: 75 },
+    fixedSize: true,
+    controls: [
+      { key: 'slotCount', min: 1, max: 30, def: 8 },
+      { key: 'slotWidth', min: 2, max: 20, step: 0.5, def: 5, unit: 'mm' },
+      { key: 'slotLength', min: 10, max: 300, def: 70, unit: 'mm' },
+      { key: 'gap', min: 2, max: 30, step: 0.5, def: 5, unit: 'mm' },
+    ],
+    build: (_w, _h, p) => {
+      const n = num(p, 'slotCount'), wd = num(p, 'slotWidth'), L = Math.max(num(p, 'slotLength'), wd), g = num(p, 'gap');
+      const step = wd + g, tot = n * step - g, half = L / 2 - wd / 2;
+      return range(n).map((i) => (half > 0 ? slotPath(-half, half, -tot / 2 + wd / 2 + i * step, wd) : circlePath(0, -tot / 2 + wd / 2 + i * step, wd)));
+    },
+  },
 ];
 
 export const DEFAULT_SHAPE_PARAMS: ShapeLibraryParams = { band: 8, spacing: 8 };
@@ -442,7 +865,8 @@ export const DEFAULT_SHAPE_PARAMS: ShapeLibraryParams = { band: 8, spacing: 8 };
 /** Bygger ett motiv med mitten i (cx, cy). */
 export function buildLibraryShape(item: ShapeLibraryItem, name: string, w: number, h: number, params: ShapeLibraryParams, cx: number, cy: number): VectorShape {
   const move = (q: Vec2) => P(q.x + cx, q.y + cy);
-  const paths = item.build(w, h, params).map((path) => ({
+  const values = { ...Object.fromEntries((item.controls ?? []).map((c) => [c.key, c.def])), ...params.values };
+  const paths = item.build(w, h, { ...params, values }).map((path) => ({
     ...path,
     id: uid('path'),
     start: move(path.start),

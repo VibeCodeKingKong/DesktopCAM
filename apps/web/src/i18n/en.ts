@@ -944,8 +944,21 @@ export const en: Dict = {
 
   shapeLib: {
     title: 'Shape library',
-    categories: { all: 'All', frames: 'Frames', banners: 'Banners', ornaments: 'Ornaments', textures: 'Patterns' },
+    categories: { all: 'All', basic: 'Basic shapes', mechanical: 'Mechanical parts', joinery: 'Joinery', frames: 'Frames', banners: 'Banners', ornaments: 'Ornaments', textures: 'Patterns' },
     items: {
+      'polygon': 'Polygon',
+      'corner-plate': 'Plate with corners',
+      'speech-bubble': 'Speech bubble',
+      'scallop-frame': 'Scalloped frame',
+      'flower': 'Flower',
+      'flange': 'Flange',
+      'mount-plate': 'Mounting plate',
+      'slot': 'Slot',
+      'keyhole': 'Keyhole hanger',
+      'finger-joint': 'Box side with finger joints',
+      'tab-slot': 'Tab and slot',
+      'puzzle': 'Puzzle',
+      'vent': 'Vent grille',
       'frame-rect': 'Frame, rounded',
       'frame-oval': 'Frame, oval',
       'frame-plaque': 'Plaque with curved corners',
@@ -972,6 +985,10 @@ export const en: Dict = {
     add: 'Add',
     added: (n: string) => `${n} added – choose the machining in Properties`,
     tooBig: 'The motif is larger than the material.',
+    controls: { points: 'Points', innerRadius: 'Inner radius', rounding: 'Rounding', sides: 'Sides', cornerRadius: 'Corner radius', cornerSize: 'Corner size', cornerStyle: 'Corners', tailPos: 'Tail position', tailLength: 'Tail length', arcs: 'Number of arcs', arcDepth: 'Arc depth', petals: 'Petals', petalDepth: 'Petal depth', centerHole: 'Centre hole', outerDia: 'Outer diameter', innerDia: 'Inner diameter', holeCount: 'Number of holes', holeDia: 'Hole diameter', width: 'Width', height: 'Height', cols: 'Holes across', rows: 'Holes down', edgeDist: 'Edge distance', slotLength: 'Length (centre–centre)', slotWidth: 'Width', headDia: 'Hole for screw head', fingerWidth: 'Finger width', thickness: 'Material thickness', tabCount: 'Number of tabs', tabWidth: 'Tab width', knob: 'Knob size', seed: 'Pattern no.', slotCount: 'Number of slots', gap: 'Gap' } as Record<string, string>,
+    choices: { round: 'Round', chamfer: 'Chamfered', inward: 'Inward' } as Record<string, string>,
+    hints: { 'keyhole': 'Mill as a pocket on the back of the sign, about half the thickness. The screw head goes into the round hole and the sign hangs in the slot.', 'finger-joint': 'Cut four sides and turn every other one so the fingers interlock. Set the material thickness to match your material.', 'tab-slot': 'The tabs on the upper plate fit the slots in the lower one – for shelves and stands assembled without screws.', 'flange': 'The bolt holes sit halfway between the inner hole and the outer edge.', 'puzzle': 'Change the pattern number for a new puzzle. Cut along the lines with a laser or router.' } as Record<string, string>,
+    size: (w: string, h: string) => `Size ${w} × ${h} mm`,
   },
 
   contour: {

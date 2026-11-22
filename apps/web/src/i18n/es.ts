@@ -943,8 +943,21 @@ export const es: Dict = {
 
   shapeLib: {
     title: 'Biblioteca de formas',
-    categories: { all: 'Todas', frames: 'Marcos', banners: 'Banderolas', ornaments: 'Ornamentos', textures: 'Patrones' },
+    categories: { all: 'Todas', basic: 'Formas básicas', mechanical: 'Piezas mecánicas', joinery: 'Uniones', frames: 'Marcos', banners: 'Banderolas', ornaments: 'Ornamentos', textures: 'Patrones' },
     items: {
+      'polygon': 'Polígono',
+      'corner-plate': 'Placa con esquinas',
+      'speech-bubble': 'Bocadillo',
+      'scallop-frame': 'Marco festoneado',
+      'flower': 'Flor',
+      'flange': 'Brida',
+      'mount-plate': 'Placa de montaje',
+      'slot': 'Ranura',
+      'keyhole': 'Ojo de cerradura (colgador)',
+      'finger-joint': 'Lateral de caja con uniones de dedos',
+      'tab-slot': 'Lengüeta y ranura',
+      'puzzle': 'Puzle',
+      'vent': 'Rejilla de ventilación',
       'frame-rect': 'Marco redondeado',
       'frame-oval': 'Marco ovalado',
       'frame-plaque': 'Placa con esquinas curvas',
@@ -971,6 +984,10 @@ export const es: Dict = {
     add: 'Añadir',
     added: (n: string) => `${n} añadido: elige el mecanizado en Propiedades`,
     tooBig: 'El motivo es más grande que el material.',
+    controls: { points: 'Puntas', innerRadius: 'Radio interior', rounding: 'Redondeo', sides: 'Lados', cornerRadius: 'Radio de esquina', cornerSize: 'Tamaño de esquina', cornerStyle: 'Esquinas', tailPos: 'Posición del pico', tailLength: 'Longitud del pico', arcs: 'Número de arcos', arcDepth: 'Profundidad de arcos', petals: 'Pétalos', petalDepth: 'Profundidad de pétalos', centerHole: 'Agujero central', outerDia: 'Diámetro exterior', innerDia: 'Diámetro interior', holeCount: 'Número de agujeros', holeDia: 'Diámetro de agujero', width: 'Ancho', height: 'Alto', cols: 'Agujeros a lo ancho', rows: 'Agujeros a lo alto', edgeDist: 'Distancia al borde', slotLength: 'Longitud (centro a centro)', slotWidth: 'Ancho', headDia: 'Agujero para cabeza de tornillo', fingerWidth: 'Ancho de dedo', thickness: 'Grosor del material', tabCount: 'Número de lengüetas', tabWidth: 'Ancho de lengüeta', knob: 'Tamaño de lengüeta', seed: 'Patrón n.º', slotCount: 'Número de ranuras', gap: 'Separación' } as Record<string, string>,
+    choices: { round: 'Redondas', chamfer: 'Achaflanadas', inward: 'Cóncavas' } as Record<string, string>,
+    hints: { 'keyhole': 'Fresar como cajera en la parte trasera del cartel, aprox. la mitad del grosor. La cabeza del tornillo entra en el agujero redondo y el cartel cuelga de la ranura.', 'finger-joint': 'Corte cuatro lados y gire uno de cada dos para que los dedos encajen. Ajuste el grosor al del material.', 'tab-slot': 'Las lengüetas de la placa superior encajan en las ranuras de la inferior: para estantes y soportes sin tornillos.', 'flange': 'Los agujeros quedan a medio camino entre el agujero interior y el borde.', 'puzzle': 'Cambie el número de patrón para un puzle nuevo. Se corta por las líneas con láser o fresadora.' } as Record<string, string>,
+    size: (w: string, h: string) => `Tamaño ${w} × ${h} mm`,
   },
 
   contour: {

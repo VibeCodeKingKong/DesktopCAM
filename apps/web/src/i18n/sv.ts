@@ -891,8 +891,21 @@ export const sv = {
 
   shapeLib: {
     title: 'Formbibliotek',
-    categories: { all: 'Alla', frames: 'Ramar', banners: 'Banderoller', ornaments: 'Ornament', textures: 'Mönster' },
+    categories: { all: 'Alla', basic: 'Grundformer', mechanical: 'Mekaniska delar', joinery: 'Sammanfogning', frames: 'Ramar', banners: 'Banderoller', ornaments: 'Ornament', textures: 'Mönster' },
     items: {
+      'polygon': 'Månghörning',
+      'corner-plate': 'Skylt med hörn',
+      'speech-bubble': 'Pratbubbla',
+      'scallop-frame': 'Bågad ram',
+      'flower': 'Blomma',
+      'flange': 'Fläns',
+      'mount-plate': 'Fästplatta',
+      'slot': 'Långhål',
+      'keyhole': 'Nyckelhål för upphängning',
+      'finger-joint': 'Lådsida med fingerskarv',
+      'tab-slot': 'Tapp och slits',
+      'puzzle': 'Pussel',
+      'vent': 'Ventilationsgaller',
       'frame-rect': 'Ram, rundad',
       'frame-oval': 'Ram, oval',
       'frame-plaque': 'Skylt med svängda hörn',
@@ -919,6 +932,10 @@ export const sv = {
     add: 'Lägg till',
     added: (n: string) => `${n} tillagd – välj bearbetning under Egenskaper`,
     tooBig: 'Motivet är större än materialet.',
+    controls: { points: 'Uddar', innerRadius: 'Inre radie', rounding: 'Rundning', sides: 'Antal sidor', cornerRadius: 'Hörnradie', cornerSize: 'Hörnstorlek', cornerStyle: 'Hörn', tailPos: 'Pilens läge', tailLength: 'Pilens längd', arcs: 'Antal bågar', arcDepth: 'Bågarnas djup', petals: 'Kronblad', petalDepth: 'Bladens djup', centerHole: 'Hål i mitten', outerDia: 'Ytterdiameter', innerDia: 'Innerdiameter', holeCount: 'Antal hål', holeDia: 'Håldiameter', width: 'Bredd', height: 'Höjd', cols: 'Hål på bredden', rows: 'Hål på höjden', edgeDist: 'Kantavstånd', slotLength: 'Längd (centrum–centrum)', slotWidth: 'Bredd', headDia: 'Hål för skruvskalle', fingerWidth: 'Fingerbredd', thickness: 'Materialtjocklek', tabCount: 'Antal tappar', tabWidth: 'Tappbredd', knob: 'Knoppstorlek', seed: 'Mönster nr', slotCount: 'Antal spår', gap: 'Mellanrum' } as Record<string, string>,
+    choices: { round: 'Runda', chamfer: 'Fasade', inward: 'Inåtbuktande' } as Record<string, string>,
+    hints: { 'keyhole': 'Fräs som ficka på skyltens baksida, ungefär halva tjockleken. Skruvskallen går in i det runda hålet och skylten hänger i spåret.', 'finger-joint': 'Skär fyra sidor och vänd varannan så att fingrarna griper i varandra. Ställ in materialtjockleken som på materialet.', 'tab-slot': 'Tapparna på den övre plattan passar i slitsarna i den undre – för hyllor och ställ som sätts ihop utan skruv.', 'flange': 'Bulthålen hamnar mitt emellan innerhålet och ytterkanten.', 'puzzle': 'Ändra mönster nr för ett nytt pussel. Skärs längs linjerna med laser eller fräs.' } as Record<string, string>,
+    size: (w: string, h: string) => `Storlek ${w} × ${h} mm`,
   },
 
   contour: {
