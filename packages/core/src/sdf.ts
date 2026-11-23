@@ -405,7 +405,20 @@ export function offsetShapes(groups: PolylineInput[][], distance: number): Polyl
   if (Math.abs(distance) < 1e-9) return groups.flat();
   const field = buildDistanceField(nestGroups(groups), { margin: Math.max(0, distance) + 1 });
   if (!field) return [];
-  return isolines(field, distance).map((points) => ({ points, closed: true }));
+  // Brus från rutnätet (t.ex. där banan krymper till en punkt i ett hörn):
+  // pyttesmå slingor med några få punkter tas bort.
+  const tiny = 4 * field.cell * field.cell;
+  return isolines(field, distance)
+    .filter((points) => {
+      if (points.length >= 16) return true;
+      let a = 0;
+      for (let i = 0, n = points.length / 2; i < n; i++) {
+        const j = (i + 1) % n;
+        a += points[2 * i] * points[2 * j + 1] - points[2 * j] * points[2 * i + 1];
+      }
+      return Math.abs(a / 2) > tiny;
+    })
+    .map((points) => ({ points, closed: true }));
 }
 
 /**

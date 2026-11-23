@@ -128,6 +128,42 @@ describe('formbiblioteket', () => {
     expect(inside(m, 1, 1) && inside(m, S - 1, 1)).toBe(true);
   });
 
+  it('urfrästa hörn: fräsen når ända in i urtagens hörn', () => {
+    const inPoly = (pts: number[], x: number, y: number) => {
+      let c = false;
+      for (let i = 0, j = pts.length - 2; i < pts.length; j = i, i += 2) {
+        const yi = pts[i + 1], yj = pts[j + 1];
+        if (yi > y !== yj > y && x < ((pts[j] - pts[i]) * (y - yi)) / (yj - yi) + pts[i]) c = !c;
+      }
+      return c;
+    };
+    const item = SHAPE_LIBRARY.find((x) => x.id === 'finger-joint')!;
+    const w = 160, h = 80, t = 12, D = 6;
+    // Innerhörnen i den skarpa formen (mitten i origo som i biblioteket).
+    const sharp = fingerSide(w, h, t, 12, 'male').map((v) => ({ x: v.x - w / 2, y: v.y - h / 2 }));
+    const probes: [number, number][] = [];
+    sharp.forEach((V, i) => {
+      const A = sharp[(i - 1 + sharp.length) % sharp.length], B = sharp[(i + 1) % sharp.length];
+      const ax = V.x - A.x, ay = V.y - A.y, bx = B.x - V.x, by = B.y - V.y;
+      if (ax * by - ay * bx >= 0) return;
+      const la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+      // En punkt 0,3 mm in i urtaget, snett från hörnet.
+      const ux = bx / lb - ax / la, uy = by / lb - ay / la, lu = Math.hypot(ux, uy);
+      probes.push([V.x + (ux / lu) * 0.3, V.y + (uy / lu) * 0.3]);
+    });
+    expect(probes.length).toBeGreaterThan(4);
+    const leftAfterMilling = (mode: string) => {
+      const sh = buildLibraryShape(item, 'x', 0, 0, { ...DEFAULT_SHAPE_PARAMS, values: { width: w, height: h, thickness: t, fingerWidth: 12, jointType: 'male', dogbone: mode, toolDia: D } }, 0, 0);
+      const part = shapeToPolylines(sh, 0.005);
+      // Fräsen (Ø D) runt utsidan: det som blir kvar är formen "stängd" med fräsradien.
+      const left = offsetShapes([offsetShapes([part], D / 2)], -D / 2);
+      return probes.filter(([x, y]) => left.some((p) => inPoly(p.points, x, y))).length;
+    };
+    expect(leftAfterMilling('off')).toBe(probes.length);
+    expect(leftAfterMilling('diagonal')).toBe(0);
+    expect(leftAfterMilling('straight')).toBe(0);
+  });
+
   it('mått från reglagen: fläns, fästplatta, fingerskarv', () => {
     const f = SHAPE_LIBRARY.find((x) => x.id === 'flange')!;
     expect(bbox(f, { outerDia: 200 }).w).toBeCloseTo(200, 0);

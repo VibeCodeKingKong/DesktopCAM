@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Lock, Unlock } from 'lucide-react';
 import { buildLibraryShape, DEFAULT_SHAPE_PARAMS, SHAPE_LIBRARY, shapeToPolylines, type ShapeLibraryCategory, type ShapeLibraryControl, type ShapeLibraryItem, type ShapeLibraryParams } from '@desktopcam/core';
 import { useT } from '../../i18n';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, useMachine } from '../../store/useAppStore';
 import { Dialog } from '../ui/Dialog';
 import { FieldRow, NumberField, SelectField } from '../ui/Field';
 
@@ -39,11 +39,60 @@ function Preview({ item, w, h, params, className }: { item: ShapeLibraryItem; w:
   );
 }
 
+/** Bild för ett alternativ: urtag uppifrån med fingret inskjutet (urfrästa hörn). */
+function OptionIcon({ option }: { option: string }) {
+  // Urtag 20 brett, 12 djupt; fräsradie 3,4.
+  const r = 3.4, k = r / Math.SQRT2;
+  const holes =
+    option === 'diagonal' ? [[k, 12 - k], [20 - k, 12 - k]] : option === 'straight' ? [[r, 12], [20 - r, 12]] : [];
+  return (
+    <svg viewBox="-8 -6 36 24" className="h-12 w-full" aria-hidden="true">
+      <rect x="-8" y="0" width="36" height="18" className="fill-wood" />
+      {option === 'off' ? (
+        <path d={`M0 -6 L0 ${12 - r} A${r} ${r} 0 0 0 ${r} 12 L${20 - r} 12 A${r} ${r} 0 0 0 20 ${12 - r} L20 -6 Z`} className="fill-app" />
+      ) : (
+        <>
+          <rect x="0" y="-6" width="20" height="18" className="fill-app" />
+          {holes.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r={r} className="fill-app" />
+          ))}
+        </>
+      )}
+      <rect x="0" y="-6" width="20" height="18" className="fill-accent/25 stroke-accent" strokeWidth="0.6" />
+      {option === 'off' && <path d={`M0 ${12 - r} A${r} ${r} 0 0 0 ${r} 12 L0 12 Z M20 ${12 - r} A${r} ${r} 0 0 1 ${20 - r} 12 L20 12 Z`} className="fill-warn" />}
+    </svg>
+  );
+}
+
 /** Ett reglage: dragreglage med värde (eller val bland alternativ). */
 function ControlField({ control, value, onChange }: { control: ShapeLibraryControl; value: number | string; onChange: (v: number | string) => void }) {
   const t = useT();
   const L = t.shapeLib;
   const label = L.controls[control.key] ?? control.key;
+  if ('options' in control && control.visual)
+    return (
+      <div className="space-y-1">
+        <p className="text-xs">{label}</p>
+        <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label={label}>
+          {control.options.map((o) => (
+            <button
+              key={o}
+              type="button"
+              role="radio"
+              aria-checked={value === o}
+              onClick={() => onChange(o)}
+              className={`overflow-hidden rounded-md border text-center text-2xs transition-colors ${value === o ? 'border-accent ring-1 ring-accent' : 'border-line hover:border-muted/60'}`}
+            >
+              <div className="bg-app px-1 pt-1">
+                <OptionIcon option={o} />
+              </div>
+              <span className={`block px-1 py-1 ${value === o ? 'font-semibold text-accent' : ''}`}>{L.choices[o] ?? o}</span>
+            </button>
+          ))}
+        </div>
+        {L.notes[control.key] && <p className="text-2xs leading-relaxed text-muted">{L.notes[control.key]}</p>}
+      </div>
+    );
   if ('options' in control)
     return (
       <SelectField label={label} value={String(value)} options={control.options.map((o) => ({ value: o, label: L.choices[o] ?? o }))} onChange={onChange} />
@@ -71,6 +120,11 @@ export function ShapeLibraryDialog() {
   const L = t.shapeLib;
   const open = useAppStore((s) => s.dialog === 'shapeLibrary');
   const material = useAppStore((s) => s.material);
+  const machine = useMachine();
+  const toolDia = useAppStore((s) => {
+    const tool = s.tools.find((x) => x.id === s.activeToolId);
+    return tool && tool.kind !== 'laser' && tool.kind !== 'plasma' && tool.kind !== 'pen' ? tool.diameter : undefined;
+  });
   const [category, setCategory] = useState<ShapeLibraryCategory | 'all'>('all');
   const [selectedId, setSelectedId] = useState(SHAPE_LIBRARY[0].id);
   const [width, setWidth] = useState(100);
@@ -93,8 +147,20 @@ export function ShapeLibraryDialog() {
     setHeight(Math.round(item.size.h * k));
     setParams({ band: Math.max(2, Math.round(Math.min(item.size.w, item.size.h) * k * 0.08)), spacing: Math.max(3, Math.round(Math.min(item.size.w, item.size.h) * k * 0.09)) });
     // Materialtjocklek: arbetsstyckets som standard (går att ändra).
-    setValues(Object.fromEntries((item.controls ?? []).map((c) => [c.key, 'fromMaterial' in c && c.fromMaterial ? Math.min(c.max, Math.max(c.min, material.thickness)) : c.def])));
-  }, [item, material.width, material.height, material.thickness]);
+    // Standardvärden: arbetsstyckets tjocklek, den valda fräsens diameter, och
+    // urfrästa hörn påslaget när maskinen är en fräs.
+    setValues(
+      Object.fromEntries(
+        (item.controls ?? []).map((c) => {
+          if ('options' in c) return [c.key, machine.kind === 'router' && c.defRouter ? c.defRouter : c.def];
+          const clamp = (v: number) => Math.min(c.max, Math.max(c.min, v));
+          if (c.fromMaterial) return [c.key, clamp(material.thickness)];
+          if (c.fromTool && toolDia) return [c.key, clamp(toolDia)];
+          return [c.key, c.def];
+        }),
+      ),
+    );
+  }, [item, material.width, material.height, material.thickness, machine.kind, toolDia]);
   const full = useMemo(() => ({ ...params, values }), [params, values]);
   // Verklig storlek (för motiv vars mått styrs av reglagen).
   const size = useMemo(() => {
@@ -213,7 +279,7 @@ export function ShapeLibraryDialog() {
                 </FieldRow>
               </>
             )}
-            {(item.controls ?? []).map((c) => (
+            {(item.controls ?? []).filter((c) => !('showWhen' in c && c.showWhen && values[c.showWhen.key] === c.showWhen.not)).map((c) => (
               <ControlField key={c.key} control={c} value={values[c.key] ?? c.def} onChange={(v) => setValues((o) => ({ ...o, [c.key]: v }))} />
             ))}
             {item.param === 'band' && <NumberField label={L.band} unit="mm" min={1} step={0.5} value={params.band} onChange={(band) => setParams((p) => ({ ...p, band }))} />}

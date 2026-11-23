@@ -39,6 +39,20 @@ export function compareVersions(a: string, b: string): number {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.46.0',
+    date: '2026-11-23',
+    text: {
+      sv: ["**Fingerskarvar som passar vid fräsning** Lådsidan, lådan och tapp och slits i formbiblioteket har fått valet Urfrästa hörn, med bilder som visar hur det blir. En rund fräs kan inte göra skarpa innerhörn, så fräsen går ut lite extra i hörnen – Diagonalt eller Rakt – och fingrarna går ända in. Fräsdiametern hämtas från den valda fräsen, och på en fräs är Diagonalt förvalt."],
+      en: ["**Finger joints that fit when routing** The box side, box and tab and slot in the shape library have a Relieved corners option, with pictures showing the result. A round bit cannot cut sharp inside corners, so it goes a little further into each corner – Diagonal or Straight – and the fingers go all the way in. The bit diameter comes from the selected bit, and Diagonal is preselected on a router."],
+      fr: ["**Entures qui s’emboîtent en fraisage** Le côté de boîte, la boîte et tenon et fente de la bibliothèque ont l’option Coins dégagés, avec des images du résultat. Une fraise ronde ne fait pas d’angles intérieurs vifs : elle va un peu plus loin dans chaque coin – en diagonale ou droit – et les doigts entrent jusqu’au fond. Le diamètre vient de la fraise choisie, et En diagonale est présélectionné sur une fraiseuse."],
+      de: ["**Fingerzinken, die beim Fräsen passen** Kastenseite, Kasten sowie Zapfen und Schlitz in der Formbibliothek haben die Option Freigestellte Ecken, mit Bildern des Ergebnisses. Ein runder Fräser macht keine scharfen Innenecken, daher fräst er in jeder Ecke etwas weiter – diagonal oder gerade – und die Zinken gehen ganz hinein. Der Durchmesser kommt vom gewählten Fräser; an einer Fräse ist Diagonal vorgewählt."],
+      es: ["**Uniones de dedos que encajan al fresar** El lateral de caja, la caja y lengüeta y ranura de la biblioteca tienen la opción Esquinas despejadas, con imágenes del resultado. Una fresa redonda no hace esquinas interiores vivas, así que entra un poco más en cada esquina – en diagonal o recto – y los dedos entran hasta el fondo. El diámetro se toma de la fresa elegida, y en una fresadora Diagonal viene preseleccionado."],
+      pl: ["**Wczepy, które pasują przy frezowaniu** Bok pudełka, pudełko oraz czop i gniazdo w bibliotece kształtów mają opcję Wybrane narożniki, z obrazkami pokazującymi efekt. Okrągły frez nie zrobi ostrych narożników wewnętrznych, więc wchodzi nieco dalej w każdy narożnik – ukośnie lub prosto – i wczepy wchodzą do końca. Średnica pochodzi z wybranego frezu, a na frezarce domyślnie wybrane jest Ukośnie."],
+      uk: ["**Шипи, що пасують при фрезеруванні** Стінка коробки, коробка та шип і паз у бібліотеці фігур мають опцію Вибрані кути з малюнками результату. Кругла фреза не робить гострих внутрішніх кутів, тож вона заходить трохи далі в кожен кут – діагонально або прямо – і шипи входять до кінця. Діаметр береться з вибраної фрези, а на фрезерному верстаті попередньо вибрано Діагонально."],
+    },
+    since: ['0.46.0'],
+  },
+  {
     version: '0.45.0',
     date: '2026-11-22',
     text: {

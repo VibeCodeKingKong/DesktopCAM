@@ -23,8 +23,17 @@ export interface ShapeLibraryParams {
 
 /** Reglage för ett motiv: ett tal (dragreglage) eller ett val bland alternativ. */
 export type ShapeLibraryControl =
-  | { key: string; min: number; max: number; step?: number; def: number; unit?: 'mm' | '%'; /** Standardvärdet är arbetsstyckets tjocklek. */ fromMaterial?: boolean }
-  | { key: string; options: string[]; def: string };
+  | {
+      key: string; min: number; max: number; step?: number; def: number; unit?: 'mm' | '%';
+      /** Standardvärdet är arbetsstyckets tjocklek. */ fromMaterial?: boolean;
+      /** Standardvärdet är den valda fräsens diameter. */ fromTool?: boolean;
+      /** Visas bara när ett annat reglage inte har värdet `not`. */ showWhen?: { key: string; not: string };
+    }
+  | {
+      key: string; options: string[]; def: string;
+      /** Standardvärde när maskinen är en fräs. */ defRouter?: string;
+      /** Visa alternativen som bilder. */ visual?: boolean;
+    };
 
 export interface ShapeLibraryItem {
   id: string;
@@ -198,6 +207,83 @@ function seeded(seed: number) {
 }
 
 const range = (n: number) => Array.from({ length: Math.max(0, n) }, (_, i) => i);
+
+/* ───────── Urfrästa hörn (för fräs: fingret ska gå ända in) ───────── */
+
+export type Dogbone = 'off' | 'diagonal' | 'straight';
+
+const DOGBONE_CONTROLS: ShapeLibraryControl[] = [
+  { key: 'dogbone', options: ['off', 'diagonal', 'straight'], def: 'off', defRouter: 'diagonal', visual: true },
+  { key: 'toolDia', min: 1, max: 12.7, step: 0.1, def: 6, unit: 'mm', fromTool: true, showWhen: { key: 'dogbone', not: 'off' } },
+];
+
+/**
+ * Sluten kontur med urfrästa innerhörn. Punkterna ska gå med materialet till
+ * vänster (ytterkontur moturs, hål medurs). Innerhörn = högersväng.
+ * diagonal: fräsen går ut snett så att hörnet tas bort; straight: fräsen går
+ * ut rakt förbi "bottnen" (den kant som bottomHorizontal pekar ut).
+ * Hörn där kanterna är för korta lämnas som de är.
+ */
+function dogbonePath(pts: Vec2[], r: number, mode: Dogbone, bottomHorizontal: (v: Vec2) => boolean): VectorPath {
+  const n = pts.length;
+  if (mode === 'off' || !(r > 0) || n < 3) return poly(pts);
+  const sub = (p: Vec2, q: Vec2) => P(p.x - q.x, p.y - q.y);
+  const len = (v: Vec2) => Math.hypot(v.x, v.y);
+  const unit = (v: Vec2) => { const l = len(v) || 1; return P(v.x / l, v.y / l); };
+  const add = (p: Vec2, v: Vec2, k: number) => P(p.x + v.x * k, p.y + v.y * k);
+  const arcTo = (from: Vec2, to: Vec2, c: Vec2): PathSegment => ({ type: 'arc', to, center: c, clockwise: (from.x - c.x) * (to.y - c.y) - (from.y - c.y) * (to.x - c.x) < 0 });
+  type Corner = { entry: Vec2; exit: Vec2; segs: PathSegment[]; useIn: number; useOut: number };
+  const corners: (Corner | null)[] = pts.map((V, i) => {
+    const A = pts[(i - 1 + n) % n], B = pts[(i + 1) % n];
+    const a = unit(sub(V, A)), b = unit(sub(B, V));
+    if (a.x * b.y - a.y * b.x > -1e-9) return null; // inte ett innerhörn
+    const lin = len(sub(V, A)), lout = len(sub(B, V));
+    const diagonal = (): Corner | null => {
+      const u = unit(sub(b, a)), c = add(V, u, r);
+      const s1 = -2 * r * (a.x * u.x + a.y * u.y), s2 = 2 * r * (b.x * u.x + b.y * u.y);
+      if (s1 > lin / 2 || s2 > lout / 2) return null;
+      const E = add(V, a, -s1), X = add(V, b, s2);
+      return { entry: E, exit: X, segs: [arcTo(E, V, c), arcTo(V, X, c)], useIn: s1, useOut: s2 };
+    };
+    if (mode === 'diagonal') return diagonal();
+    const horiz = bottomHorizontal(V);
+    const outIsBottom = horiz ? Math.abs(b.y) < 1e-6 : Math.abs(b.x) < 1e-6;
+    if (outIsBottom) {
+      if (2 * r > lout / 2) return diagonal();
+      const c = add(V, b, r), M = add(c, a, r), X = add(V, b, 2 * r);
+      return { entry: V, exit: X, segs: [arcTo(V, M, c), arcTo(M, X, c)], useIn: 0, useOut: 2 * r };
+    }
+    if (2 * r > lin / 2) return diagonal();
+    const c = add(V, a, -r), M = add(c, b, -r), E = add(V, a, -2 * r);
+    return { entry: E, exit: V, segs: [arcTo(E, M, c), arcTo(M, V, c)], useIn: 2 * r, useOut: 0 };
+  });
+  const entry = (i: number) => corners[i]?.entry ?? pts[i];
+  const exit = (i: number) => corners[i]?.exit ?? pts[i];
+  const segs: PathSegment[] = [];
+  for (let k = 1; k <= n; k++) {
+    const i = k % n;
+    segs.push({ type: 'line', to: entry(i) });
+    if (corners[i]) segs.push(...corners[i]!.segs);
+  }
+  return { id: uid('path'), start: exit(0), segments: segs, closed: true };
+}
+
+/** Flyttar en bana. */
+function shiftPath(path: VectorPath, dx: number, dy: number): VectorPath {
+  const m = (q: Vec2) => P(q.x + dx, q.y + dy);
+  return {
+    ...path,
+    start: m(path.start),
+    segments: path.segments.map((sg): PathSegment => (sg.type === 'line' ? { type: 'line', to: m(sg.to) } : sg.type === 'arc' ? { ...sg, to: m(sg.to), center: m(sg.center) } : { type: 'cubic', c1: m(sg.c1), c2: m(sg.c2), to: m(sg.to) })),
+  };
+}
+
+/** I en fingerskarvad platta (0..w): urtag i sidokanterna har lodrät botten, övriga vågrät. */
+const panelBottom = (w: number, t: number) => (v: Vec2) => !(Math.abs(v.x - t) < 1e-6 || Math.abs(v.x - (w - t)) < 1e-6);
+// 0,1 mm större än fräsens radie: annars krymper fräsbanan till en punkt i
+// hörnet (små skräpslingor i banan), och lite spel underlättar passningen.
+const DOGBONE_CLEARANCE = 0.1;
+const dogboneOf = (p: ShapeLibraryParams): { mode: Dogbone; r: number } => ({ mode: (opt(p, 'dogbone') || 'off') as Dogbone, r: num(p, 'toolDia') / 2 + DOGBONE_CLEARANCE });
 
 /**
  * Fingerskarv: kanten delas i ett udda antal lika delar. 'ends' = finger i
@@ -813,11 +899,13 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       { key: 'height', min: 20, max: 400, def: 80, unit: 'mm' },
       { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 12, unit: 'mm' },
       { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm', fromMaterial: true },
+      ...DOGBONE_CONTROLS,
     ],
     build: (_w, _h, p) => {
-      const w = num(p, 'width'), h = num(p, 'height');
-      const pts = fingerSide(w, h, Math.min(num(p, 'thickness'), w / 4), num(p, 'fingerWidth'), opt(p, 'jointType'));
-      return [poly(pts.map((v) => P(v.x - w / 2, v.y - h / 2)))];
+      const w = num(p, 'width'), h = num(p, 'height'), t = Math.min(num(p, 'thickness'), w / 4);
+      const pts = fingerSide(w, h, t, num(p, 'fingerWidth'), opt(p, 'jointType'));
+      const db = dogboneOf(p);
+      return [shiftPath(dogbonePath(pts, db.r, db.mode, panelBottom(w, t)), -w / 2, -h / 2)];
     },
   },
   {
@@ -833,6 +921,7 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       { key: 'fingerWidth', min: 4, max: 60, step: 0.5, def: 10, unit: 'mm' },
       { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm', fromMaterial: true },
       { key: 'lid', options: ['open', 'closed'], def: 'open' },
+      ...DOGBONE_CONTROLS,
     ],
     build: (_w, _h, p) => {
       // Lådans yttermått. Långsidorna äger hörnen (fingrar ytterst), kortsidorna
@@ -841,6 +930,7 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       const t = Math.min(num(p, 'thickness'), L / 4, W / 4, H / 3);
       const f = num(p, 'fingerWidth'), lid = opt(p, 'lid') === 'closed';
       const panels = fingerBox(L, W, H, t, f, lid);
+      const db = dogboneOf(p);
       // Delarna i två kolumner med 10 mm mellanrum.
       const gap = 10, out: VectorPath[] = [];
       const colW = Math.max(L, W);
@@ -853,7 +943,7 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
         const rh = Math.max(...r.map((q) => q.h));
         r.forEach((q, c) => {
           const ox = -totalW / 2 + c * (colW + gap) + (colW - q.w) / 2, oy = totalH / 2 - y - rh + (rh - q.h) / 2;
-          out.push(poly(q.pts.map((v) => P(v.x + ox, v.y + oy))));
+          out.push(shiftPath(dogbonePath(q.pts, db.r, db.mode, panelBottom(q.w, t)), ox, oy));
         });
         y += rh + gap;
       }
@@ -872,6 +962,7 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       { key: 'tabCount', min: 1, max: 6, def: 3 },
       { key: 'tabWidth', min: 5, max: 60, step: 0.5, def: 20, unit: 'mm' },
       { key: 'thickness', min: 1, max: 25, step: 0.5, def: 6, unit: 'mm', fromMaterial: true },
+      ...DOGBONE_CONTROLS,
     ],
     build: (_w, _h, p) => {
       // Överst plattan med tappar (nedåt), under den plattan med matchande slitsar.
@@ -883,9 +974,11 @@ export const SHAPE_LIBRARY: ShapeLibraryItem[] = [
       for (const cx of cxs) top.push(P(cx - tw / 2, y0), P(cx - tw / 2, gap / 2), P(cx + tw / 2, gap / 2), P(cx + tw / 2, y0));
       top.push(P(W / 2, y0), P(W / 2, y0 + H), P(-W / 2, y0 + H));
       const yb = -gap / 2;
-      const out = [poly(top), poly([P(-W / 2, yb - H), P(W / 2, yb - H), P(W / 2, yb), P(-W / 2, yb)])];
+      const db = dogboneOf(p), flat = () => true;
+      const out = [dogbonePath(top, db.r, db.mode, flat), poly([P(-W / 2, yb - H), P(W / 2, yb - H), P(W / 2, yb), P(-W / 2, yb)])];
       const ys = yb - H / 2;
-      for (const cx of cxs) out.push(poly([P(cx - tw / 2, ys - t / 2), P(cx + tw / 2, ys - t / 2), P(cx + tw / 2, ys + t / 2), P(cx - tw / 2, ys + t / 2)]));
+      // Slitsarna är hål: medurs, så att materialet ligger till vänster.
+      for (const cx of cxs) out.push(dogbonePath([P(cx - tw / 2, ys - t / 2), P(cx - tw / 2, ys + t / 2), P(cx + tw / 2, ys + t / 2), P(cx + tw / 2, ys - t / 2)], db.r, db.mode, flat));
       return out;
     },
   },
