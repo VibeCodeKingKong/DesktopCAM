@@ -8,7 +8,7 @@
  * spänna fast i. I 3D-vyn och simuleringen ligger inläggsträet bredvid
  * grundträet.
  */
-import { shapesBounds, transformShape, type InlayToolpath, type MaterialSetup, type VectorShape } from '@desktopcam/core';
+import { shapesBounds, transformShape, type InlayToolpath, type MaterialSetup, type ReliefInstance, type VectorShape } from '@desktopcam/core';
 
 /** Kant utanför den bortfrästa marginalen (mm). */
 export const PLUG_BLANK_BORDER = 5;
@@ -60,3 +60,26 @@ export function plugBlank(tp: Pick<InlayToolpath, 'margin' | 'plugDepth'>, shape
     displayY: 0,
   };
 }
+
+/**
+ * Inläggsträet för pluggen i ett reliefinlägg. Pluggens relief (redan
+ * spegelvänd) ligger på samma ställe som fickan i ritningen; inläggsträet är
+ * den ytan plus en kant att spänna fast i, och lika tjockt som pluggbrädan
+ * plus minst 3 mm att hålla ihop den.
+ */
+export function reliefPlugBlank(r: ReliefInstance, material: MaterialSetup): PlugBlank | null {
+  if (!r.plug || !(r.width > 0) || !(r.height > 0)) return null;
+  const B = PLUG_BLANK_BORDER;
+  return {
+    x0: r.x - B,
+    y0: r.y - B,
+    width: Math.ceil(r.width + 2 * B),
+    height: Math.ceil(r.height + 2 * B),
+    thickness: Math.max(6, Math.ceil(r.depth + 3)),
+    displayX: material.width + PLUG_BLANK_GAP,
+    displayY: 0,
+  };
+}
+
+/** Spegelaxeln för en reliefplugg: fickans mitt (pluggen vänds runt den). */
+export const reliefMirrorAxis = (r: ReliefInstance) => r.x + r.width / 2;

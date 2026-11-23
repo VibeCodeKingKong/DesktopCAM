@@ -40,7 +40,7 @@ import { imageHeightMm, imageToRelief } from '../../cam/imageObjects';
 import { toolFits } from '../../cam/toolRules';
 import { vbitConeHeight } from '../../cam/toolReach';
 import { computeToolpath, drillPoints, plugBlankFor, resolvePocket, resolveProfile, scheduleCompute } from '../../cam/toolpathService';
-import { DEFAULT_PLUG_MATERIAL } from '../../cam/inlayBlank';
+import { DEFAULT_PLUG_MATERIAL, reliefPlugBlank } from '../../cam/inlayBlank';
 import {
   centerSelection,
   createLineEngraving,
@@ -1673,8 +1673,8 @@ function PlugEditor({ relief }: { relief: ReliefInstance }) {
   const material = useAppStore((s) => s.material);
   const pocket = useAppStore((s) => s.reliefs.find((r) => r.id === relief.plug!.pocketId));
   const p = relief.plug!;
-  const fmt = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
-  const board = p.source.depth + 2 * p.gap + p.clearance;
+  const materials = useAppStore((s) => s.materials);
+  const blank = useMemo(() => reliefPlugBlank(relief, material), [relief, material]);
   return (
     <Group title={ti.plugTitle} hint="reliefInlay">
       <FieldRow label={ti.show}>
@@ -1697,8 +1697,15 @@ function PlugEditor({ relief }: { relief: ReliefInstance }) {
         </>
       )}
       {!expert && <ExpertNote />}
-      <p className="text-2xs leading-relaxed text-muted">{ti.boardNote(fmt(board), fmt(p.source.width + 2 * p.margin), fmt(p.source.height + 2 * p.margin))}</p>
-      {board > material.thickness && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{ti.tooThick(fmt(material.thickness))}</p>}
+      {/* Pluggen fräses i eget inläggsträ, med egen nollpunkt – som i V-inlägg. */}
+      <SelectField
+        label={t.inlaySim.plugMaterial}
+        value={p.material ?? DEFAULT_PLUG_MATERIAL}
+        options={materials.filter((m) => m.category === 'wood' || m.category === 'composite' || m.category === 'plastic').map((m) => ({ value: m.id, label: materialName(t, m.id, m.name) }))}
+        onChange={(m) => updateReliefPlug(relief.id, { material: m })}
+      />
+      {blank && <p className="rounded-md bg-app px-2 py-1.5 text-2xs leading-relaxed">{t.inlaySim.blankInfo(blank.width, blank.height, blank.thickness)}</p>}
+      <p className="text-2xs leading-relaxed text-muted">{ti.mirroredNote}</p>
       {!pocket && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{ti.pocketMissing}</p>}
       <ol className="list-decimal space-y-0.5 pl-4 text-2xs leading-relaxed text-muted">
         {ti.steps.map((x) => (

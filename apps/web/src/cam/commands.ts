@@ -2,6 +2,7 @@
  * Kommandon som Ribbon, kortkommandon och paneler anropar.
  * Samlade här så att samma handling alltid beter sig likadant.
  */
+import { DEFAULT_PLUG_MATERIAL } from './inlayBlank';
 import {
   patternTransforms,
   defaultPlasmaSettings,
@@ -1195,7 +1196,7 @@ export function createReliefPlug(pocketId: string) {
   // Fräsradien: från fickans 3D-bana om den finns, annars en kulfräs på 3,175 mm.
   const tp = s.toolpaths.find((x) => x.operation === 'relief' && x.reliefId === pocketId);
   const tool = s.tools.find((x) => x.id === tp?.toolId) ?? s.tools.find((x) => x.kind === 'ballnose');
-  const plug: ReliefPlug = { pocketId, source: plugSource(pocket), gap: 0.2, margin: 4, clearance: 1, toolRadius: (tool?.diameter ?? 3.175) / 2 };
+  const plug: ReliefPlug = { pocketId, source: plugSource(pocket), gap: 0.2, margin: 4, clearance: 1, toolRadius: (tool?.diameter ?? 3.175) / 2, material: DEFAULT_PLUG_MATERIAL };
   // Fickans vassa toppar rundas av så att pluggens fräs kan följa dem.
   s.updateRelief(pocket.id, { inlayRadius: plug.toolRadius });
   plug.source = plugSource({ ...pocket, inlayRadius: plug.toolRadius });
@@ -1223,7 +1224,7 @@ export function showInlayPart(plugId: string, part: 'pocket' | 'plug') {
 }
 
 /** Ändrar pluggens limspalt, marginal eller frigång och räknar om dess mått. */
-export function updateReliefPlug(plugId: string, patch: Partial<Pick<ReliefPlug, 'gap' | 'margin' | 'clearance' | 'toolRadius'>>) {
+export function updateReliefPlug(plugId: string, patch: Partial<Pick<ReliefPlug, 'gap' | 'margin' | 'clearance' | 'toolRadius' | 'material'>>) {
   const s = useAppStore.getState();
   const r = s.reliefs.find((x) => x.id === plugId);
   if (!r?.plug) return;

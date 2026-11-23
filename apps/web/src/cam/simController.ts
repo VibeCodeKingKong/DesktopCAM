@@ -7,7 +7,7 @@ import type { SceneController } from '../components/viewport/SceneController';
 import { buildSimulator, type SimulationSet } from './simulation';
 import { plugBlankLayout } from './toolpathService';
 import { allShapes } from '../store/useAppStore';
-import { mirrorAxis } from './inlayBlank';
+import { mirrorAxis, reliefMirrorAxis } from './inlayBlank';
 import { assembleInlay, type InlayPlacement } from './inlayAssembly';
 import type { CellKind } from './inlayAssembly';
 
@@ -151,7 +151,13 @@ export function startSimulation(autoplay = true): boolean {
   placements = new Map(
     [...blanks].map(([id, b]) => {
       const tp = s.toolpaths.find((x) => x.id === id);
-      return [id, { x0: b.x0, y0: b.y0, cx: mirrorAxis(shapes.filter((sh) => tp?.shapeIds.includes(sh.id))) }];
+      // Reliefplugg: vänds runt fickans mitt. V-inlägg: runt formernas mitt.
+      const relief = tp?.operation === 'relief' ? s.reliefs.find((r) => r.id === tp.reliefId && r.plug) : undefined;
+      const cx = relief ? reliefMirrorAxis(relief) : mirrorAxis(shapes.filter((sh) => tp?.shapeIds.includes(sh.id)));
+      // Reliefpluggen sågas loss mitt i det frästa spåret runt den (halva marginalen ut).
+      const src = relief?.plug?.source, half = (relief?.plug?.margin ?? 0) / 2;
+      const region = src ? { x0: src.x - half - b.x0, y0: src.y - half - b.y0, x1: src.x + src.width + half - b.x0, y1: src.y + src.height + half - b.y0 } : undefined;
+      return [id, { x0: b.x0, y0: b.y0, cx, region }];
     }),
   );
   assembly = null;
@@ -248,7 +254,7 @@ export function glueInlays() {
   const base = sim.stocks[0].sim;
   const heights = Float32Array.from(base.heights);
   const kind = new Uint8Array(heights.length);
-  const fit: (ReturnType<typeof assembleInlay> & { name: string })[] = [];
+  const fit: (ReturnType<typeof assembleInlay> & { name: string; relief?: boolean })[] = [];
   const items: NonNullable<typeof assembly>['items'] = [];
   const colors: [number, number, number][] = [];
   sections = [];
@@ -261,7 +267,14 @@ export function glueInlays() {
     const m = st.sim.material;
     const rx = 2 * at.cx - at.x0 - m.width, ry = at.y0;
     const plugTp = s.toolpaths.find((x) => x.id === st.plugOf);
-    const pocketTp = plugTp?.operation === 'inlay' ? s.toolpaths.find((x) => x.operation === 'inlay' && x.part === 'pocket' && x.groupId === plugTp.groupId) : undefined;
+    // Fickans bana: V-inläggets ficka, eller 3D-banan för reliefinläggets ficka.
+    const plugRelief = plugTp?.operation === 'relief' ? s.reliefs.find((r) => r.id === plugTp.reliefId)?.plug : undefined;
+    const pocketTp =
+      plugTp?.operation === 'inlay'
+        ? s.toolpaths.find((x) => x.operation === 'inlay' && x.part === 'pocket' && x.groupId === plugTp.groupId)
+        : plugRelief
+          ? s.toolpaths.find((x) => x.operation === 'relief' && x.reliefId === plugRelief.pocketId && x.visible)
+          : undefined;
     const fine = sim!.fineBase(rx, ry, m.width, m.height, st.sim.cell, pocketTp?.id);
     const fk = new Uint8Array(fine.heights.length);
     const fh = Float32Array.from(fine.heights);
@@ -297,7 +310,7 @@ export function glueInlays() {
     }
     colors.push(hexRgb(st.color));
     const tp = s.toolpaths.find((x) => x.id === st.plugOf);
-    fit.push({ ...r, name: tp?.name ?? '' });
+    fit.push({ ...r, name: tp?.name ?? '', relief: tp?.operation === 'relief' });
     // Lyft så högt att träet kan vändas utan att slå i grundträet.
     items.push({ stock: i, from: { x: st.x, y: st.y }, to: { x: 2 * at.cx - at.x0, y: at.y0, z: -r.sink }, lift: 15 + m.thickness + Math.max(m.width, m.height) / 2, size: { w: m.width, h: m.height, t: m.thickness } });
   });

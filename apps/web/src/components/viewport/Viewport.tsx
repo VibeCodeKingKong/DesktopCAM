@@ -89,7 +89,7 @@ export function Viewport() {
 
   // Inläggsträ för pluggarna, bredvid grundträet.
   const materials = useAppStore((s) => s.materials);
-  const blanks = useMemo(() => plugBlankLayout(), [toolpaths, layers, material, materials]);
+  const blanks = useMemo(() => plugBlankLayout(), [toolpaths, layers, material, materials, reliefs]);
   useEffect(() => {
     const extras = view.showStock && !simActive ? [...blanks.values()].map((b) => ({ x: b.displayX, y: b.displayY, width: b.width, height: b.height, thickness: b.thickness, color: b.color })) : [];
     ctlRef.current?.setExtraStocks(extras);

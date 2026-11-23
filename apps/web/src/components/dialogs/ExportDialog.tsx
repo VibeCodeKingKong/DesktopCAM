@@ -89,7 +89,7 @@ export function ExportDialog() {
           <div className="space-y-2">
             {planExport(done.map((x) => x.id), opts).map((file) => {
               const first = done.find((x) => x.id === file.toolpathIds[0])!;
-              const blank = first.operation === 'inlay' && first.part === 'plug' ? plugBlankFor(first) : null;
+              const blank = plugBlankFor(first);
               return (
                 <section key={file.filename} className="overflow-hidden rounded-lg border border-line">
                   <header className="flex items-baseline gap-2 border-b border-line bg-app px-3 py-1.5">

@@ -312,6 +312,8 @@ export interface ReliefPlug {
   clearance: number;
   /** Radien på kulfräsen som fräser fickan (mm) – fickan blir aldrig skarpare än så. */
   toolRadius: number;
+  /** Inläggsträets material (id i materiallistan). */
+  material?: string;
 }
 
 /** Pluggens yttermått och djup utifrån fickan. */

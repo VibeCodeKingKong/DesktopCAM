@@ -1,8 +1,9 @@
 /**
  * Hur G-koden delas upp i filer när den sparas.
  *
- *  - V-inlägg: fickan och pluggen blir var sin fil – de fräses i olika
- *    trästycken med var sin nollpunkt.
+ *  - Inlägg: fickan och pluggen blir var sin fil – de fräses i olika
+ *    trästycken med var sin nollpunkt. Det gäller V-inlägg och pluggen i
+ *    ett reliefinlägg.
  *  - Övriga banor: en fil per lager, med banorna i listans ordning. Byts
  *    verktyget inom ett lager blir det en fil per verktyg, eftersom Z måste
  *    nollställas på nytt efter ett verktygsbyte.
@@ -15,6 +16,7 @@ import type { PostprocessorConfig, ToolpathConfig } from '@desktopcam/core';
 import { getMachine, useAppStore } from '../store/useAppStore';
 import { getT, toolName } from '../i18n';
 import { slug } from '../utils/download';
+import { reliefPlugOf } from './toolpathService';
 
 export interface ExportFile {
   /** Rubrik i dialogen. */
@@ -48,7 +50,7 @@ export function planExport(ids: string[], opts: ExportOptions = {}): ExportFile[
   const byKey = new Map<string, ExportFile>();
   for (const tp of s.toolpaths) {
     if (!ids.includes(tp.id) || !s.results[tp.id]) continue;
-    if (tp.operation === 'inlay') {
+    if (tp.operation === 'inlay' || reliefPlugOf(tp)) {
       files.push({ title: tp.name, filename: `${project}-${slug(tp.name)}.gcode`, toolpathIds: [tp.id], kind: 'inlay' });
       continue;
     }

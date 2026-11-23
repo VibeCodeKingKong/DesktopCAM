@@ -126,12 +126,12 @@ function InlayGlue() {
           <div key={f.name} className="text-2xs leading-relaxed">
             <span className="font-medium">{f.name}: </span>
             {f.blocked ? (
-              <span className="text-warn">{ti.blocked}</span>
+              <span className="text-warn">{f.relief ? ti.blockedRelief : ti.blocked}</span>
             ) : (
               <>
                 <span>{ti.fitSummary(mm(f.sink), mm(f.maxGap), pct(f.filled))}</span>
-                {f.voids > 0.005 && <span className="text-warn"> {ti.voids(pct(f.voids))}</span>}
-                {f.thin > 0.005 && <span className="text-warn"> {ti.thin(pct(f.thin))}</span>}
+                {f.voids > 0.005 && <span className="text-warn"> {(f.relief ? ti.voidsRelief : ti.voids)(pct(f.voids))}</span>}
+                {f.thin > 0.005 && <span className="text-warn"> {(f.relief ? ti.thinRelief : ti.thin)(pct(f.thin))}</span>}
                 {f.voids <= 0.005 && f.thin <= 0.005 && <span className="text-accent"> {ti.ok}</span>}
               </>
             )}

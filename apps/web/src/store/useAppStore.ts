@@ -149,7 +149,7 @@ interface AppState extends DocSnapshot {
     /** Limningen: av, animeras eller klar. */
     assembly: 'none' | 'animating' | 'done';
     /** Passningen per inlägg efter limningen. */
-    fit: (InlayFitResult & { name: string })[];
+    fit: (InlayFitResult & { name: string; relief?: boolean })[];
   };
   /** Måttsättning mellan två former: från mitt till mitt eller mellan kanterna. */
   measureRef: MeasureRef | null;

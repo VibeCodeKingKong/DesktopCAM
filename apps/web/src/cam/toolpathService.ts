@@ -28,7 +28,7 @@ import {
   type PostprocessorConfig,
 } from '@desktopcam/core';
 import { camClient } from '../engine/camClient';
-import { DEFAULT_PLUG_MATERIAL, mirrorInPlace, PLUG_BLANK_GAP, plugBlank, type PlugBlank } from './inlayBlank';
+import { DEFAULT_PLUG_MATERIAL, mirrorInPlace, PLUG_BLANK_GAP, plugBlank, reliefPlugBlank, type PlugBlank } from './inlayBlank';
 import { errorText, getT } from '../i18n';
 import { allShapes, getMachine, useAppStore } from '../store/useAppStore';
 import { rasterizeGray } from '../utils/image';
@@ -121,7 +121,8 @@ export async function computeToolpath(id: string): Promise<void> {
     const warnings = toolReachWarnings(st.tools.find((x) => x.id === tp.toolId), payload.preview.stats, getT());
     // Pluggen: skriv inläggsträets mått och nollpunkt överst i G-koden.
     const blank = plugBlankFor(tp);
-    const gcode = blank ? `${getT().inlaySim.gcodeNote(blank.width, blank.height, blank.thickness).map((l) => `; ${l}`).join('\n')}\n${payload.gcode}` : payload.gcode;
+    const note = tp.operation === 'relief' ? getT().inlaySim.gcodeNoteRelief : getT().inlaySim.gcodeNote;
+    const gcode = blank ? `${note(blank.width, blank.height, blank.thickness).map((l) => `; ${l}`).join('\n')}\n${payload.gcode}` : payload.gcode;
     st.setResult(id, {
       warnings,
       gcode,
@@ -407,8 +408,8 @@ export function plugBlankLayout(): Map<string, PlugBlank & { color: string; mate
   let y = 0;
   for (const tp of s.toolpaths) {
     const b = plugBlankFor(tp);
-    if (!b || tp.operation !== 'inlay') continue;
-    const materialId = tp.plugMaterial ?? DEFAULT_PLUG_MATERIAL;
+    if (!b) continue;
+    const materialId = plugMaterialOf(tp) ?? DEFAULT_PLUG_MATERIAL;
     const color = s.materials.find((m) => m.id === materialId)?.color ?? '#6e4b33';
     out.set(tp.id, { ...b, displayY: y, color, materialId });
     y += b.height + PLUG_BLANK_GAP;
@@ -416,8 +417,23 @@ export function plugBlankLayout(): Map<string, PlugBlank & { color: string; mate
   return out;
 }
 
+/** Reliefen som en 3D-bana fräser, om det är pluggen i ett reliefinlägg. */
+export function reliefPlugOf(tp: ToolpathConfig) {
+  if (tp.operation !== 'relief') return null;
+  const r = useAppStore.getState().reliefs.find((x) => x.id === tp.reliefId);
+  return r?.plug ? r : null;
+}
+
+/** Inläggsträets material för en plugg (V-inlägg eller reliefinlägg). */
+function plugMaterialOf(tp: ToolpathConfig): string | undefined {
+  if (tp.operation === 'inlay') return tp.plugMaterial;
+  return reliefPlugOf(tp)?.plug?.material;
+}
+
 /** Inläggsträet för en plugg (null för andra banor eller om formerna saknas). */
 export function plugBlankFor(tp: ToolpathConfig): PlugBlank | null {
+  const relief = reliefPlugOf(tp);
+  if (relief) return reliefPlugBlank(relief, useAppStore.getState().material);
   if (tp.operation !== 'inlay' || tp.part !== 'plug') return null;
   const shapes = allShapes(useAppStore.getState().layers).filter((sh) => tp.shapeIds.includes(sh.id));
   return shapes.length ? plugBlank(tp, shapes, useAppStore.getState().material) : null;
@@ -498,12 +514,14 @@ function buildReliefJob(tp: ToolpathConfig): ReliefJob {
   const tool = s.tools.find((t) => t.id === tp.toolId);
   if (!tool || tool.kind === 'laser' || tool.kind === 'drill') throw new Error('WRONG_TOOL');
   const hm = heightmapFor(relief);
+  // Pluggen i ett reliefinlägg fräses i eget inläggsträ: nollpunkten i dess nedre vänstra hörn.
+  const blank = relief.plug ? reliefPlugBlank(relief, s.material) : null;
   return {
     heights: hm.heights,
     nx: hm.nx,
     ny: hm.ny,
-    x: relief.x,
-    y: relief.y,
+    x: blank ? relief.x - blank.x0 : relief.x,
+    y: blank ? relief.y - blank.y0 : relief.y,
     width: relief.width,
     height: relief.height,
     depth: relief.depth,
