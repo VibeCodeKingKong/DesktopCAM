@@ -1,7 +1,8 @@
 import { useAppStore } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
-import { Heart } from 'lucide-react';
+import { Heart, RefreshCw } from 'lucide-react';
+import { checkForUpdate, forceUpdate, useUpdates } from '../../pwa/updates';
 import { DONATE_URL } from '../../config/donate';
 import { APP_VERSION, CHANGELOG, compareVersions } from '../../data/changelog';
 
@@ -25,6 +26,7 @@ export function AboutDialog() {
         <p className="text-sm">
           <span className="font-semibold">desktopCAM</span> <span className="tabular-nums text-muted">{t.about.version(APP_VERSION)}</span>
         </p>
+        <UpdateCheck />
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{t.about.whatsNew}</h3>
         <ol className="max-h-[45vh] space-y-4 overflow-y-auto pr-1">
           {CHANGELOG.map((e) => (
@@ -79,5 +81,40 @@ export function AboutDialog() {
         </section>
       </div>
     </Dialog>
+  );
+}
+
+/** Sök efter uppdatering: visar om en nyare version finns och låter användaren ta den i bruk. */
+function UpdateCheck() {
+  const t = useT();
+  const P = t.pwa;
+  const { check, serverVersion, apply } = useUpdates();
+  const v = serverVersion ?? '';
+  const text: Record<typeof check, string | null> = {
+    idle: null,
+    checking: P.checking,
+    latest: P.latest,
+    found: P.found(v),
+    stuck: P.stuck(v),
+    offline: P.offline,
+    unsupported: P.unsupported,
+  };
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      <button className="btn" disabled={check === 'checking'} onClick={() => void checkForUpdate()}>
+        <RefreshCw size={13} className={check === 'checking' ? 'animate-spin' : ''} /> {P.checkNow}
+      </button>
+      {apply && (
+        <button className="btn btn-primary" onClick={() => void apply(true)}>
+          {P.update}
+        </button>
+      )}
+      {check === 'stuck' && !apply && (
+        <button className="btn btn-primary" onClick={() => void forceUpdate()}>
+          {P.force}
+        </button>
+      )}
+      {text[check] && <p className={`w-full leading-relaxed ${check === 'stuck' || check === 'offline' ? 'text-warn' : 'text-muted'}`} role="status">{text[check]}</p>}
+    </div>
   );
 }

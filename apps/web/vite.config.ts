@@ -84,6 +84,14 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    // version.json: versionen på servern, så att appen kan se om en nyare finns
+    // (sparas inte av service workern – globPatterns tar inte med .json).
+    {
+      name: 'desktopcam-version-json',
+      generateBundle() {
+        this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version }) });
+      },
+    },
     // Offline och installation (vite-plugin-pwa + Workbox, MIT). Egen service worker i sw/sw.ts.
     VitePWA({
       strategies: 'injectManifest',

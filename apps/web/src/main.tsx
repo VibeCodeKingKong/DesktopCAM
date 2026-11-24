@@ -8,6 +8,21 @@ import { installErrorReporting } from './errors/reports';
 
 installErrorReporting();
 
+// En ny version har publicerats och den här sidans filer (t.ex. ett fönster som
+// laddas först när det öppnas) finns inte längre på servern: ladda om en gång
+// i stället för att krascha. Spärren hindrar en omladdningsslinga.
+window.addEventListener('vite:preloadError', (e) => {
+  try {
+    const last = Number(sessionStorage.getItem('desktopcam.preloadReload') ?? 0);
+    if (Date.now() - last < 60_000) return;
+    sessionStorage.setItem('desktopcam.preloadReload', String(Date.now()));
+  } catch {
+    return;
+  }
+  e.preventDefault();
+  location.reload();
+});
+
 // Utvecklingsläge: verktyg för skriptet som bygger exempelprojekten (scripts/build-examples.cjs).
 if (import.meta.env.DEV) void import('./devHooks');
 
