@@ -330,7 +330,7 @@ export function plugGeometry(p: ReliefPlug) {
 
 /* ───────────────────────── Verktygsbanor (CAM) ───────────────────────── */
 
-export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing' | 'penDraw' | 'penFill' | 'penImage';
+export type OperationType = 'profile' | 'pocket' | 'drill' | 'vcarve' | 'inlay' | 'laserCut' | 'laserRaster' | 'relief' | 'plasmaCut' | 'facing' | 'penDraw' | 'penFill' | 'penImage' | 'gcode';
 export type CutSide = 'outside' | 'inside' | 'on';
 export type DitherMethod = 'floyd-steinberg' | 'ordered' | 'threshold';
 
@@ -534,7 +534,21 @@ export interface PenImageToolpath extends ToolpathBase {
   optimize: boolean;
 }
 
+/**
+ * Färdig G-kod (importerad fil eller ett kalibreringsprov). Banan räknas inte
+ * om – G-koden visas, simuleras och exporteras som den är.
+ */
+export interface GcodeToolpath extends ToolpathBase {
+  operation: 'gcode';
+  gcode: string;
+  /** Varifrån G-koden kommer: en importerad fil eller ett kalibreringsprov (provets id). */
+  source: { kind: 'file'; fileName: string } | { kind: 'calibration'; testId: string };
+  /** Laser: strålen skär igenom materialet (annars bränns ytan). */
+  laserCut?: boolean;
+}
+
 export type ToolpathConfig =
+  | GcodeToolpath
   | PenImageToolpath
   | PenDrawToolpath
   | PenFillToolpath

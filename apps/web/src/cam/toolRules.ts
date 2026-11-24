@@ -31,6 +31,9 @@ export function allowedToolKinds(tp: ToolpathConfig): ToolKind[] {
       return ['laser'];
     case 'plasmaCut':
       return ['plasma'];
+    case 'gcode':
+      // Färdig G-kod: verktyget bestämmer bara hur simuleringen ser ut.
+      return ['endmill', 'ballnose', 'vbit', 'drill', 'laser', 'plasma', 'pen'];
   }
 }
 

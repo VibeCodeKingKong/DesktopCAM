@@ -6,16 +6,19 @@ interface RowProps {
   label: string;
   hint?: GuideKey;
   htmlFor?: string;
+  /** Extra knapp efter etiketten (t.ex. ett "i" med förklaring). */
+  extra?: ReactNode;
   children: ReactNode;
 }
 
 /** Etikett till vänster, kontroll till höger – samma rytm i alla paneler och dialoger. */
-export function FieldRow({ label, hint, htmlFor, children }: RowProps) {
+export function FieldRow({ label, hint, htmlFor, extra, children }: RowProps) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] items-center gap-2">
       <label htmlFor={htmlFor} className="flex min-w-0 items-center gap-1 text-xs text-muted">
         <span className="truncate">{label}</span>
         {hint && <InfoHint topic={hint} />}
+        {extra}
       </label>
       <div className="min-w-0">{children}</div>
     </div>
@@ -33,9 +36,10 @@ interface NumberFieldProps {
   hint?: GuideKey;
   /** Räkna om medan man skriver (inte bara när fältet lämnas). */
   live?: boolean;
+  extra?: ReactNode;
 }
 
-export function NumberField({ label, value, onChange, unit, step = 1, min, max, hint, live }: NumberFieldProps) {
+export function NumberField({ label, value, onChange, unit, step = 1, min, max, hint, live, extra }: NumberFieldProps) {
   const id = useId();
   const [draft, setDraft] = useState(String(value));
   const [focused, setFocused] = useState(false);
@@ -52,7 +56,7 @@ export function NumberField({ label, value, onChange, unit, step = 1, min, max, 
   };
 
   return (
-    <FieldRow label={label} hint={hint} htmlFor={id}>
+    <FieldRow label={label} hint={hint} htmlFor={id} extra={extra}>
       <div className="relative">
         <input
           id={id}
@@ -94,12 +98,13 @@ interface SelectFieldProps<T extends string> {
   options: { value: T; label: string }[];
   onChange: (v: T) => void;
   hint?: GuideKey;
+  extra?: ReactNode;
 }
 
-export function SelectField<T extends string>({ label, value, options, onChange, hint }: SelectFieldProps<T>) {
+export function SelectField<T extends string>({ label, value, options, onChange, hint, extra }: SelectFieldProps<T>) {
   const id = useId();
   return (
-    <FieldRow label={label} hint={hint} htmlFor={id}>
+    <FieldRow label={label} hint={hint} htmlFor={id} extra={extra}>
       <Select id={id} value={value} options={options} onChange={onChange} />
     </FieldRow>
   );

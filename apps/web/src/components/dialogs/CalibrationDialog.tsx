@@ -4,7 +4,11 @@
  * G-kod); här finns bara formulären, förhandsvisningen och flödet.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Camera, Check, ChevronRight, Download, FileCode2, Gauge, History, ShieldAlert, Trash2, TriangleAlert, Wrench } from 'lucide-react';
+import { Camera, Check, ChevronRight, Download, FileCode2, Gauge, History, Play, ShieldAlert, Trash2, TriangleAlert, Wrench } from 'lucide-react';
+import { addGcodeToolpath } from '../../cam/gcodeImport';
+import { CalAnimation, paramConcept, TEST_CONCEPT } from '../calibration/animations';
+import { CalInfo } from '../calibration/CalInfo';
+import { PlanPlayback, PlayControls, usePlayback } from '../calibration/PlanPlayer';
 import {
   analyzeGrid,
   bestCells,
@@ -274,6 +278,25 @@ function TestPanel({ test }: { test: CalibrationTest }) {
     const { stats } = parseGcode(text, machine.postprocessor.maxFeed ?? machine.maxFeed);
     setGcode({ text: `${C.gcodeHeader.map((l) => `; ${asciiComment(l)}`).join('\n')}\n${text}`, issues: gi, seconds: stats.estimatedSeconds, lines: stats.lineCount });
   };
+  /** Lägger in provet i projektet – ritningen som eget lager och G-koden som bana – och öppnar simuleringen. */
+  const simulate = () => {
+    if (!plan || !gcode) return;
+    const s = useAppStore.getState();
+    const name = C.tests[test.id].name;
+    const shapes = plan.layers.flatMap((l) => l.shapes.map((sh) => ({ ...sh, id: uid('shape'), name: C.layers[l.name as keyof typeof C.layers] ?? sh.name })));
+    if (shapes.length) s.addLayers([{ id: uid('layer'), name: C.projectLayer(name), color: '#d4572a', visible: true, locked: false, shapes }]);
+    addGcodeToolpath({
+      name,
+      gcode: gcode.text,
+      source: { kind: 'calibration', testId: test.id },
+      // Laser: skärprov skär igenom, övriga prov bränner ytan.
+      laserCut: test.category === 'laser' && (test.id === 'laser-kerf' || values.mode === 'cut'),
+      tool: test.category === 'router' ? calibrationTool() : undefined,
+    });
+    s.openDialog(null);
+    s.setTab('simulate');
+    s.setStatus(C.simulated(name));
+  };
   const layers = plan ? plan.layers.map((l) => ({ name: C.layers[l.name as keyof typeof C.layers] ?? l.name, color: l.color, shapes: l.shapes })) : [];
   const allIssues = [...issues, ...(gcode?.issues ?? [])];
   const blocked = hasErrors(allIssues);
@@ -318,6 +341,15 @@ function TestPanel({ test }: { test: CalibrationTest }) {
           <h3 className="text-base font-semibold">{C.tests[test.id].name}</h3>
           <p className="mt-0.5 text-sm leading-relaxed">{C.tests[test.id].what}</p>
         </div>
+        {TEST_CONCEPT[test.id] && (
+          <div className="grid items-center gap-2 rounded-md bg-app p-2 sm:grid-cols-[minmax(0,180px)_1fr]">
+            <CalAnimation concept={TEST_CONCEPT[test.id]} className="!p-0" />
+            <p className="text-xs leading-relaxed">
+              <span className="font-medium">{C.howItWorks}: </span>
+              {C.anim[TEST_CONCEPT[test.id]]}
+            </p>
+          </div>
+        )}
         <details className="rounded-md bg-app px-3 py-2 text-xs leading-relaxed">
           <summary className="cursor-pointer font-medium">{C.howTo}</summary>
           <p className="mt-1.5">
@@ -367,9 +399,15 @@ function TestPanel({ test }: { test: CalibrationTest }) {
                     <Check size={13} /> {C.gcodeChecked}
                   </p>
                   <p className="text-2xs leading-relaxed text-muted">{C.notGuaranteed}</p>
-                  <button className="btn btn-primary" disabled={blocked} onClick={() => downloadText(`${base}.gcode`, gcode.text)}>
-                    <Download size={13} /> {C.downloadGcode}
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button className="btn btn-primary" disabled={blocked} onClick={() => downloadText(`${base}.gcode`, gcode.text)}>
+                      <Download size={13} /> {C.downloadGcode}
+                    </button>
+                    <button className="btn" disabled={blocked} onClick={simulate} title={C.simulateTitle}>
+                      <Play size={13} /> {C.simulate}
+                    </button>
+                  </div>
+                  <p className="text-2xs leading-relaxed text-muted">{C.simulateNote}</p>
                 </>
               ) : (
                 <p className="text-warn">{C.gcodeBlocked}</p>
@@ -382,7 +420,20 @@ function TestPanel({ test }: { test: CalibrationTest }) {
 
       {/* Höger: förhandsvisning, mätning, foto och sparande */}
       <section className="min-w-0 space-y-3">
-        {plan && <Preview plan={plan} category={test.category} />}
+        {plan && (
+          <Preview
+            plan={plan}
+            category={test.category}
+            sMax={machine.laser?.sMax ?? 1000}
+            getGcode={() => {
+              try {
+                return calibrationGcode(test, plan, ctx);
+              } catch {
+                return null;
+              }
+            }}
+          />
+        )}
         {plan && (
           <p className="text-2xs tabular-nums text-muted">
             {C.size(fmtValue(t, Math.round(plan.width * 10) / 10), fmtValue(t, Math.round(plan.height * 10) / 10))} · {C.cells(plan.cells.length)}
@@ -427,13 +478,24 @@ function TestPanel({ test }: { test: CalibrationTest }) {
 function ParamForm({ test, values, onChange }: { test: CalibrationTest; values: CalValues; onChange: (k: string, v: number | string) => void }) {
   const t = useT();
   const C = t.calib;
+  const info = (key: string) => {
+    const body = C.paramHelp[key];
+    if (!body) return undefined;
+    const concept = paramConcept(key, test.category);
+    return (
+      <CalInfo title={C.params[key] ?? key} body={body}>
+        {concept && <CalAnimation concept={concept} caption={C.anim[concept]} />}
+      </CalInfo>
+    );
+  };
   const field = (p: CalibrationTest['params'][number]) =>
     p.kind === 'choice' ? (
-      <SelectField key={p.key} label={C.params[p.key] ?? p.key} value={String(values[p.key])} options={p.options.map((o) => ({ value: o, label: C.choices[o] ?? o }))} onChange={(v) => onChange(p.key, v)} />
+      <SelectField key={p.key} label={C.params[p.key] ?? p.key} extra={info(p.key)} value={String(values[p.key])} options={p.options.map((o) => ({ value: o, label: C.choices[o] ?? o }))} onChange={(v) => onChange(p.key, v)} />
     ) : (
       <NumberField
         key={p.key}
         label={C.params[p.key] ?? p.key}
+        extra={info(p.key)}
         unit={p.unit || undefined}
         step={p.step}
         min={p.min}
@@ -458,8 +520,12 @@ function ParamForm({ test, values, onChange }: { test: CalibrationTest; values: 
 }
 
 /** Förhandsvisning: gravyr som grå ytor (mörkare med högre effekt), skärningar röda, etiketter tunna. */
-function Preview({ plan, category }: { plan: CalibrationPlan; category: CalibrationCategory }) {
+function Preview({ plan, category, getGcode, sMax }: { plan: CalibrationPlan; category: CalibrationCategory; getGcode: () => string | null; sMax: number }) {
   const C = useT().calib;
+  const play = usePlayback();
+  // G-koden tas fram först när uppspelningen startas (och igen om provet ändras).
+  const gcodeText = useMemo(() => (play.active ? getGcode() : null), [play.active, plan]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => play.stop(), [plan]); // eslint-disable-line react-hooks/exhaustive-deps
   const pad = Math.max(plan.width, plan.height) * 0.04 + 2;
   const top = plan.y + plan.height;
   const sw = Math.max(plan.width, plan.height) / 400;
@@ -472,6 +538,7 @@ function Preview({ plan, category }: { plan: CalibrationPlan; category: Calibrat
     <figure className="rounded-lg border border-line bg-app p-2">
       <svg viewBox={`${plan.x - pad} ${-pad} ${plan.width + 2 * pad} ${plan.height + 2 * pad}`} className="max-h-[42vh] w-full" role="img" aria-label={C.preview}>
         <rect x={plan.x} y={0} width={plan.width} height={plan.height} className="fill-surface" />
+        <g opacity={gcodeText ? 0.18 : 1}>
         {plan.laser
           ? plan.laser.map((o, i) =>
               o.kind === 'fill' && o.rect ? (
@@ -491,8 +558,13 @@ function Preview({ plan, category }: { plan: CalibrationPlan; category: Calibrat
                 {c.label}
               </text>
             ))}
+        </g>
+        {gcodeText && <PlanPlayback gcode={gcodeText} category={category} sMax={sMax} top={top} scale={sw} progress={play.progress} />}
       </svg>
-      <figcaption className="mt-1 text-2xs text-muted">{category === 'laser' ? C.previewLaser : C.previewCut}</figcaption>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+        <figcaption className="min-w-0 flex-1 text-2xs text-muted">{gcodeText ? C.playCaption : category === 'laser' ? C.previewLaser : C.previewCut}</figcaption>
+        <PlayControls playing={play.playing} active={play.active} onToggle={play.toggle} onRestart={play.restart} onStop={play.stop} />
+      </div>
     </figure>
   );
 }

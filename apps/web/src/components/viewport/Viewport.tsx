@@ -20,6 +20,7 @@ import { ViewportToolbar } from './ViewportToolbar';
 import { ViewportOverlay } from './ViewportOverlay';
 import { composeStockSurface } from '../../cam/reliefs';
 import { importVectorFile } from '../../cam/commands';
+import { importGcodeFile, isGcodeFileName } from '../../cam/gcodeImport';
 import { imageHeightMm, importImage } from '../../cam/imageObjects';
 import { EditController } from '../../editing/EditController';
 import { useT } from '../../i18n';
@@ -177,6 +178,7 @@ export function Viewport() {
         setDragging(false);
         const file = e.dataTransfer.files[0];
         if (file && /^image\/(png|jpeg|webp|bmp|gif)$/.test(file.type)) void importImage(file);
+        else if (file && isGcodeFileName(file.name)) void importGcodeFile(file);
         else if (file) void importVectorFile(file);
       }}
     >

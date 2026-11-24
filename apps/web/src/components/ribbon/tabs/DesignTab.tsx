@@ -1,4 +1,4 @@
-import { BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
@@ -6,6 +6,7 @@ import { RibbonMenuButton } from '../RibbonMenuButton';
 import { CornerRadius } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, groupSelection, importVectorFile, redo, selectAllShapes, undo, ungroupSelection } from '../../../cam/commands';
+import { importGcodeFile } from '../../../cam/gcodeImport';
 import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
@@ -83,6 +84,7 @@ export function DesignTab() {
       </RibbonGroup>
       <RibbonGroup label={t.groups.import}>
         <RibbonButton icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
+        <RibbonButton icon={FileCode2} label={b.importGcode.label} onClick={() => void importGcodeFile()} tooltip={tip(b.importGcode)} />
         {/* Reliefer fräses – Bild till relief finns bara med fräs. */}
         <RibbonMenuButton
           icon={ImageIcon}

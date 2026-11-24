@@ -36,6 +36,7 @@ import {
   Type,
   Slash,
   Zap,
+  FileCode2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ToolpathConfig } from '@desktopcam/core';
@@ -68,6 +69,7 @@ const OP_ICONS: Record<OperationType, LucideIcon> = {
   penDraw: PenLine,
   penFill: Grid3x3,
   penImage: ImageIcon,
+  gcode: FileCode2,
 };
 
 function Section({

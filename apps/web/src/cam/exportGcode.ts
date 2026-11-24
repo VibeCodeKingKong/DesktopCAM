@@ -54,6 +54,11 @@ export function planExport(ids: string[], opts: ExportOptions = {}): ExportFile[
       files.push({ title: tp.name, filename: `${project}-${slug(tp.name)}.gcode`, toolpathIds: [tp.id], kind: 'inlay' });
       continue;
     }
+    // Färdig G-kod (importerad eller kalibreringsprov): alltid en egen fil, som den är.
+    if (tp.operation === 'gcode') {
+      files.push({ title: tp.name, filename: `${project}-${slug(tp.name)}.gcode`, toolpathIds: [tp.id], kind: 'layer' });
+      continue;
+    }
     const layer = layerOf(tp);
     const layerName = layer?.name ?? t.exportGcode.noLayer;
     const key = opts.toolChangePause ? `${layer?.id ?? '-'}` : `${layer?.id ?? '-'}|${tp.toolId}`;

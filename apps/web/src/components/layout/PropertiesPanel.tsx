@@ -1018,6 +1018,19 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
       )}
 
       {tp.operation === 'plasmaCut' && <PlasmaEditor tp={tp} patch={patch} param={param} />}
+      {tp.operation === 'gcode' && (
+        <Group title={t.gcodeImport.group}>
+          <p className="text-xs leading-relaxed">
+            {tp.source.kind === 'file' ? t.gcodeImport.fromFile(tp.source.fileName) : t.gcodeImport.fromCalibration(t.calib.tests[tp.source.testId]?.name ?? tp.source.testId)}
+          </p>
+          {currentTool?.kind === 'laser' && (
+            <FieldRow label={t.gcodeImport.laserCut}>
+              <Switch checked={!!tp.laserCut} onChange={(laserCut) => patch({ laserCut })} label={t.gcodeImport.laserCut} />
+            </FieldRow>
+          )}
+          <p className="text-2xs leading-relaxed text-muted">{t.gcodeImport.fixedNote}</p>
+        </Group>
+      )}
 
       {tp.operation === 'laserRaster' && (
         <>

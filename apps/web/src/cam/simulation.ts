@@ -428,14 +428,16 @@ export function buildSimulator(
     const res = results[tp.id];
     if (!tp.visible || !res) continue;
     const tool = tools.find((t) => t.id === tp.toolId);
-    const laser = tp.operation === 'laserCut' || tp.operation === 'laserRaster';
+    const laser = tp.operation === 'laserCut' || tp.operation === 'laserRaster' || (tp.operation === 'gcode' && tool?.kind === 'laser');
     const shape: SimToolShape =
       tool?.kind === 'pen'
         ? { kind: 'pen', radius: Math.max(0.05, tool.diameter / 2), angle: 0 }
         : tp.operation === 'plasmaCut'
         ? { kind: 'plasma', radius: Math.max(0.1, tp.kerf / 2), angle: 0 }
+        : tp.operation === 'gcode' && (tool?.kind === 'plasma' || tool?.kind === 'laser')
+          ? { kind: tool.kind, radius: Math.max(tool.kind === 'plasma' ? 0.1 : 0.05, tool.diameter / 2), angle: 0 }
         : laser
-          ? { kind: 'laser', radius: Math.max(0.05, (tp.operation === 'laserCut' ? tp.kerf : tp.lineIntervalMm) / 2), angle: 0 }
+          ? { kind: 'laser', radius: Math.max(0.05, (tp.operation === 'laserCut' ? tp.kerf : tp.operation === 'laserRaster' ? tp.lineIntervalMm : (tool?.diameter ?? 0.1)) / 2), angle: 0 }
           : { kind: (tool?.kind ?? 'endmill') as SimToolShape['kind'], radius: (tool?.diameter ?? 3) / 2, angle: tool?.angle ?? 90 };
     let tabTop: number | undefined;
     if (tp.operation === 'profile' && tp.side !== 'on' && tp.tabs?.enabled) {
@@ -452,7 +454,7 @@ export function buildSimulator(
       }
       stock = stockOf.get(tp.id)!;
     }
-    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut', tabTop, ink: tool?.kind === 'pen' ? (tool.color ?? '#1f2328') : undefined }, gcode: res.gcode });
+    jobs.push({ job: { name: tp.name, tool: shape, laserCut: tp.operation === 'laserCut' || tp.operation === 'plasmaCut' || (tp.operation === 'gcode' && (tool?.kind === 'plasma' || !!tp.laserCut)), tabTop, ink: tool?.kind === 'pen' ? (tool.color ?? '#1f2328') : undefined }, gcode: res.gcode });
     jobStock.push(stock);
     ids.push(tp.id);
   }
