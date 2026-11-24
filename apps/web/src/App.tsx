@@ -1,3 +1,4 @@
+import { useCalibration } from './calibration/history';
 import { maybeWelcome } from './tutorial/tour';
 import { lazy, Suspense, useEffect, type ComponentType, type LazyExoticComponent } from 'react';
 import { AppHeader } from './components/layout/AppHeader';
@@ -44,6 +45,7 @@ const DIALOGS: Partial<Record<DialogId, LazyExoticComponent<ComponentType>>> = {
   welcome: lazy(() => import('./components/dialogs/WelcomeDialog').then((m) => ({ default: m.WelcomeDialog }))),
   trace: lazy(() => import('./components/dialogs/TraceDialog').then((m) => ({ default: m.TraceDialog }))),
   recent: lazy(() => import('./components/dialogs/RecentProjectsDialog').then((m) => ({ default: m.RecentProjectsDialog }))),
+  calibration: lazy(() => import('./components/dialogs/CalibrationDialog').then((m) => ({ default: m.CalibrationDialog }))),
 };
 
 function OpenDialog() {
@@ -83,6 +85,10 @@ function useNewsAfterUpdate() {
 }
 
 export default function App() {
+  // Kalibreringshistoriken (godkända mätvärden används när banor skapas).
+  useEffect(() => {
+    void useCalibration.getState().load();
+  }, []);
   const theme = useAppStore((s) => s.theme);
   const language = useAppStore((s) => s.language);
   useShortcuts();

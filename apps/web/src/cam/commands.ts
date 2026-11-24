@@ -3,6 +3,7 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import { DEFAULT_PLUG_MATERIAL } from './inlayBlank';
+import { approvedValue } from '../calibration/history';
 import {
   patternTransforms,
   defaultPlasmaSettings,
@@ -613,7 +614,8 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         name: `${n}. ${opName}`,
         toolId: tool.id,
         side: sel.some(shapeHasArea) ? 'outside' : 'on',
-        kerf: 0.15,
+        // Uppmätt och godkänd snittbredd (Kalibrering) för maskinen och materialet, annars 0,15 mm.
+        kerf: approvedValue('laserKerf', machine.id, preset.id, s.material.thickness) ?? 0.15,
         // Material som inte kan skäras (metall, sten) får graveringsvärden i stället.
         ...(preset.laser.canCut === false
           ? { passes: 1, params: { ...tool.defaults, feedRate: preset.laser.engraveSpeed, laserPowerPct: preset.laser.engravePowerPct } }
@@ -641,7 +643,7 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
         name: `${n}. ${opName}`,
         toolId: tool.id,
         side: sel.some(shapeHasArea) ? 'outside' : 'on',
-        kerf: chart?.kerf ?? tool.diameter,
+        kerf: approvedValue('plasmaKerf', machine.id, preset.id, s.material.thickness, 0.5) ?? chart?.kerf ?? tool.diameter,
         amps: chart?.amps ?? Math.min(45, machine.plasma?.maxAmps ?? 45),
         plasma: settings,
         params: { ...tool.defaults, feedRate: chart?.feedRate ?? tool.defaults.feedRate },

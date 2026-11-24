@@ -31,9 +31,11 @@ interface NumberFieldProps {
   min?: number;
   max?: number;
   hint?: GuideKey;
+  /** Räkna om medan man skriver (inte bara när fältet lämnas). */
+  live?: boolean;
 }
 
-export function NumberField({ label, value, onChange, unit, step = 1, min, max, hint }: NumberFieldProps) {
+export function NumberField({ label, value, onChange, unit, step = 1, min, max, hint, live }: NumberFieldProps) {
   const id = useId();
   const [draft, setDraft] = useState(String(value));
   const [focused, setFocused] = useState(false);
@@ -63,7 +65,10 @@ export function NumberField({ label, value, onChange, unit, step = 1, min, max, 
             setFocused(false);
             commit(e.target.value);
           }}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            if (live) commit(e.target.value);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
             if (e.key === 'Escape') {

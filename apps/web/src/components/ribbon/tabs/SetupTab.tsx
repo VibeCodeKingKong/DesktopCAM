@@ -1,4 +1,4 @@
-import { ChevronRight, Settings2, Wrench, X, Zap } from 'lucide-react';
+import { ChevronRight, Gauge, Settings2, Wrench, X, Zap } from 'lucide-react';
 import { useContext } from 'react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonLayout, RibbonStack } from '../RibbonGroup';
@@ -104,6 +104,10 @@ export function SetupTab() {
             </p>
           </RibbonField>
         </RibbonStack>
+      </RibbonGroup>
+
+      <RibbonGroup label={t.groups.calibration}>
+        <RibbonButton icon={Gauge} label={b.calibration.label} onClick={() => openDialog('calibration')} tooltip={tip(b.calibration)} />
       </RibbonGroup>
 
       <RibbonGroup label={t.groups.workpiece}>

@@ -72,7 +72,8 @@ export interface PlasmaSettings {
   markTime: number;
 }
 
-export type PlasmaSmallHoles = 'mark' | 'cut' | 'skip';
+/** contour = skärs som vanliga hål ändå (används av kalibreringens hålprov). */
+export type PlasmaSmallHoles = 'mark' | 'cut' | 'skip' | 'contour';
 
 export interface PlasmaJob {
   groups: PolylineInput[][];
@@ -276,7 +277,7 @@ export function plasmaGcode(job: PlasmaJob): string {
   // Små hål skärs inte som kontur (blir dåliga eller försvinner i offseten).
   // Former inuti andra former blir hål i dem (samma regel som offseten).
   const nested = nestGroups(job.groups.map((g) => g.filter((x) => x.closed)).filter((g) => g.length));
-  const smallHoles = findSmallHoles(nested, side, job.kerf, job.thickness);
+  const smallHoles = s.smallHoles === 'contour' ? [] : findSmallHoles(nested, side, job.kerf, job.thickness);
   const removed = new Set(smallHoles.map((h) => `${h.group}:${h.loop}`));
   // Borrmärken/genomstick: närmaste hål i tur och ordning, före konturerna.
   const markOrder: SmallHole[] = [];

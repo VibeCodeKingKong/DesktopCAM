@@ -80,6 +80,14 @@ Fullständig förteckning: `THIRD_PARTY_LICENSES.md` och `SBOM.json`.
   | FastSAM (Ultralytics-baserad) | AGPL-3.0 | REJECTED – stark copyleft. |
   | YOLO-modeller från Ultralytics | AGPL-3.0 eller kommersiell licens | REJECTED utan köpt licens. |
   | onnxruntime-web (körmiljö) | MIT | Kandidat för att köra en modell i webbläsaren. |
+- **Kalibrering och provning: bildanalys** – den analys som finns är ingen
+  AI-modell utan egen gråskaleanalys i webbläsaren (perspektivkorrigering
+  och mätning av mörkhet/jämnhet per ruta). Foton lagras bara lokalt
+  (IndexedDB). En extern AI-tjänst för att bedöma provbilder är förberedd i
+  arkitekturen men **inte införd**: leverantör, kostnad, GDPR (bilder kan
+  innehålla personuppgifter), lagring/träning på data och en serverhållen
+  API-nyckel måste bedömas och godkännas först. Ingen nyckel får ligga i
+  frontend.
 
 ## 4. Algoritmer och möjliga patent
 
@@ -105,6 +113,7 @@ tillämpningar i CAM-branschen kan omfattas av patent** och bör granskas.
 | Spårning: mittlinje | Zhang–Suen-uttunning (1984), egen grafföljning och borttagning av utstickare | Publicerad 1984; inget känt patent. |
 | Spårning: skuggfilter | Otsu med tre klasser (Liao m.fl. 2001) och färgmättnad per bildpunkt: grå mellanton = skugga | Allmänna bildbehandlingsmetoder, egen kod. Automatisk skuggborttagning finns i patenterade utföranden – REVIEW REQUIRED (ingår i patentsökningen). |
 | Räta upp | Minsta omslutande rektangel via konvext hölje och roterande skjutmått (Freeman–Shapira 1975, Toussaint 1983) | Klassisk beräkningsgeometri; inget känt patent. |
+| Kalibreringsprov | Egna provmönster (rutnät med effekt/hastighet, fokusramp, snittbreddskvadrat, ficka/hål, spårbredd, djuptrappa, hörn- och hålprov) och beräkning av snittbredd/verklig verktygsdiameter ur mått | Allmänt kända provtyper inom laser/CNC/plasma; mönster, texter och beräkningar är skapade för projektet. Inget känt patent. |
 | Vektorexport | SVG (W3C, royaltyfri), DXF R12 (Autodesks publicerade format), PDF 1.4 (ISO 32000) | Öppna/publicerade format; egen kod. DXF är Autodesks format – användning för utbyte bedöms tillåten, men "DXF" är ett varumärke att nämna med försiktighet. |
 
 ## 5. Varumärken
