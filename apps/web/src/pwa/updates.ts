@@ -76,7 +76,7 @@ export async function checkForUpdate(quiet = false): Promise<void> {
   const check: CheckState = !newer ? 'latest' : waiting ? 'found' : 'stuck';
   // Automatiska kontroller ändrar bara läget när något har hittats.
   useUpdates.setState(!quiet || check !== 'latest' ? { check, serverVersion } : { serverVersion });
-  if (waiting) useUpdates.setState({ dismissedAt: null });
+  if (registration?.waiting) useUpdates.setState({ apply: applyUpdate, dismissedAt: null });
 }
 
 /**
@@ -94,11 +94,34 @@ export async function forceUpdate(): Promise<void> {
   }
 }
 
+/**
+ * Tar den väntande versionen i bruk och laddar om sidan. Laddar själv om när
+ * den nya versionen är aktiv i stället för att vänta på att den tar över
+ * sidan – en sida som laddats förbi service workern (Ctrl+F5) tas aldrig
+ * över, och då hände ingenting när man valde Uppdatera.
+ */
+async function applyUpdate(): Promise<void> {
+  const w = registration?.waiting;
+  if (w) {
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, 5000);
+      w.addEventListener('statechange', () => {
+        if (w.state === 'activated') {
+          clearTimeout(timer);
+          resolve();
+        }
+      });
+      w.postMessage({ type: 'SKIP_WAITING' });
+    });
+  }
+  location.reload();
+}
+
 /** Registrerar service workern och startar de regelbundna kontrollerna (en gång). */
 export function startUpdates(onOfflineReady: () => void): void {
   if (import.meta.env.DEV || !('serviceWorker' in navigator)) return;
-  const updateSW = registerSW({
-    onNeedRefresh: () => useUpdates.setState({ apply: updateSW, dismissedAt: null, check: 'found' }),
+  registerSW({
+    onNeedRefresh: () => useUpdates.setState({ apply: applyUpdate, dismissedAt: null, check: 'found' }),
     onOfflineReady,
     onRegisteredSW: (_url, r) => {
       registration = r;

@@ -39,7 +39,7 @@ export function compareVersions(a: string, b: string): number {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    version: '0.48.1',
+    version: '0.48.2',
     date: '2026-11-24',
     text: {
       sv: ["**Kalibrering och provning** Ta fram rätt inställningar för din maskin med färdiga provmönster: effekt, hastighet, fokus, snittbredd och gråskala för laser, måttnoggrannhet, spårbredd och djup för fräs, skärhastighet, hål och hörn för plasma. Inställning → Kalibrering – välj ett prov, justera värdena och spara som G-kod, SVG eller DXF.", "**Läs av provet med ett foto** Fotografera ett laserprov ovanifrån så jämför appen rutorna och föreslår vilka som ger den ton du vill ha. Bilden stannar i din webbläsare.", "**Mät och använd resultatet** Fyll i dina skjutmåttsmått så räknar appen ut snittbredd eller verklig fräsdiameter. Godkänner du värdet används det automatiskt när du skär med samma maskin och material.", "**Historik och jämförelse** Alla prov sparas med maskin, material, värden och foto. Under Historik kan du filtrera och jämföra flera prov sida vid sida.", "**Uppdateringar hittas av sig själva** Appen letar efter en ny version varje timme och när du går tillbaka till fliken. Under Om desktopCAM finns Sök efter uppdatering, som också kan hämta en ny version som fastnat."],
