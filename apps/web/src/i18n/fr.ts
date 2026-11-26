@@ -70,6 +70,7 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const fr: Dict = {
+  offsetPreview: 'Aperçu : en gris l’original, en bleu le nouveau contour.',
   shapeOps: {
     needTwo: 'Sélectionnez au moins deux formes.',
     needClosed: 'Les formes doivent être fermées (rectangles, cercles ou courbes fermées).',
@@ -105,7 +106,11 @@ export const fr: Dict = {
   calib: {
     simulate: 'Simuler',
     simulateTitle: 'Ajouter l’essai au projet et le simuler',
-    simulateNote: 'Simuler place l’essai dans son propre projet – le dessin comme calque et le G-code comme parcours – et ouvre la simulation. Votre projet actuel est enregistré et se trouve dans Fichier → Récents.',
+    simulateNote: 'Simuler place l’essai dans son propre projet – le dessin comme calque et le G-code comme parcours – et ouvre la simulation. Si un projet est ouvert, l’application demande d’abord si vous voulez l’enregistrer.',
+    askTitle: 'L’essai s’ouvre dans un nouveau projet',
+    askBody: (p: string) => `Votre projet « ${p} » est fermé et l’essai est placé dans un nouveau projet. « ${p} » est enregistré automatiquement dans le navigateur et reste dans Fichier → Récents. Voulez-vous aussi l’enregistrer comme fichier sur votre ordinateur (.dcam) ?`,
+    askSave: 'Enregistrer le fichier et continuer',
+    askContinue: 'Continuer sans fichier',
     simulatedNew: (n: string) => `${n} est dans un nouveau projet et la simulation est ouverte. Votre projet précédent se trouve dans Fichier → Récents.`,
     simulated: (n: string) => `${n} a été ajouté au projet et la simulation est ouverte.`,
     projectLayer: (n: string) => `Essai : ${n}`,
@@ -665,6 +670,8 @@ export const fr: Dict = {
   },
 
   buttons: {
+    offset: { label: 'Décaler', title: 'Décaler le contour', desc: 'Crée un nouveau contour à une distance donnée à l’extérieur ou à l’intérieur des formes sélectionnées – par ex. du jeu autour d’un outil dans une mousse, un cadre ou une pièce d’ajustement. L’original est conservé.' },
+    more: { label: 'Plus', title: 'Plus d’outils', desc: 'Motif et Mesure.' },
     combine: { label: 'Opérations', title: 'Opérations sur les formes', desc: 'Unir, soustraire ou garder la partie commune des formes sélectionnées. Le résultat est une nouvelle forme.' },
     union: { label: 'Unir', title: 'Unir', desc: 'Les formes deviennent un seul contour autour de tout ce qu’elles couvrent.' },
     subtract: { label: 'Soustraire', title: 'Soustraire', desc: 'Les plus petites formes sont découpées dans la plus grande – par ex. un trou ou une encoche.' },

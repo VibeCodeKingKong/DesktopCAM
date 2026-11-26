@@ -1,9 +1,9 @@
-import { FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { Ellipsis, FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
 import { RibbonMenuButton } from '../RibbonMenuButton';
-import { CornerRadius, ShapesIntersect, ShapesSubtract, ShapesUnion } from '../../ui/icons';
+import { CornerRadius, ShapeOffset, ShapesIntersect, ShapesSubtract, ShapesUnion } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, groupSelection, importVectorFile, redo, selectAllShapes, undo, ungroupSelection } from '../../../cam/commands';
 import { importGcodeFile } from '../../../cam/gcodeImport';
@@ -11,7 +11,7 @@ import { combineSelection } from '../../../cam/shapeOps';
 import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
-import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluMeasure, IlluPattern, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluShapeLibrary, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
+import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluShapeLibrary, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
 import { Select } from '../../ui/Field';
 
 export function DesignTab() {
@@ -62,11 +62,11 @@ export function DesignTab() {
       <RibbonGroup label={t.groups.modify}>
         <RibbonButton icon={CornerRadius} label={b.fillet.label} active={tool === 'fillet'} onClick={pick('fillet')} tooltip={tip(b.fillet, { illustration: <IlluFillet />,  shortcut: 'K' })} />
         <RibbonButton
-          icon={Grid3x3}
-          label={b.pattern.label}
+          icon={ShapeOffset}
+          label={b.offset.label}
           disabled={!hasShapeSelection}
-          onClick={() => openDialog('pattern')}
-          tooltip={tip(b.pattern, { illustration: <IlluPattern />, disabledReason: hasShapeSelection ? undefined : t.reasons.needsSelection })}
+          onClick={() => openDialog('offset')}
+          tooltip={tip(b.offset, { disabledReason: hasShapeSelection ? undefined : t.reasons.needsSelection })}
         />
         <RibbonMenuButton
           icon={ShapesUnion}
@@ -78,7 +78,16 @@ export function DesignTab() {
             { icon: ShapesIntersect, label: b.intersect.title, desc: b.intersect.desc, onClick: () => combineSelection('intersect'), disabled: selCount < 2 },
           ]}
         />
-        <RibbonButton icon={Ruler} label={b.measure.label} active={tool === 'measure'} onClick={pick('measure')} tooltip={tip(b.measure, { illustration: <IlluMeasure />,  shortcut: 'M' })} />
+        {/* Verktyg som används mer sällan – så att bandet inte blir för brett. */}
+        <RibbonMenuButton
+          icon={Ellipsis}
+          label={b.more.label}
+          tooltip={tip(b.more)}
+          items={[
+            { icon: Grid3x3, label: b.pattern.title, desc: b.pattern.desc, onClick: () => openDialog('pattern'), disabled: !hasShapeSelection },
+            { icon: Ruler, label: `${b.measure.title} (M)`, desc: b.measure.desc, onClick: pick('measure') },
+          ]}
+        />
       </RibbonGroup>
       <RibbonGroup label={t.groups.snap}>
         <RibbonButton icon={Magnet} label={b.snapGrid.label} active={snap.grid} onClick={() => setSnap({ grid: !snap.grid })} tooltip={tip(b.snapGrid, { illustration: <IlluSnap /> })} />

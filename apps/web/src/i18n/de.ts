@@ -70,6 +70,7 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const de: Dict = {
+  offsetPreview: 'Vorschau: grau das Original, blau die neue Kontur.',
   shapeOps: {
     needTwo: 'Markieren Sie mindestens zwei Formen.',
     needClosed: 'Die Formen müssen geschlossen sein (z. B. Rechtecke, Kreise oder geschlossene Kurven).',
@@ -105,7 +106,11 @@ export const de: Dict = {
   calib: {
     simulate: 'Simulieren',
     simulateTitle: 'Test ins Projekt übernehmen und simulieren',
-    simulateNote: 'Simulieren legt den Test in ein eigenes Projekt – die Zeichnung als Ebene und den G-Code als Werkzeugweg – und öffnet die Simulation. Ihr aktuelles Projekt wird gespeichert und ist unter Datei → Zuletzt zu finden.',
+    simulateNote: 'Simulieren legt den Test in ein eigenes Projekt – die Zeichnung als Ebene und den G-Code als Werkzeugweg – und öffnet die Simulation. Ist ein Projekt geöffnet, fragt die App zuerst, ob Sie es speichern möchten.',
+    askTitle: 'Der Test öffnet sich in einem neuen Projekt',
+    askBody: (p: string) => `Ihr Projekt „${p}“ wird geschlossen und der Test in ein neues, eigenes Projekt gelegt. „${p}“ wird automatisch im Browser gespeichert und bleibt unter Datei → Zuletzt. Möchten Sie es zusätzlich als Datei auf Ihrem Computer speichern (.dcam)?`,
+    askSave: 'Als Datei speichern und weiter',
+    askContinue: 'Ohne Datei weiter',
     simulatedNew: (n: string) => `${n} liegt in einem neuen Projekt, die Simulation ist geöffnet. Ihr vorheriges Projekt finden Sie unter Datei → Zuletzt.`,
     simulated: (n: string) => `${n} wurde ins Projekt übernommen, die Simulation ist geöffnet.`,
     projectLayer: (n: string) => `Test: ${n}`,
@@ -665,6 +670,8 @@ export const de: Dict = {
   },
 
   buttons: {
+    offset: { label: 'Versetzen', title: 'Kontur versetzen', desc: 'Erstellt eine neue Kontur in einem bestimmten Abstand außerhalb oder innerhalb der markierten Formen – z. B. Spiel um ein Werkzeug in einer Schaumstoffeinlage, ein Rahmen oder ein Passteil. Das Original bleibt erhalten.' },
+    more: { label: 'Mehr', title: 'Weitere Werkzeuge', desc: 'Muster und Messen.' },
     combine: { label: 'Kombinieren', title: 'Formen kombinieren', desc: 'Vereinigen, abziehen oder den gemeinsamen Teil der markierten Formen behalten. Das Ergebnis ist eine neue Form.' },
     union: { label: 'Vereinigen', title: 'Vereinigen', desc: 'Die Formen werden zu einer einzigen Kontur um alles, was sie bedecken.' },
     subtract: { label: 'Abziehen', title: 'Abziehen', desc: 'Die kleineren Formen werden aus der größten ausgeschnitten – z. B. ein Loch oder eine Aussparung.' },

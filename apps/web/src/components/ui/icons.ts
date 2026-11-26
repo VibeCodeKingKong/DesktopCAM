@@ -25,3 +25,9 @@ export const ShapesIntersect = createLucideIcon('ShapesIntersect', [
   ['path', { d: 'M10 8h4v8h-4z', key: 'i', fill: 'currentColor' }],
 ]);
 
+
+/** Förskjut kontur: en form med en kontur runt om. */
+export const ShapeOffset = createLucideIcon('ShapeOffset', [
+  ['rect', { x: '7', y: '7', width: '10', height: '10', rx: '1', key: 'i' }],
+  ['rect', { x: '3', y: '3', width: '18', height: '18', rx: '5', key: 'o', strokeDasharray: '3 2' }],
+]);

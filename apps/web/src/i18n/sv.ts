@@ -18,6 +18,7 @@ export type GuideKey =
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
+  offsetPreview: 'Förhandsvisning: grått är originalet, blått den nya konturen.',
   shapeOps: {
     needTwo: 'Markera minst två former.',
     needClosed: 'Formerna måste vara slutna (t.ex. rektanglar, cirklar eller slutna kurvor).',
@@ -53,7 +54,11 @@ export const sv = {
   calib: {
     simulate: 'Simulera',
     simulateTitle: 'Lägg in provet i projektet och simulera det',
-    simulateNote: 'Simulera lägger provet i ett eget projekt – ritningen som ett lager och G-koden som en verktygsbana – och öppnar simuleringen. Ditt nuvarande projekt sparas och finns under Arkiv → Senaste.',
+    simulateNote: 'Simulera lägger provet i ett eget projekt – ritningen som ett lager och G-koden som en verktygsbana – och öppnar simuleringen. Har du ett projekt öppet frågar appen först om du vill spara det.',
+    askTitle: 'Provet öppnas i ett nytt projekt',
+    askBody: (p: string) => `Ditt projekt ”${p}” stängs och provet läggs i ett nytt, eget projekt. ”${p}” sparas automatiskt i webbläsaren och finns kvar under Arkiv → Senaste. Vill du också spara det som en fil på datorn (.dcam)?`,
+    askSave: 'Spara som fil och fortsätt',
+    askContinue: 'Fortsätt utan fil',
     simulatedNew: (n: string) => `${n} ligger i ett nytt projekt och simuleringen är öppen. Ditt förra projekt finns under Arkiv → Senaste.`,
     simulated: (n: string) => `${n} är inlagt i projektet och simuleringen är öppen.`,
     projectLayer: (n: string) => `Prov: ${n}`,
@@ -613,6 +618,8 @@ export const sv = {
   },
 
   buttons: {
+    offset: { label: 'Förskjut', title: 'Förskjut kontur', desc: 'Skapar en ny kontur ett visst avstånd utanför eller innanför de markerade formerna – t.ex. spel runt ett verktyg i ett skuminlägg, en ram eller en passbit. Originalet behålls.' },
+    more: { label: 'Fler', title: 'Fler verktyg', desc: 'Mönster och Mått.' },
     combine: { label: 'Kombinera', title: 'Kombinera former', desc: 'Förena, dra ifrån eller behåll den gemensamma delen av de markerade formerna. Resultatet blir en ny form.' },
     union: { label: 'Förena', title: 'Förena', desc: 'Formerna blir en enda kontur runt allt de täcker.' },
     subtract: { label: 'Dra ifrån', title: 'Dra ifrån', desc: 'De mindre formerna skärs ut ur den största – t.ex. ett hål eller ett urtag.' },

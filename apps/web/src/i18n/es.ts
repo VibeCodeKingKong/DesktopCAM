@@ -70,6 +70,7 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const es: Dict = {
+  offsetPreview: 'Vista previa: en gris el original, en azul el nuevo contorno.',
   shapeOps: {
     needTwo: 'Selecciona al menos dos formas.',
     needClosed: 'Las formas deben ser cerradas (p. ej. rectángulos, círculos o curvas cerradas).',
@@ -105,7 +106,11 @@ export const es: Dict = {
   calib: {
     simulate: 'Simular',
     simulateTitle: 'Añadir la prueba al proyecto y simularla',
-    simulateNote: 'Simular coloca la prueba en un proyecto propio (el dibujo como capa y el G-code como trayectoria) y abre la simulación. Tu proyecto actual se guarda y está en Archivo → Recientes.',
+    simulateNote: 'Simular coloca la prueba en un proyecto propio (el dibujo como capa y el G-code como trayectoria) y abre la simulación. Si tienes un proyecto abierto, la aplicación pregunta primero si quieres guardarlo.',
+    askTitle: 'La prueba se abre en un proyecto nuevo',
+    askBody: (p: string) => `Tu proyecto «${p}» se cierra y la prueba se coloca en un proyecto nuevo y propio. «${p}» se guarda automáticamente en el navegador y sigue en Archivo → Recientes. ¿Quieres guardarlo también como archivo en tu ordenador (.dcam)?`,
+    askSave: 'Guardar archivo y continuar',
+    askContinue: 'Continuar sin archivo',
     simulatedNew: (n: string) => `${n} está en un proyecto nuevo y la simulación está abierta. Tu proyecto anterior está en Archivo → Recientes.`,
     simulated: (n: string) => `${n} se ha añadido al proyecto y la simulación está abierta.`,
     projectLayer: (n: string) => `Prueba: ${n}`,
@@ -665,6 +670,8 @@ export const es: Dict = {
   },
 
   buttons: {
+    offset: { label: 'Desplazar', title: 'Desplazar contorno', desc: 'Crea un contorno nuevo a cierta distancia por fuera o por dentro de las formas seleccionadas, p. ej. holgura alrededor de una herramienta en una espuma, un marco o una pieza de ajuste. El original se conserva.' },
+    more: { label: 'Más', title: 'Más herramientas', desc: 'Patrón y Medir.' },
     combine: { label: 'Operaciones', title: 'Operaciones con formas', desc: 'Une, resta o conserva la parte común de las formas seleccionadas. El resultado es una forma nueva.' },
     union: { label: 'Unir', title: 'Unir', desc: 'Las formas se convierten en un único contorno alrededor de todo lo que cubren.' },
     subtract: { label: 'Restar', title: 'Restar', desc: 'Las formas más pequeñas se recortan de la más grande, p. ej. un agujero o una muesca.' },

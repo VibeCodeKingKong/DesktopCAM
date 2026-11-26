@@ -77,6 +77,7 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const pl: Dict = {
+  offsetPreview: 'Podgląd: szary to oryginał, niebieski – nowy kontur.',
   shapeOps: {
     needTwo: 'Zaznacz co najmniej dwa kształty.',
     needClosed: 'Kształty muszą być zamknięte (np. prostokąty, okręgi lub zamknięte krzywe).',
@@ -112,7 +113,11 @@ export const pl: Dict = {
   calib: {
     simulate: 'Symuluj',
     simulateTitle: 'Dodaj test do projektu i zasymuluj go',
-    simulateNote: 'Symuluj umieszcza test we własnym projekcie – rysunek jako warstwę, a G-code jako ścieżkę narzędzia – i otwiera symulację. Bieżący projekt zostaje zapisany i jest w Plik → Ostatnie.',
+    simulateNote: 'Symuluj umieszcza test we własnym projekcie – rysunek jako warstwę, a G-code jako ścieżkę narzędzia – i otwiera symulację. Jeśli masz otwarty projekt, aplikacja najpierw zapyta, czy chcesz go zapisać.',
+    askTitle: 'Test otworzy się w nowym projekcie',
+    askBody: (p: string) => `Twój projekt „${p}” zostanie zamknięty, a test trafi do nowego, osobnego projektu. „${p}” zapisuje się automatycznie w przeglądarce i pozostaje w Plik → Ostatnie. Czy chcesz też zapisać go jako plik na komputerze (.dcam)?`,
+    askSave: 'Zapisz plik i kontynuuj',
+    askContinue: 'Kontynuuj bez pliku',
     simulatedNew: (n: string) => `${n} jest w nowym projekcie, a symulacja jest otwarta. Poprzedni projekt znajdziesz w Plik → Ostatnie.`,
     simulated: (n: string) => `Dodano ${n} do projektu, symulacja jest otwarta.`,
     projectLayer: (n: string) => `Test: ${n}`,
@@ -672,6 +677,8 @@ export const pl: Dict = {
   },
 
   buttons: {
+    offset: { label: 'Odsuń', title: 'Odsuń kontur', desc: 'Tworzy nowy kontur w zadanej odległości na zewnątrz lub wewnątrz zaznaczonych kształtów – np. luz wokół narzędzia we wkładce z pianki, ramkę lub element pasowany. Oryginał zostaje.' },
+    more: { label: 'Więcej', title: 'Więcej narzędzi', desc: 'Szyk i Pomiar.' },
     combine: { label: 'Operacje', title: 'Operacje na kształtach', desc: 'Scal, odejmij lub zachowaj część wspólną zaznaczonych kształtów. Wynikiem jest nowy kształt.' },
     union: { label: 'Scal', title: 'Scal', desc: 'Kształty stają się jednym konturem wokół wszystkiego, co zakrywają.' },
     subtract: { label: 'Odejmij', title: 'Odejmij', desc: 'Mniejsze kształty są wycinane z największego – np. otwór lub wcięcie.' },

@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Camera, Check, ChevronRight, Download, FileCode2, Gauge, History, Play, ShieldAlert, Trash2, TriangleAlert, Wrench } from 'lucide-react';
 import { addGcodeToolpath } from '../../cam/gcodeImport';
-import { newProject } from '../../cam/commands';
+import { newProject, saveProject } from '../../cam/commands';
 import { CalAnimation, paramConcept, TEST_CONCEPT } from '../calibration/animations';
 import { CalInfo } from '../calibration/CalInfo';
 import { PlanPlayback, PlayControls, usePlayback } from '../calibration/PlanPlayer';
@@ -290,13 +290,24 @@ function TestPanel({ test }: { test: CalibrationTest }) {
     setGcode({ text: `${C.gcodeHeader.map((l) => `; ${asciiComment(l)}`).join('\n')}\n${text}`, issues: gi, seconds: stats.estimatedSeconds, lines: stats.lineCount });
   };
   /** Lägger in provet i projektet – ritningen som eget lager och G-koden som bana – och öppnar simuleringen. */
-  const simulate = () => {
+  const [ask, setAsk] = useState(false);
+  useEffect(() => setAsk(false), [plan]);
+  /**
+   * Provet simuleras i ett eget projekt, så att det inte blandas med det
+   * användaren håller på med. Finns det något i projektet frågar vi först:
+   * det sparas alltid i webbläsaren (Senaste projekt), och kan också sparas som fil.
+   */
+  const simulate = (choice?: 'file' | 'continue') => {
     if (!plan || !gcode) return;
     const name = C.tests[test.id].name;
-    // Provet simuleras i ett eget projekt, så att det inte blandas med det
-    // användaren håller på med (det sparas och finns under Senaste projekt).
     const before = useAppStore.getState();
     const busy = before.toolpaths.length > 0 || before.reliefs.length > 0 || before.imageObjects.length > 0 || before.layers.some((l) => l.shapes.length > 0);
+    if (busy && !choice) {
+      setAsk(true);
+      return;
+    }
+    setAsk(false);
+    if (busy && choice === 'file') saveProject();
     if (busy) newProject();
     const s = useAppStore.getState();
     s.setProjectName(C.projectLayer(name));
@@ -421,10 +432,27 @@ function TestPanel({ test }: { test: CalibrationTest }) {
                     <button className="btn btn-primary" disabled={blocked} onClick={() => downloadText(`${base}.gcode`, gcode.text)}>
                       <Download size={13} /> {C.downloadGcode}
                     </button>
-                    <button className="btn" disabled={blocked} onClick={simulate} title={C.simulateTitle}>
+                    <button className="btn" disabled={blocked || ask} onClick={() => simulate()} title={C.simulateTitle}>
                       <Play size={13} /> {C.simulate}
                     </button>
                   </div>
+                  {ask && (
+                    <div role="alertdialog" aria-label={C.askTitle} className="space-y-2 rounded-md border border-accent/40 bg-accent/5 p-2.5">
+                      <p className="font-semibold">{C.askTitle}</p>
+                      <p className="leading-relaxed">{C.askBody(useAppStore.getState().projectName || t.common.untitledProject)}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <button className="btn btn-primary" onClick={() => simulate('file')}>
+                          <Download size={13} /> {C.askSave}
+                        </button>
+                        <button className="btn" onClick={() => simulate('continue')}>
+                          {C.askContinue}
+                        </button>
+                        <button className="btn" onClick={() => setAsk(false)}>
+                          {t.common.cancel}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <p className="text-2xs leading-relaxed text-muted">{C.simulateNote}</p>
                 </>
               ) : (

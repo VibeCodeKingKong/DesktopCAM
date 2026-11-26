@@ -42,6 +42,7 @@ const DIALOGS: Partial<Record<DialogId, LazyExoticComponent<ComponentType>>> = {
   donate: lazy(() => import('./components/dialogs/DonateDialog').then((m) => ({ default: m.DonateDialog }))),
   exportGcode: lazy(() => import('./components/dialogs/ExportDialog').then((m) => ({ default: m.ExportDialog }))),
   pattern: lazy(() => import('./components/dialogs/PatternDialog').then((m) => ({ default: m.PatternDialog }))),
+  offset: lazy(() => import('./components/dialogs/OffsetDialog').then((m) => ({ default: m.OffsetDialog }))),
   welcome: lazy(() => import('./components/dialogs/WelcomeDialog').then((m) => ({ default: m.WelcomeDialog }))),
   trace: lazy(() => import('./components/dialogs/TraceDialog').then((m) => ({ default: m.TraceDialog }))),
   recent: lazy(() => import('./components/dialogs/RecentProjectsDialog').then((m) => ({ default: m.RecentProjectsDialog }))),

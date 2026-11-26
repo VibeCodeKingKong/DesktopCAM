@@ -71,6 +71,7 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const en: Dict = {
+  offsetPreview: 'Preview: grey is the original, blue the new outline.',
   shapeOps: {
     needTwo: 'Select at least two shapes.',
     needClosed: 'The shapes must be closed (e.g. rectangles, circles or closed curves).',
@@ -106,7 +107,11 @@ export const en: Dict = {
   calib: {
     simulate: 'Simulate',
     simulateTitle: 'Add the test to the project and simulate it',
-    simulateNote: 'Simulate puts the test in a project of its own – the drawing as a layer and the G-code as a toolpath – and opens the simulation. Your current project is saved and can be found under File → Recent.',
+    simulateNote: 'Simulate puts the test in a project of its own – the drawing as a layer and the G-code as a toolpath – and opens the simulation. If you have a project open, the app first asks whether you want to save it.',
+    askTitle: 'The test opens in a new project',
+    askBody: (p: string) => `Your project “${p}” is closed and the test is placed in a new project of its own. “${p}” is saved automatically in the browser and stays under File → Recent. Do you also want to save it as a file on your computer (.dcam)?`,
+    askSave: 'Save as file and continue',
+    askContinue: 'Continue without file',
     simulatedNew: (n: string) => `${n} is in a new project and the simulation is open. Your previous project is under File → Recent.`,
     simulated: (n: string) => `${n} has been added to the project and the simulation is open.`,
     projectLayer: (n: string) => `Test: ${n}`,
@@ -666,6 +671,8 @@ export const en: Dict = {
   },
 
   buttons: {
+    offset: { label: 'Offset', title: 'Offset outline', desc: 'Creates a new outline a set distance outside or inside the selected shapes – e.g. clearance around a tool in a foam insert, a frame or a fitting piece. The original is kept.' },
+    more: { label: 'More', title: 'More tools', desc: 'Pattern and Measure.' },
     combine: { label: 'Boolean', title: 'Unite and subtract shapes', desc: 'Unite, subtract or keep the common part of the selected shapes. The result is a new shape.' },
     union: { label: 'Unite', title: 'Unite', desc: 'The shapes become a single outline around everything they cover.' },
     subtract: { label: 'Subtract', title: 'Subtract', desc: 'The smaller shapes are cut out of the largest one – e.g. a hole or a notch.' },
