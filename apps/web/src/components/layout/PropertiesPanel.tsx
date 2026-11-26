@@ -70,6 +70,7 @@ import {
   separateSelection,
 } from '../../cam/commands';
 import { placeGcode } from '../../cam/gcodeImport';
+import { AlignRow } from './AlignRow';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
 import { materialName, toolName, useT, type GuideKey } from '../../i18n';
@@ -147,6 +148,12 @@ function EmptyState() {
 function ShapeEditor() {
   const selectedCount = useAppStore((st) => st.selectedShapeIds.length);
   const selectionHasGroup = useAppStore((st) => st.layers.some((l) => l.shapes.some((sh) => sh.groupId && st.selectedShapeIds.includes(sh.id))));
+  // Antal enheter att justera: en grupp räknas som en.
+  const alignUnits = useAppStore((st) => {
+    const keys = new Set<string>();
+    for (const l of st.layers) for (const sh of l.shapes) if (st.selectedShapeIds.includes(sh.id)) keys.add(sh.groupId ?? sh.id);
+    return keys.size;
+  });
   const t = useT();
   const layers = useAppStore((s) => s.layers);
   const ids = useAppStore((s) => s.selectedShapeIds);
@@ -330,6 +337,7 @@ function ShapeEditor() {
           </button>
           </SmartTooltip>
         </div>
+        <AlignRow count={alignUnits} />
         {(selectedCount > 1 || selectionHasGroup) && (
           <div className="grid grid-cols-2 gap-2">
             <button className="btn h-auto min-h-7 whitespace-normal py-1 leading-tight" disabled={selectedCount < 2} onClick={groupSelection} title={t.buttons.group.title}>

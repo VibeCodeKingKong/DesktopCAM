@@ -71,6 +71,32 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const en: Dict = {
+  align: {
+    title: 'Align to each other',
+    titleStock: 'Align to the stock',
+    modes: {
+      left: 'Left edges',
+      hcenter: 'Centre horizontally',
+      right: 'Right edges',
+      top: 'Top edges',
+      vcenter: 'Centre vertically',
+      bottom: 'Bottom edges',
+    },
+    distribute: {
+      h: 'Distribute horizontally',
+      v: 'Distribute vertically',
+    },
+    distributeDesc: 'Equal gaps between at least three shapes. The outermost stay put.',
+    doneStock: 'Aligned to the stock.',
+    done: (n: string) => `${n} shapes aligned.`,
+    needThree: 'Select at least three shapes to distribute them.',
+    distributed: (n: string, g: string) => `${n} shapes distributed with ${g} mm gaps.`,
+  },
+  jobTime: {
+    total: (d: string) => `Total time ${d}`,
+    ready: (time: string) => `done around ${time} if you start now`,
+    toolChanges: (n: string) => `plus tool changes (${n})`,
+  },
   offsetPreview: 'Preview: grey is the original, blue the new outline.',
   shapeOps: {
     needTwo: 'Select at least two shapes.',
@@ -105,6 +131,16 @@ export const en: Dict = {
     outsideStock: (f: string) => `${f} imported, but parts of the G-code are outside the stock.`,
   },
   calib: {
+    defaultsNote: (date: string) => `Values from the calibration on ${date}.`,
+    best: {
+      title: 'Best result',
+      intro: 'Pick the square that came out best – or pick it in the photo analysis.',
+      pick: 'Best square',
+      none: 'None selected',
+      useAsDefault: (m: string, mat: string) => `Use as default for new toolpaths with ${m} and ${mat}`,
+      note: 'Applies to toolpaths you create from now on, not the ones you already have. You can turn it off under History.',
+      historyToggle: 'Used as default for new toolpaths',
+    },
     simulate: 'Simulate',
     simulateTitle: 'Add the test to the project and simulate it',
     simulateNote: 'Simulate puts the test in a project of its own – the drawing as a layer and the G-code as a toolpath – and opens the simulation. If you have a project open, the app first asks whether you want to save it.',
@@ -671,6 +707,7 @@ export const en: Dict = {
   },
 
   buttons: {
+    align: { label: 'Align', title: 'Align and distribute', desc: 'Line selected shapes up edge to edge, centred or with equal gaps. A single shape is aligned to the stock.' },
     offset: { label: 'Offset', title: 'Offset outline', desc: 'Creates a new outline a set distance outside or inside the selected shapes – e.g. clearance around a tool in a foam insert, a frame or a fitting piece. The original is kept.' },
     more: { label: 'More', title: 'More tools', desc: 'Pattern and Measure.' },
     combine: { label: 'Boolean', title: 'Unite and subtract shapes', desc: 'Unite, subtract or keep the common part of the selected shapes. The result is a new shape.' },

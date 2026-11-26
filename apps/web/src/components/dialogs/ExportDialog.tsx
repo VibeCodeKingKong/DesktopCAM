@@ -1,3 +1,5 @@
+import { JobTime } from '../layout/JobTime';
+import { duration } from '../../utils/format';
 import { useEffect, useState } from 'react';
 import { Download, FileCode2 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
@@ -107,6 +109,7 @@ export function ExportDialog() {
                           <label className="flex cursor-pointer items-center gap-3 px-3 py-1.5 hover:bg-app">
                             <input type="checkbox" checked={checked.includes(id)} onChange={() => toggle(id)} />
                             <span className="min-w-0 flex-1 truncate text-sm">{tp.name}</span>
+                            <span className="shrink-0 text-2xs tabular-nums text-muted">{duration(results[id]?.stats.estimatedSeconds ?? 0)}</span>
                             <span className="shrink-0 text-2xs text-muted">{e.lines(lines(id))}</span>
                             {!tp.visible && <span className="shrink-0 rounded bg-app px-1.5 py-0.5 text-2xs text-muted">{e.hidden}</span>}
                           </label>
@@ -119,6 +122,7 @@ export function ExportDialog() {
             })}
           </div>
         )}
+        <JobTime ids={checked} />
         {(multiTool || pause) && (
           <div className="space-y-1 rounded-lg border border-line p-3">
             <label className="flex cursor-pointer items-center gap-2 text-sm">

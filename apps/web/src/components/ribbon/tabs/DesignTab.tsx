@@ -1,4 +1,4 @@
-import { Ellipsis, FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { AlignCenterVertical, Ellipsis, FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
@@ -8,6 +8,8 @@ import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, groupSelection, importVectorFile, redo, selectAllShapes, undo, ungroupSelection } from '../../../cam/commands';
 import { importGcodeFile } from '../../../cam/gcodeImport';
 import { combineSelection } from '../../../cam/shapeOps';
+import { alignSelection, distributeSelection, type AlignMode } from '../../../cam/align';
+import { ALIGN_ICONS, DISTRIBUTE_ICONS } from '../../layout/AlignRow';
 import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
@@ -75,6 +77,16 @@ export function DesignTab() {
             { icon: ShapesUnion, label: b.union.title, desc: b.union.desc, onClick: () => combineSelection('union'), disabled: selCount < 2 },
             { icon: ShapesSubtract, label: b.subtract.title, desc: b.subtract.desc, onClick: () => combineSelection('subtract'), disabled: selCount < 2 },
             { icon: ShapesIntersect, label: b.intersect.title, desc: b.intersect.desc, onClick: () => combineSelection('intersect'), disabled: selCount < 2 },
+          ]}
+        />
+        <RibbonMenuButton
+          icon={AlignCenterVertical}
+          label={b.align.label}
+          tooltip={tip(b.align, { disabledReason: hasShapeSelection ? undefined : t.reasons.needsSelection })}
+          items={[
+            ...(Object.keys(ALIGN_ICONS) as AlignMode[]).map((m) => ({ icon: ALIGN_ICONS[m], label: t.align.modes[m], onClick: () => alignSelection(m), disabled: !hasShapeSelection })),
+            { icon: DISTRIBUTE_ICONS.h, label: t.align.distribute.h, desc: t.align.distributeDesc, onClick: () => distributeSelection('h'), disabled: selCount < 3 },
+            { icon: DISTRIBUTE_ICONS.v, label: t.align.distribute.v, onClick: () => distributeSelection('v'), disabled: selCount < 3 },
           ]}
         />
         {/* Verktyg som används mer sällan – så att bandet inte blir för brett. */}

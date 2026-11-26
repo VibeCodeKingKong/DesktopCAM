@@ -82,3 +82,20 @@ test('former kan dras ifrån varandra och G-kod i tum räknas om', async ({ page
   await page.getByRole('button', { name: 'Mitt på arbetsstycket' }).click();
   expect(errors).toEqual([]);
 });
+
+test('justera former och se total tid för jobbet', async ({ page }) => {
+  const errors = collectErrors(page);
+  await freshStart(page);
+  const tree = page.locator('aside').first();
+  await tree.getByText('Rektangel 1', { exact: true }).click();
+  await tree.getByText('Kugghjul 1', { exact: true }).click({ modifiers: ['Shift'] });
+  await openTab(page, 'Design');
+  await page.locator('[role=tabpanel] button').filter({ hasText: 'Justera' }).click();
+  await page.locator('button').filter({ hasText: 'Överkanter' }).last().click();
+  await expect(page.locator('footer [role=status]')).toContainText('justerade');
+  // En profil ger en total tid under verktygsbanorna.
+  await openTab(page, 'Verktygsbanor');
+  await page.locator('[role=tabpanel] button').filter({ hasText: 'Profil' }).click();
+  await expect(page.getByTestId('job-time')).toContainText('Total tid', { timeout: 30_000 });
+  expect(errors).toEqual([]);
+});

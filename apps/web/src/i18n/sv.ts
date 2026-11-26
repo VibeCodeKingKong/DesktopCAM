@@ -18,6 +18,32 @@ export type GuideKey =
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
+  align: {
+    title: 'Justera mot varandra',
+    titleStock: 'Justera mot arbetsstycket',
+    modes: {
+      left: 'Vänsterkanter',
+      hcenter: 'Centrera vågrätt',
+      right: 'Högerkanter',
+      top: 'Överkanter',
+      vcenter: 'Centrera lodrätt',
+      bottom: 'Underkanter',
+    },
+    distribute: {
+      h: 'Fördela vågrätt',
+      v: 'Fördela lodrätt',
+    },
+    distributeDesc: 'Lika stora mellanrum mellan minst tre former. De yttersta står still.',
+    doneStock: 'Justerad mot arbetsstycket.',
+    done: (n: string) => `${n} former justerade.`,
+    needThree: 'Markera minst tre former för att fördela dem.',
+    distributed: (n: string, g: string) => `${n} former fördelade med ${g} mm mellanrum.`,
+  },
+  jobTime: {
+    total: (d: string) => `Total tid ${d}`,
+    ready: (time: string) => `klart cirka ${time} om du startar nu`,
+    toolChanges: (n: string) => `plus verktygsbyten (${n})`,
+  },
   offsetPreview: 'Förhandsvisning: grått är originalet, blått den nya konturen.',
   shapeOps: {
     needTwo: 'Markera minst två former.',
@@ -52,6 +78,16 @@ export const sv = {
     outsideStock: (f: string) => `${f} är importerad, men delar av G-koden ligger utanför arbetsstycket.`,
   },
   calib: {
+    defaultsNote: (date: string) => `Värden från kalibreringen ${date}.`,
+    best: {
+      title: 'Bästa resultat',
+      intro: 'Välj rutan som blev bäst – eller välj den i bildanalysen.',
+      pick: 'Bästa ruta',
+      none: 'Ingen vald',
+      useAsDefault: (m: string, mat: string) => `Använd som förval för nya banor med ${m} och ${mat}`,
+      note: 'Gäller banor du skapar härefter, inte de du redan har. Du kan stänga av det under Historik.',
+      historyToggle: 'Används som förval för nya banor',
+    },
     simulate: 'Simulera',
     simulateTitle: 'Lägg in provet i projektet och simulera det',
     simulateNote: 'Simulera lägger provet i ett eget projekt – ritningen som ett lager och G-koden som en verktygsbana – och öppnar simuleringen. Har du ett projekt öppet frågar appen först om du vill spara det.',
@@ -618,6 +654,7 @@ export const sv = {
   },
 
   buttons: {
+    align: { label: 'Justera', title: 'Justera och fördela', desc: 'Ställ markerade former kant mot kant, centrerade eller med lika stora mellanrum. En enda form justeras mot arbetsstycket.' },
     offset: { label: 'Förskjut', title: 'Förskjut kontur', desc: 'Skapar en ny kontur ett visst avstånd utanför eller innanför de markerade formerna – t.ex. spel runt ett verktyg i ett skuminlägg, en ram eller en passbit. Originalet behålls.' },
     more: { label: 'Fler', title: 'Fler verktyg', desc: 'Mönster och Mått.' },
     combine: { label: 'Kombinera', title: 'Kombinera former', desc: 'Förena, dra ifrån eller behåll den gemensamma delen av de markerade formerna. Resultatet blir en ny form.' },

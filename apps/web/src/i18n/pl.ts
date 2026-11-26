@@ -77,6 +77,32 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const pl: Dict = {
+  align: {
+    title: 'Wyrównaj względem siebie',
+    titleStock: 'Wyrównaj do materiału',
+    modes: {
+      left: 'Lewe krawędzie',
+      hcenter: 'Wyśrodkuj w poziomie',
+      right: 'Prawe krawędzie',
+      top: 'Górne krawędzie',
+      vcenter: 'Wyśrodkuj w pionie',
+      bottom: 'Dolne krawędzie',
+    },
+    distribute: {
+      h: 'Rozłóż w poziomie',
+      v: 'Rozłóż w pionie',
+    },
+    distributeDesc: 'Równe odstępy między co najmniej trzema kształtami. Skrajne zostają na miejscu.',
+    doneStock: 'Wyrównano do materiału.',
+    done: (n: string) => `Wyrównano kształty: ${n}.`,
+    needThree: 'Zaznacz co najmniej trzy kształty, aby je rozłożyć.',
+    distributed: (n: string, g: string) => `Rozłożono kształty (${n}) z odstępem ${g} mm.`,
+  },
+  jobTime: {
+    total: (d: string) => `Łączny czas ${d}`,
+    ready: (time: string) => `gotowe około ${time}, jeśli zaczniesz teraz`,
+    toolChanges: (n: string) => `plus zmiany narzędzia (${n})`,
+  },
   offsetPreview: 'Podgląd: szary to oryginał, niebieski – nowy kontur.',
   shapeOps: {
     needTwo: 'Zaznacz co najmniej dwa kształty.',
@@ -111,6 +137,16 @@ export const pl: Dict = {
     outsideStock: (f: string) => `Zaimportowano ${f}, ale część G-code leży poza materiałem.`,
   },
   calib: {
+    defaultsNote: (date: string) => `Wartości z kalibracji z ${date}.`,
+    best: {
+      title: 'Najlepszy wynik',
+      intro: 'Wybierz pole, które wyszło najlepiej – albo wybierz je w analizie zdjęcia.',
+      pick: 'Najlepsze pole',
+      none: 'Nie wybrano',
+      useAsDefault: (m: string, mat: string) => `Używaj domyślnie w nowych ścieżkach dla ${m} i ${mat}`,
+      note: 'Dotyczy ścieżek tworzonych od teraz, nie istniejących. Można to wyłączyć w Historii.',
+      historyToggle: 'Używane domyślnie w nowych ścieżkach',
+    },
     simulate: 'Symuluj',
     simulateTitle: 'Dodaj test do projektu i zasymuluj go',
     simulateNote: 'Symuluj umieszcza test we własnym projekcie – rysunek jako warstwę, a G-code jako ścieżkę narzędzia – i otwiera symulację. Jeśli masz otwarty projekt, aplikacja najpierw zapyta, czy chcesz go zapisać.',
@@ -677,6 +713,7 @@ export const pl: Dict = {
   },
 
   buttons: {
+    align: { label: 'Wyrównaj', title: 'Wyrównaj i rozłóż', desc: 'Ustawia zaznaczone kształty krawędź do krawędzi, na środku lub z równymi odstępami. Pojedynczy kształt jest wyrównywany do materiału.' },
     offset: { label: 'Odsuń', title: 'Odsuń kontur', desc: 'Tworzy nowy kontur w zadanej odległości na zewnątrz lub wewnątrz zaznaczonych kształtów – np. luz wokół narzędzia we wkładce z pianki, ramkę lub element pasowany. Oryginał zostaje.' },
     more: { label: 'Więcej', title: 'Więcej narzędzi', desc: 'Szyk i Pomiar.' },
     combine: { label: 'Operacje', title: 'Operacje na kształtach', desc: 'Scal, odejmij lub zachowaj część wspólną zaznaczonych kształtów. Wynikiem jest nowy kształt.' },

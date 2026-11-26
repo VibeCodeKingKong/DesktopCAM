@@ -113,3 +113,67 @@ export function approvedValue(apply: NonNullable<CalOutcome['apply']>, machineId
   }
   return best?.v;
 }
+
+/** Förval ur kalibreringen för nya banor (värden användaren valt och godkänt). */
+export interface CalibratedDefaults {
+  /** Laserskärning: effekt (%), hastighet (mm/min), antal pass. */
+  laserCut?: { power?: number; speed?: number; passes?: number };
+  /** Lasergravyr: effekt, hastighet och radavstånd (mm). */
+  laserEngrave?: { power?: number; speed?: number; interval?: number };
+  /** Plasma: matning, väntetid vid genomstickning, skärhöjd. */
+  plasma?: { feed?: number; pierceDelay?: number; cutHeight?: number };
+  /** Fräs (samma fräsdiameter): matning och sidosteg (andel 0–1). */
+  router?: { feed?: number; stepOver?: number };
+  /** Datum för det senaste provet som används. */
+  date?: string;
+}
+
+/** Prov vars valda inställning kan bli förval (rutorna har värden att välja mellan). */
+export const CHOOSABLE_TESTS = ['laser-power', 'laser-speed', 'laser-matrix', 'laser-interval', 'laser-passes', 'plasma-speed', 'plasma-pierce', 'plasma-height', 'router-feed', 'router-finish'];
+
+/**
+ * Godkända förval för maskin och material (närmast i tjocklek, högst
+ * `maxThicknessDiff` mm ifrån). Varje värde tas från det senaste provet som
+ * har det. Fräsvärden bara för samma fräsdiameter.
+ */
+export function calibratedDefaults(machineId: string, materialId: string, thickness: number, toolDiameter?: number, maxThicknessDiff = 1): CalibratedDefaults {
+  const out: CalibratedDefaults = {};
+  const recs = useCalibration
+    .getState()
+    .records.filter((r) => r.chosen && r.approved?.includes('chosen') && r.machineId === machineId && r.materialId === materialId && Math.abs(r.thickness - thickness) <= maxThicknessDiff + 1e-9)
+    .sort((a, b) => Math.abs(a.thickness - thickness) - Math.abs(b.thickness - thickness) || b.date.localeCompare(a.date));
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
+  const put = <K extends keyof CalibratedDefaults>(k: K, field: string, v: number | undefined, date: string) => {
+    if (v === undefined) return;
+    const obj = (out[k] ??= {} as never) as Record<string, number>;
+    if (obj[field] === undefined) {
+      obj[field] = v;
+      if (!out.date || date > out.date) out.date = date;
+    }
+  };
+  for (const r of recs) {
+    const c = r.chosen!;
+    const v = r.values;
+    if (r.category === 'laser') {
+      if (r.testId === 'laser-interval') put('laserEngrave', 'interval', num(c.interval), r.date);
+      else if (r.testId === 'laser-passes') {
+        put('laserCut', 'passes', num(c.passes), r.date);
+        put('laserCut', 'power', num(v.power), r.date);
+        put('laserCut', 'speed', num(v.speed), r.date);
+      } else {
+        const k = v.mode === 'cut' ? 'laserCut' : 'laserEngrave';
+        put(k, 'power', num(c.power) ?? num(v.power), r.date);
+        put(k, 'speed', num(c.speed) ?? num(v.speed), r.date);
+      }
+    } else if (r.category === 'plasma') {
+      put('plasma', 'feed', num(c.feed), r.date);
+      put('plasma', 'pierceDelay', num(c.pierceDelay), r.date);
+      put('plasma', 'cutHeight', num(c.cutHeight), r.date);
+    } else if (r.category === 'router' && toolDiameter !== undefined && r.toolDiameter !== undefined && Math.abs(r.toolDiameter - toolDiameter) < 1e-6) {
+      put('router', 'feed', num(c.feed), r.date);
+      const so = num(c.stepOver);
+      put('router', 'stepOver', so === undefined ? undefined : so / 100, r.date);
+    }
+  }
+  return out;
+}

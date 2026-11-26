@@ -70,6 +70,32 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const fr: Dict = {
+  align: {
+    title: 'Aligner entre elles',
+    titleStock: 'Aligner sur le brut',
+    modes: {
+      left: 'Bords gauches',
+      hcenter: 'Centrer horizontalement',
+      right: 'Bords droits',
+      top: 'Bords supérieurs',
+      vcenter: 'Centrer verticalement',
+      bottom: 'Bords inférieurs',
+    },
+    distribute: {
+      h: 'Répartir horizontalement',
+      v: 'Répartir verticalement',
+    },
+    distributeDesc: 'Des espaces égaux entre au moins trois formes. Les plus extérieures ne bougent pas.',
+    doneStock: 'Alignée sur le brut.',
+    done: (n: string) => `${n} formes alignées.`,
+    needThree: 'Sélectionnez au moins trois formes pour les répartir.',
+    distributed: (n: string, g: string) => `${n} formes réparties avec ${g} mm d’espace.`,
+  },
+  jobTime: {
+    total: (d: string) => `Durée totale ${d}`,
+    ready: (time: string) => `terminé vers ${time} si vous lancez maintenant`,
+    toolChanges: (n: string) => `plus changements d’outil (${n})`,
+  },
   offsetPreview: 'Aperçu : en gris l’original, en bleu le nouveau contour.',
   shapeOps: {
     needTwo: 'Sélectionnez au moins deux formes.',
@@ -104,6 +130,16 @@ export const fr: Dict = {
     outsideStock: (f: string) => `${f} importé, mais une partie du G-code est hors du brut.`,
   },
   calib: {
+    defaultsNote: (date: string) => `Valeurs issues de l’étalonnage du ${date}.`,
+    best: {
+      title: 'Meilleur résultat',
+      intro: 'Choisissez la case la plus réussie – ou choisissez-la dans l’analyse photo.',
+      pick: 'Meilleure case',
+      none: 'Aucune',
+      useAsDefault: (m: string, mat: string) => `Utiliser par défaut pour les nouveaux parcours avec ${m} et ${mat}`,
+      note: 'S’applique aux parcours créés à partir de maintenant, pas à ceux qui existent déjà. Désactivable dans Historique.',
+      historyToggle: 'Utilisé par défaut pour les nouveaux parcours',
+    },
     simulate: 'Simuler',
     simulateTitle: 'Ajouter l’essai au projet et le simuler',
     simulateNote: 'Simuler place l’essai dans son propre projet – le dessin comme calque et le G-code comme parcours – et ouvre la simulation. Si un projet est ouvert, l’application demande d’abord si vous voulez l’enregistrer.',
@@ -670,6 +706,7 @@ export const fr: Dict = {
   },
 
   buttons: {
+    align: { label: 'Aligner', title: 'Aligner et répartir', desc: 'Aligne les formes sélectionnées bord à bord, centrées ou avec des espaces égaux. Une forme seule est alignée sur le brut.' },
     offset: { label: 'Décaler', title: 'Décaler le contour', desc: 'Crée un nouveau contour à une distance donnée à l’extérieur ou à l’intérieur des formes sélectionnées – par ex. du jeu autour d’un outil dans une mousse, un cadre ou une pièce d’ajustement. L’original est conservé.' },
     more: { label: 'Plus', title: 'Plus d’outils', desc: 'Motif et Mesure.' },
     combine: { label: 'Opérations', title: 'Opérations sur les formes', desc: 'Unir, soustraire ou garder la partie commune des formes sélectionnées. Le résultat est une nouvelle forme.' },

@@ -70,6 +70,32 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const de: Dict = {
+  align: {
+    title: 'Aneinander ausrichten',
+    titleStock: 'Am Werkstück ausrichten',
+    modes: {
+      left: 'Linke Kanten',
+      hcenter: 'Waagerecht zentrieren',
+      right: 'Rechte Kanten',
+      top: 'Obere Kanten',
+      vcenter: 'Senkrecht zentrieren',
+      bottom: 'Untere Kanten',
+    },
+    distribute: {
+      h: 'Waagerecht verteilen',
+      v: 'Senkrecht verteilen',
+    },
+    distributeDesc: 'Gleiche Abstände zwischen mindestens drei Formen. Die äußersten bleiben stehen.',
+    doneStock: 'Am Werkstück ausgerichtet.',
+    done: (n: string) => `${n} Formen ausgerichtet.`,
+    needThree: 'Markieren Sie mindestens drei Formen, um sie zu verteilen.',
+    distributed: (n: string, g: string) => `${n} Formen mit ${g} mm Abstand verteilt.`,
+  },
+  jobTime: {
+    total: (d: string) => `Gesamtzeit ${d}`,
+    ready: (time: string) => `fertig gegen ${time}, wenn Sie jetzt starten`,
+    toolChanges: (n: string) => `plus Werkzeugwechsel (${n})`,
+  },
   offsetPreview: 'Vorschau: grau das Original, blau die neue Kontur.',
   shapeOps: {
     needTwo: 'Markieren Sie mindestens zwei Formen.',
@@ -104,6 +130,16 @@ export const de: Dict = {
     outsideStock: (f: string) => `${f} importiert, aber Teile des G-Codes liegen außerhalb des Werkstücks.`,
   },
   calib: {
+    defaultsNote: (date: string) => `Werte aus der Kalibrierung vom ${date}.`,
+    best: {
+      title: 'Bestes Ergebnis',
+      intro: 'Wählen Sie das beste Feld – oder wählen Sie es in der Bildanalyse.',
+      pick: 'Bestes Feld',
+      none: 'Keins gewählt',
+      useAsDefault: (m: string, mat: string) => `Als Vorgabe für neue Werkzeugwege mit ${m} und ${mat} verwenden`,
+      note: 'Gilt für Werkzeugwege, die Sie ab jetzt erstellen, nicht für vorhandene. Abschaltbar unter Verlauf.',
+      historyToggle: 'Als Vorgabe für neue Werkzeugwege verwendet',
+    },
     simulate: 'Simulieren',
     simulateTitle: 'Test ins Projekt übernehmen und simulieren',
     simulateNote: 'Simulieren legt den Test in ein eigenes Projekt – die Zeichnung als Ebene und den G-Code als Werkzeugweg – und öffnet die Simulation. Ist ein Projekt geöffnet, fragt die App zuerst, ob Sie es speichern möchten.',
@@ -670,6 +706,7 @@ export const de: Dict = {
   },
 
   buttons: {
+    align: { label: 'Ausrichten', title: 'Ausrichten und verteilen', desc: 'Richtet markierte Formen Kante an Kante, zentriert oder mit gleichen Abständen aus. Eine einzelne Form wird am Werkstück ausgerichtet.' },
     offset: { label: 'Versetzen', title: 'Kontur versetzen', desc: 'Erstellt eine neue Kontur in einem bestimmten Abstand außerhalb oder innerhalb der markierten Formen – z. B. Spiel um ein Werkzeug in einer Schaumstoffeinlage, ein Rahmen oder ein Passteil. Das Original bleibt erhalten.' },
     more: { label: 'Mehr', title: 'Weitere Werkzeuge', desc: 'Muster und Messen.' },
     combine: { label: 'Kombinieren', title: 'Formen kombinieren', desc: 'Vereinigen, abziehen oder den gemeinsamen Teil der markierten Formen behalten. Das Ergebnis ist eine neue Form.' },

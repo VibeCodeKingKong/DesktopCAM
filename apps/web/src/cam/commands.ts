@@ -3,7 +3,7 @@
  * Samlade här så att samma handling alltid beter sig likadant.
  */
 import { DEFAULT_PLUG_MATERIAL } from './inlayBlank';
-import { approvedValue } from '../calibration/history';
+import { approvedValue, calibratedDefaults } from '../calibration/history';
 import {
   patternTransforms,
   defaultPlasmaSettings,
@@ -670,6 +670,12 @@ export function createToolpath(operation: OperationType, extra: Partial<Toolpath
     }
   }
 
+  // Förval ur kalibreringen (värden användaren valt och godkänt för maskinen och materialet).
+  const calNote = applyCalibratedDefaults(tp, machine.id, preset.id, s.material.thickness, machine.kind === 'plasma' ? 0.5 : 1, preset.laser.canCut !== false);
+  if (calNote) {
+    const prev = toolNote as { toolId: string; text: string } | null;
+    toolNote = { toolId: tp.toolId, text: prev && prev.toolId === tp.toolId ? `${prev.text} ${calNote}` : calNote };
+  }
   Object.assign(tp, extra);
   s.addToolpath(tp);
   if (toolNote) s.setToolNote(tp.id, toolNote);
@@ -1401,4 +1407,49 @@ export function exportVectors(format: 'svg' | 'dxf' | 'pdf') {
   else if (format === 'dxf') downloadText(`${name}.dxf`, exportDxf(layers), 'application/dxf');
   else downloadBytes(`${name}.pdf`, exportPdf(layers, { title: s.projectName || 'desktopCAM', note: t.vectorExport.pdfNote, labels: true }), 'application/pdf');
   status(t.vectorExport.saved(`${name}.${format}`));
+}
+
+/**
+ * Lägger in godkända förval ur kalibreringen i en ny bana. Ger en kort text
+ * till verktygsnoten (så att användaren ser varifrån värdena kommer), eller null.
+ */
+function applyCalibratedDefaults(tp: ToolpathConfig, machineId: string, materialId: string, thickness: number, maxDiff: number, canCut: boolean): string | null {
+  const tool = useAppStore.getState().tools.find((x) => x.id === tp.toolId);
+  const cal = calibratedDefaults(machineId, materialId, thickness, tool?.diameter, maxDiff);
+  const p = { ...tp.params };
+  let used = false;
+  const set = (k: 'feedRate' | 'laserPowerPct' | 'stepOver', v: number | undefined) => {
+    if (v === undefined) return;
+    p[k] = v;
+    used = true;
+  };
+  if (tp.operation === 'laserCut') {
+    const c = canCut ? cal.laserCut : cal.laserEngrave;
+    set('feedRate', c?.speed);
+    set('laserPowerPct', c?.power);
+    if (canCut && cal.laserCut?.passes !== undefined) {
+      tp.passes = cal.laserCut.passes;
+      used = true;
+    }
+  } else if (tp.operation === 'laserRaster') {
+    set('feedRate', cal.laserEngrave?.speed);
+    set('laserPowerPct', cal.laserEngrave?.power);
+    if (cal.laserEngrave?.interval !== undefined) {
+      tp.lineIntervalMm = cal.laserEngrave.interval;
+      used = true;
+    }
+  } else if (tp.operation === 'plasmaCut' && cal.plasma) {
+    set('feedRate', cal.plasma.feed);
+    if (cal.plasma.pierceDelay !== undefined || cal.plasma.cutHeight !== undefined) {
+      tp.plasma = { ...tp.plasma, pierceDelay: cal.plasma.pierceDelay ?? tp.plasma.pierceDelay, cutHeight: cal.plasma.cutHeight ?? tp.plasma.cutHeight };
+      used = true;
+    }
+  } else if ((tp.operation === 'profile' || tp.operation === 'pocket') && cal.router) {
+    set('feedRate', cal.router.feed);
+    if (tp.operation === 'pocket') set('stepOver', cal.router.stepOver);
+  }
+  if (!used || !cal.date) return null;
+  tp.params = p;
+  const t = getT();
+  return t.calib.defaultsNote(new Date(cal.date).toLocaleDateString(t.locale));
 }

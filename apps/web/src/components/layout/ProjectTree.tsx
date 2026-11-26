@@ -38,6 +38,7 @@ import {
   Zap,
   FileCode2,
 } from 'lucide-react';
+import { JobTime } from './JobTime';
 import type { LucideIcon } from 'lucide-react';
 import type { ToolpathConfig } from '@desktopcam/core';
 import { shapeHasArea, type OperationType, type ShapeKind } from '@desktopcam/core';
@@ -431,6 +432,8 @@ export function ProjectTree() {
               })}
             </SortableContext>
           </DndContext>
+          {/* Total tid för de synliga banorna – de som körs. */}
+          <JobTime ids={toolpaths.filter((x) => x.visible).map((x) => x.id)} className="px-2 pb-1 pt-1.5" />
         </Section>
       </div>
     </SidePanel>

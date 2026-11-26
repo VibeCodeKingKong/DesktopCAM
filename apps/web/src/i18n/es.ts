@@ -70,6 +70,32 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const es: Dict = {
+  align: {
+    title: 'Alinear entre sí',
+    titleStock: 'Alinear con la pieza',
+    modes: {
+      left: 'Bordes izquierdos',
+      hcenter: 'Centrar en horizontal',
+      right: 'Bordes derechos',
+      top: 'Bordes superiores',
+      vcenter: 'Centrar en vertical',
+      bottom: 'Bordes inferiores',
+    },
+    distribute: {
+      h: 'Distribuir en horizontal',
+      v: 'Distribuir en vertical',
+    },
+    distributeDesc: 'Espacios iguales entre al menos tres formas. Las de los extremos no se mueven.',
+    doneStock: 'Alineada con la pieza.',
+    done: (n: string) => `${n} formas alineadas.`,
+    needThree: 'Selecciona al menos tres formas para distribuirlas.',
+    distributed: (n: string, g: string) => `${n} formas distribuidas con ${g} mm de separación.`,
+  },
+  jobTime: {
+    total: (d: string) => `Tiempo total ${d}`,
+    ready: (time: string) => `listo hacia las ${time} si empiezas ahora`,
+    toolChanges: (n: string) => `más cambios de herramienta (${n})`,
+  },
   offsetPreview: 'Vista previa: en gris el original, en azul el nuevo contorno.',
   shapeOps: {
     needTwo: 'Selecciona al menos dos formas.',
@@ -104,6 +130,16 @@ export const es: Dict = {
     outsideStock: (f: string) => `${f} importado, pero partes del G-code quedan fuera de la pieza.`,
   },
   calib: {
+    defaultsNote: (date: string) => `Valores de la calibración del ${date}.`,
+    best: {
+      title: 'Mejor resultado',
+      intro: 'Elige el cuadro que salió mejor, o elígelo en el análisis de la foto.',
+      pick: 'Mejor cuadro',
+      none: 'Ninguno',
+      useAsDefault: (m: string, mat: string) => `Usar por defecto en nuevas trayectorias con ${m} y ${mat}`,
+      note: 'Se aplica a las trayectorias que crees a partir de ahora, no a las que ya tienes. Puedes desactivarlo en Historial.',
+      historyToggle: 'Se usa por defecto en nuevas trayectorias',
+    },
     simulate: 'Simular',
     simulateTitle: 'Añadir la prueba al proyecto y simularla',
     simulateNote: 'Simular coloca la prueba en un proyecto propio (el dibujo como capa y el G-code como trayectoria) y abre la simulación. Si tienes un proyecto abierto, la aplicación pregunta primero si quieres guardarlo.',
@@ -670,6 +706,7 @@ export const es: Dict = {
   },
 
   buttons: {
+    align: { label: 'Alinear', title: 'Alinear y distribuir', desc: 'Alinea las formas seleccionadas borde con borde, centradas o con espacios iguales. Una forma sola se alinea con la pieza.' },
     offset: { label: 'Desplazar', title: 'Desplazar contorno', desc: 'Crea un contorno nuevo a cierta distancia por fuera o por dentro de las formas seleccionadas, p. ej. holgura alrededor de una herramienta en una espuma, un marco o una pieza de ajuste. El original se conserva.' },
     more: { label: 'Más', title: 'Más herramientas', desc: 'Patrón y Medir.' },
     combine: { label: 'Operaciones', title: 'Operaciones con formas', desc: 'Une, resta o conserva la parte común de las formas seleccionadas. El resultado es una forma nueva.' },

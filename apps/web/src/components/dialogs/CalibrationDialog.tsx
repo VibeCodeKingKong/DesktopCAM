@@ -38,7 +38,7 @@ import { useAppStore, useMachine } from '../../store/useAppStore';
 import { Dialog } from '../ui/Dialog';
 import { FieldRow, NumberField, SelectField } from '../ui/Field';
 import { calibrationContext, calibrationTool } from '../../calibration/context';
-import { useCalibration, type CalibrationRecord } from '../../calibration/history';
+import { CHOOSABLE_TESTS, useCalibration, type CalibrationRecord } from '../../calibration/history';
 import { readPhoto, rectify, suggestCorners, type Photo } from '../../calibration/photo';
 import { downloadText, pickFile, slug } from '../../utils/download';
 
@@ -277,6 +277,11 @@ function TestPanel({ test }: { test: CalibrationTest }) {
   const [approved, setApproved] = useState<string[]>([]);
   const [analysis, setAnalysis] = useState<{ a: GridAnalysis; photo: string } | null>(null);
   const [chosen, setChosen] = useState<Record<string, number> | null>(null);
+  const [useAsDefault, setUseAsDefault] = useState(false);
+  useEffect(() => {
+    setChosen(null);
+    setUseAsDefault(false);
+  }, [plan]);
   const [notes, setNotes] = useState('');
   const [saved, setSaved] = useState(false);
   const preset = materials.find((m) => m.id === material.presetId);
@@ -348,7 +353,7 @@ function TestPanel({ test }: { test: CalibrationTest }) {
       values,
       measured,
       outcomes,
-      approved: approved.filter((k) => outcomes.some((o) => o.key === k)),
+      approved: [...approved.filter((k) => outcomes.some((o) => o.key === k)), ...(chosen && useAsDefault ? ['chosen'] : [])],
       analysis: analysis
         ? { confidence: analysis.a.confidence, target: target.current, readings: analysis.a.readings.map((x) => ({ label: x.label, darkness: x.darkness, unevenness: x.unevenness, values: x.values })), best: bestCells(analysis.a, target.current).map((x) => x.label) }
         : undefined,
@@ -505,6 +510,9 @@ function TestPanel({ test }: { test: CalibrationTest }) {
             </div>
             {outcomes.length > 0 && <Outcomes outcomes={outcomes} approved={approved} setApproved={setApproved} />}
           </div>
+        )}
+        {plan && CHOOSABLE_TESTS.includes(test.id) && (
+          <BestResult plan={plan} chosen={chosen} setChosen={setChosen} useAsDefault={useAsDefault} setUseAsDefault={setUseAsDefault} materialText={`${preset ? materialName(t, preset.id, preset.name) : material.presetId} ${fmtValue(t, material.thickness, 'mm')}`} machineName={machine.name} />
         )}
         {plan && test.analyzable && <PhotoAnalysis plan={plan} onResult={setAnalysis} onChoose={setChosen} chosen={chosen} targetRef={target} />}
         {plan && test.category !== 'laser' && <p className="rounded-md bg-app px-3 py-2 text-2xs leading-relaxed text-muted">{C.photoNotForMeasure}</p>}
@@ -900,9 +908,52 @@ function recordLines(t: Dict, r: CalibrationRecord): { label: string; value: str
   return out;
 }
 
+/**
+ * Bästa resultat: rutan som blev bäst (väljs här eller ur bildanalysen) och
+ * om dess inställningar ska bli förval för nya banor. Kräver ett uttryckligt val.
+ */
+function BestResult({ plan, chosen, setChosen, useAsDefault, setUseAsDefault, materialText, machineName }: {
+  plan: CalibrationPlan;
+  chosen: Record<string, number> | null;
+  setChosen: (c: Record<string, number> | null) => void;
+  useAsDefault: boolean;
+  setUseAsDefault: (v: boolean) => void;
+  materialText: string;
+  machineName: string;
+}) {
+  const t = useT();
+  const C = t.calib;
+  const cells = plan.cells.filter((c) => Object.keys(c.values).length > 0);
+  const text = (v: Record<string, number>) => Object.entries(v).map(([k, x]) => `${C.params[k] ?? k} ${fmtValue(t, x)}`).join(' · ');
+  const key = (v: Record<string, number> | null) => (v ? JSON.stringify(Object.entries(v).sort()) : '');
+  const current = cells.find((c) => key(c.values) === key(chosen))?.id ?? '';
+  return (
+    <div className="space-y-2 rounded-lg border border-line p-3">
+      <h4 className="text-sm font-semibold">{C.best.title}</h4>
+      <p className="text-2xs leading-relaxed text-muted">{C.best.intro}</p>
+      <SelectField
+        label={C.best.pick}
+        value={current}
+        options={[{ value: '', label: C.best.none }, ...cells.map((c) => ({ value: c.id, label: `${c.label ? `${c.label} – ` : ''}${text(c.values)}` }))]}
+        onChange={(id) => {
+          const c = cells.find((x) => x.id === id);
+          setChosen(c ? c.values : null);
+          if (!c) setUseAsDefault(false);
+        }}
+      />
+      <label className="flex items-start gap-2 text-xs">
+        <input type="checkbox" className="mt-0.5" disabled={!chosen} checked={!!chosen && useAsDefault} onChange={(e) => setUseAsDefault(e.target.checked)} />
+        <span>{C.best.useAsDefault(machineName, materialText)}</span>
+      </label>
+      <p className="text-2xs leading-relaxed text-muted">{C.best.note}</p>
+    </div>
+  );
+}
+
 function RecordSummary({ r }: { r: CalibrationRecord }) {
   const t = useT();
   const lines = recordLines(t, r);
+  const isDefault = !!r.approved?.includes('chosen');
   if (!lines.length && !r.notes && !r.photo) return null;
   return (
     <div className="mt-1.5 flex gap-3">
@@ -915,6 +966,16 @@ function RecordSummary({ r }: { r: CalibrationRecord }) {
           </p>
         ))}
         {r.notes && <p className="italic text-muted">{r.notes}</p>}
+        {r.chosen && CHOOSABLE_TESTS.includes(r.testId) && (
+          <label className="mt-1 flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={isDefault}
+              onChange={(e) => useCalibration.getState().update(r.id, { approved: [...(r.approved ?? []).filter((k) => k !== 'chosen'), ...(e.target.checked ? ['chosen'] : [])] })}
+            />
+            <span>{t.calib.best.historyToggle}</span>
+          </label>
+        )}
       </div>
     </div>
   );
