@@ -77,7 +77,26 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const pl: Dict = {
+  shapeOps: {
+    needTwo: 'Zaznacz co najmniej dwa kształty.',
+    needClosed: 'Kształty muszą być zamknięte (np. prostokąty, okręgi lub zamknięte krzywe).',
+    noOverlap: 'Kształty nie nachodzą na siebie – nie ma części wspólnej.',
+    nothingLeft: 'Nic nie zostało – odejmowane kształty zakrywają cały największy.',
+    names: {
+      union: 'Scalony',
+      subtract: 'Wycięty',
+      intersect: 'Część wspólna',
+    },
+    done: (name: string, n: string) => `${name}: ${n} kształty stały się jednym.`,
+  },
   gcodeImport: {
+    importedInches: (f: string) => `Zaimportowano ${f} i przeliczono z cali na milimetry.`,
+    placement: 'Położenie',
+    moveX: 'Przesuń X',
+    moveY: 'Przesuń Y',
+    toOrigin: 'Do punktu zerowego',
+    toCenter: 'Na środek materiału',
+    placementNote: 'Przesuwa cały G-code: lewy dolny róg do punktu zerowego albo tak, by G-code był na środku materiału.',
     group: 'G-code',
     fromFile: (f: string) => `Zaimportowano z ${f}.`,
     fromCalibration: (n: string) => `Test kalibracyjny: ${n}.`,
@@ -93,7 +112,8 @@ export const pl: Dict = {
   calib: {
     simulate: 'Symuluj',
     simulateTitle: 'Dodaj test do projektu i zasymuluj go',
-    simulateNote: 'Symuluj dodaje test do projektu – rysunek jako osobną warstwę, a G-code jako ścieżkę narzędzia – i otwiera symulację.',
+    simulateNote: 'Symuluj umieszcza test we własnym projekcie – rysunek jako warstwę, a G-code jako ścieżkę narzędzia – i otwiera symulację. Bieżący projekt zostaje zapisany i jest w Plik → Ostatnie.',
+    simulatedNew: (n: string) => `${n} jest w nowym projekcie, a symulacja jest otwarta. Poprzedni projekt znajdziesz w Plik → Ostatnie.`,
     simulated: (n: string) => `Dodano ${n} do projektu, symulacja jest otwarta.`,
     projectLayer: (n: string) => `Test: ${n}`,
     infoAbout: (x: string) => `Więcej o: ${x}`,
@@ -652,6 +672,10 @@ export const pl: Dict = {
   },
 
   buttons: {
+    combine: { label: 'Operacje', title: 'Operacje na kształtach', desc: 'Scal, odejmij lub zachowaj część wspólną zaznaczonych kształtów. Wynikiem jest nowy kształt.' },
+    union: { label: 'Scal', title: 'Scal', desc: 'Kształty stają się jednym konturem wokół wszystkiego, co zakrywają.' },
+    subtract: { label: 'Odejmij', title: 'Odejmij', desc: 'Mniejsze kształty są wycinane z największego – np. otwór lub wcięcie.' },
+    intersect: { label: 'Część wspólna', title: 'Część wspólna', desc: 'Zostaje tylko powierzchnia, którą zakrywają wszystkie kształty.' },
     importGcode: { label: 'G-code', title: 'Importuj G-code', desc: 'Wczytuje gotowy plik G-code (.gcode, .nc, .ngc, .tap) jako ścieżkę narzędzia, aby obejrzeć go w 3D i zasymulować. Plik możesz też przeciągnąć do widoku 3D.' },
     calibration: { label: 'Kalibracja', title: 'Kalibracja i testy', desc: 'Wzory testowe dla lasera, frezarki i plazmy: moc i prędkość, ostrość, szerokość cięcia, dokładność wymiarowa i więcej. Zmierz wynik, przeanalizuj zdjęcie i zapisz najlepsze ustawienia.' },
     pattern: { label: 'Szyk', title: 'Szyk', desc: 'Kopiuje zaznaczenie w siatce (liniowo) lub wokół punktu środkowego (kołowo) – np. rząd otworów lub otwory na okręgu podziałowym.' },

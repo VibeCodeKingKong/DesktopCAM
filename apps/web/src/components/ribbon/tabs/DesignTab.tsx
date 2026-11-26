@@ -3,10 +3,11 @@ import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
 import { RibbonMenuButton } from '../RibbonMenuButton';
-import { CornerRadius } from '../../ui/icons';
+import { CornerRadius, ShapesIntersect, ShapesSubtract, ShapesUnion } from '../../ui/icons';
 import { RibbonGroup, RibbonStack } from '../RibbonGroup';
 import { deleteSelection, duplicateSelection, groupSelection, importVectorFile, redo, selectAllShapes, undo, ungroupSelection } from '../../../cam/commands';
 import { importGcodeFile } from '../../../cam/gcodeImport';
+import { combineSelection } from '../../../cam/shapeOps';
 import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
@@ -66,6 +67,16 @@ export function DesignTab() {
           disabled={!hasShapeSelection}
           onClick={() => openDialog('pattern')}
           tooltip={tip(b.pattern, { illustration: <IlluPattern />, disabledReason: hasShapeSelection ? undefined : t.reasons.needsSelection })}
+        />
+        <RibbonMenuButton
+          icon={ShapesUnion}
+          label={b.combine.label}
+          tooltip={tip(b.combine, { disabledReason: selCount < 2 ? t.shapeOps.needTwo : undefined })}
+          items={[
+            { icon: ShapesUnion, label: b.union.title, desc: b.union.desc, onClick: () => combineSelection('union'), disabled: selCount < 2 },
+            { icon: ShapesSubtract, label: b.subtract.title, desc: b.subtract.desc, onClick: () => combineSelection('subtract'), disabled: selCount < 2 },
+            { icon: ShapesIntersect, label: b.intersect.title, desc: b.intersect.desc, onClick: () => combineSelection('intersect'), disabled: selCount < 2 },
+          ]}
         />
         <RibbonButton icon={Ruler} label={b.measure.label} active={tool === 'measure'} onClick={pick('measure')} tooltip={tip(b.measure, { illustration: <IlluMeasure />,  shortcut: 'M' })} />
       </RibbonGroup>

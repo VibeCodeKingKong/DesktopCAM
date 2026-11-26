@@ -70,7 +70,26 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const fr: Dict = {
+  shapeOps: {
+    needTwo: 'Sélectionnez au moins deux formes.',
+    needClosed: 'Les formes doivent être fermées (rectangles, cercles ou courbes fermées).',
+    noOverlap: 'Les formes ne se chevauchent pas – il n’y a pas de partie commune.',
+    nothingLeft: 'Il ne reste rien – les formes soustraites couvrent toute la plus grande.',
+    names: {
+      union: 'Unie',
+      subtract: 'Découpée',
+      intersect: 'Partie commune',
+    },
+    done: (name: string, n: string) => `${name} : ${n} formes n’en font plus qu’une.`,
+  },
   gcodeImport: {
+    importedInches: (f: string) => `${f} importé et converti de pouces en millimètres.`,
+    placement: 'Position',
+    moveX: 'Déplacer X',
+    moveY: 'Déplacer Y',
+    toOrigin: 'À l’origine',
+    toCenter: 'Au centre du brut',
+    placementNote: 'Déplace tout le G-code : son coin inférieur gauche à l’origine, ou de façon à le centrer sur le brut.',
     group: 'G-code',
     fromFile: (f: string) => `Importé depuis ${f}.`,
     fromCalibration: (n: string) => `Essai d’étalonnage : ${n}.`,
@@ -86,7 +105,8 @@ export const fr: Dict = {
   calib: {
     simulate: 'Simuler',
     simulateTitle: 'Ajouter l’essai au projet et le simuler',
-    simulateNote: 'Simuler ajoute l’essai au projet – le dessin dans son propre calque et le G-code comme parcours – et ouvre la simulation.',
+    simulateNote: 'Simuler place l’essai dans son propre projet – le dessin comme calque et le G-code comme parcours – et ouvre la simulation. Votre projet actuel est enregistré et se trouve dans Fichier → Récents.',
+    simulatedNew: (n: string) => `${n} est dans un nouveau projet et la simulation est ouverte. Votre projet précédent se trouve dans Fichier → Récents.`,
     simulated: (n: string) => `${n} a été ajouté au projet et la simulation est ouverte.`,
     projectLayer: (n: string) => `Essai : ${n}`,
     infoAbout: (x: string) => `En savoir plus sur ${x}`,
@@ -645,6 +665,10 @@ export const fr: Dict = {
   },
 
   buttons: {
+    combine: { label: 'Opérations', title: 'Opérations sur les formes', desc: 'Unir, soustraire ou garder la partie commune des formes sélectionnées. Le résultat est une nouvelle forme.' },
+    union: { label: 'Unir', title: 'Unir', desc: 'Les formes deviennent un seul contour autour de tout ce qu’elles couvrent.' },
+    subtract: { label: 'Soustraire', title: 'Soustraire', desc: 'Les plus petites formes sont découpées dans la plus grande – par ex. un trou ou une encoche.' },
+    intersect: { label: 'Partie commune', title: 'Partie commune', desc: 'Seule la surface couverte par toutes les formes est conservée.' },
     importGcode: { label: 'G-code', title: 'Importer du G-code', desc: 'Charge un fichier G-code terminé (.gcode, .nc, .ngc, .tap) comme parcours d’outil pour le voir en 3D et le simuler. Vous pouvez aussi glisser le fichier sur la vue 3D.' },
     calibration: { label: 'Étalonnage', title: 'Étalonnage et essais', desc: 'Motifs d’essai pour laser, fraiseuse et plasma : puissance et vitesse, mise au point, saignée, précision dimensionnelle et plus. Mesurez le résultat, analysez une photo et enregistrez les meilleurs réglages.' },
     pattern: { label: 'Motif', title: 'Motif', desc: 'Copie la sélection en grille (linéaire) ou autour d’un centre (circulaire) – par ex. une rangée de trous ou des trous sur un cercle de perçage.' },

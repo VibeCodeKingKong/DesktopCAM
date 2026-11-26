@@ -3,7 +3,7 @@
  * Banan räknas aldrig om – G-koden visas i 3D-vyn, simuleras och exporteras
  * precis som den är.
  */
-import { parseGcode, uid, type GcodeToolpath, type ToolDefinition, type ToolKind } from '@desktopcam/core';
+import { parseGcode, transformGcode, uid, type GcodeToolpath, type ToolDefinition, type ToolKind } from '@desktopcam/core';
 import { getT } from '../i18n';
 import { getMachine, useAppStore } from '../store/useAppStore';
 import { pickFile } from '../utils/download';
@@ -47,16 +47,31 @@ export function addGcodeToolpath(opts: { name: string; gcode: string; source: Gc
 }
 
 /**
- * Problem som gör att G-koden inte kan visas rätt: tum (G20) och relativa
- * koordinater (G91) – visningen och simuleringen räknar i absoluta millimeter.
+ * Problem som gör att G-koden inte kan visas rätt: relativa koordinater (G91)
+ * – visningen och simuleringen räknar i absoluta koordinater. Tum räknas om.
  */
-export function gcodeProblem(text: string): 'inches' | 'relative' | 'empty' | null {
+export function gcodeProblem(text: string): 'relative' | 'empty' | null {
   const code = text.replace(/\(.*?\)/g, '').replace(/;.*$/gm, '');
-  if (/\bG20(?!\d)/i.test(code)) return 'inches';
   if (/\bG91(?![.\d])/i.test(code)) return 'relative';
   const { stats } = parseGcode(text);
   if (stats.cutLengthMm + stats.rapidLengthMm <= 0) return 'empty';
   return null;
+}
+
+/** Tum (G20) före första rörelsen – då är hela filen i tum. */
+export function isInches(text: string): boolean {
+  const code = text.replace(/\(.*?\)/g, '').replace(/;.*$/gm, '');
+  const g20 = code.search(/\bG20(?![\d.])/i);
+  const g21 = code.search(/\bG21(?![\d.])/i);
+  return g20 >= 0 && (g21 < 0 || g20 < g21);
+}
+
+/** Flyttar en importerad G-kod så att dess nedre vänstra hörn hamnar i (x, y), eller mitt på arbetsstycket. */
+export function placeGcode(tp: GcodeToolpath, where: 'origin' | 'center'): { x: number; y: number } {
+  const b = parseGcode(tp.gcode).stats.bounds;
+  if (where === 'origin') return { x: -b.min.x, y: -b.min.y };
+  const m = useAppStore.getState().material;
+  return { x: (m.width - (b.max.x - b.min.x)) / 2 - b.min.x, y: (m.height - (b.max.y - b.min.y)) / 2 - b.min.y };
 }
 
 /** Arkiv → Importera G-kod (eller en G-kodfil som dras till 3D-vyn). */
@@ -69,17 +84,22 @@ export async function importGcodeFile(file?: File | null): Promise<void> {
     s.setStatus(t.gcodeImport.tooLarge(f.name));
     return;
   }
-  const text = (await f.text()).replace(/\r\n?/g, '\n');
+  let text = (await f.text()).replace(/\r\n?/g, '\n');
   const problem = gcodeProblem(text);
   if (problem) {
-    s.setStatus(problem === 'inches' ? t.gcodeImport.inches(f.name) : problem === 'relative' ? t.gcodeImport.relative(f.name) : t.gcodeImport.notGcode(f.name));
+    s.setStatus(problem === 'relative' ? t.gcodeImport.relative(f.name) : t.gcodeImport.notGcode(f.name));
     return;
   }
+  // Tum (G20): räkna om till millimeter, så att visning, simulering och export stämmer.
+  const inches = isInches(text);
+  if (inches) text = `; Converted from inches (G20) to millimetres by desktopCAM\n${transformGcode(text, { scale: 25.4 })}`;
   addGcodeToolpath({ name: f.name.replace(/\.[^.]+$/, ''), gcode: text, source: { kind: 'file', fileName: f.name } });
   // Utanför arbetsstycket? Visa det, men importera ändå – det kan vara meningen.
   const { stats } = parseGcode(text);
   const m = useAppStore.getState().material;
   const outside = stats.bounds.min.x < -0.5 || stats.bounds.min.y < -0.5 || stats.bounds.max.x > m.width + 0.5 || stats.bounds.max.y > m.height + 0.5;
   useAppStore.getState().setTab('toolpaths');
-  useAppStore.getState().setStatus(outside ? t.gcodeImport.outsideStock(f.name) : t.gcodeImport.imported(f.name, stats.lineCount.toLocaleString(t.locale)));
+  useAppStore.getState().setStatus(
+    outside ? t.gcodeImport.outsideStock(f.name) : inches ? t.gcodeImport.importedInches(f.name) : t.gcodeImport.imported(f.name, stats.lineCount.toLocaleString(t.locale)),
+  );
 }

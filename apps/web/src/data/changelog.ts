@@ -27,17 +27,23 @@ export interface ChangelogEntry {
   since?: string[];
 }
 
-/** Jämför versionsnummer (1.2.10 > 1.2.9). */
-export function compareVersions(a: string, b: string): number {
-  const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const d = (pa[i] ?? 0) - (pb[i] ?? 0);
-    if (d) return Math.sign(d);
-  }
-  return 0;
-}
+export { compareVersions } from './version';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.50.0',
+    date: '2026-11-26',
+    text: {
+      sv: ["**Förena och dra ifrån former** Markera två eller fler slutna former och välj Design → Kombinera: Förena gör dem till en kontur, Dra ifrån skär ut de mindre ur den största (t.ex. ett hål eller urtag) och Gemensam del behåller bara överlappet.", "**Flytta importerad G-kod** Markera G-kodbanan och flytta den med Placering i egenskaperna, eller välj Till nollpunkten eller Mitt på arbetsstycket. G-kod i tum räknas nu om till millimeter i stället för att stoppas.", "**Kalibreringsprov i eget projekt** Simulera i Kalibrering lägger provet i ett nytt projekt, så att det inte blandas med det du håller på med. Ditt projekt finns kvar under Arkiv → Senaste.", "**Smidigare** Kalibreringens avsnitt väljs i en lista på telefonen, och appen startar lite snabbare."],
+      en: ["**Unite and subtract shapes** Select two or more closed shapes and choose Design → Boolean: Unite turns them into one outline, Subtract cuts the smaller ones out of the largest (e.g. a hole or notch) and Common part keeps only the overlap.", "**Move imported G-code** Select the G-code toolpath and move it with Placement in the properties, or choose To the origin or Centre on the stock. G-code in inches is now converted to millimetres instead of being refused.", "**Calibration tests in their own project** Simulate in Calibration puts the test in a new project, so it does not get mixed up with what you are working on. Your project is still under File → Recent.", "**Smoother** The calibration sections are picked from a list on phones, and the app starts a little faster."],
+      fr: ["**Unir et soustraire des formes** Sélectionnez au moins deux formes fermées et choisissez Dessin → Opérations : Unir en fait un seul contour, Soustraire découpe les plus petites dans la plus grande (un trou, une encoche) et Partie commune ne garde que le chevauchement.", "**Déplacer le G-code importé** Sélectionnez le parcours G-code et déplacez-le avec Position dans les propriétés, ou choisissez À l’origine ou Au centre du brut. Le G-code en pouces est désormais converti en millimètres au lieu d’être refusé.", "**Essais d’étalonnage dans leur propre projet** Simuler dans Étalonnage place l’essai dans un nouveau projet, pour ne pas le mélanger à votre travail. Votre projet reste dans Fichier → Récents.", "**Plus fluide** Sur téléphone, les sections de l’étalonnage se choisissent dans une liste, et l’application démarre un peu plus vite."],
+      de: ["**Formen vereinigen und abziehen** Markieren Sie zwei oder mehr geschlossene Formen und wählen Sie Design → Kombinieren: Vereinigen macht daraus eine Kontur, Abziehen schneidet die kleineren aus der größten aus (z. B. ein Loch oder eine Aussparung), und Gemeinsamer Teil behält nur die Überlappung.", "**Importierten G-Code verschieben** Markieren Sie den G-Code-Werkzeugweg und verschieben Sie ihn mit Position in den Eigenschaften oder wählen Sie Zum Nullpunkt bzw. Mitte des Werkstücks. G-Code in Zoll wird jetzt in Millimeter umgerechnet statt abgelehnt.", "**Kalibriertests im eigenen Projekt** Simulieren in der Kalibrierung legt den Test in ein neues Projekt, damit er sich nicht mit Ihrer Arbeit vermischt. Ihr Projekt finden Sie weiter unter Datei → Zuletzt.", "**Flüssiger** Auf dem Telefon werden die Bereiche der Kalibrierung aus einer Liste gewählt, und die App startet etwas schneller."],
+      es: ["**Unir y restar formas** Selecciona dos o más formas cerradas y elige Diseño → Operaciones: Unir las convierte en un solo contorno, Restar recorta las más pequeñas de la más grande (p. ej. un agujero o una muesca) y Parte común conserva solo la zona solapada.", "**Mover G-code importado** Selecciona la trayectoria de G-code y muévela con Posición en las propiedades, o elige Al origen o Centrar en la pieza. El G-code en pulgadas ahora se convierte a milímetros en lugar de rechazarse.", "**Pruebas de calibración en su propio proyecto** Simular en Calibración coloca la prueba en un proyecto nuevo para que no se mezcle con tu trabajo. Tu proyecto sigue en Archivo → Recientes.", "**Más fluido** En el móvil, las secciones de la calibración se eligen en una lista, y la aplicación arranca algo más rápido."],
+      pl: ["**Scalanie i odejmowanie kształtów** Zaznacz co najmniej dwa zamknięte kształty i wybierz Projektowanie → Operacje: Scal tworzy z nich jeden kontur, Odejmij wycina mniejsze z największego (np. otwór lub wcięcie), a Część wspólna zostawia tylko obszar wspólny.", "**Przesuwanie zaimportowanego G-code** Zaznacz ścieżkę G-code i przesuń ją polem Położenie we właściwościach albo wybierz Do punktu zerowego lub Na środek materiału. G-code w calach jest teraz przeliczany na milimetry zamiast odrzucany.", "**Testy kalibracyjne we własnym projekcie** Symuluj w Kalibracji umieszcza test w nowym projekcie, aby nie mieszał się z Twoją pracą. Twój projekt nadal jest w Plik → Ostatnie.", "**Płynniej** Na telefonie sekcje kalibracji wybiera się z listy, a aplikacja uruchamia się nieco szybciej."],
+      uk: ["**Злиття й віднімання фігур** Виділіть дві чи більше замкнені фігури й виберіть «Дизайн → Операції»: «Злити» робить з них один контур, «Відняти» вирізає менші з найбільшої (напр. отвір чи виїмку), а «Спільна частина» лишає тільки перекриття.", "**Переміщення імпортованого G-code** Виділіть траєкторію G-code й зсуньте її полем «Розташування» у властивостях або виберіть «До нульової точки» чи «По центру заготовки». G-code у дюймах тепер перераховується в міліметри, а не відхиляється.", "**Калібрувальні тести в окремому проєкті** «Змоделювати» в Калібруванні додає тест у новий проєкт, щоб він не змішувався з вашою роботою. Ваш проєкт лишається в «Файл → Останні».", "**Плавніше** На телефоні розділи калібрування вибираються зі списку, а застосунок запускається трохи швидше."],
+    },
+    since: ['0.50.0', '0.50.0', '0.50.0', '0.50.0'],
+  },
   {
     version: '0.49.0',
     date: '2026-11-25',

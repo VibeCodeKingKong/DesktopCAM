@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Camera, Check, ChevronRight, Download, FileCode2, Gauge, History, Play, ShieldAlert, Trash2, TriangleAlert, Wrench } from 'lucide-react';
 import { addGcodeToolpath } from '../../cam/gcodeImport';
+import { newProject } from '../../cam/commands';
 import { CalAnimation, paramConcept, TEST_CONCEPT } from '../calibration/animations';
 import { CalInfo } from '../calibration/CalInfo';
 import { PlanPlayback, PlayControls, usePlayback } from '../calibration/PlanPlayer';
@@ -68,7 +69,16 @@ export function CalibrationDialog() {
       title={C.title}
       width="max-w-6xl"
       actions={
-        <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto sm:ml-2" role="tablist" aria-label={C.title}>
+        <>
+        {/* Telefon: en lista i stället för flikar som inte får plats bredvid rubriken. */}
+        <select className="field min-w-0 flex-1 sm:hidden" value={view} onChange={(e) => go(e.target.value as View)} aria-label={C.title}>
+          {(['overview', ...CATS, 'history'] as View[]).map((v) => (
+            <option key={v} value={v}>
+              {C.nav[v]}
+            </option>
+          ))}
+        </select>
+        <div className="hidden min-w-0 flex-1 gap-1 overflow-x-auto sm:ml-2 sm:flex" role="tablist" aria-label={C.title}>
           {(['overview', ...CATS, 'history'] as View[]).map((v) => (
             <button
               key={v}
@@ -81,6 +91,7 @@ export function CalibrationDialog() {
             </button>
           ))}
         </div>
+        </>
       }
     >
       {view === 'overview' && <Overview go={go} />}
@@ -281,10 +292,17 @@ function TestPanel({ test }: { test: CalibrationTest }) {
   /** Lägger in provet i projektet – ritningen som eget lager och G-koden som bana – och öppnar simuleringen. */
   const simulate = () => {
     if (!plan || !gcode) return;
-    const s = useAppStore.getState();
     const name = C.tests[test.id].name;
+    // Provet simuleras i ett eget projekt, så att det inte blandas med det
+    // användaren håller på med (det sparas och finns under Senaste projekt).
+    const before = useAppStore.getState();
+    const busy = before.toolpaths.length > 0 || before.reliefs.length > 0 || before.imageObjects.length > 0 || before.layers.some((l) => l.shapes.length > 0);
+    if (busy) newProject();
+    const s = useAppStore.getState();
+    s.setProjectName(C.projectLayer(name));
     const shapes = plan.layers.flatMap((l) => l.shapes.map((sh) => ({ ...sh, id: uid('shape'), name: C.layers[l.name as keyof typeof C.layers] ?? sh.name })));
-    if (shapes.length) s.addLayers([{ id: uid('layer'), name: C.projectLayer(name), color: '#d4572a', visible: true, locked: false, shapes }]);
+    const layerId = uid('layer');
+    useAppStore.setState({ layers: [{ id: layerId, name: C.projectLayer(name), color: '#d4572a', visible: true, locked: false, shapes }], activeLayerId: layerId, selectedShapeIds: [] });
     addGcodeToolpath({
       name,
       gcode: gcode.text,
@@ -295,7 +313,7 @@ function TestPanel({ test }: { test: CalibrationTest }) {
     });
     s.openDialog(null);
     s.setTab('simulate');
-    s.setStatus(C.simulated(name));
+    s.setStatus(busy ? C.simulatedNew(name) : C.simulated(name));
   };
   const layers = plan ? plan.layers.map((l) => ({ name: C.layers[l.name as keyof typeof C.layers] ?? l.name, color: l.color, shapes: l.shapes })) : [];
   const allIssues = [...issues, ...(gcode?.issues ?? [])];

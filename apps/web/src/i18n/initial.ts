@@ -7,8 +7,18 @@ export const LANGUAGE_NAMES: Record<Language, string> = { sv: 'Svenska', en: 'En
 
 const isLanguage = (v: string | null): v is Language => !!v && (LANGUAGE_CODES as readonly string[]).includes(v);
 
-/** Sparat språk, annars webbläsarens. Norska och danska får svenska. */
+/**
+ * Sparat språk, annars webbläsarens. Norska och danska får svenska.
+ * Läses en gång: ordlistan som laddas vid start och appens språk måste vara
+ * samma även om en annan flik byter språk medan appen startar.
+ */
+let first: Language | null = null;
 export function initialLanguage(): Language {
+  first ??= readLanguage();
+  return first;
+}
+
+function readLanguage(): Language {
   try {
     const saved = localStorage.getItem('desktopcam.lang');
     if (isLanguage(saved)) return saved;

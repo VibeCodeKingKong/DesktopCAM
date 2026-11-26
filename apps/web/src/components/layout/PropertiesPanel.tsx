@@ -69,6 +69,7 @@ import {
   combineSelection,
   separateSelection,
 } from '../../cam/commands';
+import { placeGcode } from '../../cam/gcodeImport';
 import { FieldRow, NumberField, Segmented, SelectField, Switch } from '../ui/Field';
 import { duration, mm } from '../../utils/format';
 import { materialName, toolName, useT, type GuideKey } from '../../i18n';
@@ -1029,6 +1030,17 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
             </FieldRow>
           )}
           <p className="text-2xs leading-relaxed text-muted">{t.gcodeImport.fixedNote}</p>
+        </Group>
+      )}
+      {tp.operation === 'gcode' && (
+        <Group title={t.gcodeImport.placement}>
+          <NumberField label={t.gcodeImport.moveX} unit="mm" step={1} value={tp.offset?.x ?? 0} onChange={(x) => patch({ offset: { x, y: tp.offset?.y ?? 0 } })} />
+          <NumberField label={t.gcodeImport.moveY} unit="mm" step={1} value={tp.offset?.y ?? 0} onChange={(y) => patch({ offset: { x: tp.offset?.x ?? 0, y } })} />
+          <div className="flex flex-wrap gap-2">
+            <button className="btn" onClick={() => patch({ offset: placeGcode(tp, 'origin') })}>{t.gcodeImport.toOrigin}</button>
+            <button className="btn" onClick={() => patch({ offset: placeGcode(tp, 'center') })}>{t.gcodeImport.toCenter}</button>
+          </div>
+          <p className="text-2xs leading-relaxed text-muted">{t.gcodeImport.placementNote}</p>
         </Group>
       )}
 

@@ -4,7 +4,7 @@ import { useAppStore, useMachine } from '../../store/useAppStore';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 import { Segmented } from '../ui/Field';
-import { APP_VERSION } from '../../data/changelog';
+import { APP_VERSION } from '../../data/version';
 import { FEEDBACK_ACCESS_KEY, FEEDBACK_ENDPOINT } from '../../config/feedback';
 
 

@@ -6,7 +6,7 @@
  */
 import { create } from 'zustand';
 import { registerSW } from 'virtual:pwa-register';
-import { APP_VERSION, compareVersions } from '../data/changelog';
+import { APP_VERSION, compareVersions } from '../data/version';
 
 /** Hur ofta appen letar efter en ny version medan den är öppen. */
 const CHECK_EVERY_MS = 60 * 60 * 1000;

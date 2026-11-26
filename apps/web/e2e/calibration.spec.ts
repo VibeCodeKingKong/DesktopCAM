@@ -55,3 +55,23 @@ test('G-kod kan importeras som verktygsbana', async ({ page }) => {
   await expect(page.locator('aside').first().getByText('1. prov')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('former kan dras ifrån varandra och G-kod i tum räknas om', async ({ page }) => {
+  const errors = collectErrors(page);
+  await freshStart(page);
+  const tree = page.locator('aside').first();
+  // Exempelprojektets rektangel och cirkel: cirkeln dras ifrån rektangeln.
+  await tree.getByText('Rektangel 1', { exact: true }).click();
+  await tree.getByText('Cirkel 1', { exact: true }).click({ modifiers: ['Shift'] });
+  await openTab(page, 'Design');
+  await page.locator('[role=tabpanel] button').filter({ hasText: 'Kombinera' }).click();
+  await page.locator('button').filter({ hasText: 'De mindre formerna skärs ut' }).click();
+  await expect(tree.getByText('Utskuren', { exact: true })).toBeVisible();
+  await expect(tree.getByText('Cirkel 1', { exact: true })).toHaveCount(0);
+
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.locator('[role=tabpanel] button').filter({ hasText: 'G-kod' }).click()]);
+  await chooser.setFiles({ name: 'tum.nc', mimeType: 'text/plain', buffer: Buffer.from('G20 G90\nG0 Z0.2\nG0 X0.5 Y0.5\nG1 Z-0.04 F12\nG1 X2.5 F30\nG1 Y1.5\nG0 Z0.2\nM2\n') });
+  await expect(page.locator('footer [role=status]')).toContainText('omräknad från tum');
+  await page.getByRole('button', { name: 'Mitt på arbetsstycket' }).click();
+  expect(errors).toEqual([]);
+});

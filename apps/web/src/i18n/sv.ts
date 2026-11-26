@@ -18,7 +18,26 @@ export type GuideKey =
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
+  shapeOps: {
+    needTwo: 'Markera minst två former.',
+    needClosed: 'Formerna måste vara slutna (t.ex. rektanglar, cirklar eller slutna kurvor).',
+    noOverlap: 'Formerna överlappar inte – det finns ingen gemensam del.',
+    nothingLeft: 'Inget blev kvar – formerna som dras ifrån täcker hela den största.',
+    names: {
+      union: 'Förenad',
+      subtract: 'Utskuren',
+      intersect: 'Gemensam del',
+    },
+    done: (name: string, n: string) => `${name}: ${n} former blev en.`,
+  },
   gcodeImport: {
+    importedInches: (f: string) => `${f} är importerad och omräknad från tum till millimeter.`,
+    placement: 'Placering',
+    moveX: 'Flytta X',
+    moveY: 'Flytta Y',
+    toOrigin: 'Till nollpunkten',
+    toCenter: 'Mitt på arbetsstycket',
+    placementNote: 'Flyttar hela G-koden. Nedre vänstra hörnet hamnar i nollpunkten respektive så att G-koden ligger mitt på arbetsstycket.',
     group: 'G-kod',
     fromFile: (f: string) => `Importerad från ${f}.`,
     fromCalibration: (n: string) => `Kalibreringsprov: ${n}.`,
@@ -34,7 +53,8 @@ export const sv = {
   calib: {
     simulate: 'Simulera',
     simulateTitle: 'Lägg in provet i projektet och simulera det',
-    simulateNote: 'Simulera lägger in provet i projektet – ritningen som ett eget lager och G-koden som en verktygsbana – och öppnar simuleringen.',
+    simulateNote: 'Simulera lägger provet i ett eget projekt – ritningen som ett lager och G-koden som en verktygsbana – och öppnar simuleringen. Ditt nuvarande projekt sparas och finns under Arkiv → Senaste.',
+    simulatedNew: (n: string) => `${n} ligger i ett nytt projekt och simuleringen är öppen. Ditt förra projekt finns under Arkiv → Senaste.`,
     simulated: (n: string) => `${n} är inlagt i projektet och simuleringen är öppen.`,
     projectLayer: (n: string) => `Prov: ${n}`,
     infoAbout: (x: string) => `Mer om ${x}`,
@@ -593,6 +613,10 @@ export const sv = {
   },
 
   buttons: {
+    combine: { label: 'Kombinera', title: 'Kombinera former', desc: 'Förena, dra ifrån eller behåll den gemensamma delen av de markerade formerna. Resultatet blir en ny form.' },
+    union: { label: 'Förena', title: 'Förena', desc: 'Formerna blir en enda kontur runt allt de täcker.' },
+    subtract: { label: 'Dra ifrån', title: 'Dra ifrån', desc: 'De mindre formerna skärs ut ur den största – t.ex. ett hål eller ett urtag.' },
+    intersect: { label: 'Gemensam del', title: 'Gemensam del', desc: 'Bara den yta som alla formerna täcker blir kvar.' },
     importGcode: { label: 'G-kod', title: 'Importera G-kod', desc: 'Läser in en färdig G-kodfil (.gcode, .nc, .ngc, .tap) som en verktygsbana, så att du kan se den i 3D och simulera den. Du kan också dra filen till 3D-vyn.' },
     calibration: { label: 'Kalibrering', title: 'Kalibrering och provning', desc: 'Provmönster för laser, fräs och plasma: effekt och hastighet, fokus, snittbredd, måttnoggrannhet och mer. Mät resultatet, analysera ett foto och spara det som bäst.' },
     pattern: { label: 'Mönster', title: 'Mönster', desc: 'Kopierar markeringen i ett rutnät (linjärt) eller runt en mittpunkt (cirkulärt) – t.ex. en rad hål eller hål på en bultcirkel.' },

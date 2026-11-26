@@ -71,7 +71,26 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const en: Dict = {
+  shapeOps: {
+    needTwo: 'Select at least two shapes.',
+    needClosed: 'The shapes must be closed (e.g. rectangles, circles or closed curves).',
+    noOverlap: 'The shapes do not overlap – there is no common part.',
+    nothingLeft: 'Nothing is left – the shapes being subtracted cover the whole of the largest one.',
+    names: {
+      union: 'United',
+      subtract: 'Cut out',
+      intersect: 'Common part',
+    },
+    done: (name: string, n: string) => `${name}: ${n} shapes became one.`,
+  },
   gcodeImport: {
+    importedInches: (f: string) => `${f} imported and converted from inches to millimetres.`,
+    placement: 'Placement',
+    moveX: 'Move X',
+    moveY: 'Move Y',
+    toOrigin: 'To the origin',
+    toCenter: 'Centre on the stock',
+    placementNote: 'Moves the whole G-code: its lower left corner to the origin, or so that the G-code is centred on the stock.',
     group: 'G-code',
     fromFile: (f: string) => `Imported from ${f}.`,
     fromCalibration: (n: string) => `Calibration test: ${n}.`,
@@ -87,7 +106,8 @@ export const en: Dict = {
   calib: {
     simulate: 'Simulate',
     simulateTitle: 'Add the test to the project and simulate it',
-    simulateNote: 'Simulate adds the test to the project – the drawing as its own layer and the G-code as a toolpath – and opens the simulation.',
+    simulateNote: 'Simulate puts the test in a project of its own – the drawing as a layer and the G-code as a toolpath – and opens the simulation. Your current project is saved and can be found under File → Recent.',
+    simulatedNew: (n: string) => `${n} is in a new project and the simulation is open. Your previous project is under File → Recent.`,
     simulated: (n: string) => `${n} has been added to the project and the simulation is open.`,
     projectLayer: (n: string) => `Test: ${n}`,
     infoAbout: (x: string) => `More about ${x}`,
@@ -646,6 +666,10 @@ export const en: Dict = {
   },
 
   buttons: {
+    combine: { label: 'Boolean', title: 'Unite and subtract shapes', desc: 'Unite, subtract or keep the common part of the selected shapes. The result is a new shape.' },
+    union: { label: 'Unite', title: 'Unite', desc: 'The shapes become a single outline around everything they cover.' },
+    subtract: { label: 'Subtract', title: 'Subtract', desc: 'The smaller shapes are cut out of the largest one – e.g. a hole or a notch.' },
+    intersect: { label: 'Common part', title: 'Common part', desc: 'Only the area that all the shapes cover is kept.' },
     importGcode: { label: 'G-code', title: 'Import G-code', desc: 'Loads a finished G-code file (.gcode, .nc, .ngc, .tap) as a toolpath so you can view it in 3D and simulate it. You can also drag the file onto the 3D view.' },
     calibration: { label: 'Calibration', title: 'Calibration and testing', desc: 'Test patterns for laser, router and plasma: power and speed, focus, kerf, dimensional accuracy and more. Measure the result, analyse a photo and save what works best.' },
     pattern: { label: 'Pattern', title: 'Pattern', desc: 'Copies the selection in a grid (linear) or around a centre point (circular) – e.g. a row of holes or holes on a bolt circle.' },

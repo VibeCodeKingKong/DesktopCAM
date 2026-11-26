@@ -70,7 +70,26 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const es: Dict = {
+  shapeOps: {
+    needTwo: 'Selecciona al menos dos formas.',
+    needClosed: 'Las formas deben ser cerradas (p. ej. rectángulos, círculos o curvas cerradas).',
+    noOverlap: 'Las formas no se solapan: no hay parte común.',
+    nothingLeft: 'No queda nada: las formas que se restan cubren toda la más grande.',
+    names: {
+      union: 'Unida',
+      subtract: 'Recortada',
+      intersect: 'Parte común',
+    },
+    done: (name: string, n: string) => `${name}: ${n} formas se convirtieron en una.`,
+  },
   gcodeImport: {
+    importedInches: (f: string) => `${f} importado y convertido de pulgadas a milímetros.`,
+    placement: 'Posición',
+    moveX: 'Mover X',
+    moveY: 'Mover Y',
+    toOrigin: 'Al origen',
+    toCenter: 'Centrar en la pieza',
+    placementNote: 'Mueve todo el G-code: su esquina inferior izquierda al origen, o de forma que quede centrado en la pieza.',
     group: 'G-code',
     fromFile: (f: string) => `Importado de ${f}.`,
     fromCalibration: (n: string) => `Prueba de calibración: ${n}.`,
@@ -86,7 +105,8 @@ export const es: Dict = {
   calib: {
     simulate: 'Simular',
     simulateTitle: 'Añadir la prueba al proyecto y simularla',
-    simulateNote: 'Simular añade la prueba al proyecto (el dibujo como capa propia y el G-code como trayectoria) y abre la simulación.',
+    simulateNote: 'Simular coloca la prueba en un proyecto propio (el dibujo como capa y el G-code como trayectoria) y abre la simulación. Tu proyecto actual se guarda y está en Archivo → Recientes.',
+    simulatedNew: (n: string) => `${n} está en un proyecto nuevo y la simulación está abierta. Tu proyecto anterior está en Archivo → Recientes.`,
     simulated: (n: string) => `${n} se ha añadido al proyecto y la simulación está abierta.`,
     projectLayer: (n: string) => `Prueba: ${n}`,
     infoAbout: (x: string) => `Más sobre ${x}`,
@@ -645,6 +665,10 @@ export const es: Dict = {
   },
 
   buttons: {
+    combine: { label: 'Operaciones', title: 'Operaciones con formas', desc: 'Une, resta o conserva la parte común de las formas seleccionadas. El resultado es una forma nueva.' },
+    union: { label: 'Unir', title: 'Unir', desc: 'Las formas se convierten en un único contorno alrededor de todo lo que cubren.' },
+    subtract: { label: 'Restar', title: 'Restar', desc: 'Las formas más pequeñas se recortan de la más grande, p. ej. un agujero o una muesca.' },
+    intersect: { label: 'Parte común', title: 'Parte común', desc: 'Solo queda la superficie que cubren todas las formas.' },
     importGcode: { label: 'G-code', title: 'Importar G-code', desc: 'Carga un archivo G-code terminado (.gcode, .nc, .ngc, .tap) como trayectoria para verlo en 3D y simularlo. También puedes arrastrar el archivo a la vista 3D.' },
     calibration: { label: 'Calibración', title: 'Calibración y pruebas', desc: 'Patrones de prueba para láser, fresadora y plasma: potencia y velocidad, enfoque, ancho de corte, precisión dimensional y más. Mida el resultado, analice una foto y guarde lo que mejor funcione.' },
     pattern: { label: 'Patrón', title: 'Patrón', desc: 'Copia la selección en una cuadrícula (lineal) o alrededor de un centro (circular), p. ej. una fila de agujeros o agujeros en un círculo de pernos.' },

@@ -70,7 +70,26 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const de: Dict = {
+  shapeOps: {
+    needTwo: 'Markieren Sie mindestens zwei Formen.',
+    needClosed: 'Die Formen müssen geschlossen sein (z. B. Rechtecke, Kreise oder geschlossene Kurven).',
+    noOverlap: 'Die Formen überlappen sich nicht – es gibt keinen gemeinsamen Teil.',
+    nothingLeft: 'Nichts bleibt übrig – die abgezogenen Formen decken die größte ganz ab.',
+    names: {
+      union: 'Vereinigt',
+      subtract: 'Ausgeschnitten',
+      intersect: 'Gemeinsamer Teil',
+    },
+    done: (name: string, n: string) => `${name}: ${n} Formen wurden zu einer.`,
+  },
   gcodeImport: {
+    importedInches: (f: string) => `${f} importiert und von Zoll in Millimeter umgerechnet.`,
+    placement: 'Position',
+    moveX: 'Verschieben X',
+    moveY: 'Verschieben Y',
+    toOrigin: 'Zum Nullpunkt',
+    toCenter: 'Mitte des Werkstücks',
+    placementNote: 'Verschiebt den ganzen G-Code: die linke untere Ecke in den Nullpunkt oder so, dass der G-Code mittig auf dem Werkstück liegt.',
     group: 'G-Code',
     fromFile: (f: string) => `Importiert aus ${f}.`,
     fromCalibration: (n: string) => `Kalibriertest: ${n}.`,
@@ -86,7 +105,8 @@ export const de: Dict = {
   calib: {
     simulate: 'Simulieren',
     simulateTitle: 'Test ins Projekt übernehmen und simulieren',
-    simulateNote: 'Simulieren übernimmt den Test ins Projekt – die Zeichnung als eigene Ebene und den G-Code als Werkzeugweg – und öffnet die Simulation.',
+    simulateNote: 'Simulieren legt den Test in ein eigenes Projekt – die Zeichnung als Ebene und den G-Code als Werkzeugweg – und öffnet die Simulation. Ihr aktuelles Projekt wird gespeichert und ist unter Datei → Zuletzt zu finden.',
+    simulatedNew: (n: string) => `${n} liegt in einem neuen Projekt, die Simulation ist geöffnet. Ihr vorheriges Projekt finden Sie unter Datei → Zuletzt.`,
     simulated: (n: string) => `${n} wurde ins Projekt übernommen, die Simulation ist geöffnet.`,
     projectLayer: (n: string) => `Test: ${n}`,
     infoAbout: (x: string) => `Mehr über ${x}`,
@@ -645,6 +665,10 @@ export const de: Dict = {
   },
 
   buttons: {
+    combine: { label: 'Kombinieren', title: 'Formen kombinieren', desc: 'Vereinigen, abziehen oder den gemeinsamen Teil der markierten Formen behalten. Das Ergebnis ist eine neue Form.' },
+    union: { label: 'Vereinigen', title: 'Vereinigen', desc: 'Die Formen werden zu einer einzigen Kontur um alles, was sie bedecken.' },
+    subtract: { label: 'Abziehen', title: 'Abziehen', desc: 'Die kleineren Formen werden aus der größten ausgeschnitten – z. B. ein Loch oder eine Aussparung.' },
+    intersect: { label: 'Gemeinsamer Teil', title: 'Gemeinsamer Teil', desc: 'Nur die Fläche, die alle Formen bedecken, bleibt erhalten.' },
     importGcode: { label: 'G-Code', title: 'G-Code importieren', desc: 'Lädt eine fertige G-Code-Datei (.gcode, .nc, .ngc, .tap) als Werkzeugweg, damit Sie sie in 3D ansehen und simulieren können. Sie können die Datei auch in die 3D-Ansicht ziehen.' },
     calibration: { label: 'Kalibrierung', title: 'Kalibrierung und Tests', desc: 'Testmuster für Laser, Fräse und Plasma: Leistung und Geschwindigkeit, Fokus, Schnittfuge, Maßgenauigkeit und mehr. Ergebnis messen, ein Foto analysieren und das Beste speichern.' },
     pattern: { label: 'Muster', title: 'Muster', desc: 'Kopiert die Auswahl in einem Raster (linear) oder um einen Mittelpunkt (kreisförmig) – z. B. eine Lochreihe oder Bohrungen auf einem Lochkreis.' },

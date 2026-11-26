@@ -1,5 +1,6 @@
 import {
   parseGcode,
+  transformGcode,
   defaultPocketStrategy,
   type PocketStrategy,
   defaultStrategy,
@@ -116,7 +117,10 @@ export async function computeToolpath(id: string): Promise<void> {
         break;
       case 'gcode':
         // Färdig G-kod räknas inte om – den tolkas bara för vyn och statistiken.
-        payload = { gcode: tp.gcode, preview: parseGcode(tp.gcode, getMachine().maxFeed), features: undefined };
+        {
+          const code = tp.offset ? transformGcode(tp.gcode, { dx: tp.offset.x, dy: tp.offset.y }) : tp.gcode;
+          payload = { gcode: code, preview: parseGcode(code, getMachine().maxFeed), features: undefined };
+        }
         break;
       default:
         throw new Error('NOT_IMPLEMENTED');

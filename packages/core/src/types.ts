@@ -545,6 +545,8 @@ export interface GcodeToolpath extends ToolpathBase {
   source: { kind: 'file'; fileName: string } | { kind: 'calibration'; testId: string };
   /** Laser: strålen skär igenom materialet (annars bränns ytan). */
   laserCut?: boolean;
+  /** Flyttning av hela G-koden i X/Y (mm). */
+  offset?: { x: number; y: number };
 }
 
 export type ToolpathConfig =

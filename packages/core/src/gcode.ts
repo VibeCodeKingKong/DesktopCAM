@@ -133,3 +133,41 @@ export function parseGcode(src: string, limits?: { xy: number; z: number }): Gco
   };
   return { rapids: Float32Array.from(rapids), cuts: Float32Array.from(cuts), stats };
 }
+
+/**
+ * Flyttar och skalar G-kod: X/Y flyttas (dx, dy) och alla längder skalas
+ * (t.ex. 25,4 för tum → mm). Kommentarer lämnas orörda. Rader med
+ * maskinkoordinater (G53) eller referenspunkter (G28/G30) flyttas inte, och
+ * båg-centrum (I/J/K) är relativa och skalas bara. Tum (G20) blir mm (G21)
+ * när skalan är 25,4.
+ */
+export function transformGcode(src: string, t: { dx?: number; dy?: number; scale?: number }): string {
+  const dx = t.dx ?? 0, dy = t.dy ?? 0, k = t.scale ?? 1;
+  if (!dx && !dy && k === 1) return src;
+  const toMm = Math.abs(k - 25.4) < 1e-9;
+  const fmt = (v: number) => formatNumber(v, 4);
+  return src
+    .split('\n')
+    .map((line) => {
+      // Dela upp i kod och kommentarer: (…) och allt efter ;.
+      const semi = line.indexOf(';');
+      const code = semi >= 0 ? line.slice(0, semi) : line;
+      const tail = semi >= 0 ? line.slice(semi) : '';
+      const fixed = /\bG(53|28|30)(?![\d.])/i.test(code.replace(/\(.*?\)/g, ''));
+      const parts = code.split(/(\([^)]*\))/);
+      const out = parts.map((p) => {
+        if (p.startsWith('(')) return p;
+        let q = p.replace(/([XYZIJKRF])\s*([-+]?(?:\d+\.?\d*|\.\d+))/gi, (_m, letter: string, num: string) => {
+          const L = letter.toUpperCase();
+          let v = parseFloat(num) * k;
+          if (!fixed && L === 'X') v += dx;
+          else if (!fixed && L === 'Y') v += dy;
+          return `${letter}${fmt(v)}`;
+        });
+        if (toMm) q = q.replace(/\bG20(?![\d.])/gi, 'G21');
+        return q;
+      });
+      return out.join('') + tail;
+    })
+    .join('\n');
+}
