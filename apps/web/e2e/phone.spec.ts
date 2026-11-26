@@ -25,7 +25,7 @@ test('telefon: flikar, inställningsark, snabbknappar och egenskapsark', async (
   await expect(sheet.getByRole('group', { name: 'Placering' })).toBeVisible();
 
   // Mer-menyn.
-  await page.getByRole('button', { name: 'Mer' }).click();
+  await page.getByRole('button', { name: 'Mer', exact: true }).click();
   await expect(page.getByRole('menu')).toContainText('Nybörjarläge');
 
   expect(errors).toEqual([]);
