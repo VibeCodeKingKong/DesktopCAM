@@ -27,3 +27,4 @@ export * from './trace';
 export * from './vectorExport';
 export * from './features';
 export * from './calibration';
+export * from './bridges';

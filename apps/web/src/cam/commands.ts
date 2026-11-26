@@ -854,6 +854,8 @@ export function projectJson(withImages = true) {
     projectName: s.projectName,
     machineId: s.machineId,
     customMachines: s.machines.filter((m) => m.custom || JSON.stringify(m) !== JSON.stringify(BUILT_IN.get(m.id))),
+    // Egna material som projektet använder (så att det går att öppna på en annan dator).
+    customMaterials: s.materials.filter((m) => m.custom && m.id === s.material.presetId),
     material: s.material,
     tools: s.tools,
     layers: s.layers,
@@ -889,6 +891,7 @@ export function loadProject(data: unknown, opts: { keepId?: boolean } = {}): boo
       : useAppStore.getState().tools,
     machineId: d.machineId,
     customMachines: d.customMachines ?? [],
+    customMaterials: d.customMaterials ?? [],
   });
   // Bild-banor räknas när bilderna avkodats (watchForChanges ser nya bilder).
   for (const tp of useAppStore.getState().toolpaths) if (tp.operation !== 'laserRaster' && tp.operation !== 'penImage') void computeToolpath(tp.id);

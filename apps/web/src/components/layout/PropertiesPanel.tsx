@@ -1025,8 +1025,24 @@ function ToolpathEditor({ tp }: { tp: ToolpathConfig }) {
           {tp.side !== 'on' && <NumberField label={t.props.kerf} unit="mm" step={0.01} min={0} max={1} value={tp.kerf} hint="kerf" onChange={(kerf) => patch({ kerf })} />}
         </Group>
       )}
+      {tp.operation === 'laserCut' && (
+        <BridgeFields
+          count={tp.bridges?.count ?? 0}
+          width={tp.bridges?.width ?? 0.6}
+          note={t.bridges.noteLaser}
+          onChange={(count, width) => patch({ bridges: { count, width } } as Partial<ToolpathConfig>)}
+        />
+      )}
 
       {tp.operation === 'plasmaCut' && <PlasmaEditor tp={tp} patch={patch} param={param} />}
+      {tp.operation === 'plasmaCut' && (
+        <BridgeFields
+          count={tp.plasma?.bridgeCount ?? 0}
+          width={tp.plasma?.bridgeCount ? (tp.plasma.bridgeWidth ?? tp.kerf + 1) : +(tp.kerf + 1).toFixed(1)}
+          note={t.bridges.notePlasma}
+          onChange={(bridgeCount, bridgeWidth) => patch({ plasma: { ...withPlasmaDefaults(tp.plasma), bridgeCount, bridgeWidth } } as Partial<ToolpathConfig>)}
+        />
+      )}
       {tp.operation === 'gcode' && (
         <Group title={t.gcodeImport.group}>
           <p className="text-xs leading-relaxed">
@@ -1753,4 +1769,27 @@ function PlugEditor({ relief }: { relief: ReliefInstance }) {
 function ExpertNote() {
   const t = useT();
   return <p className="text-2xs italic text-muted">{t.props.expertNote}</p>;
+}
+
+/**
+ * Mikrobryggor (laser och plasma): korta oskurna bitar i ytterkonturerna som
+ * håller delarna kvar i skivan.
+ */
+function BridgeFields({ count, width, note, onChange }: { count: number; width: number; note: string; onChange: (count: number, width: number) => void }) {
+  const t = useT();
+  const B = t.bridges;
+  return (
+    <Group title={B.title}>
+      <FieldRow label={B.enable}>
+        <Switch checked={count > 0} onChange={(v) => onChange(v ? 3 : 0, width)} label={B.enable} />
+      </FieldRow>
+      {count > 0 && (
+        <>
+          <NumberField label={B.count} step={1} min={1} max={20} value={count} onChange={(c) => onChange(Math.max(1, Math.round(c)), width)} />
+          <NumberField label={B.width} unit="mm" step={0.1} min={0.1} max={10} value={width} onChange={(w) => onChange(count, w)} />
+        </>
+      )}
+      <p className="text-2xs leading-relaxed text-muted">{note}</p>
+    </Group>
+  );
 }

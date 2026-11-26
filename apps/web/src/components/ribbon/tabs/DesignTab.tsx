@@ -1,4 +1,4 @@
-import { AlignCenterVertical, Ellipsis, FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
+import { AlignCenterVertical, LayoutGrid, Ellipsis, FileCode2, BoxSelect, Circle, Cog, Copy, Group, Ungroup, FileUp, Image as ImageIcon, ImageUp, ScanLine, Magnet, Mountain, Shapes, MousePointer2, PenTool, Grid3x3, Redo2, Ruler, Slash, Spline, Square, Trash2, Type, Undo2 } from 'lucide-react';
 import { RibbonButton } from '../RibbonButton';
 import { importImageRelief } from '../../../cam/imageRelief';
 import { importImage } from '../../../cam/imageObjects';
@@ -42,16 +42,18 @@ export function DesignTab() {
           <RibbonButton size="small" icon={Redo2} label={b.redo.label} disabled={!canRedo} onClick={redo} tooltip={tip(b.redo, { illustration: <IlluRedo />,  shortcut: '⇧⌘Z' })} tone="neutral" />
           <RibbonButton size="small" icon={Copy} label={b.duplicate.label} disabled={!hasSelection} onClick={duplicateSelection} tooltip={tip(b.duplicate, { illustration: <IlluDuplicate />,  shortcut: '⌘D', disabledReason: hasSelection ? undefined : t.reasons.needsSelection })} tone="neutral" />
         </RibbonStack>
-        <RibbonButton icon={Trash2} label={b.remove.label} disabled={!canDelete} onClick={deleteSelection} tooltip={tip(b.remove, { illustration: <IlluDelete />,  shortcut: '⌫', disabledReason: canDelete ? undefined : t.reasons.needsSelection })} tone="neutral" />
         <RibbonStack>
+          <RibbonButton size="small" icon={Trash2} label={b.remove.label} disabled={!canDelete} onClick={deleteSelection} tooltip={tip(b.remove, { illustration: <IlluDelete />,  shortcut: '⌫', disabledReason: canDelete ? undefined : t.reasons.needsSelection })} tone="neutral" />
           <RibbonButton size="small" icon={Group} label={b.group.label} disabled={selCount < 2} onClick={groupSelection} tooltip={tip(b.group, { shortcut: '⌘G', disabledReason: selCount < 2 ? t.group.needTwo : undefined })} tone="neutral" />
           <RibbonButton size="small" icon={Ungroup} label={b.ungroup.label} disabled={!hasGroup} onClick={ungroupSelection} tooltip={tip(b.ungroup, { shortcut: '⇧⌘G', disabledReason: hasGroup ? undefined : t.group.noGroup })} tone="neutral" />
         </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t.groups.select}>
         <RibbonButton icon={MousePointer2} label={b.select.label} active={tool === 'select'} onClick={pick('select')} tooltip={tip(b.select, { illustration: <IlluSelect />,  shortcut: 'V' })} />
-        <RibbonButton icon={PenTool} label={b.nodes.label} active={tool === 'nodes'} onClick={pick('nodes')} tooltip={tip(b.nodes, { shortcut: 'N', illustration: <IlluCurve /> })} />
-        <RibbonButton icon={BoxSelect} label={b.selectAll.label} onClick={() => selectAllShapes()} tooltip={tip(b.selectAll, { shortcut: '⌘A' })} />
+        <RibbonStack>
+          <RibbonButton size="small" icon={PenTool} label={b.nodes.label} active={tool === 'nodes'} onClick={pick('nodes')} tooltip={tip(b.nodes, { shortcut: 'N', illustration: <IlluCurve /> })} />
+          <RibbonButton size="small" icon={BoxSelect} label={b.selectAll.label} onClick={() => selectAllShapes()} tooltip={tip(b.selectAll, { shortcut: '⌘A' })} />
+        </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t.groups.draw}>
         <RibbonButton icon={Slash} label={b.line.label} active={tool === 'line'} onClick={pick('line')} tooltip={tip(b.line, { illustration: <IlluLine />,  shortcut: 'L' })} />
@@ -61,14 +63,17 @@ export function DesignTab() {
         <RibbonButton icon={Type} label={b.text.label} active={tool === 'text'} onClick={pick('text')} tooltip={tip(b.text, { illustration: <IlluText />,  shortcut: 'T' })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.modify}>
-        <RibbonButton icon={CornerRadius} label={b.fillet.label} active={tool === 'fillet'} onClick={pick('fillet')} tooltip={tip(b.fillet, { illustration: <IlluFillet />,  shortcut: 'K' })} />
+        <RibbonStack>
+        <RibbonButton size="small" icon={CornerRadius} label={b.fillet.label} active={tool === 'fillet'} onClick={pick('fillet')} tooltip={tip(b.fillet, { illustration: <IlluFillet />,  shortcut: 'K' })} />
         <RibbonButton
+          size="small"
           icon={ShapeOffset}
           label={b.offset.label}
           disabled={!hasShapeSelection}
           onClick={() => openDialog('offset')}
           tooltip={tip(b.offset, { disabledReason: hasShapeSelection ? undefined : t.reasons.needsSelection })}
         />
+        </RibbonStack>
         <RibbonMenuButton
           icon={ShapesUnion}
           label={b.combine.label}
@@ -87,6 +92,7 @@ export function DesignTab() {
             ...(Object.keys(ALIGN_ICONS) as AlignMode[]).map((m) => ({ icon: ALIGN_ICONS[m], label: t.align.modes[m], onClick: () => alignSelection(m), disabled: !hasShapeSelection })),
             { icon: DISTRIBUTE_ICONS.h, label: t.align.distribute.h, desc: t.align.distributeDesc, onClick: () => distributeSelection('h'), disabled: selCount < 3 },
             { icon: DISTRIBUTE_ICONS.v, label: t.align.distribute.v, onClick: () => distributeSelection('v'), disabled: selCount < 3 },
+            { icon: LayoutGrid, label: t.nesting.title, desc: t.nesting.menuDesc, onClick: () => openDialog('nest'), disabled: !hasShapeSelection },
           ]}
         />
         {/* Verktyg som används mer sällan – så att bandet inte blir för brett. */}
@@ -101,9 +107,8 @@ export function DesignTab() {
         />
       </RibbonGroup>
       <RibbonGroup label={t.groups.snap}>
-        <RibbonButton icon={Magnet} label={b.snapGrid.label} active={snap.grid} onClick={() => setSnap({ grid: !snap.grid })} tooltip={tip(b.snapGrid, { illustration: <IlluSnap /> })} />
         <RibbonStack>
-          <span className="text-2xs text-muted">{t.snap.step}</span>
+          <RibbonButton size="small" icon={Magnet} label={b.snapGrid.label} active={snap.grid} onClick={() => setSnap({ grid: !snap.grid })} tooltip={tip(b.snapGrid, { illustration: <IlluSnap /> })} />
           <div className="w-24 [@media(pointer:coarse)]:w-28">
             <Select
               value={String(snap.step)}
@@ -114,13 +119,17 @@ export function DesignTab() {
         </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t.groups.library}>
-        <RibbonButton icon={Shapes} label={b.shapeLibrary.label} onClick={() => openDialog('shapeLibrary')} tooltip={tip(b.shapeLibrary, { illustration: <IlluShapeLibrary /> })} />
-        <RibbonButton icon={Cog} label={b.gear.label} onClick={() => openDialog('gear')} tooltip={tip(b.gear, { illustration: <IlluGear /> })} />
-        {isRouter && <RibbonButton icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />}
+        <RibbonStack>
+          <RibbonButton size="small" icon={Shapes} label={b.shapeLibrary.label} onClick={() => openDialog('shapeLibrary')} tooltip={tip(b.shapeLibrary, { illustration: <IlluShapeLibrary /> })} />
+          <RibbonButton size="small" icon={Cog} label={b.gear.label} onClick={() => openDialog('gear')} tooltip={tip(b.gear, { illustration: <IlluGear /> })} />
+          {isRouter && <RibbonButton size="small" icon={Mountain} label={b.reliefLibrary.label} onClick={() => openDialog('reliefLibrary')} tooltip={tip(b.reliefLibrary, { illustration: <IlluRelief /> })} />}
+        </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t.groups.import}>
-        <RibbonButton icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
-        <RibbonButton icon={FileCode2} label={b.importGcode.label} onClick={() => void importGcodeFile()} tooltip={tip(b.importGcode)} />
+        <RibbonStack>
+          <RibbonButton size="small" icon={FileUp} label={b.importVector.label} onClick={() => void importVectorFile()} tooltip={tip(b.importVector, { shortcut: '⌘I', illustration: <IlluImport /> })} />
+          <RibbonButton size="small" icon={FileCode2} label={b.importGcode.label} onClick={() => void importGcodeFile()} tooltip={tip(b.importGcode)} />
+        </RibbonStack>
         {/* Reliefer fräses – Bild till relief finns bara med fräs. */}
         <RibbonMenuButton
           icon={ImageIcon}

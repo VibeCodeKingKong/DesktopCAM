@@ -1,4 +1,4 @@
-import { ChevronRight, Gauge, Settings2, Wrench, X, Zap } from 'lucide-react';
+import { ChevronRight, Gauge, Settings2, SwatchBook, Wrench, X, Zap } from 'lucide-react';
 import { useContext } from 'react';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonLayout, RibbonStack } from '../RibbonGroup';
@@ -156,6 +156,7 @@ export function SetupTab() {
             </RibbonField>
           )}
         </RibbonStack>
+        <RibbonButton icon={SwatchBook} label={b.materials.label} onClick={() => openDialog('materials')} tooltip={tip(b.materials)} />
       </RibbonGroup>
 
       <RibbonGroup label={t.groups.tool}>

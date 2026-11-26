@@ -13,7 +13,8 @@ import { setReportContext } from './errors/reports';
 setReportContext(() => ({ language: useAppStore.getState().language, machineKind: getMachine().kind }));
 import { MobileTabBar, Ribbon } from './components/ribbon/Ribbon';
 import { SetupSheet } from './components/ribbon/tabs/SetupTab';
-import { Viewport } from './components/viewport/Viewport';
+// 3D-vyn (three.js) laddas för sig, så att resten av appen syns direkt.
+const Viewport = lazy(() => import('./components/viewport/Viewport').then((m) => ({ default: m.Viewport })));
 import { camClient } from './engine/camClient';
 import { useShortcuts } from './hooks/useShortcuts';
 import { getMachine, useAppStore, type DialogId } from './store/useAppStore';
@@ -43,6 +44,9 @@ const DIALOGS: Partial<Record<DialogId, LazyExoticComponent<ComponentType>>> = {
   exportGcode: lazy(() => import('./components/dialogs/ExportDialog').then((m) => ({ default: m.ExportDialog }))),
   pattern: lazy(() => import('./components/dialogs/PatternDialog').then((m) => ({ default: m.PatternDialog }))),
   offset: lazy(() => import('./components/dialogs/OffsetDialog').then((m) => ({ default: m.OffsetDialog }))),
+  nest: lazy(() => import('./components/dialogs/NestDialog').then((m) => ({ default: m.NestDialog }))),
+  materials: lazy(() => import('./components/dialogs/MaterialDialog').then((m) => ({ default: m.MaterialDialog }))),
+  jobSheet: lazy(() => import('./components/dialogs/JobSheetDialog').then((m) => ({ default: m.JobSheetDialog }))),
   welcome: lazy(() => import('./components/dialogs/WelcomeDialog').then((m) => ({ default: m.WelcomeDialog }))),
   trace: lazy(() => import('./components/dialogs/TraceDialog').then((m) => ({ default: m.TraceDialog }))),
   recent: lazy(() => import('./components/dialogs/RecentProjectsDialog').then((m) => ({ default: m.RecentProjectsDialog }))),
@@ -131,7 +135,9 @@ export default function App() {
       <div className="relative flex min-h-0 flex-1">
         <ProjectTree />
         <main className="relative min-w-0 flex-1" data-tour="viewport">
-          <Viewport />
+          <Suspense fallback={<div className="absolute inset-0 animate-pulse bg-app" aria-busy="true" />}>
+            <Viewport />
+          </Suspense>
         </main>
         <PropertiesPanel />
       </div>

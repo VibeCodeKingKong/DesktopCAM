@@ -40,6 +40,8 @@ export interface ProfileJob {
   /** Lasereffekt i maskinens S-skala (t.ex. 0–1000). */
   laserS: number;
   passes: number;
+  /** Laser: mikrobryggor i ytterkonturerna (efter offset). */
+  bridges?: { count: number; width: number };
   post: PostprocessorConfig;
 }
 

@@ -114,6 +114,9 @@ tillämpningar i CAM-branschen kan omfattas av patent** och bör granskas.
 | Spårning: skuggfilter | Otsu med tre klasser (Liao m.fl. 2001) och färgmättnad per bildpunkt: grå mellanton = skugga | Allmänna bildbehandlingsmetoder, egen kod. Automatisk skuggborttagning finns i patenterade utföranden – REVIEW REQUIRED (ingår i patentsökningen). |
 | Räta upp | Minsta omslutande rektangel via konvext hölje och roterande skjutmått (Freeman–Shapira 1975, Toussaint 1983) | Klassisk beräkningsgeometri; inget känt patent. |
 | Kalibreringsprov | Egna provmönster (rutnät med effekt/hastighet, fokusramp, snittbreddskvadrat, ficka/hål, spårbredd, djuptrappa, hörn- och hålprov) och beräkning av snittbredd/verklig verktygsdiameter ur mått | Allmänt kända provtyper inom laser/CNC/plasma; mönster, texter och beräkningar är skapade för projektet. Inget känt patent. |
+| Utplacering på skiva | Rektangelpackning (MaxRects, Jylänki 2010) med biblioteket maxrects-packer (MIT) på delarnas omslutande rektanglar, vridning 90° | Rektangelpackning är en klassisk, publicerad metod. Äkta formutplacering (nesting) i kommersiell CAM har patent i specifika utföranden – den används inte här. REVIEW REQUIRED (ingår i patentsökningen). |
+| Mikrobryggor | Oskurna partier jämnt fördelade längs ytterkonturer; plasma: ny genomstickning efter varje brygga | Allmänt känd verkstadsteknik (microjoints/tabs); egen kod. Inget känt patent. |
+| Text längs form | Tecken placerade längs formens båglängd och vridna efter tangenten | Klassisk typografisk metod; egen kod. Inget känt patent. |
 | Vektorexport | SVG (W3C, royaltyfri), DXF R12 (Autodesks publicerade format), PDF 1.4 (ISO 32000) | Öppna/publicerade format; egen kod. DXF är Autodesks format – användning för utbyte bedöms tillåten, men "DXF" är ett varumärke att nämna med försiktighet. |
 
 ## 5. Varumärken

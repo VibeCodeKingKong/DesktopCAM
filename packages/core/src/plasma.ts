@@ -70,6 +70,10 @@ export interface PlasmaSettings {
   smallHoles: PlasmaSmallHoles;
   /** Hur länge brännaren tänds för ett borrmärke (s). */
   markTime: number;
+  /** Mikrobryggor per ytterkontur (0 = av): brännaren släcks och sticker på nytt efter bryggan. */
+  bridgeCount: number;
+  /** Bryggans längd längs konturen (mm). */
+  bridgeWidth: number;
 }
 
 /** contour = skärs som vanliga hål ändå (används av kalibreringens hålprov). */
@@ -115,6 +119,8 @@ export const defaultPlasmaSettings = (): PlasmaSettings => ({
   cornerFeedPct: 60,
   smallHoles: 'mark',
   markTime: 0.1,
+  bridgeCount: 0,
+  bridgeWidth: 1,
 });
 
 /** Hål som är mindre än plasman klarar (mitt och diameter), i jobbets formgrupper. */
@@ -459,8 +465,17 @@ export function plasmaGcode(job: PlasmaJob): string {
     // Konturen, och för slutna konturer en överskärning förbi startpunkten.
     const route: P[] = c.path.slice();
     let endDir: P = c.tangent;
+    // Mikrobryggor (bara ytterkonturer): jämnt fördelade, första en halv delning in.
+    const Lfull = c.closed ? c.path.reduce((acc, q, k) => (k ? acc + Math.hypot(q[0] - c.path[k - 1][0], q[1] - c.path[k - 1][1]) : 0), 0) : 0;
+    const nb = c.closed && !c.hole && s.bridgeCount > 0 && s.bridgeWidth > 0 && Lfull >= 3 * s.bridgeCount * s.bridgeWidth ? Math.round(s.bridgeCount) : 0;
+    const gaps: [number, number][] = Array.from({ length: nb }, (_, g) => {
+      const m = ((g + 0.5) * Lfull) / nb;
+      return [m - s.bridgeWidth / 2, m + s.bridgeWidth / 2];
+    });
+    const inGap = (u: number) => gaps.some(([a, b]) => u > a && u < b);
     if (c.closed) {
-      let left = Math.max(0, s.overcut);
+      // Med bryggor ingen överskärning (den sista biten slutar vid en brygga ändå).
+      let left = nb ? 0 : Math.max(0, s.overcut);
       let pos = c.path[c.path.length - 1];
       for (let k = 1; k < c.path.length && left > 1e-6; k++) {
         const q = c.path[k];
@@ -483,7 +498,9 @@ export function plasmaGcode(job: PlasmaJob): string {
     });
     const bounds: number[] = [];
     for (const cs of corners) for (const sh of c.closed ? [-L, 0, L] : [0]) bounds.push(cs + sh - D, cs + sh + D);
+    for (const [a, b] of gaps) bounds.push(a, b);
     bounds.sort((a, b) => a - b);
+    let bridging = false;
     const slowRate = Math.min(rate, (job.feedRate * s.cornerFeedPct) / 100);
     let sAcc = 0;
     for (let k = 1; k < route.length; k++) {
@@ -494,7 +511,26 @@ export function plasmaGcode(job: PlasmaJob): string {
       for (let m = 1; m < cuts.length; m++) {
         const t = (cuts[m] - sAcc) / len;
         const mid = (cuts[m - 1] + cuts[m]) / 2;
-        line(m === cuts.length - 1 ? b : [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], corners.length && slowAt(mid) ? slowRate : rate);
+        const to: P = m === cuts.length - 1 ? b : [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+        if (inGap(mid)) {
+          // Bryggan: släck, lyft till genomstickningshöjd och flytta över den.
+          if (!bridging) {
+            out.push(torchOff);
+            z(s.pierceHeight);
+            bridging = true;
+          }
+          out.push(`G0 X${f(to[0])} Y${f(to[1])}`);
+          continue;
+        }
+        if (bridging) {
+          // Efter bryggan: tänd och stick igenom igen, ner till skärhöjd.
+          out.push(torchOn);
+          if (s.pierceDelay > 0) out.push(`G4 P${f(s.pierceDelay)}`);
+          if (job.zAxis) out.push(`G1 Z${f(s.cutHeight)} F${f(job.plungeRate)}`);
+          lastF = job.zAxis ? job.plungeRate : -1;
+          bridging = false;
+        }
+        line(to, corners.length && slowAt(mid) ? slowRate : rate);
       }
       sAcc += len;
     }

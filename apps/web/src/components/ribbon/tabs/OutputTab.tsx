@@ -1,4 +1,4 @@
-import { Download, FileCode, FileImage, FileText, Shapes } from 'lucide-react';
+import { ClipboardList, Download, FileCode, FileImage, FileText, Shapes } from 'lucide-react';
 import { exportVectors } from '../../../cam/commands';
 import { RibbonButton } from '../RibbonButton';
 import { RibbonField, RibbonGroup, RibbonStack } from '../RibbonGroup';
@@ -20,6 +20,7 @@ export function OutputTab() {
       <RibbonGroup label={t.groups.gcode}>
         <RibbonButton icon={Download} label={b.saveGcode.label} disabled={!hasResult} onClick={() => openDialog('exportGcode')} tooltip={tip(b.saveGcode, { shortcut: '⌘E', illustration: <IlluExport />, disabledReason })} />
         <RibbonButton icon={FileCode} label={b.viewGcode.label} disabled={!hasResult} onClick={() => openDialog('gcodeViewer')} tooltip={tip(b.viewGcode, { illustration: <IlluGcode />,  disabledReason })} />
+        <RibbonButton icon={ClipboardList} label={b.jobSheet.label} disabled={!hasResult} onClick={() => openDialog('jobSheet')} tooltip={tip(b.jobSheet, { disabledReason })} />
       </RibbonGroup>
       <RibbonGroup label={t.groups.vectors}>
         <RibbonButton icon={FileImage} label={b.exportSvg.label} disabled={!hasShapes} onClick={() => exportVectors('svg')} tooltip={tip(b.exportSvg, { disabledReason: hasShapes ? undefined : t.reasons.needsShapes })} />

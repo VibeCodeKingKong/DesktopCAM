@@ -48,7 +48,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 
 <!-- GENERERAT AV scripts/license-audit.mjs – ändra inte för hand nedanför denna rad -->
 
-## Följer med appen (52)
+## Följer med appen (53)
 
 | Paket | Version | Licens | Upphovsrätt | Källa | Status |
 |---|---|---|---|---|---|
@@ -86,6 +86,7 @@ Se `COMMERCIAL_READINESS.md` (Web3Forms, Cloudflare, PayPal).
 | js-tokens | 4.0.0 | MIT | Simon Lydell | <lydell/js-tokens> | APPROVED |
 | loose-envify | 1.4.0 | MIT | Andres Suarez | <git://github.com/zertosh/loose-envify> | APPROVED |
 | lucide-react | 0.441.0 | ISC | Eric Fennis | <https://github.com/lucide-icons/lucide> | APPROVED |
+| maxrects-packer | 3.0.0 | MIT | YM Shen | <https://github.com/soimy/maxrects-packer> | APPROVED |
 | opentype.js | 2.0.0 | MIT | Frederik De Bleser | <git://github.com/opentypejs/opentype.js> | APPROVED |
 | polyclip-ts | 0.16.8 | MIT | Luiz Felipe Machado Barboza | <https://github.com/luizbarboza/polyclip-ts> | APPROVED |
 | react | 18.3.1 | MIT | – | <https://github.com/facebook/react> | APPROVED |

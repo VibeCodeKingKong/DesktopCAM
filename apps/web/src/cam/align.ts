@@ -108,5 +108,6 @@ export function distributeSelection(axis: 'h' | 'v'): void {
     return { u, dx: axis === 'h' ? d : 0, dy: axis === 'v' ? d : 0 };
   });
   moveUnits(moves);
-  s.setStatus(t.align.distributed(String(units.length), (Math.round(gap * 100) / 100).toLocaleString(t.locale)));
+  // Får formerna inte plats bredvid varandra blir mellanrummet negativt – säg det i klartext.
+  s.setStatus(gap < -0.005 ? t.align.distributedOverlap(String(units.length)) : t.align.distributed(String(units.length), (Math.round(gap * 100) / 100).toLocaleString(t.locale)));
 }

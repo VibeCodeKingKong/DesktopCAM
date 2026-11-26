@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "desktopCAM",
-      "version": "0.40.0",
+      "version": "0.52.0",
       "licenses": [
         {
           "license": {
@@ -9526,6 +9526,33 @@
         }
       ],
       "scope": "excluded",
+      "properties": [
+        {
+          "name": "desktopcam:status",
+          "value": "APPROVED"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "maxrects-packer",
+      "version": "3.0.0",
+      "purl": "pkg:npm/maxrects-packer@3.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "author": "YM Shen",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/soimy/maxrects-packer"
+        }
+      ],
+      "scope": "required",
       "properties": [
         {
           "name": "desktopcam:status",

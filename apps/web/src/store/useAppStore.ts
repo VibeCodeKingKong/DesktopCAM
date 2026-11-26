@@ -27,7 +27,7 @@ import type { MeasureRef } from '../cam/commands';
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
 export type ViewCommand = 'fit' | 'fitStock' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
-export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace' | 'recent' | 'calibration' | 'offset';
+export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace' | 'recent' | 'calibration' | 'offset' | 'nest' | 'jobSheet' | 'materials';
 export type MobilePanel = 'tree' | 'props' | 'setup' | null;
 
 export interface ToolpathResult {
@@ -195,13 +195,15 @@ interface AppState extends DocSnapshot {
   undo: () => boolean;
   redo: () => boolean;
   /** Läser in ett projekt. Utan projectId räknas det som ett nytt projekt i Senaste projekt. */
-  loadDocument: (doc: Partial<DocSnapshot> & { machineId?: string; customMachines?: MachineProfile[]; projectId?: string }) => void;
+  loadDocument: (doc: Partial<DocSnapshot> & { machineId?: string; customMachines?: MachineProfile[]; customMaterials?: MaterialPreset[]; projectId?: string }) => void;
   newProject: (name: string, layerName: string) => void;
   setProjectName: (name: string) => void;
 
   // Maskin, verktyg, material
   setMachine: (id: string) => void;
   saveMachine: (m: MachineProfile) => void;
+  saveMaterial: (m: MaterialPreset) => void;
+  removeMaterial: (id: string) => void;
   removeMachine: (id: string) => void;
   setActiveTool: (id: string) => void;
   saveTool: (t: ToolDefinition) => void;
@@ -267,7 +269,25 @@ interface AppState extends DocSnapshot {
 }
 
 const machines = machinesJson as MachineProfile[];
-const materials = materialsJson as MaterialPreset[];
+const builtInMaterials = materialsJson as MaterialPreset[];
+const CUSTOM_MATERIALS_KEY = 'desktopcam.materials.v1';
+/** Egna material: sparas i webbläsaren (finns i alla projekt) och i projektfilen. */
+function readCustomMaterials(): MaterialPreset[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(CUSTOM_MATERIALS_KEY) ?? '[]');
+    return Array.isArray(v) ? v.filter((m) => m && typeof m.id === 'string' && m.custom) : [];
+  } catch {
+    return [];
+  }
+}
+function writeCustomMaterials(all: MaterialPreset[]) {
+  try {
+    localStorage.setItem(CUSTOM_MATERIALS_KEY, JSON.stringify(all.filter((m) => m.custom)));
+  } catch {
+    /* privat läge – materialen finns kvar i projektet */
+  }
+}
+const materials = [...builtInMaterials, ...readCustomMaterials()];
 const prefersDark = typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches;
 
 const without = <T,>(rec: Record<string, T>, key: string): Record<string, T> => {
@@ -433,11 +453,16 @@ export const useAppStore = create<AppState>()((set, get) => {
       set((s) => {
         const customMachines = doc.customMachines ?? [];
         const allMachines = [...s.machines.filter((m) => !customMachines.some((c) => c.id === m.id)), ...customMachines];
-        const { projectId, ...rest } = doc;
+        // Projektets egna material som inte redan finns läggs till (och sparas i webbläsaren).
+        const newMaterials = (doc.customMaterials ?? []).filter((m) => m?.custom && !s.materials.some((x) => x.id === m.id));
+        const allMaterials = newMaterials.length ? [...s.materials, ...newMaterials] : s.materials;
+        if (newMaterials.length) writeCustomMaterials(allMaterials);
+        const { projectId, customMaterials: _cm, ...rest } = doc;
         return {
           ...rest,
           projectId: projectId ?? uid('proj'),
           machines: allMachines,
+          materials: allMaterials,
           machineId: doc.machineId && allMachines.some((m) => m.id === doc.machineId) ? doc.machineId : s.machineId,
           selectedShapeIds: [],
           selectedNode: null,
@@ -477,6 +502,24 @@ export const useAppStore = create<AppState>()((set, get) => {
         const m = s.machines.find((x) => x.id === machineId);
         const material = m ? materialFor(s, m.kind) : {};
         return { machineId, activeToolId: m ? toolFor(s.tools, s.activeToolId, m.kind) : s.activeToolId, ...material };
+      }),
+    saveMaterial: (m) =>
+      set((s) => {
+        const list = s.materials.some((x) => x.id === m.id) ? s.materials.map((x) => (x.id === m.id ? m : x)) : [...s.materials, m];
+        writeCustomMaterials(list);
+        return { materials: list };
+      }),
+    removeMaterial: (id) =>
+      set((s) => {
+        const target = s.materials.find((x) => x.id === id);
+        if (!target?.custom) return {};
+        const list = s.materials.filter((x) => x.id !== id);
+        writeCustomMaterials(list);
+        // Användes materialet: byt till det första som passar maskinen.
+        if (s.material.presetId !== id) return { materials: list };
+        const kind = (s.machines.find((x) => x.id === s.machineId) ?? s.machines[0]).kind;
+        const next = list.find((x) => materialFitsMachine(x, kind)) ?? list[0];
+        return { materials: list, material: { ...s.material, presetId: next.id } };
       }),
     saveMachine: (m) =>
       set((s) => ({

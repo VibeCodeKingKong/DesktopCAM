@@ -12,6 +12,7 @@ import {
   orderPaths,
   importVectorFile,
   offsetShapes,
+  applyBridges,
   parseGcode,
   pocketGcode,
   pocketStrategyGcode,
@@ -103,6 +104,8 @@ export async function handle(engine: CamEngine, request: CamRequest, progress: P
         if (closedGroups.length && !offsetPaths.length) throw new Error('TOOL_TOO_LARGE');
         job = { ...job, polylines: [...offsetPaths, ...open], offset: 0, groups: undefined };
       }
+      // Mikrobryggor: ytterkonturerna delas i öppna bitar (strålen släckt över bryggan).
+      if (job.bridges && job.bridges.count > 0) job = { ...job, polylines: applyBridges(job.polylines, job.bridges) };
       progress(0.5, 'gcode');
       const gcode = engine.profileGcode(job);
       progress(0.75, 'preview');

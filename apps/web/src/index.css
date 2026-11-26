@@ -246,3 +246,27 @@ input[type='number'] {
 .driver-popover.dc-tour .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: rgb(var(--c-raised)); }
 .driver-popover.dc-tour .driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: rgb(var(--c-raised)); }
 .driver-popover.dc-tour .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: rgb(var(--c-raised)); }
+
+/* Arbetsbladet (Export → Arbetsblad): bara bladet skrivs ut, allt annat döljs. */
+.print-sheet {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 10mm;
+  }
+  body > *:not(.print-sheet) {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .print-sheet {
+    display: block !important;
+    color: #000;
+    background: #fff;
+  }
+  .print-sheet svg {
+    max-height: 120mm;
+  }
+}

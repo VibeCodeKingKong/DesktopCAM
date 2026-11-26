@@ -123,6 +123,8 @@ export type MaterialCategory = 'wood' | 'plastic' | 'leather' | 'composite' | 'm
 export interface MaterialPreset {
   id: string;
   name: string;
+  /** Eget material (skapat av användaren). */
+  custom?: boolean;
   category: MaterialCategory;
   /** Hex-färg som används i 3D-vyn. */
   color: string;
@@ -455,6 +457,8 @@ export interface LaserCutToolpath extends ToolpathBase {
   side: CutSide;
   kerf: number;
   passes: number;
+  /** Mikrobryggor i ytterkonturerna (håller delarna kvar i skivan). */
+  bridges?: { count: number; width: number };
 }
 
 export interface PlasmaCutToolpath extends ToolpathBase {

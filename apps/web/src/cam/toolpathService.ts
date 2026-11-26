@@ -203,6 +203,7 @@ function buildProfileJob(tp: ToolpathConfig): ProfileJob {
       spindleRpm: 0,
       laserS: ((tp.params.laserPowerPct ?? 100) / 100) * sMax,
       passes: tp.passes,
+      bridges: tp.bridges && tp.bridges.count > 0 ? tp.bridges : undefined,
       post: postFor(machine),
     };
   }

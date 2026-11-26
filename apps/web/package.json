@@ -2,7 +2,7 @@
   "name": "@desktopcam/web",
   "private": true,
   "license": "UNLICENSED",
-  "version": "0.52.0",
+  "version": "0.53.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,6 +29,7 @@
     "driver.js": "1.11.0",
     "idb-keyval": "6.3.0",
     "lucide-react": "0.441.0",
+    "maxrects-packer": "3.0.0",
     "opentype.js": "2.0.0",
     "polyclip-ts": "0.16.8",
     "react": "18.3.1",

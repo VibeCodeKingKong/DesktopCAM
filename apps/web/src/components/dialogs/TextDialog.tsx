@@ -3,11 +3,12 @@ import { shapeToPolylines } from '@desktopcam/core';
 import { buildTextShape } from '../../text/textShape';
 import { getLoadedFont, isOutlineFont, LINE_FONT } from '../../text/fonts';
 import { FontPicker } from '../ui/FontPicker';
-import { useAppStore } from '../../store/useAppStore';
+import { allShapes, useAppStore } from '../../store/useAppStore';
+import { canFollow, textOnPath } from '../../text/textOnPath';
 import { EditController } from '../../editing/EditController';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
-import { NumberField, FieldRow, Segmented } from '../ui/Field';
+import { NumberField, FieldRow, Segmented, Switch } from '../ui/Field';
 
 type Align = 'left' | 'center' | 'right';
 
@@ -24,6 +25,18 @@ export function TextDialog() {
   const outlineFont = isOutlineFont(font);
   const weight = style === 'outline' ? (height * weightPct) / 100 : 0;
   const ref = useRef<HTMLTextAreaElement>(null);
+  // Text längs en form: finns när exakt en form med en bana är markerad.
+  const target = useAppStore((s) => (s.selectedShapeIds.length === 1 ? allShapes(s.layers).find((x) => x.id === s.selectedShapeIds[0]) : undefined));
+  const followable = canFollow(target);
+  const [follow, setFollow] = useState(false);
+  const [autoPos, setAutoPos] = useState(true);
+  const [pos, setPos] = useState(50);
+  const [flip, setFlip] = useState(false);
+  const [offset, setOffset] = useState(1);
+  useEffect(() => {
+    if (open) setFollow(false);
+  }, [open]);
+  const pathOpts = { position: autoPos ? null : pos / 100, flip, offset };
 
   useEffect(() => {
     if (open) setTimeout(() => ref.current?.focus(), 50);
@@ -36,22 +49,28 @@ export function TextDialog() {
   const create = () => {
     if (!content.trim()) return;
     if (outlineFont && !getLoadedFont(font)) return;
-    EditController.createText(content, height, align, weight, font);
+    if (follow && target) {
+      const shape = textOnPath({ content, x: 0, y: 0, height, spacing: 0, align, weight, font: outlineFont ? font : undefined }, target, pathOpts);
+      if (shape) useAppStore.getState().addShape(shape);
+    } else EditController.createText(content, height, align, weight, font);
     useAppStore.getState().openDialog(null);
     setContent('');
   };
 
   // Förhandsvisning
   const sample = content.trim() ? content : outlineFont ? 'Abc 123' : '';
+  const fontReady = !outlineFont || getLoadedFont(font);
   const preview =
-    sample && (!outlineFont || getLoadedFont(font))
-      ? buildTextShape({ content: sample, x: 0, y: 0, height: 10, spacing: 0, align, weight: style === 'outline' ? weightPct / 10 : 0, font: outlineFont ? font : undefined })
+    sample && fontReady
+      ? follow && target
+        ? textOnPath({ content: sample, x: 0, y: 0, height, spacing: 0, align, weight, font: outlineFont ? font : undefined }, target, pathOpts)
+        : buildTextShape({ content: sample, x: 0, y: 0, height: 10, spacing: 0, align, weight: style === 'outline' ? weightPct / 10 : 0, font: outlineFont ? font : undefined })
       : null;
   let d = '';
   let vb = '0 -12 60 14';
   if (preview) {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const pl of shapeToPolylines(preview)) {
+    for (const pl of [...(follow && target ? shapeToPolylines(target, 0.3) : []), ...shapeToPolylines(preview)]) {
       const pts: string[] = [];
       for (let i = 0; i + 1 < pl.points.length; i += 2) {
         const x = pl.points[i], y = -pl.points[i + 1];
@@ -109,6 +128,26 @@ export function TextDialog() {
           />
         </FieldRow>
         <FontPicker value={font} onChange={setFont} />
+        {followable && (
+          <div className="space-y-1.5 rounded-lg border border-line p-2.5">
+            <FieldRow label={t.textPath.follow}>
+              <Switch checked={follow} onChange={setFollow} label={t.textPath.follow} />
+            </FieldRow>
+            {follow && (
+              <>
+                <FieldRow label={t.textPath.place}>
+                  <Segmented label={t.textPath.place} value={autoPos ? 'auto' : 'manual'} onChange={(v) => setAutoPos(v === 'auto')} options={[{ value: 'auto', label: t.textPath.auto }, { value: 'manual', label: t.textPath.manual }]} />
+                </FieldRow>
+                {!autoPos && <NumberField label={t.textPath.position} unit="%" min={0} max={100} step={1} value={pos} onChange={setPos} />}
+                <NumberField label={t.textPath.offset} unit="mm" min={-50} max={50} step={0.5} value={offset} onChange={setOffset} />
+                <FieldRow label={t.textPath.flip}>
+                  <Switch checked={flip} onChange={setFlip} label={t.textPath.flip} />
+                </FieldRow>
+                <p className="text-2xs leading-relaxed text-muted">{t.textPath.note}</p>
+              </>
+            )}
+          </div>
+        )}
         {!outlineFont && (
         <FieldRow label={t.textDialog.style}>
           <Segmented
