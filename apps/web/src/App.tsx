@@ -6,6 +6,7 @@ import { ProjectTree } from './components/layout/ProjectTree';
 import { PropertiesPanel } from './components/layout/PropertiesPanel';
 import { StatusBar } from './components/layout/StatusBar';
 import { UpdatePrompt } from './components/layout/UpdatePrompt';
+import { CommandPalette } from './components/layout/CommandPalette';
 import { ErrorPrompt } from './errors/ErrorPrompt';
 import { setReportContext } from './errors/reports';
 
@@ -50,6 +51,7 @@ const DIALOGS: Partial<Record<DialogId, LazyExoticComponent<ComponentType>>> = {
   welcome: lazy(() => import('./components/dialogs/WelcomeDialog').then((m) => ({ default: m.WelcomeDialog }))),
   trace: lazy(() => import('./components/dialogs/TraceDialog').then((m) => ({ default: m.TraceDialog }))),
   recent: lazy(() => import('./components/dialogs/RecentProjectsDialog').then((m) => ({ default: m.RecentProjectsDialog }))),
+  handbook: lazy(() => import('./components/dialogs/HandbookDialog').then((m) => ({ default: m.HandbookDialog }))),
   calibration: lazy(() => import('./components/dialogs/CalibrationDialog').then((m) => ({ default: m.CalibrationDialog }))),
 };
 
@@ -146,6 +148,7 @@ export default function App() {
       <SetupSheet />
       <OpenDialog />
       <UpdatePrompt />
+      <CommandPalette />
       <ErrorPrompt />
     </div>
   );

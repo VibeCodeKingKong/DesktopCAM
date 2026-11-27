@@ -82,6 +82,7 @@ import { IlluCenter, IlluDuplicate, IlluFlip, IlluLockAspect, IlluRotate } from 
 import { reliefEdgeAtTop } from '../../cam/reliefs';
 import { ImageReliefFields } from '../dialogs/ImageReliefFields';
 import { getNode, moveNode, nodeCount, setClosed } from '../../editing/nodes';
+import { fmtLength } from '../../utils/units';
 
 function Group({ title, children, hint }: { title: string; children: ReactNode; hint?: GuideKey }) {
   return (
@@ -121,7 +122,7 @@ function EmptyState() {
   // Materialets tips för den valda maskintypen, och tips för just den här maskinen.
   const own = t.materials[preset.id]?.tips as Record<string, string[]> | undefined;
   // Penplotter: materialets tips gäller fräs, laser och plasma – visa bara plotterns.
-  const materialTips = machine.kind === 'plotter' ? [] : own ? (own[machine.kind] ?? []) : preset.tips;
+  const materialTips = machine.kind === 'plotter' ? [] : own ? (own[machine.kind] ?? []) : (preset.tips ?? []);
   const mt = t.machineTips;
   const machineTips = [...mt[machineClass(machine)], ...(laser ? mt.laserCommon : machine.kind === 'plasma' ? mt.plasmaCommon : machine.kind === 'plotter' ? mt.plotterCommon : mt.routerCommon), ...mt.common];
   const box = (title: string, tips: string[]) => (
@@ -438,7 +439,7 @@ function ContourGroup({ anyClosed, count, multiPath }: { anyClosed: boolean; cou
           <div className="flex flex-wrap gap-1">
             {[1.5, 3, 4.5].map((v) => (
               <button key={v} className={`rounded-full px-2.5 py-0.5 text-xs ${dist === v ? 'bg-accent text-white' : 'bg-app hover:bg-line/60'}`} onClick={() => setDist(v)}>
-                {v.toLocaleString(t.locale)} mm
+                {fmtLength(v, t.locale, 2)}
               </button>
             ))}
           </div>
@@ -1282,7 +1283,6 @@ function InlaySettings({
   const layers = useAppStore((s) => s.layers);
   const plugTp = tp.part === 'plug' ? tp : sibling?.operation === 'inlay' ? sibling : null;
   const blank = useMemo(() => (plugTp ? plugBlankFor(plugTp) : null), [plugTp, layers]);
-  const f1 = (n: number) => n.toLocaleString(t.locale, { maximumFractionDigits: 2 });
 
   return (
     <>
@@ -1308,11 +1308,11 @@ function InlaySettings({
 
         <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 rounded-md bg-app p-2 text-xs">
           <dt className="text-muted">{t.props.glueGap}</dt>
-          <dd className={`text-right tabular-nums ${fit.glueGap < 0 ? 'text-warn' : ''}`}>{f1(fit.glueGap)} mm</dd>
+          <dd className={`text-right tabular-nums ${fit.glueGap < 0 ? 'text-warn' : ''}`}>{fmtLength(fit.glueGap, t.locale, 2)}</dd>
           <dt className="text-muted">{t.props.protrusion}</dt>
-          <dd className={`text-right tabular-nums ${fit.protrusion <= 0 ? 'text-warn' : ''}`}>{f1(fit.protrusion)} mm</dd>
+          <dd className={`text-right tabular-nums ${fit.protrusion <= 0 ? 'text-warn' : ''}`}>{fmtLength(fit.protrusion, t.locale, 2)}</dd>
           <dt className="text-muted">{t.props.plugWidth}</dt>
-          <dd className="text-right tabular-nums">{f1(2 * tp.startDepth * tanA)} mm</dd>
+          <dd className="text-right tabular-nums">{fmtLength(2 * tp.startDepth * tanA, t.locale, 2)}</dd>
         </dl>
         {fit.glueGap < 0 && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.inlayNoGap}</p>}
         {fit.protrusion <= 0 && <p className="rounded-md bg-warn/10 px-2 py-1.5 text-xs text-warn">{t.props.inlayNoProtrusion}</p>}

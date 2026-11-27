@@ -5,6 +5,7 @@ import { offsetSelection } from '../../cam/commands';
 import { useT } from '../../i18n';
 import { Dialog } from '../ui/Dialog';
 import { FieldRow, NumberField, Segmented } from '../ui/Field';
+import { fmtLength } from '../../utils/units';
 
 /**
  * Design → Förskjut: samma förskjutning som Kontur i egenskapspanelen
@@ -80,7 +81,7 @@ export function OffsetDialog() {
           <div className="flex flex-wrap gap-1">
             {[1.5, 3, 4.5].map((v) => (
               <button key={v} className={`rounded-full px-2.5 py-0.5 text-xs ${dist === v ? 'bg-accent text-white' : 'bg-app hover:bg-line/60'}`} onClick={() => setDist(v)}>
-                {v.toLocaleString(t.locale)} mm
+                {fmtLength(v, t.locale, 2)}
               </button>
             ))}
           </div>

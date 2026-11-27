@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CircleHelp, Heart, Info, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, MoreHorizontal, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
+import { BookOpen, Search, Ruler, CircleHelp, Heart, Info, MessageSquarePlus, GraduationCap, Languages, ListTree, Moon, MoreHorizontal, Redo2, Settings, SlidersHorizontal, Sun, Undo2 } from 'lucide-react';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { LANGUAGES, useT, type Language } from '../../i18n';
 import { redo, undo } from '../../cam/commands';
@@ -23,6 +23,7 @@ export function AppHeader() {
   const t = useT();
   const projectName = useAppStore((s) => s.projectName);
   const theme = useAppStore((s) => s.theme);
+  const units = useAppStore((s) => s.units);
   const setTheme = useAppStore((s) => s.setTheme);
   const beginner = useAppStore((s) => s.beginnerMode);
   const toggleBeginner = useAppStore((s) => s.toggleBeginnerMode);
@@ -75,6 +76,9 @@ export function AppHeader() {
       <button className={iconBtn} onClick={() => openDialog('feedback')} aria-label={t.feedback.open} title={t.feedback.open}>
         <MessageSquarePlus size={16} />
       </button>
+      <button className={iconBtn} onClick={() => openDialog('handbook')} aria-label={t.handbook.title} title={t.handbook.title}>
+        <BookOpen size={16} />
+      </button>
       <button className={iconBtn} onClick={() => openDialog('welcome')} aria-label={t.welcome.menu} title={t.welcome.menu} data-tour="help">
         <CircleHelp size={16} />
       </button>
@@ -99,6 +103,18 @@ export function AppHeader() {
           ))}
         </select>
       </label>
+      <button className={`${iconBtn} flex items-center gap-1.5`} onClick={() => openDialog('commands')} aria-label={t.commands.title} title={`${t.commands.title} (⌘K)`}>
+        <Search size={16} />
+        <kbd className="hidden rounded border border-line px-1 text-2xs font-sans text-muted lg:inline">⌘K</kbd>
+      </button>
+      <button
+        className={`${iconBtn} hidden h-7 min-w-8 px-1.5 text-xs font-semibold sm:block`}
+        onClick={() => useAppStore.getState().setUnits(units === 'mm' ? 'in' : 'mm')}
+        aria-label={t.units.switchTitle}
+        title={t.units.switchTitle}
+      >
+        {units === 'in' ? 'in' : 'mm'}
+      </button>
       <button
         className={`${iconBtn} hidden sm:block`}
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -123,6 +139,7 @@ function MoreMenu() {
   const t = useT();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const units = useAppStore((s) => s.units);
   const theme = useAppStore((s) => s.theme);
   const beginner = useAppStore((s) => s.beginnerMode);
   useEffect(() => {
@@ -146,6 +163,9 @@ function MoreMenu() {
       </button>
       {open && (
         <div role="menu" className="absolute right-0 top-full z-50 mt-1 w-64 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop">
+          <button role="menuitem" className={item} onClick={run(() => s().openDialog('handbook'))}>
+            <BookOpen size={17} className="text-muted" /> {t.handbook.title}
+          </button>
           <button role="menuitem" className={item} onClick={run(() => s().openDialog('welcome'))}>
             <CircleHelp size={17} className="text-muted" /> {t.welcome.menu}
           </button>
@@ -158,6 +178,10 @@ function MoreMenu() {
             <span aria-hidden="true" className={`relative inline-flex h-[18px] w-8 shrink-0 items-center rounded-full transition-colors ${beginner ? 'bg-accent' : 'bg-line'}`}>
               <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${beginner ? 'translate-x-4' : 'translate-x-0.5'}`} />
             </span>
+          </button>
+          <button role="menuitem" className={item} onClick={run(() => s().setUnits(units === 'mm' ? 'in' : 'mm'))}>
+            <Ruler size={17} className="text-muted" /> <span className="flex-1">{t.units.menu}</span>
+            <span className="text-2xs font-semibold text-muted">{units === 'in' ? 'in' : 'mm'}</span>
           </button>
           <button role="menuitem" className={item} onClick={run(() => s().setTheme(theme === 'dark' ? 'light' : 'dark'))}>
             {theme === 'dark' ? <Sun size={17} className="text-muted" /> : <Moon size={17} className="text-muted" />} {theme === 'dark' ? t.header.toLight : t.header.toDark}

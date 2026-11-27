@@ -70,6 +70,94 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const es: Dict = {
+  commands: {
+    title: 'Buscar función',
+    placeholder: '¿Qué quieres hacer? P. ej. desplazar, puentes, material …',
+    none: 'Ninguna función coincide con la búsqueda.',
+    hint: '↑↓ elegir · Intro ejecutar · Esc cerrar · abrir con ⌘K / Ctrl+K',
+  },
+  handbook: {
+    title: 'Manual',
+    intro: 'Flujos de trabajo breves paso a paso. Los botones abren la función directamente.',
+    open: 'Abrir la función',
+    otherMachine: 'Esta sección es para otro tipo de máquina. Cambia de máquina en Configuración → Máquina para usar los botones.',
+    searchHint: 'Consejo: pulsa ⌘K (Ctrl+K) y escribe lo que quieres hacer para encontrar cualquier función.',
+    sections: {
+      start: {
+        title: 'Primeros pasos',
+        steps: [
+          'Elige máquina y área de trabajo en Configuración → Máquina.',
+          'Elige material y grosor. Tus propios materiales se guardan para la próxima vez.',
+          'Añade tus herramientas a la biblioteca para que avances y velocidades sean correctos.',
+          'Cambia entre milímetros y pulgadas con el botón mm/in arriba a la derecha o en la barra de estado.',
+        ],
+      },
+      draw: {
+        title: 'Dibujar e importar',
+        steps: [
+          'Dibuja con las herramientas de Diseño: rectángulo, círculo, línea, curva y texto.',
+          'Toma formas listas de la biblioteca o importa SVG, DXF y PDF.',
+          'Convierte una imagen en formas con Trazar imagen.',
+          'El texto puede seguir una curva: selecciona una forma y elige A lo largo de la forma seleccionada en la ventana de texto.',
+        ],
+      },
+      arrange: {
+        title: 'Ordenar y colocar',
+        steps: [
+          'Selecciona varias formas y alinéalas o distribúyelas de forma uniforme.',
+          'Junta las piezas con Colocar en la plancha: elige el número de copias y la separación.',
+          'Une, resta o interseca formas.',
+          'Desplaza un contorno hacia fuera o hacia dentro, p. ej. para un borde alrededor de un letrero.',
+        ],
+      },
+      router: {
+        title: 'Fresado',
+        steps: [
+          'Selecciona las formas y elige una trayectoria: contorno, cajeado, taladro o tallado en V.',
+          'Revisa profundidad, herramienta y pestañas en el panel de propiedades.',
+          'Simula y mira el resultado antes de guardar el código G.',
+        ],
+      },
+      laser: {
+        title: 'Corte y grabado láser',
+        steps: [
+          'Ejecuta primero las pruebas de calibración para encontrar la potencia y velocidad adecuadas para tu material.',
+          'Elige Corte láser para contornos y Grabado de líneas o Grabado de foto para imágenes.',
+          'Añade puentes para que las piezas pequeñas queden sujetas a la plancha.',
+          'Nunca cortes con láser PVC, vinilo u otros materiales que desprendan gases peligrosos.',
+        ],
+      },
+      plasma: {
+        title: 'Corte por plasma',
+        steps: [
+          'Calibra la altura y la velocidad de corte para el grosor de la chapa.',
+          'Anida las piezas para ahorrar chapa.',
+          'Elige Corte por plasma y añade puentes si las piezas deben quedar en su sitio.',
+        ],
+      },
+      inlay: {
+        title: 'Incrustaciones y relieves',
+        steps: [
+          'Selecciona la forma y elige Incrustación: desktopCAM crea el hueco y la pieza.',
+          'Toma un relieve de la biblioteca o crea uno a partir de una imagen.',
+          'Elige Relieve 3D para tallarlo, con desbaste y acabado.',
+        ],
+      },
+      run: {
+        title: 'Simular y ejecutar',
+        steps: [
+          'Reproduce la simulación y comprueba que todo se ve bien.',
+          'Guarda el código G y ejecútalo desde el control propio de la máquina.',
+          'Imprime una hoja de trabajo con herramientas, origen y tiempos para tenerla junto a la máquina.',
+        ],
+      },
+    },
+  },
+  units: {
+    switchTitle: 'Cambiar entre milímetros y pulgadas. Todo lo que se ve se convierte; el G-code siempre se escribe en milímetros (G21).',
+    imperial: 'Imperial (pulg.)',
+    menu: 'Unidades',
+  },
   textPath: {
     follow: 'A lo largo de la forma seleccionada',
     place: 'Posición',
@@ -1791,14 +1879,14 @@ export const es: Dict = {
     steps: {
       welcome: { title: 'Bienvenido a desktopCAM', body: 'Aquí un dibujo se convierte en G-code para tu fresadora o láser. El trabajo va de izquierda a derecha: configura la máquina, dibuja, crea trayectorias, simula y guarda el G-code.' },
       beginner: { title: 'Modo principiante', body: 'Con el modo principiante solo ves los ajustes necesarios; el resto tiene valores seguros. Desactívalo cuando quieras afinar.' },
-      setup: { title: '1. Configuración', body: 'Elige tu máquina, el material y su grosor. Las herramientas están en la biblioteca de herramientas. Todo lo demás parte de aquí.' },
-      design: { title: '2. Diseño', body: 'Dibuja líneas, rectángulos, círculos y texto, o importa SVG/DXF. Las bibliotecas tienen marcos, patrones y relieves 3D listos.' },
+      setup: { title: '1. Configuración', body: 'Elige tu máquina, el material y su grosor. Las herramientas están en la biblioteca de herramientas. Todo lo demás parte de aquí. Ejecuta las pruebas de calibración para encontrar los ajustes correctos, guarda tus propios materiales y cambia entre mm y pulgadas con mm/in.' },
+      design: { title: '2. Diseño', body: 'Dibuja líneas, rectángulos, círculos y texto, o importa SVG/DXF. Las bibliotecas tienen marcos, patrones y relieves 3D listos. Colocar en la plancha junta las piezas, y el texto puede seguir una curva.' },
       toolpaths: { title: '3. Trayectorias', body: 'Selecciona una forma y elige cómo mecanizarla: perfil para recortar, vaciado para rebajar, grabado en V para letras nítidas, taladrado o láser.' },
       viewport: { title: 'La vista 3D', body: 'Aquí ves el material, las formas y las trayectorias. Arrastra para girar y desplaza para hacer zoom. Los botones de la derecha cambian la vista.' },
       properties: { title: 'Propiedades', body: 'Cambia medidas, profundidades y velocidades de lo seleccionado. Pasa el ratón por los símbolos i para ver explicaciones y consejos para tu material.' },
       simulate: { title: '4. Simular', body: 'Reproduce el mecanizado antes de hacerlo de verdad: verás enseguida si se corta algo que no debería.' },
-      output: { title: '5. Exportar', body: 'Guarda el G-code y ejecútalo en el programa de la máquina o desde una tarjeta SD.' },
-      done: { title: '¡Listo!', body: 'Pasa el ratón por cualquier botón para ver una explicación animada. Puedes volver a iniciar este recorrido aquí.' },
+      output: { title: '5. Exportar', body: 'Guarda el G-code y ejecútalo en el programa de la máquina o desde una tarjeta SD. También puedes imprimir una hoja de trabajo para tenerla junto a la máquina.' },
+      done: { title: '¡Listo!', body: 'Pasa el ratón por cualquier botón para ver una explicación animada. Puedes volver a iniciar este recorrido aquí. Pulsa ⌘K (Ctrl+K) para buscar una función y abre el Manual (icono de libro) para ver flujos breves.' },
     },
   },
 

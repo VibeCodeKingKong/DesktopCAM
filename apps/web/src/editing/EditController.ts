@@ -22,6 +22,7 @@ import {
 } from '@desktopcam/core';
 import type { SceneController } from '../components/viewport/SceneController';
 import { getT } from '../i18n';
+import { fmtLength, fmtLengthNumber } from '../utils/units';
 import { FEATURE_COLORS } from '../cam/featureCheck';
 import type { FeatureIssue } from '@desktopcam/core';
 import { onContour, setTabPositions, tabContext } from './tabs';
@@ -921,7 +922,7 @@ export class EditController {
         ctx.fillStyle = surface;
         for (const q of c) { ctx.fillRect(q.x - 3.5, q.y - 3.5, 7, 7); ctx.strokeRect(q.x - 3.5, q.y - 3.5, 7, 7); }
         const loc = getT().locale;
-        const f = (n: number) => n.toLocaleString(loc, { maximumFractionDigits: 1 });
+        const f = (n: number) => fmtLengthNumber(n, loc, 1);
         this.label(`${r.name}  X ${f(r.x)}  Y ${f(r.y)}`, { x: Math.min(...c.map((q) => q.x)), y: Math.max(...c.map((q) => q.y)) });
       }
     }
@@ -942,7 +943,7 @@ export class EditController {
         ctx.fillStyle = surface;
         for (const q of c) { ctx.fillRect(q.x - 3.5, q.y - 3.5, 7, 7); ctx.strokeRect(q.x - 3.5, q.y - 3.5, 7, 7); }
         const loc = getT().locale;
-        const f = (n: number) => n.toLocaleString(loc, { maximumFractionDigits: 1 });
+        const f = (n: number) => fmtLengthNumber(n, loc, 1);
         this.label(`${im.name}  X ${f(im.x)}  Y ${f(im.y)}`, { x: Math.min(...c.map((q) => q.x)), y: Math.max(...c.map((q) => q.y)) });
       }
     }
@@ -979,7 +980,7 @@ export class EditController {
       if (a && b) {
         const m = measure(a, b, s.measureRef ?? defaultMeasureRef(a, b));
         const loc = getT().locale;
-        const f = (n: number) => Math.abs(n).toLocaleString(loc, { maximumFractionDigits: 2 });
+        const f = (n: number) => fmtLengthNumber(Math.abs(n), loc, 2);
         const pa = P(m.from), pb = P(m.to), pc = P({ x: m.to.x, y: m.from.y });
         ctx.save();
         ctx.strokeStyle = accent;
@@ -1069,7 +1070,7 @@ export class EditController {
       c.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
       ctx.closePath();
       ctx.stroke();
-      this.label(`${Math.abs(g.b.x - g.a.x).toFixed(1)} × ${Math.abs(g.b.y - g.a.y).toFixed(1)} mm`, P(g.b));
+      this.label(`${fmtLengthNumber(Math.abs(g.b.x - g.a.x), getT().locale)} × ${fmtLength(Math.abs(g.b.y - g.a.y), getT().locale)}`, P(g.b));
     } else if (g.kind === 'circle' && g.r > 0) {
       ctx.beginPath();
       for (let k = 0; k <= 64; k++) {
@@ -1078,7 +1079,7 @@ export class EditController {
         k ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
       }
       ctx.stroke();
-      this.label(`Ø ${(g.r * 2).toFixed(1)} mm`, P({ x: g.c.x + g.r, y: g.c.y }));
+      this.label(`Ø ${fmtLength(g.r * 2, getT().locale)}`, P({ x: g.c.x + g.r, y: g.c.y }));
     }
 
     if (this.draft.length || g.kind === 'curveNode') {
@@ -1138,7 +1139,7 @@ export class EditController {
         let deg = (Math.atan2(this.cursor.y - a.y, this.cursor.x - a.x) * 180) / Math.PI;
         if (deg < 0) deg += 360;
         const loc = getT().locale;
-        this.label(`${len.toLocaleString(loc, { maximumFractionDigits: 2 })} mm  ∠ ${deg.toLocaleString(loc, { maximumFractionDigits: 1 })}°`, P(this.cursor));
+        this.label(`${fmtLength(len, loc, 2)}  ∠ ${deg.toLocaleString(loc, { maximumFractionDigits: 1 })}°`, P(this.cursor));
       }
     }
 

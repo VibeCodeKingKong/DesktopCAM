@@ -70,6 +70,94 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const de: Dict = {
+  commands: {
+    title: 'Funktion suchen',
+    placeholder: 'Was möchten Sie tun? Z. B. versetzen, Stege, Material …',
+    none: 'Keine Funktion passt zur Suche.',
+    hint: '↑↓ wählen · Enter ausführen · Esc schließen · öffnen mit ⌘K / Strg+K',
+  },
+  handbook: {
+    title: 'Handbuch',
+    intro: 'Kurze Arbeitsabläufe Schritt für Schritt. Die Schaltflächen öffnen die Funktion direkt.',
+    open: 'Funktion öffnen',
+    otherMachine: 'Dieser Abschnitt gilt für einen anderen Maschinentyp. Wechseln Sie die Maschine unter Einrichtung → Maschine, um die Schaltflächen zu nutzen.',
+    searchHint: 'Tipp: Drücken Sie ⌘K (Strg+K) und tippen Sie, was Sie tun möchten, um jede Funktion zu finden.',
+    sections: {
+      start: {
+        title: 'Erste Schritte',
+        steps: [
+          'Wählen Sie Maschine und Arbeitsbereich unter Einrichtung → Maschine.',
+          'Wählen Sie Material und Stärke. Eigene Materialien werden für das nächste Mal gespeichert.',
+          'Tragen Sie Ihre Werkzeuge in die Werkzeugbibliothek ein, damit Vorschub und Drehzahl stimmen.',
+          'Wechseln Sie zwischen Millimeter und Zoll mit der Schaltfläche mm/in oben rechts oder in der Statusleiste.',
+        ],
+      },
+      draw: {
+        title: 'Zeichnen und importieren',
+        steps: [
+          'Zeichnen Sie mit den Werkzeugen unter Design – Rechteck, Kreis, Linie, Kurve und Text.',
+          'Holen Sie fertige Formen aus der Formenbibliothek oder importieren Sie SVG, DXF und PDF.',
+          'Machen Sie mit Bild nachzeichnen aus einem Bild Formen.',
+          'Text kann einer Kurve folgen: Form markieren und im Textfenster Entlang der markierten Form wählen.',
+        ],
+      },
+      arrange: {
+        title: 'Anordnen und platzieren',
+        steps: [
+          'Markieren Sie mehrere Formen und richten Sie sie aus oder verteilen Sie sie gleichmäßig.',
+          'Legen Sie Teile mit Auf der Platte anordnen eng zusammen – Anzahl der Kopien und Abstand wählen.',
+          'Formen vereinigen, abziehen oder schneiden.',
+          'Eine Kontur nach außen oder innen versetzen, z. B. für einen Rand um ein Schild.',
+        ],
+      },
+      router: {
+        title: 'Fräsen',
+        steps: [
+          'Formen markieren und eine Werkzeugbahn wählen: Kontur, Tasche, Bohren oder V-Gravur.',
+          'Tiefe, Werkzeug und Haltestege im Eigenschaftenbereich prüfen.',
+          'Simulieren und das Ergebnis ansehen, bevor Sie den G-Code speichern.',
+        ],
+      },
+      laser: {
+        title: 'Laserschneiden und -gravieren',
+        steps: [
+          'Führen Sie zuerst die Kalibriertests aus, um Leistung und Geschwindigkeit für Ihr Material zu finden.',
+          'Wählen Sie Laserschnitt für Konturen und Liniengravur oder Fotogravur für Bilder.',
+          'Fügen Sie Stege hinzu, damit kleine Teile in der Platte bleiben.',
+          'Schneiden Sie niemals PVC, Vinyl oder andere Materialien mit dem Laser, die gefährliche Gase freisetzen.',
+        ],
+      },
+      plasma: {
+        title: 'Plasmaschneiden',
+        steps: [
+          'Schneidhöhe und Geschwindigkeit für die Blechstärke kalibrieren.',
+          'Teile eng verschachteln, um Blech zu sparen.',
+          'Plasmaschneiden wählen und Stege hinzufügen, wenn die Teile an ihrem Platz bleiben sollen.',
+        ],
+      },
+      inlay: {
+        title: 'Intarsien und Reliefs',
+        steps: [
+          'Form markieren und Intarsie wählen – desktopCAM erstellt Tasche und Einlegeteil.',
+          'Ein Relief aus der Reliefbibliothek holen oder aus einem Bild erstellen.',
+          '3D-Relief wählen, um es zu fräsen, mit Schruppen und Schlichten.',
+        ],
+      },
+      run: {
+        title: 'Simulieren und ausführen',
+        steps: [
+          'Simulation abspielen und prüfen, ob alles richtig aussieht.',
+          'G-Code speichern und über die eigene Steuerung der Maschine ausführen.',
+          'Ein Auftragsblatt mit Werkzeugen, Nullpunkt und Zeiten für die Maschine drucken.',
+        ],
+      },
+    },
+  },
+  units: {
+    switchTitle: 'Zwischen Millimetern und Zoll wechseln. Die Anzeige wird umgerechnet; der G-Code wird immer in Millimetern (G21) geschrieben.',
+    imperial: 'Zoll (in)',
+    menu: 'Einheiten',
+  },
   textPath: {
     follow: 'Entlang der markierten Form',
     place: 'Lage',
@@ -1791,14 +1879,14 @@ export const de: Dict = {
     steps: {
       welcome: { title: 'Willkommen bei desktopCAM', body: 'Hier wird aus einer Zeichnung G-Code für Ihre Fräse oder Ihren Laser. Die Arbeit läuft von links nach rechts: Maschine einrichten, zeichnen, Werkzeugbahnen erstellen, simulieren und G-Code speichern.' },
       beginner: { title: 'Einsteigermodus', body: 'Im Einsteigermodus sehen Sie nur die nötigen Einstellungen – der Rest hat sichere Standardwerte. Schalten Sie ihn aus, um feinzujustieren.' },
-      setup: { title: '1. Einrichtung', body: 'Maschine, Material und Materialstärke wählen. Die Werkzeuge liegen in der Werkzeugbibliothek. Alles andere baut darauf auf.' },
-      design: { title: '2. Design', body: 'Linien, Rechtecke, Kreise und Text zeichnen oder SVG/DXF importieren. Die Bibliotheken enthalten fertige Rahmen, Muster und 3D-Reliefs.' },
+      setup: { title: '1. Einrichtung', body: 'Maschine, Material und Materialstärke wählen. Die Werkzeuge liegen in der Werkzeugbibliothek. Alles andere baut darauf auf. Führen Sie die Kalibriertests aus, um die richtigen Einstellungen zu finden, speichern Sie eigene Materialien und wechseln Sie mit mm/in zwischen mm und Zoll.' },
+      design: { title: '2. Design', body: 'Linien, Rechtecke, Kreise und Text zeichnen oder SVG/DXF importieren. Die Bibliotheken enthalten fertige Rahmen, Muster und 3D-Reliefs. Auf der Platte anordnen legt Teile eng zusammen, und Text kann einer Kurve folgen.' },
       toolpaths: { title: '3. Werkzeugbahnen', body: 'Eine Form auswählen und die Bearbeitung wählen: Kontur zum Ausschneiden, Tasche zum Ausräumen, V-Gravur für scharfe Schrift, Bohren oder Laser.' },
       viewport: { title: 'Die 3D-Ansicht', body: 'Hier sehen Sie Material, Formen und Bahnen. Ziehen zum Drehen, scrollen zum Zoomen. Die Knöpfe rechts wechseln die Ansicht.' },
       properties: { title: 'Eigenschaften', body: 'Maße, Tiefen und Geschwindigkeiten der Auswahl ändern. Über den i-Symbolen gibt es Erklärungen und Tipps für Ihr Material.' },
       simulate: { title: '4. Simulieren', body: 'Die Bearbeitung abspielen, bevor sie wirklich läuft – Sie sehen sofort, wenn etwas weggefräst wird, das bleiben soll.' },
-      output: { title: '5. Ausgabe', body: 'Den G-Code speichern und im Steuerprogramm der Maschine oder von einer SD-Karte ausführen.' },
-      done: { title: 'Fertig!', body: 'Fahren Sie über einen beliebigen Knopf für eine animierte Erklärung. Diese Tour können Sie hier erneut starten.' },
+      output: { title: '5. Ausgabe', body: 'Den G-Code speichern und im Steuerprogramm der Maschine oder von einer SD-Karte ausführen. Sie können auch ein Arbeitsblatt für die Maschine drucken.' },
+      done: { title: 'Fertig!', body: 'Fahren Sie über einen beliebigen Knopf für eine animierte Erklärung. Diese Tour können Sie hier erneut starten. Drücken Sie ⌘K (Strg+K), um eine Funktion zu suchen, und öffnen Sie das Handbuch (Buchsymbol) für kurze Abläufe.' },
     },
   },
 

@@ -11,6 +11,7 @@ import { Dialog } from '../ui/Dialog';
 import { FieldRow, NumberField, Segmented, Switch } from '../ui/Field';
 
 import { ImageReliefFields } from './ImageReliefFields';
+import { fmtLength } from '../../utils/units';
 
 /** Gråskala eller RGBA som data-URL (för bildvyn i dialogen). */
 function toDataUrl(w: number, h: number, gray: Uint8Array | null, rgba: Uint8ClampedArray | null): string {
@@ -355,7 +356,7 @@ export function ImageReliefDialog() {
           <div className="space-y-2.5 border-t border-line pt-2.5">
             <NumberField label={t.props.width} unit="mm" step={5} min={5} value={width} onChange={setWidth} />
             <FieldRow label={t.props.height}>
-              <p className="text-xs tabular-nums">{height.toLocaleString(t.locale, { maximumFractionDigits: 1 })} mm</p>
+              <p className="text-xs tabular-nums">{fmtLength(height, t.locale)}</p>
             </FieldRow>
             <NumberField label={ti.depth} unit="mm" step={0.5} min={0.2} value={depth} onChange={setDepth} />
             <FieldRow label={ti.mirror}>

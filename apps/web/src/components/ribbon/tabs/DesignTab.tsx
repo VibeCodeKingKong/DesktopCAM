@@ -13,6 +13,7 @@ import { ALIGN_ICONS, DISTRIBUTE_ICONS } from '../../layout/AlignRow';
 import { useAppStore, useMachine, type EditTool } from '../../../store/useAppStore';
 import { decimalSep, useT } from '../../../i18n';
 import { tip } from '../tip';
+import { fmtLength } from '../../../utils/units';
 import { IlluCircle, IlluCurve, IlluDelete, IlluDuplicate, IlluFillet, IlluGear, IlluImageRelief, IlluImport, IlluLine, IlluRect, IlluRedo, IlluRelief, IlluSelect, IlluShapeLibrary, IlluSnap, IlluText, IlluUndo } from '../../smartguide/illustrations';
 import { Select } from '../../ui/Field';
 
@@ -32,6 +33,17 @@ export function DesignTab() {
   const setSnap = useAppStore((s) => s.setSnap);
   const selCount = useAppStore((s) => s.selectedShapeIds.length);
   const hasGroup = useAppStore((s) => s.layers.some((l) => l.shapes.some((sh) => sh.groupId && s.selectedShapeIds.includes(sh.id))));
+  // Rutnätets steg: millimeter, eller bråkdelar av en tum (lagras i mm).
+  const units = useAppStore((s) => s.units);
+  const snapOptions = (() => {
+    const opts =
+      units === 'in'
+        ? ([['1/64', 1 / 64], ['1/32', 1 / 32], ['1/16', 1 / 16], ['1/8', 1 / 8], ['1/4', 1 / 4], ['1/2', 1 / 2], ['1', 1]] as const).map(([l, v]) => ({ value: String(+(v * 25.4).toFixed(6)), label: `${l} in` }))
+        : ['0.1', '0.5', '1', '2', '5', '10'].map((v) => ({ value: v, label: `${v.replace('.', decimalSep(t))} mm` }));
+    // Ett steg från andra enheten finns kvar i listan tills ett nytt väljs.
+    if (!opts.some((o) => o.value === String(snap.step))) opts.push({ value: String(snap.step), label: fmtLength(snap.step, t.locale, 3) });
+    return opts;
+  })();
   const pick = (x: EditTool) => () => setTool(tool === x && x !== 'select' ? 'select' : x);
 
   return (
@@ -113,7 +125,7 @@ export function DesignTab() {
             <Select
               value={String(snap.step)}
               onChange={(v) => setSnap({ step: Number(v), grid: true })}
-              options={['0.1', '0.5', '1', '2', '5', '10'].map((v) => ({ value: v, label: `${v.replace('.', decimalSep(t))} mm` }))}
+              options={snapOptions}
             />
           </div>
         </RibbonStack>

@@ -41,6 +41,7 @@ import { calibrationContext, calibrationTool } from '../../calibration/context';
 import { CHOOSABLE_TESTS, useCalibration, type CalibrationRecord } from '../../calibration/history';
 import { readPhoto, rectify, suggestCorners, type Photo } from '../../calibration/photo';
 import { downloadText, pickFile, slug } from '../../utils/download';
+import { fmtLength, fmtLengthNumber } from '../../utils/units';
 
 type View = 'overview' | CalibrationCategory | 'history';
 const CATS: CalibrationCategory[] = ['laser', 'router', 'plasma'];
@@ -125,11 +126,11 @@ function Overview({ go }: { go: (v: View, test?: string) => void }) {
           <dd className="min-w-0 truncate">{machine.postprocessor.name}</dd>
           <dt className="text-muted">{C.overview.workArea}</dt>
           <dd className="tabular-nums">
-            {machine.workArea.x} × {machine.workArea.y} mm
+            {fmtLengthNumber(machine.workArea.x, t.locale, 0)} × {fmtLength(machine.workArea.y, t.locale, 0)}
           </dd>
           <dt className="text-muted">{C.overview.material}</dt>
           <dd>
-            {preset ? materialName(t, preset.id, preset.name) : ''} · {material.thickness.toLocaleString(t.locale)} mm
+            {preset ? materialName(t, preset.id, preset.name) : ''} · {fmtLength(material.thickness, t.locale, 2)}
           </dd>
           {machine.kind === 'router' && (
             <>
@@ -175,7 +176,7 @@ function Overview({ go }: { go: (v: View, test?: string) => void }) {
                   <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-app" onClick={() => go('history')}>
                     <History size={12} className="shrink-0 text-muted" />
                     <span className="min-w-0 flex-1 truncate">
-                      {C.tests[r.testId]?.name ?? r.testId} · {r.machineName} · {r.materialName} {r.thickness} mm
+                      {C.tests[r.testId]?.name ?? r.testId} · {r.machineName} · {r.materialName} {fmtLength(r.thickness, t.locale, 2)}
                     </span>
                     <span className="shrink-0 tabular-nums text-muted">{new Date(r.date).toLocaleDateString(t.locale)}</span>
                   </button>
@@ -643,7 +644,7 @@ function Outcomes({ outcomes, approved, setApproved }: { outcomes: CalOutcome[];
         .map((o) => (
           <label key={o.key} className="flex items-start gap-2 text-xs">
             <input type="checkbox" className="mt-0.5" checked={approved.includes(o.key)} onChange={(e) => setApproved(e.target.checked ? [...approved, o.key] : approved.filter((k) => k !== o.key))} />
-            <span>{C.measure.approveKerf(fmtValue(t, o.value, 'mm'))}</span>
+            <span>{C.measure.approveKerf(fmtLength(o.value, t.locale, 3))}</span>
           </label>
         ))}
       {outcomes
@@ -872,7 +873,7 @@ function HistoryView() {
               <input type="checkbox" checked={picked.includes(r.id)} onChange={(e) => setPicked((p) => (e.target.checked ? [...p, r.id] : p.filter((x) => x !== r.id)))} aria-label={H.compare} />
               <span className="font-semibold">{C.tests[r.testId]?.name ?? r.testId}</span>
               <span className="text-muted">
-                {r.machineName} · {r.materialName} {r.thickness.toLocaleString(t.locale)} mm{r.toolName ? ` · ${r.toolName}` : ''}
+                {r.machineName} · {r.materialName} {fmtLength(r.thickness, t.locale, 2)}{r.toolName ? ` · ${r.toolName}` : ''}
               </span>
               <span className="ml-auto tabular-nums text-muted">{new Date(r.date).toLocaleString(t.locale, { dateStyle: 'short', timeStyle: 'short' })}</span>
               {confirm === r.id ? (
@@ -1007,7 +1008,7 @@ function CompareTable({ records }: { records: CalibrationRecord[] }) {
         <tbody>
           {row(C.history.test, (r) => C.tests[r.testId]?.name ?? r.testId)}
           {row(C.history.machine, (r) => r.machineName)}
-          {row(C.history.material, (r) => `${r.materialName} ${r.thickness} mm`)}
+          {row(C.history.material, (r) => `${r.materialName} ${fmtLength(r.thickness, t.locale, 2)}`)}
           {row(C.history.date, (r) => new Date(r.date).toLocaleDateString(t.locale))}
           {keys.map((k) => row(C.params[k] ?? k, (r) => cell(r, k)))}
           {outKeys.map((k) =>

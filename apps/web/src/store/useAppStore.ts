@@ -20,6 +20,7 @@ import toolsJson from '../data/tools.json';
 import materialsJson from '../data/materials.json';
 import { createDemoLayers } from '../data/demoProject';
 import { initialLanguage, type Language } from '../i18n/initial';
+import { getUnits, setUnits as setDisplayUnits, type Units } from '../utils/units';
 import { DICTS, loadDict } from '../i18n/dicts';
 import type { InlayFitResult } from '../cam/inlayAssembly';
 import type { MeasureRef } from '../cam/commands';
@@ -27,7 +28,7 @@ import type { MeasureRef } from '../cam/commands';
 export type RibbonTabId = 'file' | 'design' | 'setup' | 'toolpaths' | 'simulate' | 'output';
 export type ViewCommand = 'fit' | 'fitStock' | 'top' | 'iso' | 'front' | 'zoomIn' | 'zoomOut';
 export type EditTool = 'select' | 'nodes' | 'line' | 'curve' | 'rect' | 'circle' | 'text' | 'tabs' | 'fillet' | 'measure';
-export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace' | 'recent' | 'calibration' | 'offset' | 'nest' | 'jobSheet' | 'materials';
+export type DialogId = 'machineSetup' | 'gcodeViewer' | 'importFile' | 'reliefLibrary' | 'text' | 'gear' | 'imageRelief' | 'about' | 'pattern' | 'shapeLibrary' | 'feedback' | 'donate' | 'exportGcode' | 'welcome' | 'trace' | 'recent' | 'calibration' | 'offset' | 'nest' | 'jobSheet' | 'materials' | 'commands' | 'handbook';
 export type MobilePanel = 'tree' | 'props' | 'setup' | null;
 
 export interface ToolpathResult {
@@ -104,6 +105,9 @@ const HISTORY_LIMIT = 60;
 
 interface AppState extends DocSnapshot {
   language: Language;
+  /** Visningsenheter (mm eller tum). Internt är allt mm. */
+  units: Units;
+  setUnits: (u: Units) => void;
   theme: 'light' | 'dark';
   beginnerMode: boolean;
   activeTab: RibbonTabId;
@@ -272,10 +276,31 @@ const machines = machinesJson as MachineProfile[];
 const builtInMaterials = materialsJson as MaterialPreset[];
 const CUSTOM_MATERIALS_KEY = 'desktopcam.materials.v1';
 /** Egna material: sparas i webbläsaren (finns i alla projekt) och i projektfilen. */
+/**
+ * Ett eget material från en fil eller webbläsaren kan sakna fält (äldre eller
+ * handskrivna filer). Saknade skärdata blir "passar inte" – aldrig ett annat
+ * materials värden – så att inget körs med gissade inställningar.
+ */
+export function normalizeCustomMaterial(m: unknown): MaterialPreset | null {
+  const x = m as Partial<MaterialPreset> | null;
+  if (!x || typeof x !== 'object' || typeof x.id !== 'string' || !x.custom) return null;
+  return {
+    ...x,
+    id: x.id,
+    custom: true,
+    name: typeof x.name === 'string' && x.name ? x.name : x.id,
+    category: x.category ?? 'wood',
+    color: typeof x.color === 'string' ? x.color : '#c8b89a',
+    defaultThickness: typeof x.defaultThickness === 'number' && x.defaultThickness > 0 ? x.defaultThickness : 3,
+    router: x.router ?? null,
+    laser: x.laser ?? null,
+    tips: Array.isArray(x.tips) ? x.tips : [],
+  } as MaterialPreset;
+}
 function readCustomMaterials(): MaterialPreset[] {
   try {
     const v = JSON.parse(localStorage.getItem(CUSTOM_MATERIALS_KEY) ?? '[]');
-    return Array.isArray(v) ? v.filter((m) => m && typeof m.id === 'string' && m.custom) : [];
+    return Array.isArray(v) ? v.map(normalizeCustomMaterial).filter((m): m is MaterialPreset => !!m) : [];
   } catch {
     return [];
   }
@@ -343,6 +368,12 @@ export const useAppStore = create<AppState>()((set, get) => {
 
   return {
     language: initialLanguage(),
+    units: getUnits(),
+    setUnits: (units) => {
+      setDisplayUnits(units);
+      // Rutnätets steg till ett jämnt värde i den nya enheten (1/16 tum eller 1 mm).
+      set((s) => ({ units, snap: { ...s.snap, step: units === 'in' ? 1.5875 : 1 } }));
+    },
     theme: prefersDark ? 'dark' : 'light',
     beginnerMode: true,
     activeTab: 'design',
@@ -454,7 +485,7 @@ export const useAppStore = create<AppState>()((set, get) => {
         const customMachines = doc.customMachines ?? [];
         const allMachines = [...s.machines.filter((m) => !customMachines.some((c) => c.id === m.id)), ...customMachines];
         // Projektets egna material som inte redan finns läggs till (och sparas i webbläsaren).
-        const newMaterials = (doc.customMaterials ?? []).filter((m) => m?.custom && !s.materials.some((x) => x.id === m.id));
+        const newMaterials = (doc.customMaterials ?? []).map(normalizeCustomMaterial).filter((m): m is MaterialPreset => !!m && !s.materials.some((x) => x.id === m.id));
         const allMaterials = newMaterials.length ? [...s.materials, ...newMaterials] : s.materials;
         if (newMaterials.length) writeCustomMaterials(allMaterials);
         const { projectId, customMaterials: _cm, ...rest } = doc;

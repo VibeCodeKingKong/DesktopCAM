@@ -46,6 +46,7 @@ import { useAppStore, useMachine, useMaterialPreset } from '../../store/useAppSt
 import { materialName, useT } from '../../i18n';
 import { SidePanel } from './SidePanel';
 import { selectAllShapes } from '../../cam/commands';
+import { fmtLength } from '../../utils/units';
 
 const SHAPE_ICONS: Partial<Record<ShapeKind, LucideIcon>> = {
   rect: Square,
@@ -239,7 +240,7 @@ export function ProjectTree() {
           <span className="w-[13px]" />
           <span className="h-3.5 w-3.5 rounded-sm border border-black/10" style={{ background: preset.color }} />
           <span>
-            {materialName(t, preset.id, preset.name)}, {material.thickness} mm
+            {materialName(t, preset.id, preset.name)}, {fmtLength(material.thickness, t.locale, 2)}
           </span>
         </div>
 
@@ -354,7 +355,7 @@ export function ProjectTree() {
                 <button onClick={() => selectRelief(isSel ? null : r.id)} aria-pressed={isSel} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
                   <Mountain size={13} className="shrink-0" />
                   <span className="flex-1 truncate">{r.name}</span>
-                  <span className="text-2xs tabular-nums text-muted">{r.depth} mm</span>
+                  <span className="text-2xs tabular-nums text-muted">{fmtLength(r.depth, t.locale, 2)}</span>
                 </button>
                 <button className={trashBtn} onClick={() => removeRelief(r.id)} aria-label={`${t.common.remove} ${r.name}`} title={t.common.remove}>
                   <Trash2 size={13} />
@@ -375,7 +376,7 @@ export function ProjectTree() {
                   <button onClick={() => st.selectImage(isSel ? null : im.id)} aria-pressed={isSel} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
                     <img src={im.dataUrl} alt="" className="h-4 w-4 shrink-0 rounded-sm border border-line object-cover" />
                     <span className="flex-1 truncate">{im.name}</span>
-                    <span className="text-2xs tabular-nums text-muted">{Math.round(im.widthMm)} mm</span>
+                    <span className="text-2xs tabular-nums text-muted">{fmtLength(im.widthMm, t.locale, 0)}</span>
                   </button>
                   <button
                     className={rowBtn}

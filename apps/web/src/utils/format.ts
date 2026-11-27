@@ -1,4 +1,7 @@
-export const mm = (n: number, d = 1, locale = 'sv-SE') => `${n.toLocaleString(locale, { maximumFractionDigits: d })} mm`;
+import { fmtLength } from './units';
+
+/** En längd i vald enhet (mm eller tum). */
+export const mm = (n: number, d = 1, locale = 'sv-SE') => fmtLength(n, locale, d);
 
 export function duration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return '–';

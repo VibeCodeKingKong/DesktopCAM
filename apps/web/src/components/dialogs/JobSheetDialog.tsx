@@ -6,6 +6,7 @@ import { allShapes, useAppStore, useMachine, useMaterialPreset } from '../../sto
 import { materialName, toolName, useT } from '../../i18n';
 import { duration } from '../../utils/format';
 import { Dialog } from '../ui/Dialog';
+import { fmtFeed, fmtLength, fmtLengthNumber } from '../../utils/units';
 
 const COLORS = ['#0969da', '#cf222e', '#1a7f37', '#8250df', '#bc4c00', '#1b7c83', '#9a6700', '#bf3989'];
 
@@ -78,16 +79,16 @@ function Sheet({ notes }: { notes: string }) {
     const parts: string[] = [];
     const p = tp.params;
     if (tp.operation === 'laserCut' || tp.operation === 'laserRaster') {
-      parts.push(`${t.props.laserSpeed} ${num(p.feedRate, 0)} mm/min`, `${t.props.power} ${num(p.laserPowerPct ?? 0, 0)} %`);
+      parts.push(`${t.props.laserSpeed} ${fmtFeed(p.feedRate, t.locale)}`, `${t.props.power} ${num(p.laserPowerPct ?? 0, 0)} %`);
       if (tp.operation === 'laserCut') parts.push(`${t.props.passes} ${tp.passes}`);
     } else if (tp.operation === 'plasmaCut') {
-      parts.push(`${num(tp.amps, 0)} A`, `${t.props.feed} ${num(p.feedRate, 0)} mm/min`, `${t.props.kerf} ${num(tp.kerf, 2)} mm`);
+      parts.push(`${num(tp.amps, 0)} A`, `${t.props.feed} ${fmtFeed(p.feedRate, t.locale)}`, `${t.props.kerf} ${fmtLength(tp.kerf, t.locale, 2)}`);
     } else if (tp.operation === 'gcode') {
       parts.push(tp.source.kind === 'file' ? tp.source.fileName : t.calib.tests[tp.source.testId]?.name ?? '');
     } else {
       const depth = 'cutDepth' in tp ? tp.cutDepth : 'depth' in tp ? tp.depth : 'flatDepth' in tp ? tp.flatDepth : undefined;
-      if (depth !== undefined) parts.push(`${t.props.depth} ${num(depth, 2)} mm`);
-      parts.push(`${t.props.feed} ${num(p.feedRate, 0)} mm/min`);
+      if (depth !== undefined) parts.push(`${t.props.depth} ${fmtLength(depth, t.locale, 2)}`);
+      parts.push(`${t.props.feed} ${fmtFeed(p.feedRate, t.locale)}`);
       if (p.spindleRpm && machine.kind === 'router') parts.push(`${num(p.spindleRpm, 0)} rpm`);
     }
     return parts.join(' · ');
@@ -136,10 +137,10 @@ function Sheet({ notes }: { notes: string }) {
           <b>{J.machine}:</b> {machine.name} ({machine.postprocessor.name})
         </p>
         <p>
-          <b>{J.material}:</b> {materialName(t, preset.id, preset.name)}, {num(m.thickness, 2)} mm
+          <b>{J.material}:</b> {materialName(t, preset.id, preset.name)}, {fmtLength(m.thickness, t.locale, 2)}
         </p>
         <p>
-          <b>{J.stock}:</b> {num(W)} × {num(H)} mm
+          <b>{J.stock}:</b> {fmtLengthNumber(W, t.locale)} × {fmtLength(H, t.locale)}
         </p>
         <p>
           <b>{J.zeroXY}:</b> {m.origin === 'center' ? J.originCenter : J.originCorner}

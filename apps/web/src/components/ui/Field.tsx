@@ -1,5 +1,7 @@
 import { useEffect, useId, useState, type ReactNode, Fragment } from 'react';
 import { InfoHint } from '../smartguide/InfoHint';
+import { useAppStore } from '../../store/useAppStore';
+import { displayStep, displayUnit, fromDisplay, toDisplay } from '../../utils/units';
 import type { GuideKey } from '../../i18n';
 
 interface RowProps {
@@ -41,18 +43,23 @@ interface NumberFieldProps {
 
 export function NumberField({ label, value, onChange, unit, step = 1, min, max, hint, live, extra }: NumberFieldProps) {
   const id = useId();
-  const [draft, setDraft] = useState(String(value));
+  // Längder visas i vald enhet (mm eller tum); värdet in och ut är alltid i mm.
+  const units = useAppStore((s) => s.units);
+  const shown = toDisplay(value, unit, units);
+  const shownUnit = displayUnit(unit, units);
+  const shownStep = displayStep(step, unit, units);
+  const [draft, setDraft] = useState(String(+shown.toFixed(4)));
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
-    if (!focused) setDraft(String(+value.toFixed(4)));
-  }, [value, focused]);
+    if (!focused) setDraft(String(+shown.toFixed(4)));
+  }, [shown, focused]);
 
   const commit = (raw: string) => {
     const v = parseFloat(raw.replace(',', '.'));
     if (Number.isNaN(v)) return;
-    const clamped = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, v));
-    if (clamped !== value) onChange(clamped);
+    const clamped = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, fromDisplay(v, unit, units)));
+    if (Math.abs(clamped - value) > 1e-9) onChange(clamped);
   };
 
   return (
@@ -63,7 +70,7 @@ export function NumberField({ label, value, onChange, unit, step = 1, min, max, 
           className={`field ${unit ? 'pr-12' : ''}`}
           inputMode="decimal"
           value={draft}
-          step={step}
+          step={shownStep}
           onFocus={() => setFocused(true)}
           onBlur={(e) => {
             setFocused(false);
@@ -76,17 +83,17 @@ export function NumberField({ label, value, onChange, unit, step = 1, min, max, 
           onKeyDown={(e) => {
             if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
             if (e.key === 'Escape') {
-              setDraft(String(+value.toFixed(4)));
+              setDraft(String(+shown.toFixed(4)));
               (e.target as HTMLInputElement).blur();
             }
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
               e.preventDefault();
-              const next = value + (e.key === 'ArrowUp' ? step : -step) * (e.shiftKey ? 10 : 1);
+              const next = shown + (e.key === 'ArrowUp' ? shownStep : -shownStep) * (e.shiftKey ? 10 : 1);
               commit(String(+next.toFixed(4)));
             }
           }}
         />
-        {unit && <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-2xs text-muted">{unit}</span>}
+        {shownUnit && <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-2xs text-muted">{shownUnit}</span>}
       </div>
     </FieldRow>
   );

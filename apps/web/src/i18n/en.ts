@@ -71,6 +71,94 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const en: Dict = {
+  commands: {
+    title: 'Find a function',
+    placeholder: 'What do you want to do? E.g. offset, tabs, material …',
+    none: 'No function matches your search.',
+    hint: '↑↓ select · Enter run · Esc close · open with ⌘K / Ctrl+K',
+  },
+  handbook: {
+    title: 'Handbook',
+    intro: 'Short step-by-step workflows. The buttons open the function directly.',
+    open: 'Open the function',
+    otherMachine: 'This section is for another machine type. Change machine under Setup → Machine to use the buttons.',
+    searchHint: 'Tip: press ⌘K (Ctrl+K) and type what you want to do to find any function.',
+    sections: {
+      start: {
+        title: 'Getting started',
+        steps: [
+          'Choose machine and work area under Setup → Machine.',
+          'Choose material and thickness. Your own materials are saved for next time.',
+          'Add your tools to the tool library so feeds and speeds are right.',
+          'Switch between millimetres and inches with the mm/in button at the top right or in the status bar.',
+        ],
+      },
+      draw: {
+        title: 'Draw and import',
+        steps: [
+          'Draw with the tools under Design – rectangle, circle, line, curve and text.',
+          'Get ready-made shapes from the shape library or import SVG, DXF and PDF.',
+          'Turn a picture into shapes with Trace image.',
+          'Text can follow a curve: select a shape and choose Along selected shape in the text window.',
+        ],
+      },
+      arrange: {
+        title: 'Arrange and place',
+        steps: [
+          'Select several shapes and align or distribute them evenly.',
+          'Pack parts tightly with Place on the sheet – choose the number of copies and spacing.',
+          'Combine, subtract or intersect shapes.',
+          'Offset an outline outwards or inwards, e.g. for a border around a sign.',
+        ],
+      },
+      router: {
+        title: 'Routing',
+        steps: [
+          'Select the shapes and choose a toolpath: profile, pocket, drill or V-carve.',
+          'Check depth, tool and tabs in the properties panel.',
+          'Simulate and look at the result before saving the G-code.',
+        ],
+      },
+      laser: {
+        title: 'Laser cutting and engraving',
+        steps: [
+          'Run the calibration tests first to find the right power and speed for your material.',
+          'Choose Laser cut for outlines and Line engraving or Photo engraving for pictures.',
+          'Add bridges so small parts stay in the sheet.',
+          'Never laser PVC, vinyl or other materials that release hazardous gases.',
+        ],
+      },
+      plasma: {
+        title: 'Plasma cuttingting',
+        steps: [
+          'Calibrate cutting height and speed for the plate thickness.',
+          'Place on the sheet the parts tightly to save material.',
+          'Choose Plasma cutting and add bridges if the parts should stay in place.',
+        ],
+      },
+      inlay: {
+        title: 'Inlays and reliefs',
+        steps: [
+          'Select the shape and choose Inlay – desktopCAM makes both the pocket and the plug.',
+          'Get a relief from the relief library or make one from a picture.',
+          'Choose 3D relief to carve it, with roughing and finishing.',
+        ],
+      },
+      run: {
+        title: 'Simulate and run',
+        steps: [
+          'Play the simulation and check that everything looks right.',
+          'Save the G-code and run it from the machine\'s own controller.',
+          'Print a job sheet with tools, origin and times to keep at the machine.',
+        ],
+      },
+    },
+  },
+  units: {
+    switchTitle: 'Switch between millimetres and inches. Everything on screen is converted; the G-code is always written in millimetres (G21).',
+    imperial: 'Imperial (in)',
+    menu: 'Units',
+  },
   textPath: {
     follow: 'Along selected shape',
     place: 'Position',
@@ -1792,14 +1880,14 @@ export const en: Dict = {
     steps: {
       welcome: { title: 'Welcome to desktopCAM', body: 'This is where a drawing becomes G-code for your router or laser. The work flows from left to right: set up the machine, draw, create toolpaths, simulate and save the G-code.' },
       beginner: { title: 'Beginner mode', body: 'With beginner mode on, only the settings you need are shown – the rest have safe defaults. Turn it off when you want to fine-tune.' },
-      setup: { title: '1. Setup', body: 'Choose your machine, the material and its thickness. The tools are in the tool library. Everything else builds on this.' },
-      design: { title: '2. Design', body: 'Draw lines, rectangles, circles and text, or import SVG/DXF. The libraries have ready-made frames, patterns and 3D reliefs.' },
+      setup: { title: '1. Setup', body: 'Choose your machine, the material and its thickness. The tools are in the tool library. Everything else builds on this. Run the calibration tests to find the right settings, save your own materials and switch between mm and inches with mm/in.' },
+      design: { title: '2. Design', body: 'Draw lines, rectangles, circles and text, or import SVG/DXF. The libraries have ready-made frames, patterns and 3D reliefs. Place on the sheet packs parts tightly, and text can follow a curve.' },
       toolpaths: { title: '3. Toolpaths', body: 'Select a shape and choose how to machine it: profile to cut it out, pocket to clear it, V-carve for crisp lettering, drilling or laser.' },
       viewport: { title: 'The 3D view', body: 'Here you see the material, the shapes and the toolpaths. Drag to rotate, scroll to zoom. The buttons on the right change the view.' },
       properties: { title: 'Properties', body: 'Change sizes, depths and speeds for whatever is selected. Hover over the i symbols for explanations and tips for your material.' },
       simulate: { title: '4. Simulate', body: 'Play back the machining before you run it for real – you will see straight away if something gets cut that should not.' },
-      output: { title: '5. Output', body: 'Save the G-code and run it in your machine’s sender app or from an SD card.' },
-      done: { title: 'All set!', body: 'Hover over any button for an animated explanation. You can start this tour again here.' },
+      output: { title: '5. Output', body: 'Save the G-code and run it in your machine’s sender app or from an SD card. You can also print a job sheet to keep at the machine.' },
+      done: { title: 'All set!', body: 'Hover over any button for an animated explanation. You can start this tour again here. Press ⌘K (Ctrl+K) to search for a function, and open the Handbook (book icon) for short workflows.' },
     },
   },
 

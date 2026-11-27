@@ -7,7 +7,10 @@ export function StatusBar() {
   const status = useAppStore((s) => s.status);
   const cursor = useAppStore((s) => s.cursor);
   const engine = useAppStore((s) => s.engine);
-  const fmt = (n: number) => n.toLocaleString(t.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const units = useAppStore((s) => s.units);
+  const k = units === 'in' ? 1 / 25.4 : 1;
+  const d = units === 'in' ? 3 : 2;
+  const fmt = (n: number) => (n * k).toLocaleString(t.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
 
   const engineLabel = engine ? (engine.engine === 'wasm' ? `Wasm ${engine.version}` : t.statusbar.engineTs) : t.statusbar.engineStarting;
   const engineTitle = engine ? t.statusbar.engineTitle(engine.engine === 'wasm', engine.threads) : '';
@@ -18,9 +21,16 @@ export function StatusBar() {
         {status || t.status.ready}
       </span>
       <span className="hidden tabular-nums sm:inline">
-        {cursor ? `X ${fmt(cursor.x)}   Y ${fmt(cursor.y)}   Z ${fmt(cursor.z)} mm` : 'X –   Y –   Z –'}
+        {cursor ? `X ${fmt(cursor.x)}   Y ${fmt(cursor.y)}   Z ${fmt(cursor.z)} ${units}` : 'X –   Y –   Z –'}
       </span>
-      <span className="hidden md:inline">{t.statusbar.unit}</span>
+      <button
+        className="hidden rounded px-1.5 py-0.5 hover:bg-app hover:text-ink md:inline"
+        onClick={() => useAppStore.getState().setUnits(units === 'mm' ? 'in' : 'mm')}
+        title={t.units.switchTitle}
+        aria-label={t.units.switchTitle}
+      >
+        {units === 'in' ? t.units.imperial : t.statusbar.unit}
+      </button>
       <span className="hidden items-center gap-1 sm:flex" title={engineTitle}>
         <Cpu size={12} className={engine?.engine === 'wasm' ? 'text-ok' : 'text-muted'} />
         {engineLabel}

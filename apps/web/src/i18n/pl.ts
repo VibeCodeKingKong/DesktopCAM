@@ -77,6 +77,94 @@ const guides: Record<GuideKey, GuideEntry> = {
 };
 
 export const pl: Dict = {
+  commands: {
+    title: 'Szukaj funkcji',
+    placeholder: 'Co chcesz zrobić? Np. odsunięcie, mostki, materiał …',
+    none: 'Żadna funkcja nie pasuje do wyszukiwania.',
+    hint: '↑↓ wybierz · Enter uruchom · Esc zamknij · otwórz ⌘K / Ctrl+K',
+  },
+  handbook: {
+    title: 'Podręcznik',
+    intro: 'Krótkie instrukcje krok po kroku. Przyciski od razu otwierają funkcję.',
+    open: 'Otwórz funkcję',
+    otherMachine: 'Ta sekcja dotyczy innego typu maszyny. Zmień maszynę w Ustawienia → Maszyna, aby użyć przycisków.',
+    searchHint: 'Wskazówka: naciśnij ⌘K (Ctrl+K) i wpisz, co chcesz zrobić, aby znaleźć dowolną funkcję.',
+    sections: {
+      start: {
+        title: 'Pierwsze kroki',
+        steps: [
+          'Wybierz maszynę i obszar roboczy w Ustawienia → Maszyna.',
+          'Wybierz materiał i grubość. Własne materiały zostają zapisane na następny raz.',
+          'Dodaj swoje narzędzia do biblioteki, aby posuw i obroty były prawidłowe.',
+          'Przełączaj milimetry i cale przyciskiem mm/in w prawym górnym rogu lub na pasku stanu.',
+        ],
+      },
+      draw: {
+        title: 'Rysowanie i import',
+        steps: [
+          'Rysuj narzędziami w zakładce Projekt – prostokąt, okrąg, linia, krzywa i tekst.',
+          'Weź gotowe kształty z biblioteki albo zaimportuj SVG, DXF i PDF.',
+          'Zamień obraz na kształty funkcją Obrysuj obraz.',
+          'Tekst może biec po krzywej: zaznacz kształt i wybierz Wzdłuż zaznaczonego kształtu w oknie tekstu.',
+        ],
+      },
+      arrange: {
+        title: 'Układanie i rozmieszczanie',
+        steps: [
+          'Zaznacz kilka kształtów i wyrównaj je lub rozmieść równomiernie.',
+          'Ułóż części ciasno funkcją Rozmieść na arkuszu – wybierz liczbę kopii i odstęp.',
+          'Łącz, odejmuj lub przecinaj kształty.',
+          'Odsuń kontur na zewnątrz lub do środka, np. jako ramkę wokół szyldu.',
+        ],
+      },
+      router: {
+        title: 'Frezowanie',
+        steps: [
+          'Zaznacz kształty i wybierz ścieżkę: kontur, kieszeń, wiercenie lub grawer V.',
+          'Sprawdź głębokość, narzędzie i mostki w panelu właściwości.',
+          'Zasymuluj i obejrzyj wynik przed zapisaniem G-kodu.',
+        ],
+      },
+      laser: {
+        title: 'Cięcie i grawerowanie laserem',
+        steps: [
+          'Najpierw uruchom testy kalibracji, aby znaleźć właściwą moc i prędkość dla materiału.',
+          'Wybierz Cięcie laserem dla konturów oraz Grawerowanie linii lub Grawerowanie zdjęcia dla obrazów.',
+          'Dodaj mostki, aby małe części zostały w arkuszu.',
+          'Nigdy nie tnij laserem PCW, winylu ani innych materiałów wydzielających niebezpieczne gazy.',
+        ],
+      },
+      plasma: {
+        title: 'Cięcie plazmą',
+        steps: [
+          'Skalibruj wysokość i prędkość cięcia dla grubości blachy.',
+          'Rozmieść części ciasno, aby oszczędzić blachę.',
+          'Wybierz Cięcie plazmą i dodaj mostki, jeśli części mają zostać na miejscu.',
+        ],
+      },
+      inlay: {
+        title: 'Intarsje i reliefy',
+        steps: [
+          'Zaznacz kształt i wybierz Intarsja – desktopCAM tworzy gniazdo i wkładkę.',
+          'Weź relief z biblioteki reliefów lub utwórz go z obrazu.',
+          'Wybierz Relief 3D, aby go wyfrezować, z obróbką zgrubną i wykańczającą.',
+        ],
+      },
+      run: {
+        title: 'Symulacja i uruchomienie',
+        steps: [
+          'Odtwórz symulację i sprawdź, czy wszystko wygląda dobrze.',
+          'Zapisz G-kod i uruchom go z własnego sterownika maszyny.',
+          'Wydrukuj kartę zadania z narzędziami, punktem zerowym i czasami, aby mieć ją przy maszynie.',
+        ],
+      },
+    },
+  },
+  units: {
+    switchTitle: 'Przełącz między milimetrami a calami. Wszystko na ekranie jest przeliczane; G-code jest zawsze zapisywany w milimetrach (G21).',
+    imperial: 'Calowe (in)',
+    menu: 'Jednostki',
+  },
   textPath: {
     follow: 'Wzdłuż zaznaczonego kształtu',
     place: 'Położenie',
@@ -1798,14 +1886,14 @@ export const pl: Dict = {
     steps: {
       welcome: { title: 'Witaj w desktopCAM', body: 'Tutaj rysunek zamienia się w G-code dla frezarki lub lasera. Praca idzie od lewej do prawej: ustaw maszynę, rysuj, utwórz ścieżki, symuluj i zapisz G-code.' },
       beginner: { title: 'Tryb początkującego', body: 'W trybie początkującego widać tylko potrzebne ustawienia – reszta ma bezpieczne wartości. Wyłącz go, gdy chcesz dostroić.' },
-      setup: { title: '1. Ustawienia', body: 'Wybierz maszynę, materiał i jego grubość. Narzędzia są w bibliotece narzędzi. Wszystko inne na tym bazuje.' },
-      design: { title: '2. Projektowanie', body: 'Rysuj linie, prostokąty, okręgi i tekst albo importuj SVG/DXF. W bibliotekach są gotowe ramki, wzory i reliefy 3D.' },
+      setup: { title: '1. Ustawienia', body: 'Wybierz maszynę, materiał i jego grubość. Narzędzia są w bibliotece narzędzi. Wszystko inne na tym bazuje. Uruchom testy kalibracji, aby znaleźć właściwe ustawienia, zapisuj własne materiały i przełączaj mm i cale przyciskiem mm/in.' },
+      design: { title: '2. Projektowanie', body: 'Rysuj linie, prostokąty, okręgi i tekst albo importuj SVG/DXF. W bibliotekach są gotowe ramki, wzory i reliefy 3D. Rozmieść na arkuszu układa części ciasno, a tekst może biec po krzywej.' },
       toolpaths: { title: '3. Ścieżki', body: 'Zaznacz kształt i wybierz obróbkę: kontur, aby wyciąć, kieszeń, aby wybrać, grawer V dla ostrych liter, wiercenie lub laser.' },
       viewport: { title: 'Widok 3D', body: 'Tu widać materiał, kształty i ścieżki. Przeciągnij, aby obrócić, przewiń, aby przybliżyć. Przyciski po prawej zmieniają widok.' },
       properties: { title: 'Właściwości', body: 'Zmieniaj wymiary, głębokości i prędkości zaznaczenia. Najedź na symbole i, aby zobaczyć objaśnienia i wskazówki dla materiału.' },
       simulate: { title: '4. Symulacja', body: 'Odtwórz obróbkę, zanim uruchomisz ją naprawdę – od razu zobaczysz, jeśli coś zostanie wycięte niepotrzebnie.' },
-      output: { title: '5. Eksport', body: 'Zapisz G-code i uruchom go w programie maszyny lub z karty SD.' },
-      done: { title: 'Gotowe!', body: 'Najedź na dowolny przycisk, aby zobaczyć animowane objaśnienie. Ten przewodnik możesz uruchomić ponownie tutaj.' },
+      output: { title: '5. Eksport', body: 'Zapisz G-code i uruchom go w programie maszyny lub z karty SD. Możesz też wydrukować kartę zadania, aby mieć ją przy maszynie.' },
+      done: { title: 'Gotowe!', body: 'Najedź na dowolny przycisk, aby zobaczyć animowane objaśnienie. Ten przewodnik możesz uruchomić ponownie tutaj. Naciśnij ⌘K (Ctrl+K), aby wyszukać funkcję, i otwórz Podręcznik (ikona książki), aby zobaczyć krótkie instrukcje.' },
     },
   },
 

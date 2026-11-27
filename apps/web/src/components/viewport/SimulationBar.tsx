@@ -2,6 +2,7 @@ import { Layers, Pause, Play, RotateCcw, Scissors, SkipForward, X } from 'lucide
 import { useAppStore } from '../../store/useAppStore';
 import { BASE_PLAYBACK_SECONDS, glueInlays, playPause, seekSimulation, showFinalResult, stopSimulation } from '../../cam/simController';
 import { useT } from '../../i18n';
+import { fmtLength } from '../../utils/units';
 import { useState } from 'react';
 import { InlaySectionView } from './InlaySectionView';
 
@@ -93,7 +94,7 @@ function InlayGlue() {
   const sim = useAppStore((s) => s.sim);
   const pct = (v: number) => `${Math.round(v * 100)} %`;
   const [section, setSection] = useState(false);
-  const mm = (v: number) => `${v.toLocaleString(t.locale, { maximumFractionDigits: 2 })} mm`;
+  const mm = (v: number) => fmtLength(v, t.locale, 2);
   return (
     <div className="mt-2 space-y-1.5 border-t border-line pt-2">
       <div className="flex flex-wrap items-center gap-2">

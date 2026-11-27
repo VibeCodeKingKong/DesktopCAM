@@ -11,8 +11,14 @@ export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
       const s = useAppStore.getState();
+      // Kommandosök: ⌘K / Ctrl+K var som helst (stänger också sökningen om den är öppen).
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        s.openDialog(s.dialog === 'commands' ? null : 'commands');
+        return;
+      }
+      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
       if (s.dialog) return;
       const mod = e.metaKey || e.ctrlKey;
       const key = e.key.toLowerCase();

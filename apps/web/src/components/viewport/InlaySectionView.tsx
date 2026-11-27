@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getInlaySections, showSectionLine, type InlaySection } from '../../cam/simController';
 import { useT } from '../../i18n';
+import { fmtLength } from '../../utils/units';
 
 /** Visningens höjd i bildpunkter och hur mycket som visas ovanför ytan (mm). */
 const VIEW_H = 150;
@@ -76,7 +77,6 @@ export function InlaySectionView() {
   }, [sec, row, zoom]);
 
   if (!sec || !view) return null;
-  const mm = (v: number) => v.toLocaleString(t.locale, { maximumFractionDigits: 1 });
   return (
     <div className="space-y-1.5 rounded-lg border border-line bg-app/60 p-2">
       <div className="flex flex-wrap items-center gap-2 text-2xs">
@@ -91,7 +91,7 @@ export function InlaySectionView() {
           </select>
         )}
         <input type="range" min={0} max={1000} value={pos} onChange={(e) => setPos(Number(e.target.value))} className="h-1 min-w-[6rem] flex-1 accent-[rgb(var(--c-accent))]" aria-label={ti.sectionPos} title={ti.sectionPos} />
-        <span className="tabular-nums text-muted">Y {mm(y)} mm</span>
+        <span className="tabular-nums text-muted">Y {fmtLength(y, t.locale)}</span>
         <select className="field h-6 w-auto py-0 text-2xs" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} aria-label={ti.sectionZoom} title={ti.sectionZoom}>
           {[1, 2, 4, 8].map((z) => (
             <option key={z} value={z}>

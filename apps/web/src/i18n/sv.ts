@@ -18,6 +18,94 @@ export type GuideKey =
 const mm = (n: number) => `${n.toLocaleString('sv-SE', { maximumFractionDigits: 2 })} mm`;
 
 export const sv = {
+  commands: {
+    title: 'Sök funktion',
+    placeholder: 'Vad vill du göra? T.ex. förskjut, bryggor, material …',
+    none: 'Ingen funktion matchar sökningen.',
+    hint: '↑↓ välj · Enter kör · Esc stäng · öppnas med ⌘K / Ctrl+K',
+  },
+  handbook: {
+    title: 'Handbok',
+    intro: 'Korta arbetsgångar steg för steg. Knapparna öppnar funktionen direkt.',
+    open: 'Öppna funktionen',
+    otherMachine: 'Det här avsnittet gäller en annan maskintyp. Byt maskin under Inställning → Maskin för att använda knapparna.',
+    searchHint: 'Tips: tryck ⌘K (Ctrl+K) och skriv vad du vill göra för att hitta vilken funktion som helst.',
+    sections: {
+      start: {
+        title: 'Komma igång',
+        steps: [
+          'Välj maskin och arbetsområde under Inställning → Maskin.',
+          'Välj material och tjocklek. Egna material sparas och finns kvar nästa gång.',
+          'Lägg in dina verktyg i verktygsbiblioteket så att matning och varvtal blir rätt.',
+          'Byt mellan millimeter och tum med knappen mm/in uppe till höger eller i statusraden.',
+        ],
+      },
+      draw: {
+        title: 'Rita och importera',
+        steps: [
+          'Rita med verktygen under Design – rektangel, cirkel, linje, kurva och text.',
+          'Hämta färdiga former ur formbiblioteket eller importera SVG, DXF och PDF.',
+          'Gör om en bild till former med Spåra bild.',
+          'Text kan följa en kurva: markera en form och välj Längs markerad form i textfönstret.',
+        ],
+      },
+      arrange: {
+        title: 'Ordna och placera',
+        steps: [
+          'Markera flera former och justera eller fördela dem jämnt.',
+          'Placera delar tätt med Placera ut på skivan – välj antal kopior och avstånd.',
+          'Slå ihop, dra ifrån eller skär former med varandra.',
+          'Förskjut en kontur utåt eller inåt, t.ex. för en kant runt en skylt.',
+        ],
+      },
+      router: {
+        title: 'Fräsa',
+        steps: [
+          'Markera formerna och välj verktygsbana: kontur, ficka, borra eller V-gravyr.',
+          'Kontrollera djup, verktyg och flikar i egenskapspanelen.',
+          'Simulera och titta på resultatet innan du sparar G-koden.',
+        ],
+      },
+      laser: {
+        title: 'Laserskära och gravera',
+        steps: [
+          'Kör kalibreringstesterna först för att hitta rätt effekt och hastighet för ditt material.',
+          'Välj Laserskärning för konturer och Linjegravyr eller Fotogravyr för bilder.',
+          'Lägg till bryggor så att små delar sitter kvar i skivan.',
+          'Laserskärning aldrig PVC, vinyl eller andra material som avger farliga gaser.',
+        ],
+      },
+      plasma: {
+        title: 'Plasmaskära',
+        steps: [
+          'Kalibrera skärhöjd och hastighet för plåttjockleken.',
+          'Placera delarna tätt för att spara plåt.',
+          'Välj Plasmaskärning och lägg till bryggor om delarna ska sitta kvar.',
+        ],
+      },
+      inlay: {
+        title: 'Inlägg och relief',
+        steps: [
+          'Markera formen och välj Inlägg – desktopCAM gör både hon- och handel.',
+          'Hämta en relief ur reliefbiblioteket eller gör en av en bild.',
+          'Välj 3D-relief för att fräsa ut den, med grov- och finbearbetning.',
+        ],
+      },
+      run: {
+        title: 'Simulera och köra',
+        steps: [
+          'Spela upp simuleringen och kontrollera att allt ser rätt ut.',
+          'Spara G-koden och kör den från maskinens egen styrning.',
+          'Skriv ut ett arbetsblad med verktyg, nollpunkt och tider att ha vid maskinen.',
+        ],
+      },
+    },
+  },
+  units: {
+    switchTitle: 'Växla mellan millimeter och tum. Allt räknas om på skärmen; G-koden skrivs alltid i millimeter (G21).',
+    imperial: 'Imperiskt (tum)',
+    menu: 'Enheter',
+  },
   textPath: {
     follow: 'Längs markerad form',
     place: 'Läge',
@@ -1739,14 +1827,14 @@ export const sv = {
     steps: {
       welcome: { title: 'Välkommen till desktopCAM', body: 'Här gör du om en ritning till G-kod för din fräs eller laser. Arbetet går från vänster till höger: ställ in maskinen, rita, skapa verktygsbanor, simulera och spara G-koden.' },
       beginner: { title: 'Nybörjarläge', body: 'Med nybörjarläget på visas bara de inställningar du behöver – resten har säkra standardvärden. Stäng av det när du vill finjustera.' },
-      setup: { title: '1. Inställning', body: 'Välj din maskin, materialet och dess tjocklek. Verktygen finns i verktygsbiblioteket. Allt annat utgår från detta.' },
-      design: { title: '2. Design', body: 'Rita linjer, rektanglar, cirklar och text, eller importera SVG/DXF. I biblioteken finns färdiga ramar, mönster och 3D-reliefer.' },
+      setup: { title: '1. Inställning', body: 'Välj din maskin, materialet och dess tjocklek. Verktygen finns i verktygsbiblioteket. Allt annat utgår från detta. Kör kalibreringstesterna för att hitta rätt inställningar, spara egna material och byt mellan mm och tum med mm/in.' },
+      design: { title: '2. Design', body: 'Rita linjer, rektanglar, cirklar och text, eller importera SVG/DXF. I biblioteken finns färdiga ramar, mönster och 3D-reliefer. Placera ut på skivan lägger delarna tätt, och text kan följa en kurva.' },
       toolpaths: { title: '3. Verktygsbanor', body: 'Markera en form och välj hur den ska bearbetas: profil för att skära ut, ficka för att fräsa ur, V-gravyr för skarp text, borrning eller laser.' },
       viewport: { title: '3D-vyn', body: 'Här ser du materialet, formerna och banorna. Dra för att vrida, rulla för att zooma. Knapparna till höger byter vy.' },
       properties: { title: 'Egenskaper', body: 'Här ändrar du mått, djup och hastigheter för det som är markerat. Håll muspekaren över i-symbolerna för förklaringar och tips för ditt material.' },
       simulate: { title: '4. Simulera', body: 'Spela upp fräsningen innan du kör på riktigt – du ser direkt om något fräses bort som inte borde.' },
-      output: { title: '5. Export', body: 'Spara G-koden och kör den i maskinens program eller från ett SD-kort.' },
-      done: { title: 'Klart!', body: 'Håll muspekaren över valfri knapp för en animerad förklaring. Den här rundturen kan du starta igen här.' },
+      output: { title: '5. Export', body: 'Spara G-koden och kör den i maskinens program eller från ett SD-kort. Skriv också ut ett arbetsblad att ha vid maskinen.' },
+      done: { title: 'Klart!', body: 'Håll muspekaren över valfri knapp för en animerad förklaring. Den här rundturen kan du starta igen här. Tryck ⌘K (Ctrl+K) för att söka efter en funktion, och öppna Handboken (bok-ikonen) för korta arbetsgångar.' },
     },
   },
 

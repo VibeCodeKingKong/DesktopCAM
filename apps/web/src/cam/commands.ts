@@ -873,14 +873,18 @@ export function projectJson(withImages = true) {
 export function loadProject(data: unknown, opts: { keepId?: boolean } = {}): boolean {
   const d = data as ReturnType<typeof projectJson>;
   if (!d || d.app !== 'desktopCAM' || !Array.isArray(d.layers)) return false;
+  const cur = useAppStore.getState();
   useAppStore.getState().loadDocument({
     projectId: opts.keepId ? d.projectId : undefined,
     projectName: d.projectName ?? '',
-    layers: d.layers,
-    reliefs: d.reliefs ?? [],
-    imageObjects: d.imageObjects ?? [],
-    toolpaths: d.toolpaths ?? [],
-    material: d.material,
+    // Äldre eller handskrivna filer kan sakna delar – fyll i det som fattas i stället för att krascha.
+    layers: d.layers
+      .filter((l) => l && typeof l === 'object')
+      .map((l, i) => ({ ...l, id: l.id ?? `layer_${i}`, name: l.name ?? getT().common.layer(i + 1), visible: l.visible ?? true, locked: l.locked ?? false, shapes: Array.isArray(l.shapes) ? l.shapes : [] })),
+    reliefs: Array.isArray(d.reliefs) ? d.reliefs : [],
+    imageObjects: Array.isArray(d.imageObjects) ? d.imageObjects : [],
+    toolpaths: Array.isArray(d.toolpaths) ? d.toolpaths : [],
+    material: { ...cur.material, ...(d.material ?? {}) },
     // Äldre projekt saknar verktygens längder – fyll i från de inbyggda
     // verktygen – och nya inbyggda verktyg läggs till efter projektets egna.
     tools: d.tools?.length

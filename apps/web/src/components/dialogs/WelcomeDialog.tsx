@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Compass, FilePlus, Play } from 'lucide-react';
+import { ArrowLeft, BookOpen, Compass, FilePlus, Play } from 'lucide-react';
 import type { MachineKind } from '@desktopcam/core';
 import { useAppStore, useMachine } from '../../store/useAppStore';
 import { useT, type Dict } from '../../i18n';
@@ -19,11 +19,11 @@ function features(t: Dict, kind: MachineKind): string[] {
   const shared = [b.text.label, b.shapeLibrary.label, b.pattern.label, b.importVector.label];
   const list: Record<MachineKind, string[]> = {
     router: [o.profile, o.pocket, o.drill, o.vcarve, o.facing, o.inlay, o.relief, b.imageRelief.label, b.reliefLibrary.label, b.gear.label],
-    laser: [o.laserCut, b.lineEngrave.label, o.laserRaster, b.importImage.title, b.gear.label],
-    plasma: [o.plasmaCut, b.gear.label],
+    laser: [o.laserCut, b.lineEngrave.label, o.laserRaster, b.importImage.title, b.calibration.label, t.nesting.title, b.gear.label],
+    plasma: [o.plasmaCut, b.calibration.label, t.nesting.title, b.gear.label],
     plotter: [o.penDraw, o.penFill, o.penImage, b.importImage.title],
   };
-  return [...list[kind], ...shared, b.simPlay.label, b.saveGcode.label].map(clean);
+  return [...list[kind], ...shared, b.simPlay.label, b.saveGcode.label, b.jobSheet.label].map(clean);
 }
 
 /**
@@ -97,6 +97,12 @@ export function WelcomeDialog() {
         }}
       >
         <Compass size={14} className="text-accent" /> {w.tour}
+      </button>
+      <button
+        className="btn"
+        onClick={() => useAppStore.getState().openDialog('handbook')}
+      >
+        <BookOpen size={14} className="text-accent" /> {t.handbook.title}
       </button>
       <div className="flex-1" />
       <button

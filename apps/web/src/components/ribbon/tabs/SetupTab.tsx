@@ -7,19 +7,24 @@ import { Select } from '../../ui/Field';
 import { IlluMachine, IlluToolLibrary } from '../../smartguide/illustrations';
 import { materialName, toolName, useT } from '../../../i18n';
 import { tip } from '../tip';
+import { displayUnit, fmtLength, fmtLengthNumber, fromDisplay, toDisplay } from '../../../utils/units';
 
 function MmInput({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
+  // Visas i vald enhet (mm eller tum), lagras i mm.
+  const units = useAppStore((s) => s.units);
+  const shown = +toDisplay(value, 'mm', units).toFixed(4);
   return (
     <input
       className="field"
       inputMode="decimal"
-      defaultValue={value}
-      key={value}
+      defaultValue={shown}
+      key={`${shown}${units}`}
       aria-label={label}
       onBlur={(e) => {
         const v = parseFloat(e.target.value.replace(',', '.'));
-        if (v > 0 && v !== value) onChange(v);
-        else e.target.value = String(value);
+        const mm = fromDisplay(v, 'mm', units);
+        if (v > 0 && Math.abs(mm - value) > 1e-9) onChange(mm);
+        else e.target.value = String(shown);
       }}
       onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
     />
@@ -39,6 +44,7 @@ export function SetupTab() {
   const t = useT();
   const b = t.buttons;
   const machines = useAppStore((s) => s.machines);
+  const units = useAppStore((s) => s.units);
   const setMachine = useAppStore((s) => s.setMachine);
   const materials = useAppStore((s) => s.materials);
   const material = useAppStore((s) => s.material);
@@ -64,7 +70,7 @@ export function SetupTab() {
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{machine.name}</span>
             <span className="block truncate text-xs text-muted">
-              {preset ? materialName(t, preset.id, preset.name) : ''} · {material.thickness} mm · {material.width} × {material.height} mm
+              {preset ? materialName(t, preset.id, preset.name) : ''} · {fmtLength(material.thickness, t.locale, 2)} · {fmtLengthNumber(material.width, t.locale)} × {fmtLength(material.height, t.locale)}
             </span>
           </span>
           <ChevronRight size={18} className="shrink-0 text-muted" />
@@ -100,7 +106,7 @@ export function SetupTab() {
           </RibbonField>
           <RibbonField label={t.setup.workArea}>
             <p className="text-xs tabular-nums">
-              {machine.workArea.x} × {machine.workArea.y} mm
+              {fmtLengthNumber(machine.workArea.x, t.locale, 0)} × {fmtLength(machine.workArea.y, t.locale, 0)}
             </p>
           </RibbonField>
         </RibbonStack>
@@ -123,12 +129,12 @@ export function SetupTab() {
               }}
             />
           </RibbonField>
-          <RibbonField label={`${t.setup.thickness} (mm)`}>
+          <RibbonField label={`${t.setup.thickness} (${displayUnit('mm', units)})`}>
             <MmInput value={material.thickness} onChange={(thickness) => setMaterial({ thickness })} label={t.setup.thickness} />
           </RibbonField>
         </RibbonStack>
         <RibbonStack>
-          <RibbonField label={`${t.setup.size} (mm)`}>
+          <RibbonField label={`${t.setup.size} (${displayUnit('mm', units)})`}>
             <div className="flex items-center gap-1">
               <MmInput value={material.width} onChange={(width) => setMaterial({ width })} label={t.props.width} />
               <span className="text-muted">×</span>
